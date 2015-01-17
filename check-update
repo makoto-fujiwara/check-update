@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-17 14:44" ; # write by emacs time-stamp
+$VERSION = "2015-01-17 16:00" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 #        requires net/curl
 #use pkgsrc::Dewey;
@@ -110,6 +110,7 @@ qw(
     libassetml	http://sourceforge.net/projects/ofset/files/libassetml/1.2.1/
     xmltv	http://sourceforge.net/projects/xmltv/files/xmltv/0.5.66/
     OroboROX	http://sourceforge.net/projects/rox/files/OroboROX/0.9.8/
+    pcmanfm	http://sourceforge.net/projects/pcmanfm/files/PCManFM%20%2B%20Libfm%20%28tarball%20release%29/PCManFM/
 );
 # Now global variables in Makefile
     my ($MAINTAINER, $HOMEPAGE, $GEM_PACKAGE, $PEAR_PACKAGE, $SFProject) ;
