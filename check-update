@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-17 07:09" ; # write by emacs time-stamp
+$VERSION = "2015-01-17 08:25" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 #        requires net/curl
 #use pkgsrc::Dewey;
@@ -87,11 +87,11 @@ my (%SpecialPattern) = (
 #   Next line is SimplePattern equivalent
 #   'crack-attack',	'$line =~ s/.*$distbase-([0-9.]+).*/$1/ ;',
     'amavisd',		'$line =~ s/.*$distbase-([0-9.]+\.[0-9]+\.[0-9]+)/$1/ ;',
-
+    
 #                                    '$distbase' here doesn't make it
 #                                     v
     'signing-party',	'$line =~ s/.*signing-party_([0-9.]+)-.*/$1/ ;',
-#    'fprint-demo'  , 	'$line =~ s/.*fprint_demo-([0-9.]+)-.*/$1/ ;',
+    'Cython',		'{$line =~ m|.*$distbase-([0-9]\.[0-9]+\.[0-9])|; $line = $1 ;}',
     );
 
 # Now global variables in Makefile
@@ -530,7 +530,7 @@ print STDERR sprintf("%4d ", __LINE__ ), ' ', $dir, '/', $PackageName, '; DISTBA
     # if _ is included, strip _ and after
     $DISTBASE   =~ s/(tcp_wrappers.*)-ipv6/$1/;		# (security) tcp_wrappers_7.6-ipv6.4
     $DISTBASE   =~ s/([0-9]+)r([0-9]+)/$1.$2/;		# math/xgap xgap4r16
-    $DISTBASE   =~ s/-rc[0-9]//;	# mail/mutt-kz-1.5.22-rc1
+#   $DISTBASE   =~ s/-rc[0-9]//;	# mail/mutt-kz-1.5.22-rc1
     					# but version.rc1 < version.. to be fixed XXXXX
     $DISTBASE   =~ s/\.orig//;		# editors/beav_1.40.orig
     $DISTBASE   =~ s/\.src//;		# editors/ted ted-2.21.src
@@ -973,6 +973,9 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (1) ', $distbase, ' --> ', $version,"
 	    $version =~ s/v([0-9._-]+)/$1/;
 	    }
 	if ($version =~ m|[0-9.]+pre[0-9]| ) { next;}
+	if ($version eq '') { next;}
+	if ( ! $distbase =~ m|rc| &&
+	       $version =~ m|[0-9.]+rc[0-9]| )  { next;} # in case $distbase has not 'rc' in it, ignore rc stuff  RRRRRRRCCCCC i
 	if ($version eq '') { next;}
 	# 552 -> 5.5.2, 2.1.3 -> 213 (nkf) etc
 	my($edit_version) = EditVersion($distbase, $version);
