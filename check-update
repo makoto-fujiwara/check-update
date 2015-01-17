@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-17 06:01" ; # write by emacs time-stamp
+$VERSION = "2015-01-17 06:26" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 #        requires net/curl
 #use pkgsrc::Dewey;
@@ -93,6 +93,20 @@ my (%SpecialPattern) = (
     'signing-party',	'$line =~ s/.*signing-party_([0-9.]+)-.*/$1/ ;',
 #    'fprint-demo'  , 	'$line =~ s/.*fprint_demo-([0-9.]+)-.*/$1/ ;',
     );
+
+# Now global variables in Makefile
+    my ($MAINTAINER, $HOMEPAGE, $GEM_PACKAGE, $PEAR_PACKAGE, $SFProject) ;
+
+    my ($PKGBASE, $PKGNAME, $DISTBASE, $MASTER_SITE, $META_PACKAGE);
+    my (@MASTER_SITES);
+    my ($available, $http_code);
+    my ($URL);
+    my ($output_record);	# string to output HTML
+    my ($PKGVERSION);
+
+    my ($max_version);
+    my ($http_code);
+    my ($returnCode, @candidate);
 
 sub SpecialPattern($$){
     my($distbase) = shift;
@@ -1503,6 +1517,8 @@ if ($update_pkgsrc) {
     
     printf STDERR "%4d     ---  (%s) ---\n", sprintf("%4d ", __LINE__ ), $dir;
     foreach my $PackageName (@PackageNames) {
+#	DoEachPackage( );
+#sub 	DoEachPackage( ) {
 	@CANDIDATE = '';
 #    if ( ! -d $PackageName)	{ next;}
     if ($PackageName =~ /^.$/ )	{ next;}
@@ -1538,18 +1554,18 @@ if ($update_pkgsrc) {
     if ( grep (/$PackageName/, @SkipTooOld) > 0 ) { $SkipTooOld++; next;}
 # -------------------
 # Read Makefile
-    my ($MAINTAINER, $HOMEPAGE, $GEM_PACKAGE, $PEAR_PACKAGE, $SFProject) 
+       ($MAINTAINER, $HOMEPAGE, $GEM_PACKAGE, $PEAR_PACKAGE, $SFProject) 
 	= ReadMakefile($dir, $PackageName);
-    my ($PKGBASE, $PKGNAME, $DISTBASE, $MASTER_SITE, $META_PACKAGE);
-    my (@MASTER_SITES);
-    my ($available, $http_code);
-    my ($URL);
-    my ($output_record);	# string to output HTML
-    my ($PKGVERSION)	= GetVariableValue ($dir, $PackageName, 'PKGVERSION_NOREV');
+    #my ($PKGBASE, $PKGNAME, $DISTBASE, $MASTER_SITE, $META_PACKAGE);
+    #my (@MASTER_SITES);
+    #my ($available, $http_code);
+    #my ($URL);
+    #my ($output_record);	# string to output HTML
+    $PKGVERSION		= GetVariableValue ($dir, $PackageName, 'PKGVERSION_NOREV');
 
-    my ($max_version);
-    my ($http_code);
-    my ($returnCode, @candidate);
+    #my ($max_version);
+    #my ($http_code);
+    #my ($returnCode, @candidate);
 
     $PKGBASE	= GetVariableValue ($dir, $PackageName, 'PKGBASE');
 # -----------------------------------------------------------------------
@@ -1683,6 +1699,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
     my($Elapsed) = time() - $PackageStart;
     RecordMaxElapsed($Elapsed);
     } #     foreach my $PackageName (@PackageNames) {
+#} #end sub DoEachPackage
   }   #     foreach my $dir (@categories) {
     Stats($start_time, $argv);
 close(SUMMARY);
