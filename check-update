@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-17 05:53" ; # write by emacs time-stamp
+$VERSION = "2015-01-17 06:01" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 #        requires net/curl
 #use pkgsrc::Dewey;
@@ -91,6 +91,7 @@ my (%SpecialPattern) = (
 #                                    '$distbase' here doesn't make it
 #                                     v
     'signing-party',	'$line =~ s/.*signing-party_([0-9.]+)-.*/$1/ ;',
+#    'fprint-demo'  , 	'$line =~ s/.*fprint_demo-([0-9.]+)-.*/$1/ ;',
     );
 
 sub SpecialPattern($$){
@@ -1371,22 +1372,18 @@ sub GetSFProjectCandidate($$) {
     if ($status == 200 ) {
 	($returnCode, @candidate) = ParseDirectory($master_site, $DISTBASE);
     } else {
-#                        http://sourceforge.net/projects/ganglia/files/	
 	$master_site  =  'http://sourceforge.net/projects/'. $SFProject .'/files/' ;
-#	$master_site .= 'files/' ;
 		print STDERR sprintf("%4d ", __LINE__ ), ' (2) master_site(', $master_site, ') status('. $status.' DISTBASE: ', $DISTBASE, "\n"  if $DEBUG_SF;
 	($returnCode, @candidate) = ParseDirectory($master_site, $DISTBASE);
 		print STDERR sprintf("%4d ", __LINE__ ), ' returns ', $returnCode,"\n"   if $DEBUG_SF;
     }
     if ($#candidate  == -1 )  {
-#                        http://sourceforge.net/projects/ganglia/files/	
 	$master_site = 'http://sourceforge.net/projects/' . $DISTBASE . '/files/';
 	print STDERR sprintf("%4d ", __LINE__ ), ' (3) master_site(', $master_site, ') status('. $status.") -> \n"  if $DEBUG_SF;
 	($returnCode, @candidate) = ParseDirectory($master_site, $DISTBASE);
 	print STDERR sprintf("%4d ", __LINE__ ), ' returns ', $returnCode,"\n"   if $DEBUG_SF;
     }
     if ($#candidate  == -1 )  {
-#                        http://sourceforge.net/projects/ganglia/files/	
 	$master_site = 'http://sourceforge.net/projects/' . $DISTBASE . '/files/'. $DISTBASE .'/';
 	print STDERR sprintf("%4d ", __LINE__ ), ' (4) master_site(', $master_site, ') status('. $status.") -> \n"  if $DEBUG_SF;
 	($returnCode, @candidate) = ParseDirectory($master_site, $DISTBASE);
