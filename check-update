@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-17 13:52" ; # write by emacs time-stamp
+$VERSION = "2015-01-17 14:44" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 #        requires net/curl
 #use pkgsrc::Dewey;
@@ -80,7 +80,7 @@ my ($LimitedList);
 
 my ($start_time) = time();
 our(%opts);
-my (@SkipTooOld) = qw(xview-lib estic zenicb tex2rtf gkermit kermit gturing bridge-hands ccxstream);
+my (@SkipTooOld) = qw(xview-lib estic zenicb tex2rtf gkermit kermit gturing bridge-hands ccxstream weewm);
 
 # Simple means $distbase-([0-9.]+)-(extran string not necessary)..
 my (@SimplePattern)  = qw(renpy crimson crack-attack hands flags autotrace simulavr hal);
@@ -109,6 +109,7 @@ qw(
     gxine	http://sourceforge.net/projects/xine/files/gxine/0.5.908/
     libassetml	http://sourceforge.net/projects/ofset/files/libassetml/1.2.1/
     xmltv	http://sourceforge.net/projects/xmltv/files/xmltv/0.5.66/
+    OroboROX	http://sourceforge.net/projects/rox/files/OroboROX/0.9.8/
 );
 # Now global variables in Makefile
     my ($MAINTAINER, $HOMEPAGE, $GEM_PACKAGE, $PEAR_PACKAGE, $SFProject) ;
@@ -708,7 +709,7 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (PKGNAME) ', $PKGNAME, ' --> DISTBASE
     if ($status == 404 ) { 
 	$MasterSite404 = 404;
 	$StatsMasterSite404++;
-	print STDERR sprintf("%4d ", __LINE__ ), ' (PKGNAME) ', $PKGNAME, ' --> DISTBASE (', $DISTBASE,") status: ", $status, "\n" if $DEBUG_DISTBASE_PATTERN;
+print STDERR sprintf("%4d ", __LINE__ ), ' (PKGNAME) ', $PKGNAME, ' --> DISTBASE (', $DISTBASE,") status: ", $status, "\n" if $DEBUG_DISTBASE_PATTERN;
 	if ($master_site =~ m|github| ) {	
 	    print STDERR sprintf("%4d ", __LINE__ ), 'CheckHeader call: ', CheckHeader($master_site.'../releases.html'),"\n";}
 	if ($master_site =~ m|github| &&
@@ -818,6 +819,7 @@ sub Http301core($$) {
     if ($site ne '' && $retry) {
     $site =~ s|-https:|https:|;
 print STDERR sprintf("%4d ", __LINE__ ).' '. $site.' <... retry: '. $retry. "\n" if  $DEBUG_DISTBASE_PATTERN ;
+    if ($site eq '') { print STDERR sprintf("%4d ", __LINE__ ), " \$site is empty\n"; return -1;}
     open(URL, "curl -k -s -I $site|") || print STDERR sprintf("%4d ", __LINE__ ), " problem accessing $site:$!\n";
     while(<URL>){
 	chomp;
@@ -900,7 +902,7 @@ sub ParseDirectory($$){
     if ($master_site =~  m|https://code.google.com|) { $sslv3 = '-3';}
     while( $curl_lines == 0 && $repeat-- > 0 )  {
 	print STDERR sprintf("%4d ", __LINE__ ), ' ', $master_site, "   \n" if $DEBUG_DISTBASE_PATTERN ;
-
+	if ($master_site eq '') { print STDERR sprintf("%4d ", __LINE__ ), " \$master_site is empty\n"; return -1;}
 	my ($curl_command) = "curl -k -s -l $sslv3 $master_site";
 	print STDERR sprintf("%4d ", __LINE__ ), $curl_command, "\n" if $DEBUG_CURL;
     open(CURL, "$curl_command|") || print STDERR "Problem w3m: $!\n";
@@ -1152,7 +1154,7 @@ sub Stats($$){
     printf SUMMARY $number2,  '<span class="brown">Found:', 	$Found,		'These packages are to be updated</span>';
     printf SUMMARY $number3,  '<span class="brown">TODO flags',	$TODO_LIST,	'(More to be updated, by TODO)</span>';
     printf SUMMARY $number,  'Up-to-date:',		$OK,	'OK, Already up-to-date';
-    printf SUMMARY $number,  'NotFound (404):',		$StatsMasterSite404,	'MASTER_SITES returns 404 (not added in total count)';
+    printf SUMMARY $number,  'NotFound (404):',		$StatsMasterSite404,	'MASTER_SITES returns 404 (not added to total count)';
     printf SUMMARY $number,  'Not Available:',		$NotAvailable,	'Failed to get update info '. $indicated;
     printf SUMMARY $number,  'No Master Sites:',	$NoMasterSites,	'(usually in files directory)';
     printf SUMMARY $number,  'Forbidden(403/550):',	$Forbidden;
@@ -1640,13 +1642,12 @@ printf STDERR  "%20s %15s %4s Skipping, MASTER_SITES is empty\n",
 	my($http_code, $master_site) = GetMasterSiteSub($PKGBASE, $DISTBASE, $URL, $HOMEPAGE);
 print STDERR sprintf("%4d ", __LINE__ ), 
 ' (PKGBASE) ', $PKGBASE, ' --> http: ', $http_code, 'Now: ', $PKGVERSION, ' $available: ', $available,"\n" if $DEBUG_DISTBASE_PATTERN;        
-
-	if ($master_site ) {
+	    $returnCode = -1;
+	if ($master_site && $http_code ne '(DNS)' ) {
 	    ($returnCode, @candidate) = ParseDirectory($master_site, $DISTBASE);
+	}
 	    if ($returnCode == -1  && $HOMEPAGE) {
 		($returnCode, @candidate) = ParseDirectory($HOMEPAGE, $DISTBASE);}
-
-	}
 	} # if ($SFProject) { -> else
 	# ---------------------------------------------------------------	
 	    push(@CANDIDATE, @candidate);
@@ -1860,3 +1861,25 @@ http://sourceforge.net/projects/xcruise/files/
 http://sourceforge.net/projects/xcruiser/files/
 
 XXXX *** GetMasterSite Logic is strange  *** XXXX
+
+------ (Issue) -------
+1544     ---  (multimedia) ---
+ 773   (PKGVERSION_NOREV)  1.3.0
+ 773            (PKGBASE)  libdvdcss
+ 773           (DISTNAME)  libdvdcss-1.3.0
+ 528   (PKGNAME)        libdvdcss-1.3.0
+       (DISTBASE)       libdvdcss-1.3.0
+       (PKGVERSION)     1.3.0
+ 535  multimedia/libdvdcss; DISTBASE (libdvdcss)
+ 606  multimedia/libdvdcss; DISTBASE (libdvdcss)
+ 773       (META_PACKAGE)  
+ 773       (MASTER_SITES)  /1.3.0/
+ 691  (PKGNAME) libdvdcss --> DISTBASE (libdvdcss)
+ 464 (Q)  libdvdcss    -1 333  hostname -> /1.3.0
+ 346  DNS query failed
+1642  (PKGBASE) libdvdcss --> http: (DNS)Now: 1.3.0 $available: 
+ 903  ${LIBDVDCSS_HOMEPAGE}   
+ 906 curl -k -s -l  ${LIBDVDCSS_HOMEPAGE}
+curl: no URL specified!
+curl: try 'curl --help' or 'curl --manual' for more information
+ 903  ${LIBDVDCSS_HOMEPAGE}   
