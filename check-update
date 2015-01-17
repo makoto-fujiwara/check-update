@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-17 06:34" ; # write by emacs time-stamp
+$VERSION = "2015-01-17 07:09" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 #        requires net/curl
 #use pkgsrc::Dewey;
@@ -105,7 +105,6 @@ my (%SpecialPattern) = (
     my ($PKGVERSION);
 
     my ($max_version);
-    my ($http_code);
     my ($returnCode, @candidate);
 
 sub SpecialPattern($$){
@@ -736,7 +735,7 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (PKGNAME) ', $PKGNAME, ' master_site 
     }
 print STDERR sprintf("%4d ", __LINE__ ), ' (PKGNAME) ', $PKGNAME, ' --> master_site = ', $master_site,"\n" if $DEBUG_DISTBASE_PATTERN;		        
 
-return $master_site; 
+    return ($http_code, $master_site);
 }
 sub GetVariableValue ($$$) {
     my($category)	= shift;
@@ -1607,7 +1606,7 @@ printf STDERR  "%20s %15s %4s Skipping, MASTER_SITES is empty\n",
 
 # Get Max version available at MASTER_SITES
 
-	my($master_site) = GetMasterSiteSub($PKGBASE, $DISTBASE, $URL, $HOMEPAGE);
+	my($http_code, $master_site) = GetMasterSiteSub($PKGBASE, $DISTBASE, $URL, $HOMEPAGE);
 	if ($master_site ) {
 	    ($returnCode, @candidate) = ParseDirectory($master_site, $DISTBASE);
 	    if ($returnCode == -1  && $HOMEPAGE) {
