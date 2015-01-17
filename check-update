@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-17 12:55" ; # write by emacs time-stamp
+$VERSION = "2015-01-17 13:52" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 #        requires net/curl
 #use pkgsrc::Dewey;
@@ -98,6 +98,7 @@ my (%SpecialPattern) = (
 #                                     v
     'signing-party',	'$line =~ s/.*signing-party_([0-9.]+)-.*/$1/ ;',
     'Cython',		'{$line =~ m|.*$distbase-([0-9]\.[0-9]+\.[0-9])|; $line = $1 ;}',
+#    'NovaWM', 	        '$line =~ s/.*$distbase-([0-9.]+).*/$1/ ;', #   -0.8.1_alpha.tar.bz2 (716.3 kB)
     );
 
 my(%SourceForgeAlternative) =  
@@ -556,7 +557,8 @@ print STDERR sprintf("%4d ", __LINE__ ), ' ', $dir, '/', $PackageName, '; DISTBA
     $DISTBASE   =~ s/\.alpha//;		# time/asclock-gtk wm/weewm
 #   $DISTBASE   =~ s/_src//;		#  gambatte_src --> -r571.tar
     $DISTBASE   =~ s/_src_all//;	#  p7zip_9.20.1_src_all
-    $DISTBASE   =~ s/([0-9])_alplha/$1/;	#  wm/novawn NovaWM-0.8_alpha 
+#   $DISTBASE   =~ s/([0-9])_alpha/$1/;	#  wm/novawn NovaWM-0.8_alpha
+    $DISTBASE   =~ s/([0-9])_alpha//;	#  wm/novawn NovaWM-0.8_alpha     
 #    $DISTBASE   =~ s/([0-9])pre[0-9]/$1/;	#  wm/icewm-1.2.38pre
     $DISTBASE   =~ s/([0-9])p([0-9]+)$/$1\.$2/;	# zorro-1.1p8 -> zorro-1.1.8,  replace  'p' into '.'
 #    $DISTBASE   =~ s/p([0-9]+)$/\.\1/;	# zorro-1.1p8 -> zorro-1.1.8    
@@ -1424,13 +1426,13 @@ sub GetSFProjectCandidate($$) {
 	    print STDERR sprintf("%4d ", __LINE__ ), ' (5) master_site(', $site, ') status('. $status.") -> \n"  if $DEBUG_SF;
 	($returnCode, @candidate) = ParseDirectory($site, $DISTBASE);
 	print STDERR sprintf("%4d ", __LINE__ ), ' returns ', $returnCode,"\n"   if $DEBUG_SF;	
+	    $master_site = $site;
 	}
-
     }
 # http://sourceforge.net/projects/mpg123/files
 
     #http://sourceforge.net/projects/ganglia/files/
-    return @candidate;
+    return ($master_site, @candidate);
 }
 # check if URL valid.
 sub ValidateMasterSite($$) {
@@ -1622,10 +1624,13 @@ if ($update_pkgsrc) {
 	    $SFProject = $1; }
 
 	if ($SFProject && $SFProject != -1 ) {
-	    @candidate = GetSFProjectCandidate($SFProject, $DISTBASE);
-	# ---------------------------------------------------------------	    
+	    my($returnCode);
+	    ($URL, $returnCode, @candidate) = GetSFProjectCandidate($SFProject, $DISTBASE);
+ print STDERR sprintf("%4d ", __LINE__ ),
+' (PKGBASE) ', $PKGBASE, 'URL: ', $URL,"\n" if $DEBUG_SF;
+	# ---------------------------------------------------------------
 	} else {
-	# ---------------------------------------------------------------	    
+	# ---------------------------------------------------------------
 	    if ($MASTER_SITE eq '') { 
 printf STDERR  "%20s %15s %4s Skipping, MASTER_SITES is empty\n",
 	$PKGBASE, '('.$DISTBASE.')', '('.sprintf("%4d ", __LINE__ ).')'; $NoMasterSites++;  next;}
@@ -1697,9 +1702,9 @@ print STDERR sprintf("%4d ", __LINE__ ),
     my($homepage) = $PKGBASE;     # if HOMEPAGE is empty, don't use href, set for that
     if ($HOMEPAGE) { $homepage = sprintf "<a href=\"%s\">%s</a>", $HOMEPAGE, $PKGBASE;}
     my ($HomePageString);
-    if ($HomePage404) { $HomePageString =  "<span class=\"pale_dns\">(". $HomePage404.')</span>';}
+    if ($HomePage404) { $HomePageString =  "<span class=\"pale_dns\">(". $HomePage404.')</span> ';}
     my ($MasterSiteString);
-    if ($MasterSite404) { $MasterSiteString =  "<span class=\"pale_dns\">(". $MasterSite404.')</span>';}
+    if ($MasterSite404) { $MasterSiteString =  "<span class=\"pale_dns\">(". $MasterSite404.')</span> ';}
     # ------ E D I T         M A I N T A I N E R  -------
     $MAINTAINER =~ s/\@NetBSD.org//i;
     $MAINTAINER =  substr($MAINTAINER, 0, 13);  # pkgsrc-users@ 13 letters
