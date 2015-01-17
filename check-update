@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-17 06:26" ; # write by emacs time-stamp
+$VERSION = "2015-01-17 06:34" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 #        requires net/curl
 #use pkgsrc::Dewey;
@@ -208,7 +208,7 @@ sub DistbaseCacheQuery($$);
 sub ExpandURL($$);
 sub GetDistbase($$$$$);
 sub GetMasterSiteCandidate($$$);
-sub GetMasterSite($$$$);
+sub GetMasterSiteSub($$$$);
 sub GetVariableValue($$$);
 sub GetTODOinfo($$);
 sub GetWipInfo($);
@@ -666,7 +666,7 @@ sub GetMasterSiteCandidate($$$) {
    return @MASTER_SITES;
 }
 
-sub GetMasterSite($$$$) {
+sub GetMasterSiteSub($$$$) {
     my ($PKGNAME)	= shift;
     my ($DISTBASE)	= shift;
     my ($master_site)	= shift;
@@ -1579,7 +1579,7 @@ if ($update_pkgsrc) {
     } else {
 # -----------------------------------------------------------------------	
 #   printf STDERR "%4d %-20s: ", sprintf("%4d ", __LINE__ ), $PackageName;
-	$PKGNAME	= $PKGBASE . '-'. $PKGVERSION;
+	my($PKGNAME)	= $PKGBASE . '-'. $PKGVERSION;
 	$DISTBASE	= GetDistBase($dir, $PackageName, $PKGBASE, $PKGVERSION, $PKGNAME);
 
 	$META_PACKAGE	= GetVariableValue ($dir, $PackageName, 'META_PACKAGE');
@@ -1607,7 +1607,7 @@ printf STDERR  "%20s %15s %4s Skipping, MASTER_SITES is empty\n",
 
 # Get Max version available at MASTER_SITES
 
-	my($master_site) = GetMasterSite($PKGBASE, $DISTBASE, $URL, $HOMEPAGE);
+	my($master_site) = GetMasterSiteSub($PKGBASE, $DISTBASE, $URL, $HOMEPAGE);
 	if ($master_site ) {
 	    ($returnCode, @candidate) = ParseDirectory($master_site, $DISTBASE);
 	    if ($returnCode == -1  && $HOMEPAGE) {
