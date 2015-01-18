@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-18 03:11" ; # write by emacs time-stamp
+$VERSION = "2015-01-18 12:49" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 #        requires net/curl
 #use pkgsrc::Dewey;
@@ -53,7 +53,7 @@ my ($StatsMasterSite404) = 0;	# for count
 my ($HomePage404);		# by package status
 my ($StatsHomePage404) = 0;	# for count
 
-my ($PKGNAME, $PKGVERSION, $MASTER_SITES);
+#my ($PKGNAME, $PKGVERSION, $MASTER_SITES);
 my ($CVSweb) = 'http://cvsweb.netbsd.org/bsdweb.cgi/pkgsrc/';
 
 # opts, option related variables
@@ -1134,7 +1134,7 @@ sub Stats($$){
 	= $Found 
 	+ $TODO_LIST
 	+ $OK
-	+ $StatsMasterSite404 ,
+	+ $StatsMasterSite404
 
 	+ $NotAvailable
 	+ $NoMasterSites
@@ -1147,7 +1147,7 @@ sub Stats($$){
 	+ $NotListed
 	;
     my($ForMergeCount) = sprintf 
-    "ForMergeCount:%d,%d,%d,%d, %d,%d,%d,%d, %d,%d,%d,%d, %d %d\n",
+    "ForMergeCount:%d,%d,%d,%d, %d,%d,%d,%d, %d,%d,%d,%d, %d, %d,   %d, %d\n",
 	  $Found  ,
 	  $TODO_LIST ,
 	  $OK  ,
@@ -1163,7 +1163,7 @@ sub Stats($$){
 	  $Reverse ,
 	  $NotListed ,
 	$Sum,
-	$TotalChecked;    
+	$TotalChecked, $started, time();
 
     my($string2) = "       %-20s %6s  %s\n";
     my($string) = "%-20s %6s  %s\n";
