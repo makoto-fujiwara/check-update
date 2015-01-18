@@ -1,0 +1,48 @@
+#!/usr/pkg/bin/perl
+use strict;
+our(@ARGV);
+
+my ($script);
+my ($Started);
+my ($Ended);
+
+my ($string);
+sub larger($$) {
+    my($a) = shift;
+    my($b) = shift;
+    $a =~ y/- :/000/;
+    $b =~ y/- :/000/;
+    print $a , ' - ', $b, '->', "\t", $a <=> $b, "\n";
+    return $a <=> $b;
+}
+    
+foreach my $file (@ARGV) {
+    if ( -f $file )	{ print STDERR $file,"\n";}
+    else           	{ print STDERR $file,': ', $!,"\n";}
+}
+
+foreach my $file (@ARGV) {
+    open(FILE, $file) || print STDERR "Problem opening to read: $file $!\n";
+    while (<FILE>) {
+	if (/^ForMergeCount: ([0-9, ]+)/) {
+	    print $1,"\n";
+	}
+	if (/ Script Time Stamp:\s+([0-9: -]+[0-9])\s+U/ ) { 
+	    $script = $1; }
+	if (/ Started:\s+([0-9: -]+[0-9])\s+U/  ) { 
+	    $string = $1;
+#	    print STDERR '(S) ', $string,"\n";
+	    if (larger ($Started, $string) ) { $Started = $string ;}
+	}
+	if (/ Ended:\s+([0-9: -]+[0-9])\s+U/ ) { 
+	    $string = $1;
+	    print STDERR '(E) ', $string,"\n";	    
+	    if (larger ($string, $Ended) ) { $Ended = $string ;}
+	}
+    }
+    close(FILE)
+}
+print " Script:\t",  $script," UTC\n";
+print "Started:\t", $Started," UTC\n";
+print "  Ended:\t",   $Ended," UTC\n";
+    
