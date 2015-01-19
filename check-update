@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-19 12:37" ; # write by emacs time-stamp
+$VERSION = "2015-01-19 14:03" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 #        requires net/curl
 #use pkgsrc::Dewey;
@@ -115,6 +115,10 @@ qw(
     OroboROX	http://sourceforge.net/projects/rox/files/OroboROX/0.9.8/
     pcmanfm	http://sourceforge.net/projects/pcmanfm/files/PCManFM%20%2B%20Libfm%20%28tarball%20release%29/PCManFM/
 );
+my(%DownLoadAlternative) =
+qw(
+    openbox	http://openbox.org/wiki/Openbox:Download
+    );
 # Now global variables in Makefile
     my ($MAINTAINER, $HOMEPAGE, $GEM_PACKAGE, $PEAR_PACKAGE, $SFProject) ;
 
@@ -713,7 +717,7 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (PKGNAME) ', $PKGNAME, ' --> DISTBASE
 	return ($http_code, $version);}
 
     if ( ! CheckDNS($master_site) ) {
-	return ('(DNS)', '0.0');
+	return ('DNS', '0.0');
     }
     my ($status) = CheckHeader($master_site);
 print STDERR sprintf("%4d ", __LINE__ ), ' (PKGNAME) ', $PKGNAME, ' --> DISTBASE (', $DISTBASE,") status: ", $status, "\n" if $DEBUG_HTTP_HEADER ;
@@ -796,7 +800,7 @@ sub GetWipInfo($){
 sub GreyDigitIf00($$){
     my ($http_code)	= shift;
     my ($digit)		= shift;
-    if ( $http_code eq '(DNS)') {
+    if ( $http_code eq 'DNS') {
 	return "<span class=\"pale_dns\">$http_code</span>";
     }
     if ( $http_code ) { 
@@ -906,7 +910,7 @@ sub ParseDirectory($$){
     my (@candidate);
     my ($version);
     if ($master_site eq '')	{ print STDERR sprintf("%4d ", __LINE__ ), ' $master_site is empty ',	 "\n"; return -1;}
-    if ($master_site eq '(DNS)'){ print STDERR sprintf("%4d ", __LINE__ ), ' ',$distbase,' has DNS problem',"\n"; return -1;}
+    if ($master_site eq 'DNS'){ print STDERR sprintf("%4d ", __LINE__ ), ' ',$distbase,' has DNS problem',"\n"; return -1;}
     if (0) {
     print STDERR sprintf("%4d ", __LINE__ ), ' ', $master_site, "   \n" if  $DEBUG_DISTBASE_PATTERN ;
     if ($master_site =~ m|github\.com/| && $master_site =~ m|/v[0-9.]+| ) {
@@ -1674,6 +1678,7 @@ if ($update_pkgsrc) {
 	if ($MASTER_SITE =~ m|http://downloads.sourceforge.net/sourceforge/([^/]+)/| ) {
 	    $SFProject = $1; }
 
+
 	if ($SFProject && $SFProject != -1 ) {
 	    my($returnCode);
 	    ($URL, $returnCode, @candidate) = GetSFProjectCandidate($SFProject, $DISTBASE);
@@ -1692,12 +1697,22 @@ printf STDERR  "%20s %15s %4s Skipping, MASTER_SITES is empty\n",
 print STDERR sprintf("%4d ", __LINE__ ), 
 ' (PKGBASE) ', $PKGBASE, ' --> http: ', $http_code, 'Now: ', $PKGVERSION, ' $available: ', $available,"\n" if $DEBUG_DISTBASE_PATTERN;        
 	    $returnCode = -1;
-	if ($master_site && $http_code ne '(DNS)' ) {
+	if ($http_code eq 'DNS' ) {
+	    $MasterSite404 = 'DNS';
+	}
+	if ($master_site && $http_code ne 'DNS' ) {
 	    ($returnCode, @candidate) = ParseDirectory($master_site, $DISTBASE);
 	}
-	    if ($returnCode == -1  && $HOMEPAGE) {
+        if ($returnCode == -1  && $HOMEPAGE) {
 		($returnCode, @candidate) = ParseDirectory($HOMEPAGE, $DISTBASE);}
 	} # if ($SFProject) { -> else
+
+	if ($returnCode == -1  &&  $DownLoadAlternative{$DISTBASE}) {
+	    $MASTER_SITE= $DownLoadAlternative{$DISTBASE};
+	    print STDERR sprintf("%4d ", __LINE__ ), 'MASTER_SITE ', $MASTER_SITE if $DEBUG_DISTBASE_PATTERN;
+		($returnCode, @candidate) = ParseDirectory($MASTER_SITE, $DISTBASE);
+	}
+
 	# ---------------------------------------------------------------	
 	    push(@CANDIDATE, @candidate);
 	    $available = PickFromCandidate(@CANDIDATE);
@@ -1767,7 +1782,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
 <td>%s</td></tr>\n", 
 	    $css,
 	    $CVSweb. $this_PackageDir,	$this_PackageDir,
-	    $HomePageString. $homepage,
+	    $homepage. $HomePageString,
 	    $PKGVERSION, 
 	    GreyDigitIf00($http_code, $available),
 	    $TODO{$PKGBASE},
