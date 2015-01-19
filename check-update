@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-19 15:28" ; # write by emacs time-stamp
+$VERSION = "2015-01-19 15:44" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 #        requires net/curl
 #use pkgsrc::Dewey;
@@ -1787,7 +1787,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
     my($homepage) = $PKGBASE;     # if HOMEPAGE is empty, don't use href, set for that
     if ($HOMEPAGE) { $homepage = sprintf "<a href=\"%s\">%s</a>", $HOMEPAGE, $PKGBASE;}
     my ($HomePageString);
-    if ($HomePage404) { $HomePageString =  "<span class=\"pale_dns\">(". $HomePage404.')</span> ';}
+    if ($HomePage404 != 200 ) { $HomePageString =  "<span class=\"pale_dns\">(". $HomePage404.')</span> ';}
     my ($MasterSiteString);
     if ($MasterSite404) { $MasterSiteString =  "<span class=\"pale_dns\">(". $MasterSite404.')</span> ';}
     # ------ E D I T         M A I N T A I N E R  -------

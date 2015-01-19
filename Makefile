@@ -57,8 +57,8 @@ all: ${WORK}/.done
 
 ${WORK}/.done: ${CATEGORIES:S/$/.${DAY}.html/} ${WORK}
 	(cd ${WORK}; \
-	echo '  ****  ' ${MERGE} *.html )
-	'mv WORK ${DIRECTORY}/${DATE}'
+	${MERGE} *.html )
+	mv ${WORK} ${DIRECTORY}/${DATE};
 	touch  ${WORK}/.done
 
 .for i in ${CATEGORIES}
