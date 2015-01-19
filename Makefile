@@ -44,12 +44,13 @@ CHECK_UPDATE=	/export/git-repository/check-update/check-update
 CHECK_UPDATE=	/e/modena/git-repository/check-update/check-update
 MERGE=		/e/modena/git-repository/check-update/merge-check-update
 
-DIRECTORY=${HOME}/public_html/pkgsrc/check-update
-DATE!=date +%Y%m%d
-WORK=${DIRECTORY}/.${DATE}
+DIRECTORY=	${HOME}/public_html/pkgsrc/check-update
+DATE!=		date +%Y%m%d
+WORK=		${DIRECTORY}/.${DATE}
+RM=		/bin/rm
 
 # get the last digit of the date
-DAY=${DATE:C/.*([0-9])$/\1/}
+DAY=		${DATE:C/.*([0-9])$/\1/}
 
 all: ${WORK}/.done
 
@@ -57,6 +58,8 @@ all: ${WORK}/.done
 ${WORK}/.done: ${CATEGORIES:S/$/.${DAY}.html/} ${WORK}
 	(cd ${WORK}; \
 	echo '  ****  ' ${MERGE} *.html )
+	echo 'mv WORK ${DIRECTORY}/${DATE}'
+	touch  ${WORK}/.done
 
 .for i in ${CATEGORIES}
 $i.${DAY}.html:
@@ -64,4 +67,6 @@ $i.${DAY}.html:
 	echo	${CHECK_UPDATE} -u -f -m -c $i -d ${WORK} -S $i.${DAY}.html -h ; )
 .endfor
 
+clean:
+	${RM}  ${WORK}/.done
 # gmtime tm_wday
