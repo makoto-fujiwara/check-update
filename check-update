@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-19 14:45" ; # write by emacs time-stamp
+$VERSION = "2015-01-19 15:28" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 #        requires net/curl
 #use pkgsrc::Dewey;
@@ -122,7 +122,7 @@ qw(
     3proxy	http://3proxy.ru/download/
     );
 # Now global variables in Makefile
-    my ($MAINTAINER, $HOMEPAGE, $GEM_PACKAGE, $PEAR_PACKAGE, $SFProject) ;
+    my ($MAINTAINER, $HOMEPAGE, $GEM_PACKAGE, $PEAR_PACKAGE, $HS_PACKAGE, $SFProject) ;
 
     my ($PKGBASE, $PKGNAME, $DISTBASE, $MASTER_SITE, $META_PACKAGE);
     my (@MASTER_SITES);
@@ -1084,7 +1084,8 @@ sub ReadMakefile($$)  {		# <- Main
     my ($category) =	shift;
     my ($directory) =	shift;
     my ($Makefile)  =	"$pkgsrc/$category/$directory/Makefile";
-    my ($MAINTAINER, $HOMEPAGE, $GEM_PACKAGE, $PEAR_PACKAGE, $SFProject) = ('','', 0, 0, -1);
+    my ($MAINTAINER, $HOMEPAGE, $GEM_PACKAGE, $PEAR_PACKAGE, $HS_PACKAGE, $SFProject) 
+	= ('',	     '',        0,            0,             0,		  -1);
 #print STDERR '   ***', __FILE__ , ' -> ', (caller 0)[3], ': ',  sprintf("%4d ", __LINE__ ),"\n";
 #    print STDERR "Checking $Makefile\n";    
     if ( -f $Makefile ) {
@@ -1094,15 +1095,16 @@ sub ReadMakefile($$)  {		# <- Main
 	while (<MAKEFILE>) {
 	    if ( /^MAINTAINER=\s*(.*)/ )	{ $MAINTAINER = $1; }
 	    if ( /^HOMEPAGE=\s*(.*)/ )		{ $HOMEPAGE = $1; } 
-	    if ( m|^.\s*include.*\.\./\.\./lang/ruby/gem.mk|) { $GEM_PACKAGE++;}
-	    if ( m|^.\s*include.*\.\./\.\./lang/php/pear.mk|) { $PEAR_PACKAGE++;}
+	    if ( m|^.\s*include.*\.\./\.\./lang/ruby/gem\.mk|)	{ $GEM_PACKAGE++;}
+	    if ( m|^.\s*include.*\.\./\.\./lang/php/pear\.mk|)	{ $PEAR_PACKAGE++;}
+	    if ( m|^.\s*include.*\.\./\.\./mk/haskell\.mk|)	{ $HS_PACKAGE++;}
 	   #        MASTER_SITES=     ${MASTER_SITE_SOURCEFORGE:=modauthkerb/}
  	    if ( m|^MASTER_SITES=\s+\$\{MASTER_SITE_SOURCEFORGE:=(.*)/|) { $SFProject = $1;}
 	}
 	close(MAKEFILE);
 	if ($MAINTAINER eq '' ) { $MAINTAINER = GetVariableValue($category, $directory, 'MAINTAINER');}
 	if ($HOMEPAGE eq '' )   { $HOMEPAGE = GetVariableValue($category, $directory, 'HOMEPAGE');}
-	return ($MAINTAINER, $HOMEPAGE, $GEM_PACKAGE, $PEAR_PACKAGE, $SFProject);
+	return ($MAINTAINER, $HOMEPAGE, $GEM_PACKAGE, $PEAR_PACKAGE, $HS_PACKAGE, $SFProject);
     }
 }    
 sub ReadTodo($){
@@ -1639,7 +1641,7 @@ if ($update_pkgsrc) {
     if ( grep (/$PackageName/, @SkipTooOld) > 0 ) { $SkipTooOld++; next;}
 # -------------------
 # Read Makefile
-       ($MAINTAINER, $HOMEPAGE, $GEM_PACKAGE, $PEAR_PACKAGE, $SFProject) 
+       ($MAINTAINER, $HOMEPAGE, $GEM_PACKAGE, $PEAR_PACKAGE, $HS_PACKAGE, $SFProject) 
 	= ReadMakefile($dir, $PackageName);
     #my ($PKGBASE, $PKGNAME, $DISTBASE, $MASTER_SITE, $META_PACKAGE);
     #my (@MASTER_SITES);
@@ -1684,7 +1686,6 @@ if ($update_pkgsrc) {
 	if ($MASTER_SITE =~ m|http://downloads.sourceforge.net/sourceforge/([^/]+)/| ) {
 	    $SFProject = $1; }
 
-
 	if ($SFProject && $SFProject != -1 ) {
 	    my($returnCode);
 	    ($URL, $returnCode, @candidate) = GetSFProjectCandidate($SFProject, $DISTBASE);
@@ -1703,6 +1704,12 @@ printf STDERR  "%20s %15s %4s Skipping, MASTER_SITES is empty\n",
 print STDERR sprintf("%4d ", __LINE__ ), 
 ' (PKGBASE) ', $PKGBASE, ' --> http: ', $http_code, 'Now: ', $PKGVERSION, ' $available: ', $available,"\n" if $DEBUG_DISTBASE_PATTERN;        
 	    $returnCode = -1;
+
+	if ($HS_PACKAGE) {
+	$master_site = "http://hackage.haskell.org/package/". $DISTBASE;
+	print STDERR sprintf("%4d ", __LINE__ ), "HS_PACKGE: ", $MASTER_SITE ,"\n" if $DEBUG_DISTBASE_PATTERN;
+	}
+
 	if ($http_code eq 'DNS' ) {
 	    $MasterSite404 = 'DNS';
 	}
@@ -1710,7 +1717,9 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	    ($returnCode, @candidate) = ParseDirectory($master_site, $DISTBASE);
 	}
         if ($returnCode == -1  && $HOMEPAGE) {
-		($returnCode, @candidate) = ParseDirectory($HOMEPAGE, $DISTBASE);}
+	    ($returnCode, @candidate) = ParseDirectory($HOMEPAGE, $DISTBASE);
+	    print STDERR sprintf("%4d ", __LINE__ ), $HOMEPAGE," checked.\n" if $DEBUG_DISTBASE_PATTERN;
+	}
 	} # if ($SFProject) { -> else
 
  print STDERR sprintf("%4d ", __LINE__ ), 
