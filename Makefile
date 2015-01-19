@@ -58,13 +58,13 @@ all: ${WORK}/.done
 ${WORK}/.done: ${CATEGORIES:S/$/.${DAY}.html/} ${WORK}
 	(cd ${WORK}; \
 	echo '  ****  ' ${MERGE} *.html )
-	echo 'mv WORK ${DIRECTORY}/${DATE}'
+	'mv WORK ${DIRECTORY}/${DATE}'
 	touch  ${WORK}/.done
 
 .for i in ${CATEGORIES}
 $i.${DAY}.html:
 	(cd /usr/pkgsrc; \
-	echo	${CHECK_UPDATE} -u -f -m -c $i -d ${WORK} -S $i.${DAY}.html -h ; )
+	${CHECK_UPDATE} -u -f -m -c $i -d ${WORK} -S $i.${DAY}.html ; )
 .endfor
 
 clean:
