@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-19 06:47" ; # write by emacs time-stamp
+$VERSION = "2015-01-19 07:43" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 #        requires net/curl
 #use pkgsrc::Dewey;
@@ -85,7 +85,7 @@ our(%opts);
 my (@SkipTooOld) = qw(xview-lib estic zenicb tex2rtf gkermit kermit gturing bridge-hands ccxstream weewm);
 
 # Simple means $distbase-([0-9.]+)-(extran string not necessary)..
-my (@SimplePattern)  = qw(renpy crimson crack-attack hands flags autotrace simulavr hal);
+my (@SimplePattern)  = qw(renpy crimson crack-attack hands flags autotrace simulavr hal sign);
 #my (@Debian) = qw(signing-party);
 
 my (%SpecialPattern) = (
@@ -101,6 +101,7 @@ my (%SpecialPattern) = (
     'signing-party',	'$line =~ s/.*signing-party_([0-9.]+)-.*/$1/ ;',
     'Cython',		'{$line =~ m|.*$distbase-([0-9]\.[0-9]+\.[0-9])|; $line = $1 ;}',
 #    'NovaWM', 	        '$line =~ s/.*$distbase-([0-9.]+).*/$1/ ;', #   -0.8.1_alpha.tar.bz2 (716.3 kB)
+#    'sign',		'$line =~ s/The latest version is ([0-9.]+),/$1/ ;', #  security/sign  1-bit ui</a><br --> 
     );
 
 my(%SourceForgeAlternative) =  
@@ -1005,6 +1006,7 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (1) ', $distbase, ' --> ', $version,"
 	       $version =~ m|[0-9.]+rc[0-9]| )  { next;} # in case $distbase has not 'rc' in it, ignore rc stuff  RRRRRRRCCCCC i
 	if ($version eq '') { next;}
 	# 552 -> 5.5.2, 2.1.3 -> 213 (nkf) etc
+#	if ($version =~ /1-bit ui/) { next;} # security sign pecuriarity
 	my($edit_version) = EditVersion($distbase, $version);
 	    push(@candidate, "$edit_version");
 #	    $count   =	CountPeriod($version);
