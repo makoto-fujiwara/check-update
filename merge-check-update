@@ -1,48 +1,179 @@
 #!/usr/pkg/bin/perl
 use strict;
 our(@ARGV);
+use Getopt::Std;    
 
+sub ExecutionTime($$){
+    my ($started) = shift;
+    my ($ended)   = shift;
+    my ($took)    = $ended - $started;
+
+    my ($hour) =  int($took/3600);
+    my ($min)  =  int( ($took - ($hour * 3600) )  /60);    
+    my ($sec) =   $took - $hour * 3600 - $min * 60;
+    return  sprintf("%02d:%02d:%02d", $hour, $min, $sec);
+}
+sub SummaryName($){
+    my ($output_directory) = shift;
+    my ($summary, $summary_leaf, $summary_tmp);
+    if (! $summary) {
+	my($sec, $min, $hour, $date, $mon, $year, $dofweek, $dayofyear, $summertime) 
+	    = gmtime();
+	$summary
+	    = sprintf("%04d%02d%02d.html", $year + 1900, $mon + 1, $date); }
+    if ($output_directory)		{
+	$summary_leaf	= $summary;
+	$summary_tmp	= $output_directory .'/.'. $summary;
+	$summary	= $output_directory .'/' . $summary;
+    }
+    return ($summary_tmp, $summary);
+};
+
+sub main() {
+my ($summary, $summary_leaf, $summary_tmp, $output_directory);    
 my ($script);
-my ($Started);
+my ($Started) = time();
+#print STDERR sprintf("%4d ", __LINE__), 'Started: ', $Started, "\n";
+#print scalar(gmtime($Started)), "\n";
 my ($Ended);
+my ($output_directory) = $ENV{'HOME'}.'/public_html/pkgsrc/check-update';
 
+my ($whole_tmp, $whole) = SummaryName($output_directory);
+#print STDERR sprintf("%4d ", __LINE__), ':', $whole, ': >', $whole_tmp,"<\n";
 my ($string);
-sub larger($$) {
-    my($a) = shift;
-    my($b) = shift;
-    $a =~ y/- :/000/;
-    $b =~ y/- :/000/;
-    print $a , ' - ', $b, '->', "\t", $a <=> $b, "\n";
-    return $a <=> $b;
-}
-    
-foreach my $file (@ARGV) {
-    if ( -f $file )	{ print STDERR $file,"\n";}
-    else           	{ print STDERR $file,': ', $!,"\n";}
-}
+my (@headers);
+
+    my(	  $Found  ,
+	  $TODO_LIST ,
+	  $OK  ,
+	  $StatsMasterSite404 ,
+	  
+	  $NotAvailable ,
+	  $NoMasterSites ,
+	  $Forbidden ,
+	  $SkippedEndingDigit ,
+
+	  $SkipTooOld ,
+	  $MetaPackage ,
+	  $Reverse ,
+	  $NotListed ,
+	$Sum,
+	$TotalChecked, $started, $time);
+
+open(WHOLE, "> $whole_tmp") || print "Problem open file $whole_tmp: $!\n";
+my ($counts);
+my (@sums);
+my ($StatsNotRead) = 1; # 1 stats is not read, 0 alread read.
+my ($headerNotRead) = 1;	# See the bottom (below  __END__)
+
+my ($Header, $Body, $Stats) = (0, 1, 2); #  Define constant
 
 foreach my $file (@ARGV) {
+    $file = $output_directory.'/'.$file;
+    #    print STDERR sprintf("%4d ", __LINE__), $file,"\n";
+#    my ($body) = 1;	# 1 table part
+    			# 0 stats part
+#    my ($header)	= 1;	# header part, output only once <html> ... <table>
+
+    my ($type)		= $Header;    # (0) header (1) body (2) stats
     open(FILE, $file) || print STDERR "Problem opening to read: $file $!\n";
     while (<FILE>) {
-	if (/^ForMergeCount: ([0-9, ]+)/) {
-	    print $1,"\n";
+        if (/<html>/ ) 			{ $type	= $Header; } # Header starts
+	if (/<pre>/)			{ $type = $Stats; } # Stats starts
+	if      ( $type == $Header ) {
+	    if  ( $headerNotRead )	{ print WHOLE $_ ;}
+	} elsif ( $type == $Body ) { # body
+	    print WHOLE $_ ;
+	} else { # type == $Stats, stats
+	    if ($StatsNotRead) {
+		if (/^(\S.*:)\s+\d+\s+(\S.*)/)	{ push(@headers, [$1, $2]);}
+		if (/^(\S.*:)\s+\d+/) 		{ push(@headers, [$1, '']);}
+	    }
+	    if (/^ForMergeCount:([0-9, ]+)/) {
+		$counts = $1;
+		$StatsNotRead = 0;
+	    }
 	}
-	if (/ Script Time Stamp:\s+([0-9: -]+[0-9])\s+U/ ) { 
-	    $script = $1; }
-	if (/ Started:\s+([0-9: -]+[0-9])\s+U/  ) { 
-	    $string = $1;
-#	    print STDERR '(S) ', $string,"\n";
-	    if (larger ($Started, $string) ) { $Started = $string ;}
-	}
-	if (/ Ended:\s+([0-9: -]+[0-9])\s+U/ ) { 
-	    $string = $1;
-	    print STDERR '(E) ', $string,"\n";	    
-	    if (larger ($string, $Ended) ) { $Ended = $string ;}
-	}
+	if (/<th>Update-To</ )	{ $type	= $Body ; $headerNotRead = 0;} # Body starts
     }
-    close(FILE)
+    close(FILE);
+#    print STDERR sprintf("%4d ", __LINE__), join (' ', @headers), "\n";
+    my(@stats) =  split(',', $counts);
+#    print STDERR sprintf("%4d ", __LINE__), $counts,"\n";
+#    print STDERR sprintf("%4d ", __LINE__), join (' ', @stats), "\n";    
+    foreach my $i (0 .. $#stats -2 ) {
+	$sums[$i] += $stats[$i];
+    }
+#    print STDERR sprintf("%4d ", __LINE__),  'started: ', $Started, 'stats: ', $stats[14],"\n";
+
+    if ($stats[14] > 1421500000) { # set lower limit in case blank etc
+	if ($Started > $stats[14] ) { $Started = $stats[14]; }}
+    if ($Ended   < $stats[15] ) { $Ended = $stats[15]; }
 }
-print " Script:\t",  $script," UTC\n";
-print "Started:\t", $Started," UTC\n";
-print "  Ended:\t",   $Ended," UTC\n";
-    
+
+print  WHOLE "<pre>\n";
+print  WHOLE '<a href="./?C=M;O=D"> Upper directory</a>',"\n";
+foreach my $el ( 0.. $#sums) {
+
+    if  ( $headers[$el] ->[0] =~ /<span/ )	{ 
+           printf WHOLE "%-40s %6d %s</span>\n",	$headers[$el]->[0], $sums[$el], $headers[$el]->[1] ; } 
+    else { printf WHOLE "%-20s %6d %s\n",		$headers[$el]->[0], $sums[$el], $headers[$el]->[1] ; } 
+}
+printf WHOLE "Started:\t %s\n", scalar(gmtime($Started));
+printf WHOLE "Ended:  \t %s\n", scalar(gmtime($Ended));
+printf WHOLE "Elapsed:\t            %s\n", ExecutionTime($Started, $Ended);
+print  WHOLE "</pre>\n";
+close(WHOLE);
+}
+main();
+__END__
+
+
+output following part onlye once:
+
+(FILE1)
+---------------
+H| <html>
+H| <style>
+H|     body    { font-size: small;}
+H|     table   { font-size: small;}
+H|     tr.user      { background-color: #e8e8f0; }
+H|    ......
+H|     td.update { background: #d0c8c8;}
+H|     td.grey   { background: #c0c0c0;}
+H| </style>
+H| 
+H| <body>
+H| <table cellspacing=0 cellpadding=3 border=0>
+
+B|
+B|  (TABLE), body
+B|
+B|
+
+S|<pre>
+S|.. (STATS)
+S|</pre>
+
+(FILE2)
+---------------
+H|<html>
+H|<style>
+H|    body    { font-size: small;}
+H|    table   { font-size: small;}
+H|    tr.user      { background-color: #e8e8f0; }
+H|   ......
+H|    td.update { background: #d0c8c8;}
+H|    td.grey   { background: #c0c0c0;}
+H|</style>
+H|<body>
+H|<table cellspacing=0 cellpadding=3 border=0>
+
+B|  (TABLE)
+
+S|<pre>
+S|..(STATS)
+S|</pre>
+
+
+security/sign is strange:
