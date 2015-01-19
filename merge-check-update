@@ -4,7 +4,7 @@ our(@ARGV);
 use Getopt::Std;
 
 my($VERSION);
-$VERSION = "2015-01-19 05:05" ; # write by emacs time-stamp
+$VERSION = "2015-01-19 05:41" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 sub usage() {
     print <<HELP;
@@ -91,25 +91,18 @@ open(STATS, "> $stats_tmp") || print STDERR sprintf("%4d ", __LINE__), "Problem 
 
 foreach my $file (@ARGV) {
     $file = $upper_directory . $file;
-    #    print STDERR sprintf("%4d ", __LINE__), $file,"\n";
-#    my ($body) = 1;	# 1 table part
-    			# 0 stats part
-#    my ($header)	= 1;	# header part, output only once <html> ... <table>
+    my ($type)		= $Header;    # constant: (0) Header (1) Body (2) TableHeader (3) Stats
 
-    my ($type)		= $Header;    # (0) header (1) body (2) stats
     open(FILE, $file) || print STDERR sprintf("%4d ", __LINE__), "Problem opening to read: $file $!\n";
     while (<FILE>) {
-        if (/<html>/ ) 			{ $type	= $Header; } # Header starts
-	if (/<pre>/)			{ $type = $Stats; } # Stats starts
-	if (/ <table cellspacing=/ )	{ $type	= $TableHeader ; $headerNotRead = 0;} # 
+        if (/^<html>/ )			{ $type	= $Header; }	# Header starts by this line
+	if (/^<pre>/)			{ $type = $Stats; }	# Stats starts
+	if (/<table cellspacing=/ )	{ $type	= $TableHeader ; $headerNotRead = 0;} # 
 
-	if      ( $type == $Header ) {
-	    if  ( $headerNotRead )	{ print WHOLE $_ ; print STATS $_ ;}
-	} elsif ( $type == $Body ) { # body
-	    print WHOLE $_ ;
-	} elsif ( $type == $TableHeader ) { #
-	    print WHOLE $_ ;
-	} else { # type == $Stats, stats
+	if      ( $type == $Header )	{if ( $headerNotRead )	{ print WHOLE $_ ; print STATS $_ ;}
+	} elsif ( $type == $Body )				{ print WHOLE $_ ;
+	} elsif ( $type == $TableHeader )			{ print WHOLE $_ ;
+	} else { # type == $Stats
 	    if ($StatsNotRead) {
 		if    (/^(\S.*:)\s+\d+\s+(\S.*)/)	{ push(@headers, [$1, $2]);}
 		elsif (/^(\S.*:)\s+\d+/) 		{ push(@headers, [$1, '']);}
@@ -119,7 +112,8 @@ foreach my $file (@ARGV) {
 		$StatsNotRead = 0;
 	    }
 	}
-	if (/<th>Update-To</ )		{ $type	= $Body        ; $headerNotRead = 0;} # Body start
+
+	if (/<th>Update-To</ )		{ $type	= $Body        ; $headerNotRead = 0;} # Body starts on next line
     }
     close(FILE);
 #    print STDERR sprintf("%4d ", __LINE__), join (' ', @headers), "\n";
@@ -140,8 +134,9 @@ foreach my $file (@ARGV) {
 my(@STATS);	# to print two destination, STATS and WHOLE
 
 push(@STATS, "<pre>\n");
-push(@STATS, '<a href="../?C=M;O=D"> Upper directory</a>'."\n");
-my ($url) = sprintf ("http://www.ki.nu/~makoto/pkgsrc/check-update/%s/whole.html", $leaf);
+push(@STATS, '<a href="./?C=M;O=D"> This directory</a> | <a href="../?C=M;O=D"> Upper directory</a>'."\n");
+my ($url)	= sprintf ("http://www.ki.nu/~makoto/pkgsrc/check-update/%s/whole.html", $leaf);
+my ($url_stat)	= sprintf ("http://www.ki.nu/~makoto/pkgsrc/check-update/%s/00_Stats",   $leaf);
 foreach my $el ( 0.. $#sums) {
 
     if  ( $headers[$el] ->[0] =~ /<span/ )	{ 
@@ -152,6 +147,7 @@ push(@STATS, sprintf( "Started:\t %s\n", scalar(gmtime($Started))) );
 push(@STATS, sprintf( "Ended:  \t %s\n", scalar(gmtime($Ended)))   );
 push(@STATS, sprintf( "Elapsed:\t            %s\n", ExecutionTime($Started, $Ended)) );
 push(@STATS, sprintf( "Whole listing: <a href=\"%s\">%s</a>\n", $url, $url) );
+push(@STATS, sprintf( "Whole listing: <a href=\"%s\">%s</a>\n", $url_stat, $url_stat) );
 push(@STATS, sprintf( "</pre>\n") );
 
      print WHOLE @STATS;
@@ -196,26 +192,27 @@ S|</pre>
 
 (FILE2)
 ---------------
-H|<html>
-H|<style>
-H|    body    { font-size: small;}
-H|    table   { font-size: small;}
-H|    tr.user      { background-color: #e8e8f0; }
-H|   ......
-H|    td.update { background: #d0c8c8;}
-H|    td.grey   { background: #c0c0c0;}
-H|</style>
-H|<body>
+H| <html>
+H| <style>
+H|     body    { font-size: small;}
+H|     table   { font-size: small;}
+H|     tr.user      { background-color: #e8e8f0; }
+H|    ......
+H|     td.update { background: #d0c8c8;}
+H|     td.grey   { background: #c0c0c0;}
+H| </style>
+H| <body>
 
 T| <table cellspacing=0 cellpadding=3 border=0>
 T| <tr><th>directory</th><th>Package</th><th>Now</th><th></th>
 T| <th>Update-To</th><th>TODO</th><th>MAINTAINER</th><th>MASTER_SITES (only the first one checked) </th></tr>
 
-B|  (TABLE)
+B|      (TABLE)
 
-S|<pre>
-S|..(STATS)
-S|</pre>
+S| <pre>
+S| ..(STATS)
+S| </pre>
 
 
 security/sign is strange:
+misc/parchive is strange:
