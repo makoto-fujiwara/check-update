@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-18 12:49" ; # write by emacs time-stamp
+$VERSION = "2015-01-18 13:40" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 #        requires net/curl
 #use pkgsrc::Dewey;
@@ -1178,7 +1178,7 @@ sub Stats($$){
     printf SUMMARY $string2,  'Elapsed:',  '           '.$exec_time; # column adjust (indent) to above
 
     printf SUMMARY $number2,  '<span class="brown">Found:', 	$Found,		'These packages are to be updated</span>';
-    printf SUMMARY $number3,  '<span class="brown">TODO flags',	$TODO_LIST,	'(More to be updated, by TODO)</span>';
+    printf SUMMARY $number3,  '<span class="brown">TODO flags:', $TODO_LIST,	'(More to be updated, by TODO)</span>';
     printf SUMMARY $number,  'Up-to-date:',		$OK,	'OK, Already up-to-date';
     printf SUMMARY $number,  'NotFound (404):',		$StatsMasterSite404,	'MASTER_SITES returns 404 (not added to total count)';
     printf SUMMARY $number,  'Not Available:',		$NotAvailable,	'Failed to get update info '. $indicated;

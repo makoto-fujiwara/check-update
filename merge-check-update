@@ -4,7 +4,7 @@ our(@ARGV);
 use Getopt::Std;
 
 my($VERSION);
-$VERSION = "2015-01-19 02:47" ; # write by emacs time-stamp
+$VERSION = "2015-01-19 05:05" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 sub usage() {
     print <<HELP;
@@ -54,7 +54,7 @@ my ($Ended);
     $upper_directory = $ENV{'HOME'}.'/public_html/pkgsrc/check-update/';
 my ($output_directory, $output_directory_tmp, $leaf ) = DirectoryName($upper_directory);
 my ($whole_tmp) = $output_directory_tmp. 'whole.html';
-my ($index_tmp) = $output_directory_tmp. '00Stats.html';
+my ($stats_tmp) = $output_directory_tmp. '00_Stats.html';
 #print STDERR sprintf("%4d ", __LINE__), ':', $whole, ': >', $whole_tmp,"<\n";
 my ($string);
 my (@headers);
@@ -84,10 +84,10 @@ my (@sums);
 my ($StatsNotRead) = 1; # 1 stats is not read, 0 alread read.
 my ($headerNotRead) = 1;	# See the bottom (below  __END__)
 
-my ($Header, $Body, $Stats) = (0, 1, 2); #  Define constant
+my ($Header, $Body, $TableHeader, $Stats) = (0, 1, 2, 3); #  Define constant
 
 open(WHOLE, "> $whole_tmp") || print STDERR sprintf("%4d ", __LINE__), "Problem open file $whole_tmp: $!\n";
-open(INDEX, "> $index_tmp") || print "Problem open file $index_tmp: $!\n";
+open(STATS, "> $stats_tmp") || print STDERR sprintf("%4d ", __LINE__), "Problem open file $stats_tmp: $!\n";
 
 foreach my $file (@ARGV) {
     $file = $upper_directory . $file;
@@ -101,55 +101,65 @@ foreach my $file (@ARGV) {
     while (<FILE>) {
         if (/<html>/ ) 			{ $type	= $Header; } # Header starts
 	if (/<pre>/)			{ $type = $Stats; } # Stats starts
+	if (/ <table cellspacing=/ )	{ $type	= $TableHeader ; $headerNotRead = 0;} # 
+
 	if      ( $type == $Header ) {
-	    if  ( $headerNotRead )	{ print WHOLE $_ ; print INDEX $_ ;}
+	    if  ( $headerNotRead )	{ print WHOLE $_ ; print STATS $_ ;}
 	} elsif ( $type == $Body ) { # body
+	    print WHOLE $_ ;
+	} elsif ( $type == $TableHeader ) { #
 	    print WHOLE $_ ;
 	} else { # type == $Stats, stats
 	    if ($StatsNotRead) {
-		if (/^(\S.*:)\s+\d+\s+(\S.*)/)	{ push(@headers, [$1, $2]);}
-		if (/^(\S.*:)\s+\d+/) 		{ push(@headers, [$1, '']);}
+		if    (/^(\S.*:)\s+\d+\s+(\S.*)/)	{ push(@headers, [$1, $2]);}
+		elsif (/^(\S.*:)\s+\d+/) 		{ push(@headers, [$1, '']);}
 	    }
 	    if (/^ForMergeCount:([0-9, ]+)/) {
 		$counts = $1;
 		$StatsNotRead = 0;
 	    }
 	}
-	if (/<th>Update-To</ )	{ $type	= $Body ; $headerNotRead = 0;} # Body starts
+	if (/<th>Update-To</ )		{ $type	= $Body        ; $headerNotRead = 0;} # Body start
     }
     close(FILE);
 #    print STDERR sprintf("%4d ", __LINE__), join (' ', @headers), "\n";
-    my(@stats) =  split(',', $counts);
+    my(@statsline) =  split(',', $counts);
 #    print STDERR sprintf("%4d ", __LINE__), $counts,"\n";
 #    print STDERR sprintf("%4d ", __LINE__), join (' ', @stats), "\n";    
-    foreach my $i (0 .. $#stats -2 ) {
-	$sums[$i] += $stats[$i];
+    foreach my $i (0 .. $#statsline -2 ) {
+	$sums[$i] += $statsline[$i];
     }
 #    print STDERR sprintf("%4d ", __LINE__),  'started: ', $Started, 'stats: ', $stats[14],"\n";
 
-    if ($stats[14] > 1421500000) { # set lower limit in case blank etc
-	if ($Started > $stats[14] ) { $Started = $stats[14]; }}
-    if ($Ended   < $stats[15] ) { $Ended = $stats[15]; }
+    if ($statsline[14] > 1421500000) { # set lower limit in case blank etc
+	if ($Started > $statsline[14] ) { $Started = $statsline[14]; }}
+    if     ($Ended   < $statsline[15] ) { $Ended   = $statsline[15]; }
 }
-close(WHOLE);
 
 
-print  INDEX "<pre>\n";
-print  INDEX '<a href="../?C=M;O=D"> Upper directory</a>',"\n";
+my(@STATS);	# to print two destination, STATS and WHOLE
+
+push(@STATS, "<pre>\n");
+push(@STATS, '<a href="../?C=M;O=D"> Upper directory</a>'."\n");
 my ($url) = sprintf ("http://www.ki.nu/~makoto/pkgsrc/check-update/%s/whole.html", $leaf);
 foreach my $el ( 0.. $#sums) {
 
     if  ( $headers[$el] ->[0] =~ /<span/ )	{ 
-           printf INDEX "%-40s %6d %s</span>\n",	$headers[$el]->[0], $sums[$el], $headers[$el]->[1] ; } 
-    else { printf INDEX "%-20s %6d %s\n",		$headers[$el]->[0], $sums[$el], $headers[$el]->[1] ; } 
+	   push(@STATS, sprintf("%-40s %6d %s</span>\n",$headers[$el]->[0], $sums[$el], $headers[$el]->[1] )); } 
+    else { push(@STATS, sprintf("%-20s %6d %s\n",	$headers[$el]->[0], $sums[$el], $headers[$el]->[1] )); } 
 }
-printf INDEX "Started:\t %s\n", scalar(gmtime($Started));
-printf INDEX "Ended:  \t %s\n", scalar(gmtime($Ended));
-printf INDEX "Elapsed:\t            %s\n", ExecutionTime($Started, $Ended);
-printf INDEX "Whole listing: <a href=\"%s\">%s</a>\n", $url, $url;
-print  INDEX "</pre>\n";
-close(INDEX);
+push(@STATS, sprintf( "Started:\t %s\n", scalar(gmtime($Started))) );
+push(@STATS, sprintf( "Ended:  \t %s\n", scalar(gmtime($Ended)))   );
+push(@STATS, sprintf( "Elapsed:\t            %s\n", ExecutionTime($Started, $Ended)) );
+push(@STATS, sprintf( "Whole listing: <a href=\"%s\">%s</a>\n", $url, $url) );
+push(@STATS, sprintf( "</pre>\n") );
+
+     print WHOLE @STATS;
+     print STATS @STATS;
+close(STATS);
+close(WHOLE);
 }
+
 main();
 __END__
 
@@ -170,6 +180,10 @@ H| </style>
 H| 
 H| <body>
 H| <table cellspacing=0 cellpadding=3 border=0>
+
+T| <table cellspacing=0 cellpadding=3 border=0>
+T| <tr><th>directory</th><th>Package</th><th>Now</th><th></th>
+T| <th>Update-To</th><th>TODO</th><th>MAINTAINER</th><th>MASTER_SITES (only the first one checked) </th></tr>
 
 B|
 B|  (TABLE), body
@@ -192,7 +206,10 @@ H|    td.update { background: #d0c8c8;}
 H|    td.grey   { background: #c0c0c0;}
 H|</style>
 H|<body>
-H|<table cellspacing=0 cellpadding=3 border=0>
+
+T| <table cellspacing=0 cellpadding=3 border=0>
+T| <tr><th>directory</th><th>Package</th><th>Now</th><th></th>
+T| <th>Update-To</th><th>TODO</th><th>MAINTAINER</th><th>MASTER_SITES (only the first one checked) </th></tr>
 
 B|  (TABLE)
 

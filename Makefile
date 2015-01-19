@@ -31,7 +31,6 @@ CATEGORIES= \
 	parallel \
 	pkgtools \
 	print \
-	regress \
 	security \
 	shells \
 	sysutils \
@@ -42,6 +41,7 @@ CATEGORIES= \
 	x11 \
 
 CHECK_UPDATE= /export/git-repository/check-update/check-update
+CHECK_UPDATE= /e/modena/git-repository/check-update/check-update
 
 SAMPLES= xterm kterm
 
@@ -51,5 +51,5 @@ all: ${CATEGORIES:S/$/.html/}
 .for i in ${CATEGORIES}
 $i.html:
 	(cd /usr/pkgsrc; \
-	${CHECK_UPDATE} -u -f -m -c $i  -S $i.9.html;)
+	${CHECK_UPDATE} -u -f -m -c $i  -S $i.4.html;)
 .endfor
