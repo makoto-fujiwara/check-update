@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-19 14:15" ; # write by emacs time-stamp
+$VERSION = "2015-01-19 14:45" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 #        requires net/curl
 #use pkgsrc::Dewey;
@@ -119,6 +119,7 @@ my(%DownLoadAlternative) =
 qw(
     openbox	http://openbox.org/wiki/Openbox:Download
     oroborus	http://ftp.debian.org/debian/pool/main/o/oroborus/
+    3proxy	http://3proxy.ru/download/
     );
 # Now global variables in Makefile
     my ($MAINTAINER, $HOMEPAGE, $GEM_PACKAGE, $PEAR_PACKAGE, $SFProject) ;
@@ -737,7 +738,8 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (PKGNAME) ', $PKGNAME, ' --> master_s
 	$status =  CheckHeader($home_page);
 print STDERR sprintf("%4d ", __LINE__ ), ' (PKGNAME) ', $PKGNAME, ' --> master_site = ', $home_page, ' status: ', $status,"\n" if $DEBUG_DISTBASE_PATTERN;
 	$http_code = $status;
-	if ($status == 404 ) { 	$HomePage404 = 404; $StatsHomePage404++; return (404, '0.0') ;}
+	if ($status == 404 )      { 	$HomePage404 = 404; $StatsHomePage404++; return (404, '0.0') ;}
+	elsif ($status == 'DNS' ) { 	$HomePage404 = 'DNS'; $StatsHomePage404++; return ('DNS', '0.0') ;}	
 	$master_site = $home_page; # fall back to home_page
 	}
     }
@@ -1650,6 +1652,9 @@ if ($update_pkgsrc) {
     #my ($http_code);
     #my ($returnCode, @candidate);
 
+	if (! CheckDNS($HOMEPAGE)) { $HomePage404 = 'DNS';}
+	else { $HomePage404 = CheckHeader($HOMEPAGE); }
+	
     $PKGBASE	= GetVariableValue ($dir, $PackageName, 'PKGBASE');
 # -----------------------------------------------------------------------
     if ($GEM_PACKAGE) {
