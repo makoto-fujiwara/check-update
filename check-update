@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-19 07:46" ; # write by emacs time-stamp
+$VERSION = "2015-01-19 12:37" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 #        requires net/curl
 #use pkgsrc::Dewey;
@@ -520,7 +520,7 @@ sub ExpandURL($$) {		# <- Not used now (?)
 }
 # This routine to find the Base name of distribution file.
 # It will be used to separate the version portion from distribution file.
-sub GetDistBase($$$$$) {	# <- Main
+sub GetDistBase($$$$$) {	# <- Main       DISTBASEDISTBASE
     my ($dir) = shift;
     my ($PackageName) = shift;
     my ($PKGBASE)	= shift;
@@ -534,8 +534,15 @@ print STDERR sprintf("%4d ", __LINE__ ),
          "  (PKGNAME)\t", $PKGNAME,        "\n",
     "       (DISTBASE)\t", $DISTBASE,      "\n",
     "       (PKGVERSION)\t", $PKGVERSION , "\n" if $DEBUG_DISTBASE_PATTERN;
+    my($DISTBODY) = $PKGNAME;
+    $DISTBODY =~ s/-$PKGVERSION//;
+    my($VERSION_CANDIDATE) = $DISTBASE;
+    $VERSION_CANDIDATE =~ s/$DISTBODY//;
+print STDERR sprintf("%4d ", __LINE__ ), 'DISTBODY(', $DISTBODY,') CAND(', $VERSION_CANDIDATE,")\n" if $DEBUG_DISTBASE_PATTERN;
 
-    if ($PKGNAME eq $DISTBASE) { # in this case, just edit $DISTBASE
+    if ( $VERSION_CANDIDATE =~ /^[0-9.pl-]+$/ ) {
+	$DISTBASE =~ s/$VERSION_CANDIDATE//;
+    } elsif ($PKGNAME eq $DISTBASE) { # in this case, just edit $DISTBASE
 	$DISTBASE =~ s/-$PKGVERSION//;
 print STDERR sprintf("%4d ", __LINE__ ), ' ', $dir, '/', $PackageName, '; DISTBASE (', $DISTBASE,")\n" if $DEBUG_DISTBASE_PATTERN;	
     } elsif ($PKGNAME eq 'py27-'.$DISTBASE) { # in this case, just edit $DISTBASE
@@ -709,7 +716,7 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (PKGNAME) ', $PKGNAME, ' --> DISTBASE
 	return ('(DNS)', '0.0');
     }
     my ($status) = CheckHeader($master_site);
-print STDERR sprintf("%4d ", __LINE__ ), ' (PKGNAME) ', $PKGNAME, ' --> DISTBASE (', $DISTBASE,") status: ", $status, "\n" if $DEBUG_DISTBASE_PATTERN;
+print STDERR sprintf("%4d ", __LINE__ ), ' (PKGNAME) ', $PKGNAME, ' --> DISTBASE (', $DISTBASE,") status: ", $status, "\n" if $DEBUG_HTTP_HEADER ;
     if ($status == 404 ) { 
 	$MasterSite404 = 404;
 	$StatsMasterSite404++;
@@ -739,20 +746,21 @@ print STDERR sprintf("%04d ", __LINE__ ), ' (PKGNAME) ', $PKGNAME, ' --> master_
     if ($status == 403 ) {
 	$http_code = 403;
 	$status =  CheckHeader($home_page);
-print STDERR sprintf("%4d ", __LINE__ ), ' (PKGNAME) ', $PKGNAME, ' --> master_site = ', $master_site,"\n" if $DEBUG_DISTBASE_PATTERN;
+print STDERR sprintf("%4d ", __LINE__ ), ' (PKGNAME) ', $PKGNAME, ' --> master_site = ', $master_site,"\n" if $DEBUG_HTTP_HEADER;
 	if ($status == 404 ) { $MasterSite404 = $status; return (403, '0.0') ;}
 	$master_site = $home_page; # fall back to home_page
 	}
     if ($status == 301 || $status == 302 ) {
+print STDERR sprintf("%4d ", __LINE__ ), ' (PKGNAME) ', $PKGNAME, ' --> master_site = ', $master_site,"\n" if $DEBUG_HTTP_HEADER;
 	$http_code = $status;
 	$MasterSite404 = $status;
 	$Moved++;
 	($http_code, $master_site) = Http301core($master_site, 4); # 4 is retry number
-print STDERR sprintf("%4d ", __LINE__ ), ' (PKGNAME) ', $PKGNAME, ' --> master_site = ', $master_site, 'http_code(', $http_code, ")\n" if $DEBUG_DISTBASE_PATTERN;	
+print STDERR sprintf("%4d ", __LINE__ ), ' (PKGNAME) ', $PKGNAME, ' --> master_site = ', $master_site, 'http_code(', $http_code, ")\n" if 	$DEBUG_HTTP_HEADER ;
 	if ($http_code != 200 && $home_page)  {
 	    ($http_code, $master_site) =  Http301core($home_page, 4); # 4 is retry number
-print STDERR sprintf("%4d ", __LINE__ ), ' (PKGNAME) ', $PKGNAME, ' master_site (', $master_site, ') http_code('.$http_code. ") \n" if $DEBUG_DISTBASE_PATTERN;		    
-	}
+print STDERR sprintf("%4d ", __LINE__ ), ' (PKGNAME) ', $PKGNAME, ' master_site (', $master_site, ') http_code('.$http_code. ") \n" if 
+	$DEBUG_HTTP_HEADER ;	}
 # Following two lines are harmfull for xfce4-wm
 #	else {
 #	    return (301, '0.0');}
@@ -824,7 +832,7 @@ sub Http301core($$) {
 #    $|++;
     if ($site ne '' && $retry) {
     $site =~ s|-https:|https:|;
-print STDERR sprintf("%4d ", __LINE__ ).' '. $site.' <... retry: '. $retry. "\n" if  $DEBUG_DISTBASE_PATTERN ;
+print STDERR sprintf("%4d ", __LINE__ ).' '. $site.' <... retry: '. $retry. "  \n\n" if  $DEBUG_HTTP_HEADER;
     if ($site eq '') { print STDERR sprintf("%4d ", __LINE__ ), " \$site is empty\n"; return -1;}
     open(URL, "curl -k -s -I $site|") || print STDERR sprintf("%4d ", __LINE__ ), " problem accessing $site:$!\n";
     while(<URL>){
@@ -833,23 +841,28 @@ print STDERR sprintf("%4d ", __LINE__ ).' '. $site.' <... retry: '. $retry. "\n"
 	if (m|HTTP/1.1 (\d+) |) {$status = $1; next;}
 	if (($status == 301  || $status == 302 ) && /Location: (.*)/ ) {
 	    $location = $1;
+print STDERR sprintf("%4d ", __LINE__ ).' location: ', $location,"\n" if  $DEBUG_HTTP_HEADER;
 	}
     }
     close(URL);
 
-    print STDERR "status      status ($status)". ' ('. sprintf("%4d ", __LINE__ ). ') Location '. $location." <== \n"  if $DEBUG_DISTBASE_PATTERN ;
+    print STDERR "status      status ($status)". ' ('. sprintf("%4d ", __LINE__ ). ') Location '. $location." <== \n"  if $DEBUG_HTTP_HEADER ;
     if ( ($status == 301 || $status == 302 ) && $location && $retry-- > 0 ) { 
-	($retcode, $master_site) = Http301core($location, $retry);}
-    elsif ( $status == 200 ) { return ( 200, $master_site) }
+	($retcode, $master_site) = Http301core($location, $retry);
+	if ($retcode == 200) { 
+    print STDERR  '* ', sprintf("%4d ", __LINE__ ), ' Moved ('. sprintf("%4d ", __LINE__ ). ') '. "\n", $master_site. ' <-- retry: '. $retry. " \n" if  $DEBUG_HTTP_HEADER ; return ( 200, $master_site) }
+    }
+    elsif ( $status == 200 ) {
+    print STDERR  '* ', sprintf("%4d ", __LINE__ ), ' Moved ('."\n". $master_site. ' <-- retry: '. $retry. " \n" if  $DEBUG_HTTP_HEADER ; return ( 200, $master_site) }
     else { $retcode =  -301;}
 
 #    if ($status == 200 )
-    print STDERR  '* ', sprintf("%4d ", __LINE__ ), ' Moved ('. sprintf("%4d ", __LINE__ ). ') '. "\n", $location. ' <-- retry: '. $retry. " \n" if  $DEBUG_DISTBASE_PATTERN ;
+    print STDERR  '* ', sprintf("%4d ", __LINE__ ), ' Moved ('. sprintf("%4d ", __LINE__ ). ') '. "\n", $location. ' <-- retry: '. $retry. " \n" if  $DEBUG_HTTP_HEADER ;
     print STDERR  ' retcode: ' , $retcode, '  Master site: '. "\n", $master_site, "\n" if  $DEBUG_DISTBASE_PATTERN ;
     } ###  if ($site ne '' && $retry) {
-    print STDERR  '* ', sprintf("%4d ", __LINE__ ), ' Moved ('. sprintf("%4d ", __LINE__ ). ') '. $location. ' <-- retry: '. $retry. " \n" if  $DEBUG_DISTBASE_PATTERN ;
-    print STDERR  ' retcode: ' , $retcode, '  Master site: '. $master_site, "\n" if  $DEBUG_DISTBASE_PATTERN ;
-    ($retcode, $location);
+    print STDERR  '* ', sprintf("%4d ", __LINE__ ), ' Moved ('. sprintf("%4d ", __LINE__ ). ') '. $location. ' <-- retry: '. $retry. " \n" if  $DEBUG_HTTP_HEADER ;
+    print STDERR   sprintf("%4d ", __LINE__ ),' retcode: ' , $retcode, '  Master site: '. $master_site, "\n" if  $DEBUG_HTTP_HEADER ;
+    return ($retcode, $location);
 }
 sub MasterSiteType($) {
 }
@@ -1136,7 +1149,6 @@ sub Stats($$){
 	= $Found 
 	+ $TODO_LIST
 	+ $OK
-	+ $StatsMasterSite404
 
 	+ $NotAvailable
 	+ $NoMasterSites
