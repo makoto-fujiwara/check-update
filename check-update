@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-18 13:40" ; # write by emacs time-stamp
+$VERSION = "2015-01-19 06:47" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 #        requires net/curl
 #use pkgsrc::Dewey;
@@ -1492,7 +1492,7 @@ if ($opts{'f'}) { $full_list++;}
 if ($opts{'F'}) { $FindDepends++;}
 if ($opts{'H'}) { $DEBUG_HTTP_HEADER++ ; }
 if ($opts{'M'}) { $maintainer = $opts{'M'} }
-if ($opts{'m'}) { $merge_mode++;}
+if ($opts{'m'}) { $merge_mode++;}	# shows ForMergeCount (can be always true ?)
 if ($opts{'p'}) { $pkgsrc = $opts{'p'};}
 if ($opts{'P'}) { $selected =  $opts{'P'}; $partial++;}
 if ($opts{'s'}) { $starting =  $opts{'s'}; $skip_until_match++; $partial++;}
