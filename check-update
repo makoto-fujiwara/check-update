@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-19 14:03" ; # write by emacs time-stamp
+$VERSION = "2015-01-19 14:15" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 #        requires net/curl
 #use pkgsrc::Dewey;
@@ -118,6 +118,7 @@ qw(
 my(%DownLoadAlternative) =
 qw(
     openbox	http://openbox.org/wiki/Openbox:Download
+    oroborus	http://ftp.debian.org/debian/pool/main/o/oroborus/
     );
 # Now global variables in Makefile
     my ($MAINTAINER, $HOMEPAGE, $GEM_PACKAGE, $PEAR_PACKAGE, $SFProject) ;
@@ -1707,7 +1708,12 @@ print STDERR sprintf("%4d ", __LINE__ ),
 		($returnCode, @candidate) = ParseDirectory($HOMEPAGE, $DISTBASE);}
 	} # if ($SFProject) { -> else
 
-	if ($returnCode == -1  &&  $DownLoadAlternative{$DISTBASE}) {
+ print STDERR sprintf("%4d ", __LINE__ ), 
+	    '(DISTBASE) ', $DISTBASE, 
+	    ' returnCode: ', $returnCode, 
+	    ' candidate#: ', $#candidate,
+	    "\n" if $DEBUG_DISTBASE_PATTERN;
+	if ($#candidate == -1  &&  $DownLoadAlternative{$DISTBASE}) {
 	    $MASTER_SITE= $DownLoadAlternative{$DISTBASE};
 	    print STDERR sprintf("%4d ", __LINE__ ), 'MASTER_SITE ', $MASTER_SITE if $DEBUG_DISTBASE_PATTERN;
 		($returnCode, @candidate) = ParseDirectory($MASTER_SITE, $DISTBASE);
