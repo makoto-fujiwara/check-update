@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-19 07:43" ; # write by emacs time-stamp
+$VERSION = "2015-01-19 07:46" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 #        requires net/curl
 #use pkgsrc::Dewey;
@@ -85,7 +85,7 @@ our(%opts);
 my (@SkipTooOld) = qw(xview-lib estic zenicb tex2rtf gkermit kermit gturing bridge-hands ccxstream weewm);
 
 # Simple means $distbase-([0-9.]+)-(extran string not necessary)..
-my (@SimplePattern)  = qw(renpy crimson crack-attack hands flags autotrace simulavr hal sign);
+my (@SimplePattern)  = qw(renpy crimson crack-attack hands flags autotrace simulavr hal sign parchive);
 #my (@Debian) = qw(signing-party);
 
 my (%SpecialPattern) = (
