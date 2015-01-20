@@ -4,7 +4,7 @@ our(@ARGV);
 use Getopt::Std;
 
 my($VERSION);
-$VERSION = "2015-01-20 01:32" ; # write by emacs time-stamp
+$VERSION = "2015-01-20 01:39" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 
 sub usage() {
@@ -98,7 +98,7 @@ open(STATS, "> $stats_tmp") || print STDERR sprintf("%4d ", __LINE__), "Problem 
 #   Read by-category output files
 #
 foreach my $file (@ARGV) {
-    $file = $upper_directory . $file;
+#    $file = $upper_directory . $file;
     my ($state)		= $Header;    # constant: (0) Header (1) Body (2) TableHeader (3) Stats
 
     open(FILE, $file) || print STDERR sprintf("%4d ", __LINE__), "Problem opening to read: $file $!\n";
