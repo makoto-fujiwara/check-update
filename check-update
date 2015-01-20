@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-20 02:24" ; # write by emacs time-stamp
+$VERSION = "2015-01-20 03:05" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 #   requirement:
 #       net/curl
@@ -376,12 +376,13 @@ sub ColorUrlDigit($) {
     $url =~ m|(.*/)([v0-9.]+/$)|;
     my($higher) = $1;
     my($digit)  = $2;
-    if ($higher && $digit )  {
+    # some strange case, $url does not include http:// line, in such case, just returun the original
+    if (! ($url =~ m|^http.*://|)) { $target = $url; }
+    elsif ($higher && $digit )  {
     $target = sprintf ("<a href=\"%s\">%s</a><a class=\"rev\" href=\"%s\">%s</a>",
 		      $higher, $higher,
 		      $higher.$digit,  $digit);}
-    else { $target = sprintf ("<a href=\"%s\">%s</a>", $url, $url);
-    }
+    else { $target = sprintf ("<a href=\"%s\">%s</a>", $url, $url);}
     return $target;
 }
 sub CollectCandidate($){
@@ -1847,10 +1848,6 @@ system ("mv $summary_tmp $summary");
 exit;
 __END__
 (BAD case)
- *** 206: ham/chirp -> chirp-0.4.0
-     109: w3m -dump http://chirp.danplanet.com/download/0.4.0/
-     218: available: 0.4.0 PKGVERSION: 0.4.0 chirp  OK
-
  *** 209: ham/7plus -> 7pl225sr
      109: w3m -dump ftp://ftp.fi.NetBSD.org/pub/NetBSD/packages/distfiles/
      221: available: 0.0 PKGVERSION: 225 
@@ -1873,18 +1870,9 @@ GC Warning: Out of Memory! Heap size: 247 MiB. Returning NULL!
      123: w3m -dump ftp://ftp.kde.org/pub/kde/stable/amarok/1.4.10/src/
      228: available: 1.4.10 PKGVERSION: 1.4.10 amarok  OK
 
-cf-r4-RF@makoto 10:02:12/141022(..git-work/perl)% curl -I  http://downloads.sourceforge.net/sourceforge/gplcver 
-HTTP/1.0 404 Not Found
-Server: nginx
-Date: Wed, 22 Oct 2014 01:04:10 GMT
-Content-Type: text/html; charset=UTF-8
-X-Cache: MISS from szipXX
-X-Cache-Lookup: MISS from szipXX:32080
-Via: 1.0 szipXX (squid)
-Connection: keep-alive
-
 (Problem)
-    * available is empty -> not listed now 
+    * available is empty -> not listed now (example arp-scan)
+
     * stats are not correct in above
 (TODO)
     * decide the only one final status for each package (for (0.0) case)  and then collect the Stats
@@ -1926,14 +1914,7 @@ Connection: keep-alive
     * Utilize PKGNAME= line in Makefile for evaluating version number (?)
       (like adding 00 for the name)
     * Disable DISTBASE_CACHE (for debug ?)
-    * abbrevation of distname 
-         ruby200-archive-tar-minitar (archive-tar-minitar) (1010) Now:    0.5.2 ->  
-         asterisk-sounds-native (asterisk-native-sounds-20060209-01-ulaw) (1029) ...
-(TODO/distbase)
-    * if ($PKGNAME_NOREV eq $DISTNAME)  distbase should be easily grabbed.
-    distbase =  $DISTNAME
-    distbase =~ s|-[0-9.]+$||;
-    (example of current problem is xml-security-c-1.7.2)
+
 (done)
     * Cache most recently used distbase (upto 30 ?)
        DistbaseCacheUpdate();
@@ -1962,15 +1943,9 @@ graphics/R-latticeExtra 	R-latticeExtra	0.6.26	->	26		pkgsrc-users@NetBSD.org 	h
 (setq time-stamp-end "\"") ;
 (setq time-stamp-line-limit "10") ; ; default is 8
 
+x11/tktable is not fixed yet:
 http://sourceforge.net/projects/tktable/files/
-->
 http://sourceforge.net/projects/tktable/files/tktable/2.10/
-
-http://sourceforge.net/projects/xcruise/files/
-
-http://sourceforge.net/projects/xcruiser/files/
-http://sourceforge.net/projects/xcruise/files/
-http://sourceforge.net/projects/xcruiser/files/
 
 XXXX *** GetMasterSite Logic is strange  *** XXXX
 
@@ -1995,3 +1970,13 @@ XXXX *** GetMasterSite Logic is strange  *** XXXX
 curl: no URL specified!
 curl: try 'curl --help' or 'curl --manual' for more information
  903  ${LIBDVDCSS_HOMEPAGE}   
+
+----------
+(cd multimedia/libdvdcss; make distclean && make fetch)
+ERROR: Please define LIBDVDCSS_MASTER_SITES in mk.conf.
+----------
+
+output:
+------------
+ <a href="/">/</a><a class="rev" href="/1.3.0/">1.3.0/</a>
+------------
