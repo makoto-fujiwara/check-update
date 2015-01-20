@@ -3,9 +3,13 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-20 01:06" ; # write by emacs time-stamp
+$VERSION = "2015-01-20 01:11" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
-#        requires net/curl
+#   requirement:
+#       net/curl
+#       misc/rubygems.
+#       security/mozilla-rootcert installed and following executed.
+#        #  mozilla-rootcerts install
 #use pkgsrc::Dewey;
 #       dewey_cmp(lhs, op, rhs);
 #       dewey_match(pattern, package);
