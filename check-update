@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-20 03:25" ; # write by emacs time-stamp
+$VERSION = "2015-01-20 03:44" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 #   requirement:
 #       net/curl
@@ -304,12 +304,14 @@ Where:
    -x : activate DEBUG_ITEMS (examples: -x dh, -x a, etc.) where:
         a:  Enable all
         d:  distbase
-        h:  header
+        e:  eval pattern
+        h:  http header
         c:  cache  (URL and distbase combination to version)
         C:  curl command
         l:  curl listing
         n:  count (not implemented yet)
         s:  sourceforge
+        S:  stats number
         r:  rubygems
 HELP
 }
@@ -894,19 +896,20 @@ sub ParseDebug($){
     my %DEBUG;
 
     my(%LongName) = qw (
-    a All
+    a enable All
     e EvalPattern
     l CurlListing
     d DistbasePattern
     h HTTPHeader
     c Cache
-    C Curl
+    C CurlCommand
     n CountNumber
     s SourceForge
+    S Stats
     r RubyGems );
 
     print STDERR sprintf("%4d ", __LINE__ ), ' DEBUG pattern (',  $pattern,  ') -> ';
-    foreach my $e (qw (a d e h c C n s l r)){
+    foreach my $e (qw (a d e h c C n s S l r)){
 	print STDERR $e.'(';
 	if (grep (/$e/, $pattern) > 0 ||
 	    grep (/a/, $pattern) > 0  ) {
@@ -916,14 +919,15 @@ sub ParseDebug($){
 	    print STDERR ' ) ' ;
 	}
     }
-    $DEBUG_EVAL_PATTERN		= $DEBUG{'e'} + $DEBUG{'a'} ;	# -x l
+    $DEBUG_EVAL_PATTERN		= $DEBUG{'e'} + $DEBUG{'a'} ;	# -x e
     $DEBUG_CURL_LISTING		= $DEBUG{'l'} + $DEBUG{'a'} ;	# -x l
     $DEBUG_DISTBASE_PATTERN	= $DEBUG{'d'} + $DEBUG{'a'} ;	# -x d
     $DEBUG_HTTP_HEADER		= $DEBUG{'h'} + $DEBUG{'a'} ;	# -x h
     $DEBUG_CACHE		= $DEBUG{'c'} + $DEBUG{'a'} ;	# -x c
-    $DEBUG_CURL			= $DEBUG{'C'} + $DEBUG{'a'} ;	# -x c	  
+    $DEBUG_CURL			= $DEBUG{'C'} + $DEBUG{'a'} ;	# -x c
     $DEBUG_COUNT		= $DEBUG{'n'} + $DEBUG{'a'} ;	# -x n
     $DEBUG_SF			= $DEBUG{'s'} + $DEBUG{'a'} ;	# -x s
+    $DEBUG_STATS		= $DEBUG{'S'} + $DEBUG{'a'} ;	# -x S
     $DEBUG_RUBYGEM		= $DEBUG{'r'} + $DEBUG{'a'} ;	# -x r
     print STDERR "\n";
 }
@@ -1524,10 +1528,10 @@ sub ValidateMasterSite($$) {
 ##         M A I N   R o u t i n e    Main
 ## ----------------------------------------
 #$SIG{'INT'} = 'SingintHandler';
-my ($PackageStart);
+my ($PackageStart);	# For timing, not used for now
 my ($PackageEnd);
 
-my ($argv)    = join ' ', @ARGV;
+my ($argv)    = join ' ', @ARGV;	# to show at Stats()
 getopts( 'c:Dd:fFhM:mP:p:s:S:tT:uvVwx:', \%opts);
 
 if ($opts{'c'}) { $category = $opts{'c'}; $full_list++;}
@@ -1594,8 +1598,9 @@ foreach my $dir (@categories) {
     if ($category && ($dir ne $category )) { next;} # skip other than category if specified
     
     if (! -d $dir) 	 {next;}
-
-if ($update_pkgsrc) {
+#
+# cvs update  if -u is found
+    if ($update_pkgsrc) {
     print STDERR sprintf("%4d ", __LINE__ ), " Updating $pkgsrc -> $dir\n";
     if ($dir) {
 	open(CVS_UPDATE, "(cd $pkgsrc; cvs update -dPA $dir)|") 
@@ -1608,16 +1613,17 @@ if ($update_pkgsrc) {
     else {
 	print STDERR "cvs update requested but no dir specified, skipping\n";
     }
- }
- if ($dir =~ /^doc$/ )	{ next;}  # doc is to be updated (if -u)
-    
-#    print STDERR sprintf("%4d ", __LINE__ ) ,"$dir\n";
+    }
+    if ($dir =~ /^doc$/ )	{ next;}  # doc is to be updated (if -u), so check later here
+
+#   -----------------------------
+#    R E A D   D I R E C T O R Y
+#   -----------------------------    
     opendir(CATEGORIES, "$pwd/$dir") || 
 	print STDERR "problem opendir $pwd/$dir: $! \n",
 	__FILE__ , ' -> ', (caller 0)[3], ': ',  sprintf("%4d ", __LINE__ ),"\n" ;
     my (@PackageNames) = readdir(CATEGORIES);
     closedir(CATEGORIES);
- #   print STDERR sprintf("%4d ", __LINE__ ) , join ' ',  @PackageNames, "\n";
     
     printf STDERR "%4d     ---  (%s) ---\n", sprintf("%4d ", __LINE__ ), $dir;
     # ------------------------------------
@@ -1626,6 +1632,11 @@ if ($update_pkgsrc) {
     foreach my $PackageName (@PackageNames) {
 	$MasterSite404 = 0;
 	$HomePage404 = 0;
+	#  ----- By package status  -----
+	my ($HomePageStatus);	#  for listing   See (TODO) section for the moment
+	my ($MasterSiteStatus);	#  for listing
+	my ($PackageStatus);	#  for Stats
+
 #	DoEachPackage( );
 #sub 	DoEachPackage( ) {
 	@CANDIDATE = '';
@@ -1881,7 +1892,7 @@ GC Warning: Out of Memory! Heap size: 247 MiB. Returning NULL!
      228: available: 1.4.10 PKGVERSION: 1.4.10 amarok  OK
 
 (Problem)
-    * available is empty -> not listed now (example arp-scan)
+    * available is empty -> not listed now (example arp-scan)  see $curl_lines
 
     * stats are not correct in above
 (TODO)
@@ -1891,6 +1902,7 @@ GC Warning: Out of Memory! Heap size: 247 MiB. Returning NULL!
       Get status for MASTER_SITE (MasterSiteStatus) .. for listing,        
       Get status for HOMEPAGE    (HomePageStatus)   .. for listing,        
       Get status for Package     (PackageStatus)    .. Stats will look for this
+
     *  ----- For Stats -----
     DNS Refused 550 500  403 404 301 302 200 found
     * %STATS{'200'} %STATS{'403'} %STATS{'404'} %STATS{'500'} %STATS{'550'} etc
