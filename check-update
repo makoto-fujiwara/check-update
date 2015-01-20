@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-20 11:54" ; # write by emacs time-stamp
+$VERSION = "2015-01-20 14:39" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 #   requirement:
 #       net/curl
@@ -36,15 +36,19 @@ my ($DEBUG_RUBYGEM);
 my ($DEBUG_SF);
 my ($DEBUG_STATS);
 
-my ($curl_head) = 'curl -k -I';
-my ($curl_head_secure) = 'curl -k -I -s';
-my ($curl_list) = 'curl -k -l';
-my ($curl_list_secure) = 'curl -k -l -s';
+my ($curl_head)		= 'curl -k -I';
+my ($curl_head_secure)	= 'curl -k -I -s';
+my ($curl_list)		= 'curl -k -l';
+my ($curl_list_secure)	= 'curl -k -l -s';
 
-    $curl_head		= 'w3m -dump_head';
-    $curl_head_secure	= 'w3m -dump_head';
-    $curl_list		= 'w3m -dump_source';
-    $curl_list_secure	= 'w3m -dump_source';
+#    $curl_head		= 'w3m -dump_head';
+#    $curl_head_secure	= 'w3m -dump_head';
+#    $curl_list		= 'w3m -dump_source';
+#    $curl_list_secure	= 'w3m -dump_source';
+
+# w3m has a problem on archiver/unalz
+## modena@makoto 22:35:59/150120(~)% w3m -dump_head http://www.kipple.pe.kr/win/unalz/
+## unable to get local issuer certificate: accept? (y/n)
 
 # stats:
 my ($Found)	= 0;
@@ -1200,16 +1204,18 @@ sub Stats($$){
 	= $Found 
 	+ $TODO_LIST
 	+ $OK
-
 	+ $NotAvailable
+
 	+ $NoMasterSites
+	+ $NotFound
 	+ $Forbidden
 	+ $DNSProblem
-	+ $SkippedEndingDigit
 
+	+ $SkippedEndingDigit
 	+ $SkipTooOld
 	+ $MetaPackage
 	+ $Reverse
+
 	+ $NotListed
 	;
     my($ForMergeCount) = sprintf 
@@ -1217,18 +1223,19 @@ sub Stats($$){
 	  $Found  ,
 	  $TODO_LIST ,
 	  $OK  ,
-	  
 	  $NotAvailable ,
-	  $NoMasterSites ,
-	  $Forbidden ,
-	  $DNSProblem,
-	  $SkippedEndingDigit ,
 
+	  $NoMasterSites ,
+	  $NotFound ,
+	  $Forbidden ,
+	  $DNSProblem ,
+
+	  $SkippedEndingDigit ,
 	  $SkipTooOld ,
 	  $MetaPackage ,
 	  $Reverse ,
+
 	  $NotListed ,
-	  $StatsMasterSite404 ,
 	$Sum,
 	$TotalChecked, $started, time();
 
@@ -1248,14 +1255,17 @@ sub Stats($$){
     printf SUMMARY $number3,  '<span class="brown">TODO flags:', $TODO_LIST,	'(More to be updated, by TODO)</span>';
     printf SUMMARY $number,  'Up-to-date:',		$OK,	'OK, Already up-to-date';
     printf SUMMARY $number,  'Not Available:',		$NotAvailable,	'Failed to get update info '. $indicated;
+
     printf SUMMARY $number,  'No Master Sites:',	$NoMasterSites,	'(usually in files directory)';
-    printf SUMMARY $number,  'NotFound (404):',		$StatsMasterSite404,	'MASTER_SITES returns 404';
+    printf SUMMARY $number,  'NotFound (404):',		$NotFound,	'MASTER_SITES returns 404, and no recovery';
     printf SUMMARY $number,  'Forbidden(403/550):',	$Forbidden;
     printf SUMMARY $number,  "Site not in DNS",		$DNSProblem;
+
     printf SUMMARY $number,  'Skipped:',		$SkippedEndingDigit,	'(Skipped, the name ends with digits)';
     printf SUMMARY $number,  'Matured:',		$SkipTooOld,	'(No update expected)';
     printf SUMMARY $number,  'META_PACKAGE:',		$MetaPackage,	'(Excluding meta-pkgs directory)';
     printf SUMMARY $number,  'Confusing:',		$Reverse,	'<span class="reverse">(Found version wrong, hilighted, only for debug purpose)</span>';
+
     printf SUMMARY $number,  'Not Listed:',		$NotListed,'';
     printf SUMMARY $number,  'Sum of Above:',		$Sum,'';
     printf SUMMARY "\n";
@@ -1500,7 +1510,6 @@ sub GetSFProjectCandidate($$) {
 	($returnCode, @candidate) = ParseDirectory($master_site, $DISTBASE);
     } else {
 	$MasterSiteStat = $status;
-	$StatsMasterSite404++;
 	$master_site  =  'http://sourceforge.net/projects/'. $SFProject .'/files/' ;
 		print STDERR sprintf("%4d ", __LINE__ ), ' (2) master_site(', $master_site, ') status('. $status.' SFProject: ', $SFProject, "\n"  if $DEBUG_SF;
 	($returnCode, @candidate) = ParseDirectory($master_site, $SFProject);
@@ -1915,6 +1924,9 @@ GC Warning: Out of Memory! Heap size: 247 MiB. Returning NULL!
 
     * stats are not correct in above
 (TODO)
+   http://-> https:// location header can not be handled properly
+   devel/RTFM 	RTFM 	2.4.5 	->	0.0	2.4.5	pkgsrc-users	http://download.bestpractical.com/pub/rt/release/
+
     * decide the only one final status for each package (for (0.0) case)  and then collect the Stats
 
     *  ----- By package status  -----
