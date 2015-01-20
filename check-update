@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-19 15:44" ; # write by emacs time-stamp
+$VERSION = "2015-01-20 01:06" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 #        requires net/curl
 #use pkgsrc::Dewey;
@@ -1174,7 +1174,6 @@ sub Stats($$){
 	  $Found  ,
 	  $TODO_LIST ,
 	  $OK  ,
-	  $StatsMasterSite404 ,
 	  
 	  $NotAvailable ,
 	  $NoMasterSites ,
@@ -1185,6 +1184,7 @@ sub Stats($$){
 	  $MetaPackage ,
 	  $Reverse ,
 	  $NotListed ,
+	  $StatsMasterSite404 ,
 	$Sum,
 	$TotalChecked, $started, time();
 
@@ -1203,7 +1203,6 @@ sub Stats($$){
     printf SUMMARY $number2,  '<span class="brown">Found:', 	$Found,		'These packages are to be updated</span>';
     printf SUMMARY $number3,  '<span class="brown">TODO flags:', $TODO_LIST,	'(More to be updated, by TODO)</span>';
     printf SUMMARY $number,  'Up-to-date:',		$OK,	'OK, Already up-to-date';
-    printf SUMMARY $number,  'NotFound (404):',		$StatsMasterSite404,	'MASTER_SITES returns 404 (not added to total count)';
     printf SUMMARY $number,  'Not Available:',		$NotAvailable,	'Failed to get update info '. $indicated;
     printf SUMMARY $number,  'No Master Sites:',	$NoMasterSites,	'(usually in files directory)';
     printf SUMMARY $number,  'Forbidden(403/550):',	$Forbidden;
@@ -1214,6 +1213,7 @@ sub Stats($$){
     printf SUMMARY $number,  'Not Listed:',		$NotListed,'';
     printf SUMMARY $number,  'Sum of Above:',		$Sum,'';
     printf SUMMARY "\n";
+    printf SUMMARY $number,  'NotFound (404):',		$StatsMasterSite404,	'MASTER_SITES returns 404 (not added to total count)';
     printf SUMMARY $number,  'Total Checked:',		$TotalChecked;
     printf SUMMARY $string,  'Options used:',		' ', $argv;
     printf SUMMARY $string,  'Output URL:',		' ', $output_URL.$output_leaf.'/'. $summary_leaf;
