@@ -4,7 +4,7 @@ our(@ARGV);
 use Getopt::Std;
 
 my($VERSION);
-$VERSION = "2015-01-20 01:05" ; # write by emacs time-stamp
+$VERSION = "2015-01-20 01:32" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 
 sub usage() {
@@ -85,47 +85,47 @@ my (@headers);
 my (%opts);
 getopts('h', \%opts);
 if ($opts{'h'} ) { usage(); exit;}
-my ($counts);
+my ($statsline);
 my (@sums);
-my ($StatsNotRead) = 1; # 1 stats is not read, 0 alread read.
+my ($StatsNotRead)  = 1;	# 1 stats is not read, 0 alread read.
 my ($headerNotRead) = 1;	# See the bottom (below  __END__)
 
 my ($Header, $Body, $TableHeader, $Stats) = (0, 1, 2, 3); #  Define constant
 
 open(WHOLE, "> $whole_tmp") || print STDERR sprintf("%4d ", __LINE__), "Problem open file $whole_tmp: $!\n";
 open(STATS, "> $stats_tmp") || print STDERR sprintf("%4d ", __LINE__), "Problem open file $stats_tmp: $!\n";
-
+#
+#   Read by-category output files
+#
 foreach my $file (@ARGV) {
     $file = $upper_directory . $file;
-    my ($type)		= $Header;    # constant: (0) Header (1) Body (2) TableHeader (3) Stats
+    my ($state)		= $Header;    # constant: (0) Header (1) Body (2) TableHeader (3) Stats
 
     open(FILE, $file) || print STDERR sprintf("%4d ", __LINE__), "Problem opening to read: $file $!\n";
     while (<FILE>) {
-        if (/^<html>/ )			{ $type	= $Header; }	# Header starts by this line
-	if (/^<pre>/)			{ $type = $Stats; }	# Stats starts
-	if (/<table cellspacing=/ )	{ $type	= $TableHeader; }
+        if (/^<html>/ )			{ $state	= $Header; }	# Header starts by this line
+	if (/^<pre>/)			{ $state = $Stats; }	# Stats starts
+	if (/<table cellspacing=/ )	{ $state	= $TableHeader; }
 
-	if      ( $type == $Header )	{if ( $headerNotRead )	{ print WHOLE $_ ; print STATS $_ ;}
-	} elsif ( $type == $Body )				{ print WHOLE $_ ;
-	} elsif ( $type == $TableHeader ){if ( $headerNotRead )	{ print WHOLE $_ ; }
+	if      ( $state == $Header )	{if ( $headerNotRead )	{ print WHOLE $_ ; print STATS $_ ;}
+	} elsif ( $state == $Body )				{ print WHOLE $_ ;
+	} elsif ( $state == $TableHeader ){if ( $headerNotRead )	{ print WHOLE $_ ; }
 	} else { # type == $Stats
 	    if ($StatsNotRead) {
 		if    (/^(\S.*:)\s+\d+\s+(\S.*)/)	{ push(@headers, [$1, $2]);}
 		elsif (/^(\S.*:)\s+\d+/) 		{ push(@headers, [$1, '']);}
 	    }
 	    if (/^ForMergeCount:([0-9, ]+)/) {
-		$counts = $1;
+		$statsline = $1;
 		$StatsNotRead = 0;
 	    }
 	}
 
-	if (/<th>Update-To</ )		{ $type	= $Body        ; $headerNotRead = 0;} # Body starts on next line
+	if (/<th>Update-To</ )		{ $state	= $Body        ; $headerNotRead = 0;} # Body starts on next line
     }
     close(FILE);
-#    print STDERR sprintf("%4d ", __LINE__), join (' ', @headers), "\n";
-    my(@statsline) =  split(',', $counts);
-#    print STDERR sprintf("%4d ", __LINE__), $counts,"\n";
-#    print STDERR sprintf("%4d ", __LINE__), join (' ', @stats), "\n";    
+
+    my(@statsline) =  split(',', $statsline);
 #
 #   C A L C U L A T I O N
 #
