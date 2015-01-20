@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-20 03:05" ; # write by emacs time-stamp
+$VERSION = "2015-01-20 03:25" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 #   requirement:
 #       net/curl
@@ -892,11 +892,25 @@ sub MasterSiteVersion($) {
 sub ParseDebug($){
     my ($pattern) = shift;
     my %DEBUG;
+
+    my(%LongName) = qw (
+    a All
+    e EvalPattern
+    l CurlListing
+    d DistbasePattern
+    h HTTPHeader
+    c Cache
+    C Curl
+    n CountNumber
+    s SourceForge
+    r RubyGems );
+
     print STDERR sprintf("%4d ", __LINE__ ), ' DEBUG pattern (',  $pattern,  ') -> ';
     foreach my $e (qw (a d e h c C n s l r)){
 	print STDERR $e.'(';
-	if (grep (/$e/, $pattern) > 0) {
-	    print STDERR '1) ' ;
+	if (grep (/$e/, $pattern) > 0 ||
+	    grep (/a/, $pattern) > 0  ) {
+	    print STDERR $LongName{$e} .') ' ;
 	    $DEBUG{$e}++;
 	} else {
 	    print STDERR ' ) ' ;
@@ -1514,15 +1528,13 @@ my ($PackageStart);
 my ($PackageEnd);
 
 my ($argv)    = join ' ', @ARGV;
-getopts('Cc:Dd:fFHhM:mP:p:s:S:tT:uvVwx:', \%opts);
+getopts( 'c:Dd:fFhM:mP:p:s:S:tT:uvVwx:', \%opts);
 
 if ($opts{'c'}) { $category = $opts{'c'}; $full_list++;}
-if ($opts{'C'}) { $DEBUG_CACHE++ ; }
 if ($opts{'d'}) { $output_directory = $opts{'d'};}
 if ($opts{'D'}) { $enable_digit_ending_package++;}
 if ($opts{'f'}) { $full_list++;}
 if ($opts{'F'}) { $FindDepends++;}
-if ($opts{'H'}) { $DEBUG_HTTP_HEADER++ ; }
 if ($opts{'M'}) { $maintainer = $opts{'M'} }
 if ($opts{'m'}) { $merge_mode++;}	# shows ForMergeCount (can be always true ?)
 if ($opts{'p'}) { $pkgsrc = $opts{'p'};}
@@ -1543,8 +1555,6 @@ if ($opts{'v'}) { $verbose++;}
 if ($opts{'V'}) { ShowVersion(); exit;}
 if ($opts{'w'}) { $include_wip++};
 if ($opts{'W'}) { $include_reverse++};
-
-#if ($partial) { $summary .= '.partial';}
 
 chdir $pkgsrc;
 
