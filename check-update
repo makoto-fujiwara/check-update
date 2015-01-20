@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-20 03:44" ; # write by emacs time-stamp
+$VERSION = "2015-01-20 07:40" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 #   requirement:
 #       net/curl
@@ -34,6 +34,7 @@ my ($DEBUG_CACHE);
 my ($DEBUG_COUNT);
 my ($DEBUG_RUBYGEM);
 my ($DEBUG_SF);
+my ($DEBUG_STATS);
 
 # stats:
 my ($Found)	= 0;
@@ -43,6 +44,7 @@ my ($Forbidden)	= 0;
 my ($Moved)	= 0;
 my ($NotListed) = 0;
 my ($TODO_LIST) = 0;
+my ($DNSProblem) = 0;
 my ($Reverse)   = 0;	# for stats
 my ($MetaPackage)  = 0;	
 my ($TotalChecked)	= 0;
@@ -52,12 +54,13 @@ my ($NoMasterSites)	= 0;
 my ($NoHost)	= 0;	# DNS query failed
 my ($SkipTooOld) = 0;  # count
 
-my ($MasterSite404);		# by package status
+#my ($MasterSite404);		# by package status
 my ($StatsMasterSite404) = 0;	# for count
 my ($PackageStatus) = 0;	# (http_code) Each package has only one status, and the collect for stats. 
 
-my ($HomePage404);		# by package status
-my ($StatsHomePage404) = 0;	# for count
+my ($MasterSiteStat);		# by package status
+my ($HomePageStat);		# by package status
+my ($StatsHomePageStat) = 0;	# for count
 
 #my ($PKGNAME, $PKGVERSION, $MASTER_SITES);
 my ($CVSweb) = 'http://cvsweb.netbsd.org/bsdweb.cgi/pkgsrc/';
@@ -127,6 +130,7 @@ qw(
     oroborus	http://ftp.debian.org/debian/pool/main/o/oroborus/
     3proxy	http://3proxy.ru/download/
     arp-scan	http://www.nta-monitor.com/tools-resources/security-tools/arp-scan
+    skampi	http://liinwww.ira.uka.de/~skampi/download.html
     );
 # arp-scan is the same as HOMEPAGE (strange)
 # Now global variables in Makefile
@@ -332,7 +336,7 @@ print STDERR sprintf("%4d ", __LINE__ ), ' ', $URL, ' -> ', $_  if $DEBUG_HTTP_H
 	    print STDERR sprintf("%4d ", __LINE__ ), ' ', $URL, ' -> ', $_  if $DEBUG_HTTP_HEADER ;
 	};
 # # curl: (7) Failed to connect to www.opensync.org port 80: Connection refused
-	if (/Connection refused/ ) { $status = '(Refused)';}
+	if (/Connection refused/ ) { $status = 'Refused';}
 	if (/^HTTP\S+ (\d+) / ) {  # \S+ has '/1.1' or so
 print STDERR sprintf("%4d ", __LINE__ ), ' ', $URL, ' -> ', $_  if $DEBUG_HTTP_HEADER ;
 	    $status = $1;
@@ -732,12 +736,11 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (PKGNAME) ', $PKGNAME, ' --> DISTBASE
     if ( ! CheckDNS($master_site) ) {
 	return ('DNS', '0.0');
     }
-    my ($status) = CheckHeader($master_site);
-print STDERR sprintf("%4d ", __LINE__ ), ' (PKGNAME) ', $PKGNAME, ' --> DISTBASE (', $DISTBASE,") status: ", $status, "\n" if $DEBUG_HTTP_HEADER ;
-    if ($status == 404 ) { 
-	$MasterSite404 = 404;
-	$StatsMasterSite404++;
-print STDERR sprintf("%4d ", __LINE__ ), ' (PKGNAME) ', $PKGNAME, ' --> DISTBASE (', $DISTBASE,") status: ", $status, "\n" if $DEBUG_DISTBASE_PATTERN;
+
+    my ($MasterSiteStat) = CheckHeader($master_site);
+print STDERR sprintf("%4d ", __LINE__ ), ' (PKGNAME) ', $PKGNAME, ' --> DISTBASE (', $DISTBASE,") status: ", $MasterSiteStat, "\n" if $DEBUG_HTTP_HEADER ;
+    if ($MasterSiteStat == 404 ) { 
+print STDERR sprintf("%4d ", __LINE__ ), ' (PKGNAME) ', $PKGNAME, ' --> DISTBASE (', $DISTBASE,") status: ", $MasterSiteStat, "\n" if $DEBUG_DISTBASE_PATTERN;
 	if ($master_site =~ m|github| ) {	
 	    print STDERR sprintf("%4d ", __LINE__ ), 'CheckHeader call: ', CheckHeader($master_site.'../releases.html'),"\n";}
 	if ($master_site =~ m|github| &&
@@ -746,34 +749,30 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (PKGNAME) ', $PKGNAME, ' --> DISTBASE
 print STDERR sprintf("%4d ", __LINE__ ), ' (PKGNAME) ', $PKGNAME, ' --> master_site = ', $master_site,"\n" if $DEBUG_DISTBASE_PATTERN;
 	}
 	else {   
-	$status =  CheckHeader($home_page);
-print STDERR sprintf("%4d ", __LINE__ ), ' (PKGNAME) ', $PKGNAME, ' --> master_site = ', $home_page, ' status: ', $status,"\n" if $DEBUG_DISTBASE_PATTERN;
-	$http_code = $status;
-	if ($status == 404 )      { 	$HomePage404 = 404; $StatsHomePage404++; return (404, '0.0') ;}
-	elsif ($status == 'DNS' ) { 	$HomePage404 = 'DNS'; $StatsHomePage404++; return ('DNS', '0.0') ;}	
+	$HomePageStat =  CheckHeader($home_page);
+print STDERR sprintf("%4d ", __LINE__ ), ' (PKGNAME) ', $PKGNAME, ' --> master_site = ', $home_page, ' status: ', $HomePageStat,"\n" if $DEBUG_DISTBASE_PATTERN;
+	if ($HomePageStat == 404 || $HomePageStat == 'DNS' ) { return ($HomePageStat, '0.0');}
 	$master_site = $home_page; # fall back to home_page
 	}
     }
-    if ($status == 550 ) { 
-	$status =  CheckHeader($home_page);
+    if ($MasterSiteStat == 550 ) { 
+	$HomePageStat =  CheckHeader($home_page);
 print STDERR sprintf("%04d ", __LINE__ ), ' (PKGNAME) ', $PKGNAME, ' --> master_site = ', $master_site,"\n" if $DEBUG_DISTBASE_PATTERN;
 	$http_code = 550;
-	if ($status == 550 ) { 	$MasterSite404 = $status; return (550,'0.0') ;}
-	$master_site = $home_page; # fall back to home_page
+	if ($HomePageStat == 550 ) { return (550,'0.0') ;}
+#	$master_site = $home_page; # fall back to home_page
     }
-    if ($status == 403 ) {
+    if ($MasterSiteStat == 403 ) {
 	$http_code = 403;
-	$status =  CheckHeader($home_page);
+	$HomePageStat =  CheckHeader($home_page);
 print STDERR sprintf("%4d ", __LINE__ ), ' (PKGNAME) ', $PKGNAME, ' --> master_site = ', $master_site,"\n" if $DEBUG_HTTP_HEADER;
-	if ($status == 404 ) { $MasterSite404 = $status; return (403, '0.0') ;}
+	if ($HomePageStat == 404 ) { return (403, '0.0') ;}
 	$master_site = $home_page; # fall back to home_page
 	}
-    if ($status == 301 || $status == 302 ) {
+    if ($MasterSiteStat == 301 || $MasterSiteStat == 302 ) {
 print STDERR sprintf("%4d ", __LINE__ ), ' (PKGNAME) ', $PKGNAME, ' --> master_site = ', $master_site,"\n" if $DEBUG_HTTP_HEADER;
-	$http_code = $status;
-	$MasterSite404 = $status;
 	$Moved++;
-	($http_code, $master_site) = Http301core($master_site, 4); # 4 is retry number
+	($MasterSiteStat, $master_site) = Http301core($master_site, 4); # 4 is retry number
 print STDERR sprintf("%4d ", __LINE__ ), ' (PKGNAME) ', $PKGNAME, ' --> master_site = ', $master_site, 'http_code(', $http_code, ")\n" if 	$DEBUG_HTTP_HEADER ;
 	if ($http_code != 200 && $home_page)  {
 	    ($http_code, $master_site) =  Http301core($home_page, 4); # 4 is retry number
@@ -1189,6 +1188,7 @@ sub Stats($$){
 	+ $NotAvailable
 	+ $NoMasterSites
 	+ $Forbidden
+	+ $DNSProblem
 	+ $SkippedEndingDigit
 
 	+ $SkipTooOld
@@ -1197,7 +1197,7 @@ sub Stats($$){
 	+ $NotListed
 	;
     my($ForMergeCount) = sprintf 
-    "ForMergeCount:%d,%d,%d,%d, %d,%d,%d,%d, %d,%d,%d,%d, %d, %d,   %d, %d\n",
+    "ForMergeCount:%d,%d,%d,%d, %d,%d,%d,%d, %d,%d,%d,%d, %d, %d,   %d, %d, %d\n",
 	  $Found  ,
 	  $TODO_LIST ,
 	  $OK  ,
@@ -1205,6 +1205,7 @@ sub Stats($$){
 	  $NotAvailable ,
 	  $NoMasterSites ,
 	  $Forbidden ,
+	  $DNSProblem,
 	  $SkippedEndingDigit ,
 
 	  $SkipTooOld ,
@@ -1215,7 +1216,7 @@ sub Stats($$){
 	$Sum,
 	$TotalChecked, $started, time();
 
-    my($string2) = "       %-20s %6s  %s\n";
+    my($string2) = "       %-20s %6s %s\n";
     my($string) = "%-20s %6s  %s\n";
     my($number) = "%-20s %6d  %s\n";
     my($number2) = "%-40s %6d  %s\n";
@@ -1232,7 +1233,9 @@ sub Stats($$){
     printf SUMMARY $number,  'Up-to-date:',		$OK,	'OK, Already up-to-date';
     printf SUMMARY $number,  'Not Available:',		$NotAvailable,	'Failed to get update info '. $indicated;
     printf SUMMARY $number,  'No Master Sites:',	$NoMasterSites,	'(usually in files directory)';
+    printf SUMMARY $number,  'NotFound (404):',		$StatsMasterSite404,	'MASTER_SITES returns 404';
     printf SUMMARY $number,  'Forbidden(403/550):',	$Forbidden;
+    printf SUMMARY $number,  "DNS doen't respond",	$DNSProblem;
     printf SUMMARY $number,  'Skipped:',		$SkippedEndingDigit,	'(Skipped, the name ends with digits)';
     printf SUMMARY $number,  'Matured:',		$SkipTooOld,	'(No update expected)';
     printf SUMMARY $number,  'META_PACKAGE:',		$MetaPackage,	'(Excluding meta-pkgs directory)';
@@ -1240,7 +1243,6 @@ sub Stats($$){
     printf SUMMARY $number,  'Not Listed:',		$NotListed,'';
     printf SUMMARY $number,  'Sum of Above:',		$Sum,'';
     printf SUMMARY "\n";
-    printf SUMMARY $number,  'NotFound (404):',		$StatsMasterSite404,	'MASTER_SITES returns 404 (not added to total count)';
     printf SUMMARY $number,  'Total Checked:',		$TotalChecked;
     printf SUMMARY $string,  'Options used:',		' ', $argv;
     printf SUMMARY $string,  'Output URL:',		' ', $output_URL.$output_leaf.'/'. $summary_leaf;
@@ -1481,7 +1483,7 @@ sub GetSFProjectCandidate($$) {
     if ($status == 200 ) {
 	($returnCode, @candidate) = ParseDirectory($master_site, $DISTBASE);
     } else {
-	$MasterSite404 = $status;
+	$MasterSiteStat = $status;
 	$StatsMasterSite404++;
 	$master_site  =  'http://sourceforge.net/projects/'. $SFProject .'/files/' ;
 		print STDERR sprintf("%4d ", __LINE__ ), ' (2) master_site(', $master_site, ') status('. $status.' SFProject: ', $SFProject, "\n"  if $DEBUG_SF;
@@ -1630,8 +1632,8 @@ foreach my $dir (@categories) {
     #    F O R   E A C H  P A C K A G E     ( to line 1835 ..)
     #  ------------------------------------
     foreach my $PackageName (@PackageNames) {
-	$MasterSite404 = 0;
-	$HomePage404 = 0;
+	$MasterSiteStat = 0;
+	$HomePageStat = 0;
 	#  ----- By package status  -----
 	my ($HomePageStatus);	#  for listing   See (TODO) section for the moment
 	my ($MasterSiteStatus);	#  for listing
@@ -1685,8 +1687,8 @@ foreach my $dir (@categories) {
     #my ($http_code);
     #my ($returnCode, @candidate);
 
-	if (! CheckDNS($HOMEPAGE)) { $HomePage404 = 'DNS';}
-	else { $HomePage404 = CheckHeader($HOMEPAGE); }
+	if (! CheckDNS($HOMEPAGE)) { $HomePageStat = 'DNS';}
+	else { $HomePageStat = CheckHeader($HOMEPAGE); }
 	
     $PKGBASE	= GetVariableValue ($dir, $PackageName, 'PKGBASE');
 # -----------------------------------------------------------------------
@@ -1742,7 +1744,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	}
 
 	if ($http_code eq 'DNS' ) {
-	    $MasterSite404 = 'DNS';
+	    $MasterSiteStat = 'DNS';
 	}
 	if ($master_site && $http_code ne 'DNS' ) {
 	    ($returnCode, @candidate) = ParseDirectory($master_site, $DISTBASE);
@@ -1774,7 +1776,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
     } # $GEM_PACKAGE else
 # -------------------
 print STDERR sprintf("%4d ", __LINE__ ), 
-' (PKGBASE) ', $PKGBASE, ' --> http: ', $MasterSite404, 'Now: ', $PKGVERSION, ' $available: ', $available,"\n" if $DEBUG_DISTBASE_PATTERN;        
+' (PKGBASE) ', $PKGBASE, ' --> http: ', $MasterSiteStat, 'Now: ', $PKGVERSION, ' $available: ', $available,"\n" if $DEBUG_DISTBASE_PATTERN;        
 
     my($to_list) = 1;
 	my ($DISTBASE_TO_SHOW) = $DISTBASE;
@@ -1789,14 +1791,15 @@ print STDERR sprintf("%4d ", __LINE__ ),
     } elsif ( $TODO{$PKGBASE} &&
 	      CompareVersion( $TODO{$PKGBASE}, $PKGVERSION) != 0 )	{ $TODO_LIST++; $to_list = 1;
     } elsif ( CompareVersion( $available, $PKGVERSION) == 0 )	{ $to_list = 0;	 $OK++; # OK, disable to list
-    } elsif ( $available eq '0.0' || $available eq '') {
-	if    ($MasterSite404 == 404 )	{ $NotFound++; }
-	elsif ($http_code == 403 )	{ $Forbidden++;}
-	elsif ($http_code == 550 )	{ $Forbidden++;}
-	else				{ $NotAvailable++ ; }
-	if ( $full_list == 0 ) { $to_list = 0;} # Unable to find recent version
     } elsif (  CompareVersion( EditVersion($DISTBASE, $available), $PKGVERSION) == 0 )
     			{ $to_list = 0;	 $OK++; # OK, disable to list
+    } elsif ( $available eq '0.0' || $available eq '') {
+	if    ($MasterSiteStat == 404 )	{ $NotFound++; }
+	elsif ($MasterSiteStat == 403 )	{ $Forbidden++;}
+	elsif ($MasterSiteStat == 550 )	{ $Forbidden++;}
+	elsif ($MasterSiteStat == 'DNS' )	{ $DNSProblem++;}
+	else				{ $NotAvailable++ ; }
+	if ( $full_list == 0 ) { $to_list = 0;} # Unable to find recent version
     } elsif ( CompareVersion( $available, $PKGVERSION) < 0 )    { 
 	if ($include_reverse == 0 ) { $to_list = 0; }
 	$Reverse++; $reverse++; 
@@ -1820,9 +1823,9 @@ print STDERR sprintf("%4d ", __LINE__ ),
     my($homepage) = $PKGBASE;     # if HOMEPAGE is empty, don't use href, set for that
     if ($HOMEPAGE) { $homepage = sprintf "<a href=\"%s\">%s</a>", $HOMEPAGE, $PKGBASE;}
     my ($HomePageString);
-    if ($HomePage404 != 200 ) { $HomePageString =  "<span class=\"pale_dns\">(". $HomePage404.')</span> ';}
+    if ($HomePageStat != 200 ) { $HomePageString =  "<span class=\"pale_dns\"> (". $HomePageStat.')</span> ';}
     my ($MasterSiteString);
-    if ($MasterSite404) { $MasterSiteString =  "<span class=\"pale_dns\">(". $MasterSite404.')</span> ';}
+    if ($MasterSiteStat) { $MasterSiteString =  "<span class=\"pale_dns\">(". $MasterSiteStat.')</span> ';}
     # ------ E D I T         M A I N T A I N E R  -------
     $MAINTAINER =~ s/\@NetBSD.org//i;
     $MAINTAINER =  substr($MAINTAINER, 0, 13);  # pkgsrc-users@ 13 letters
