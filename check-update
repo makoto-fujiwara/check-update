@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-20 01:11" ; # write by emacs time-stamp
+$VERSION = "2015-01-20 01:54" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 #   requirement:
 #       net/curl
@@ -1605,6 +1605,9 @@ if ($update_pkgsrc) {
  #   print STDERR sprintf("%4d ", __LINE__ ) , join ' ',  @PackageNames, "\n";
     
     printf STDERR "%4d     ---  (%s) ---\n", sprintf("%4d ", __LINE__ ), $dir;
+    # ------------------------------------
+    #    F O R   E A C H  P A C K A G E     ( to line 1835 ..)
+    #  ------------------------------------
     foreach my $PackageName (@PackageNames) {
 	$MasterSite404 = 0;
 	$HomePage404 = 0;
@@ -1630,8 +1633,6 @@ if ($update_pkgsrc) {
     my($thispwd) = `pwd`;
     $thispwd =~ chomp($thispwd);
 #    print STDERR '   ***', __FILE__ , ' -> ', (caller 0)[3], ': ',  sprintf("%4d ", __LINE__ )," " ;
-#	print ' ==> this_PackageDir: ', "$this_PackageDir .. ($thispwd) \n";
-#    my ($thispackage) = $dir.'/'.$this_PackageDir;
     if ( ! -d $this_PackageDir ) { print STDERR "Not directory: $thispwd -> $this_PackageDir\n"; next;}
 
     my ($Makefile) = $this_PackageDir.'/Makefile';
@@ -1755,7 +1756,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
     printf STDERR  "%20s %15s %4s Now: %8s -> %7s Todo: %5s ", 
 	$PKGBASE, '('.$DISTBASE_TO_SHOW.')', '('.sprintf("%4d ", __LINE__ ).')', $PKGVERSION,  $available, $TODO{$PKGBASE};
     # ------------------------------------------------------------
-    # F I N D    T H E    C O N D I T I O N    T O    L I S T
+    #   F I N D    T H E    C O N D I T I O N    T O    L I S T
     # ------------------------------------------------------------
     print STDERR sprintf("%4d ", __LINE__ ). ' '. $DISTBASE. ' -> '. $available. "\n" if $DEBUG_CACHE;
     if    ( CompareVersion( $available, $PKGVERSION) >  0 )	{ $Found++; # for stats and just below
@@ -1779,7 +1780,9 @@ print STDERR sprintf("%4d ", __LINE__ ),
     }
     print STDERR sprintf("%4d ", __LINE__ ). ' '. $DISTBASE. ' -> '. $available. "\n" if $DEBUG_CACHE;
     DistbaseCacheUpdate($DISTBASE, $URL, $available);
-
+	#  ------------------------------------
+	#  O U T P U T    H T M L   L I N E
+	#  ------------------------------------
     if ($http_code) { $available = $http_code; $to_list = 1; }
 
     # Let background user (usually gray)  if MAINTAINER is not set.
@@ -1827,6 +1830,10 @@ print STDERR sprintf("%4d ", __LINE__ ),
     my($Elapsed) = time() - $PackageStart;
     RecordMaxElapsed($Elapsed);
     } #     foreach my $PackageName (@PackageNames) {
+    # ------------------------------------------
+    #    E N D    F O R   E A C H  P A C K A G E 
+    #  -----------------------------------------
+    
 #} #end sub DoEachPackage
   }   #     foreach my $dir (@categories) {
     Stats($start_time, $argv);
@@ -1876,6 +1883,8 @@ Connection: keep-alive
     * available is empty -> not listed now 
     * stats are not correct in above
 (TODO)
+    * decide the only one final status for each package (for (0.0) case)  and then collect the Stats
+
     * (Special Master site for SF) sysutils/heirloom-basename 	heirloom-basename
     * Customized list. Every developer can check his/her own list
       or -M maintainer option 
