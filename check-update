@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-20 01:54" ; # write by emacs time-stamp
+$VERSION = "2015-01-20 02:24" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 #   requirement:
 #       net/curl
@@ -51,8 +51,10 @@ my ($NotAvailable)	= 0;
 my ($NoMasterSites)	= 0;
 my ($NoHost)	= 0;	# DNS query failed
 my ($SkipTooOld) = 0;  # count
+
 my ($MasterSite404);		# by package status
 my ($StatsMasterSite404) = 0;	# for count
+my ($PackageStatus) = 0;	# (http_code) Each package has only one status, and the collect for stats. 
 
 my ($HomePage404);		# by package status
 my ($StatsHomePage404) = 0;	# for count
@@ -124,7 +126,9 @@ qw(
     openbox	http://openbox.org/wiki/Openbox:Download
     oroborus	http://ftp.debian.org/debian/pool/main/o/oroborus/
     3proxy	http://3proxy.ru/download/
+    arp-scan	http://www.nta-monitor.com/tools-resources/security-tools/arp-scan
     );
+# arp-scan is the same as HOMEPAGE (strange)
 # Now global variables in Makefile
     my ($MAINTAINER, $HOMEPAGE, $GEM_PACKAGE, $PEAR_PACKAGE, $HS_PACKAGE, $SFProject) ;
 
@@ -1884,6 +1888,17 @@ Connection: keep-alive
     * stats are not correct in above
 (TODO)
     * decide the only one final status for each package (for (0.0) case)  and then collect the Stats
+
+    *  ----- By package status  -----
+      Get status for MASTER_SITE (MasterSiteStatus) .. for listing,        
+      Get status for HOMEPAGE    (HomePageStatus)   .. for listing,        
+      Get status for Package     (PackageStatus)    .. Stats will look for this
+    *  ----- For Stats -----
+    DNS Refused 550 500  403 404 301 302 200 found
+    * %STATS{'200'} %STATS{'403'} %STATS{'404'} %STATS{'500'} %STATS{'550'} etc
+      Use the 3rd value of above listed (by package)
+      $STATS{$PackagStatus}++;
+       (MASTER_SITE, HOMEPAGE, PATTERN problem = site was found but not find the string)
 
     * (Special Master site for SF) sysutils/heirloom-basename 	heirloom-basename
     * Customized list. Every developer can check his/her own list
