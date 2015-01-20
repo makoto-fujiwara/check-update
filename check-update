@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-20 09:14" ; # write by emacs time-stamp
+$VERSION = "2015-01-20 11:50" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 #   requirement:
 #       net/curl
@@ -35,6 +35,11 @@ my ($DEBUG_COUNT);
 my ($DEBUG_RUBYGEM);
 my ($DEBUG_SF);
 my ($DEBUG_STATS);
+
+my ($curl_head) = 'curl -k -I';
+my ($curl_head_secure) = 'curl -k -I -s';
+my ($curl_list) = 'curl -k -l';
+my ($curl_list_secure) = 'curl -k -l -s';
 
 # stats:
 my ($Found)	= 0;
@@ -329,7 +334,7 @@ sub CheckHeader($) {
     print STDERR sprintf("%4d ", __LINE__ ), ' ', $URL, ' -> ', $_  if $DEBUG_HTTP_HEADER ;
     if ($URL eq '') { print STDERR sprintf("%4d ", __LINE__ ), " \$URL is empty\n"; return -1;}
     
-    open(CURL, "curl -k -I $URL 2>&1|") || print STDERR '*** ',sprintf("%4d ", __LINE__ ),' Problem on ', (caller 0)[3],"\n";
+    open(CURL, "$curl_head $URL 2>&1|") || print STDERR '*** ',sprintf("%4d ", __LINE__ ),' Problem on ', (caller 0)[3],"\n";
     while (<CURL>){
 	chomp();
 	if ( /Server denied you to change to the given directory/) {
@@ -773,6 +778,9 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (PKGNAME) ', $PKGNAME, ' --> master_s
 	$master_site = $home_page; # fall back to home_page
 	}
     if ($MasterSiteStat == 301 || $MasterSiteStat == 302 ) {
+	my ($MorePageStat, $Morelocation) =  CheckHeader($location);
+print STDERR sprintf("%4d ", __LINE__ ), ' (PKGNAME) ', $PKGNAME, ' --> master_site = ', $master_site,"\n" if $DEBUG_HTTP_HEADER;	
+	if ($MorePageStat == 200) { return (200, $Morelocation)}
 print STDERR sprintf("%4d ", __LINE__ ), ' (PKGNAME) ', $PKGNAME, ' --> master_site = ', $master_site,"\n" if $DEBUG_HTTP_HEADER;
 	$Moved++;
 	($MasterSiteStat, $master_site) = Http301core($master_site, 4); # 4 is retry number
@@ -854,7 +862,7 @@ sub Http301core($$) {
     $site =~ s|-https:|https:|;
 print STDERR sprintf("%4d ", __LINE__ ).' '. $site.' <... retry: '. $retry. "  \n\n" if  $DEBUG_HTTP_HEADER;
     if ($site eq '') { print STDERR sprintf("%4d ", __LINE__ ), " \$site is empty\n"; return -1;}
-    open(URL, "curl -k -s -I $site|") || print STDERR sprintf("%4d ", __LINE__ ), " problem accessing $site:$!\n";
+    open(URL, "$curl_head_secure $site|") || print STDERR sprintf("%4d ", __LINE__ ), " problem accessing $site:$!\n";
     while(<URL>){
 	chomp;
 	print STDERR sprintf("%4d ", __LINE__ ). ' '. $_."\n" if  $DEBUG_DISTBASE_PATTERN ;
@@ -954,13 +962,13 @@ sub ParseDirectory($$){
     my($curl_lines) = 0; # count how many lines came from curl -l
     my($repeat) = 3 ;
     my($sslv3) = '';
-    if ($master_site =~  m|https://code.google.com|) { $sslv3 = '-3';}
+#   if ($master_site =~  m|https://code.google.com|) { $sslv3 = '-3';}
     while( $curl_lines == 0 && $repeat-- > 0 )  {
 	print STDERR sprintf("%4d ", __LINE__ ), ' ', $master_site, "   \n" if $DEBUG_DISTBASE_PATTERN ;
 	if ($master_site eq '') { print STDERR sprintf("%4d ", __LINE__ ), " \$master_site is empty\n"; return -1;}
-	my ($curl_command) = "curl -k -s -l $sslv3 $master_site";
+	my ($curl_command) = "$curl_list_secure $sslv3 $master_site";
 	print STDERR sprintf("%4d ", __LINE__ ), $curl_command, "\n" if $DEBUG_CURL;
-    open(CURL, "$curl_command|") || print STDERR "Problem w3m: $!\n";
+    open(CURL, "$curl_command |") || print STDERR "Problem w3m: $!\n";
     while (<CURL>) {
 #	print STDERR sprintf("%4d ", __LINE__ ), ' ', $_, "\n";
 #print STDERR sprintf("%4d ", __LINE__ ), ' (PKGNAME) ', $PKGNAME, ' ', $_,"\n" if $DEBUG_DISTBASE_PATTERN;        
