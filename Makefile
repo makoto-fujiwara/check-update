@@ -52,9 +52,7 @@ RM=		/bin/rm
 # get the last digit of the date
 DAY=		${DATE:C/.*([0-9])$/\1/}
 
-all: ${DIRECTORY}/${DATE}/.done
-
-${DIRECTORY}/${DATE}:
+${DIRECTORY}/${DATE}: ${WORK}/.done
 	mv ${WORK} ${DIRECTORY}/${DATE};
 
 # Merge the results

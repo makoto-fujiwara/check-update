@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-22 05:54" ; # write by emacs time-stamp
+$VERSION = "2015-01-22 07:22" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 #   requirement:
 #       net/curl
@@ -36,10 +36,10 @@ my ($DEBUG_RUBYGEM);
 my ($DEBUG_SF);
 my ($DEBUG_STATS);
 
-my ($curl_head)		= 'curl -k -I';
-my ($curl_head_secure)	= 'curl -k -I -s';
-my ($curl_list)		= 'curl -k -l';
-my ($curl_list_secure)	= 'curl -k -l -s';
+my ($curl_head)		= 'curl -k -I --location --insecure';
+my ($curl_head_secure)	= 'curl -k -I --location --insecure -s';
+my ($curl_list)		= 'curl -k -l --location --insecure ';
+my ($curl_list_secure)	= 'curl -k -l --location --insecure -s';
 
 #    $curl_head		= 'w3m -dump_head';
 #    $curl_head_secure	= 'w3m -dump_head';
