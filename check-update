@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-22 03:41" ; # write by emacs time-stamp
+$VERSION = "2015-01-22 03:49" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 #   requirement:
 #       net/curl
@@ -1141,9 +1141,12 @@ sub PrintHeader($) {
     span.grey      { color: \#608060;}
     span.grey      { color: \#c09090;}
     span.pale550   { color: \#e0e090;}
-    span.pale404   { color: \#e090e0;}
+    span.pale404   { color: \#f0a000;}
     span.pale403   { color: \#90e0e0;}
-    span.pale301   { color: \#90e0c0;}
+
+    span.pale302   { color: \#806080;}
+    span.pale301   { color: \#804080;}
+
     span.pale_dns  { color: \#c040c0;}
     span.pale_arrow { color: \#c090c0;}
     span.pale0_0    { color: \#e0e090;}
