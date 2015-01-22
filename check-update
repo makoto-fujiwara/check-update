@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-22 01:38" ; # write by emacs time-stamp
+$VERSION = "2015-01-22 01:55" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 #   requirement:
 #       net/curl
@@ -111,6 +111,7 @@ my (@SkipTooOld) = qw(xview-lib estic zenicb tex2rtf gkermit kermit gturing brid
 my (@SimplePattern)  = qw(renpy crimson crack-attack hands flags autotrace simulavr hal sign parchive cabextract);
 #my (@Debian) = qw(signing-party);
 
+# key is DISTBASE (but please note DISTBASE itself is extracted by this script)
 my (%SpecialPattern) = (
     'cairo',		'$line =~ s/.*$distbase(-5c){0,}-([0-9.]+[0-9]).*/$2/ ;',  # games/crimsonfields
     'potrace',		'$line =~ m|.*$distbase[_-]([0-9.]+)[.-].[a-z].*|; my($rrr) = $1 ;',
@@ -572,13 +573,13 @@ print STDERR sprintf("%4d ", __LINE__ ),
     "       (PKGVERSION)\t", $PKGVERSION , "\n" if $DEBUG_DISTBASE_PATTERN;
 
     # Get several value to do very simple logic for the very first 'if' line below.
-    my($DISTBODY) = $PKGNAME;	# For Substracting $PKGVERSION from $PKGNAME
+    my($PKGBODY) = $PKGNAME;	# For Substracting $PKGVERSION from $PKGNAME
     				# This variable appears only these several lines, to pickup $VERSION_CANDIDATE
-    $DISTBODY =~ s/-$PKGVERSION//;
+    $PKGBODY =~ s/-$PKGVERSION//;
     my($VERSION_CANDIDATE) = $DISTBASE;
-    $VERSION_CANDIDATE =~ s/$DISTBODY//;
+    $VERSION_CANDIDATE =~ s/$PKGBODY//;
 
-print STDERR sprintf("%4d ", __LINE__ ), 'DISTBODY(', $DISTBODY,') CAND(', $VERSION_CANDIDATE,")\n" if $DEBUG_DISTBASE_PATTERN;
+print STDERR sprintf("%4d ", __LINE__ ), '(PKGBODY)', $PKGBODY,' (CAND)', $VERSION_CANDIDATE,")\n" if $DEBUG_DISTBASE_PATTERN;
     #
     # First, very simple patterns
     #
@@ -587,6 +588,7 @@ print STDERR sprintf("%4d ", __LINE__ ), 'DISTBODY(', $DISTBODY,') CAND(', $VERS
     } elsif ($PKGNAME eq	 $DISTBASE  ||
 	     $PKGNAME eq 'py27-'.$DISTBASE  ||
 	     $PKGNAME eq   'p5-'.$DISTBASE  ||
+	     $PKGNAME eq   'php54-'.$DISTBASE  ||
 	     0 ) {
 print STDERR sprintf("%4d ", __LINE__ ), ' ', $dir, '/', $PackageName, '; DISTBASE (', $DISTBASE,")\n" if $DEBUG_DISTBASE_PATTERN;
 	$DISTBASE =~ s/-$PKGVERSION//; 
