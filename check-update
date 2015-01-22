@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-22 00:48" ; # write by emacs time-stamp
+$VERSION = "2015-01-22 01:30" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 #   requirement:
 #       net/curl
@@ -125,6 +125,7 @@ my (%SpecialPattern) = (
     'Cython',		'{$line =~ m|.*$distbase-([0-9]\.[0-9]+\.[0-9])|; $line = $1 ;}',
 #    'NovaWM', 	        '$line =~ s/.*$distbase-([0-9.]+).*/$1/ ;', #   -0.8.1_alpha.tar.bz2 (716.3 kB)
 #    'sign',		'$line =~ s/The latest version is ([0-9.]+),/$1/ ;', #  security/sign  1-bit ui</a><br --> 
+     'ja-wordpress',	'$line =~ s/wordpress-([0-9.])*-ja/$1/;',
     );
 
 my(%SourceForgeAlternative) =  
@@ -557,36 +558,50 @@ sub ExpandURL($$) {		# <- Not used now (?)
 # This routine to find the Base name of distribution file.
 # It will be used to separate the version portion from distribution file.
 sub GetDistBase($$$$$) {	# <- Main       DISTBASEDISTBASE
-    my ($dir) = shift;
-    my ($PackageName) = shift;
+    my ($dir) = shift;		# category
+    my ($PackageName) = shift;	# leaf
     my ($PKGBASE)	= shift;
     my ($PKGVERSION)	= shift;
     my ($PKGNAME)	= shift;
-
-#    my ($PKGNAME)	= GetVariableValue($dir, $PackageName, 'PKGNAME_NOREV');
-#    my ($PKGVERSION)	= GetVariableValue($dir, $PackageName, 'PKGVERSION_NOREV');
+    
     my ($DISTBASE)	= GetVariableValue($dir, $PackageName, 'DISTNAME');
+
 print STDERR sprintf("%4d ", __LINE__ ),
          "  (PKGNAME)\t", $PKGNAME,        "\n",
     "       (DISTBASE)\t", $DISTBASE,      "\n",
     "       (PKGVERSION)\t", $PKGVERSION , "\n" if $DEBUG_DISTBASE_PATTERN;
-    my($DISTBODY) = $PKGNAME;
+
+    # Get several value to do very simple logic for the very first 'if' line below.
+    my($DISTBODY) = $PKGNAME;	# For Substracting $PKGVERSION from $PKGNAME
+    				# This variable appears only these several lines, to pickup $VERSION_CANDIDATE
     $DISTBODY =~ s/-$PKGVERSION//;
     my($VERSION_CANDIDATE) = $DISTBASE;
     $VERSION_CANDIDATE =~ s/$DISTBODY//;
-print STDERR sprintf("%4d ", __LINE__ ), 'DISTBODY(', $DISTBODY,') CAND(', $VERSION_CANDIDATE,")\n" if $DEBUG_DISTBASE_PATTERN;
 
+print STDERR sprintf("%4d ", __LINE__ ), 'DISTBODY(', $DISTBODY,') CAND(', $VERSION_CANDIDATE,")\n" if $DEBUG_DISTBASE_PATTERN;
+    #
+    # First, very simple (two type of) patterns
+    #
     if ( $VERSION_CANDIDATE =~ /^[0-9.pl-]+$/ ) {
 	$DISTBASE =~ s/$VERSION_CANDIDATE//;
-    } elsif ($PKGNAME eq $DISTBASE) { # in this case, just edit $DISTBASE
+    } elsif ($PKGNAME eq $DISTBASE) {		# in this case, just edit $DISTBASE
 	$DISTBASE =~ s/-$PKGVERSION//;
-print STDERR sprintf("%4d ", __LINE__ ), ' ', $dir, '/', $PackageName, '; DISTBASE (', $DISTBASE,")\n" if $DEBUG_DISTBASE_PATTERN;	
-    } elsif ($PKGNAME eq 'py27-'.$DISTBASE) { # in this case, just edit $DISTBASE
+print STDERR sprintf("%4d ", __LINE__ ), ' ', $dir, '/', $PackageName, '; DISTBASE (', $DISTBASE,")\n" if $DEBUG_DISTBASE_PATTERN;
+	#
+	# Python special
+	#
+    } elsif ($PKGNAME eq 'py27-'.$DISTBASE) {	# in this case, just edit $DISTBASE
 	$DISTBASE =~ s/-$PKGVERSION//;
-print STDERR sprintf("%4d ", __LINE__ ), ' ', $dir, '/', $PackageName, '; DISTBASE (', $DISTBASE,")\n" if $DEBUG_DISTBASE_PATTERN;	
-    } elsif ($PKGNAME eq 'p5-'.$DISTBASE) { # in this case, just edit $DISTBASE
+print STDERR sprintf("%4d ", __LINE__ ), ' ', $dir, '/', $PackageName, '; DISTBASE (', $DISTBASE,")\n" if $DEBUG_DISTBASE_PATTERN;
+	#
+	# Perl5 special
+	#
+    } elsif ($PKGNAME eq 'p5-'.$DISTBASE) {	# in this case, just edit $DISTBASE
 	$DISTBASE =~ s/-$PKGVERSION//;
-print STDERR sprintf("%4d ", __LINE__ ), ' ', $dir, '/', $PackageName, '; DISTBASE (', $DISTBASE,")\n" if $DEBUG_DISTBASE_PATTERN;	
+print STDERR sprintf("%4d ", __LINE__ ), ' ', $dir, '/', $PackageName, '; DISTBASE (', $DISTBASE,")\n" if $DEBUG_DISTBASE_PATTERN;
+	#
+	# Complicated others
+	#
     } else {
 
 #    print STDERR sprintf("%4d ", __LINE__ ), ' ', $DISTBASE, "\n";
