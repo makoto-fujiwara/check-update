@@ -4,7 +4,7 @@ our(@ARGV);
 use Getopt::Std;
 
 my($VERSION);
-$VERSION = "2015-01-20 01:39" ; # write by emacs time-stamp
+$VERSION = "2015-01-22 00:25" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 
 sub usage() {
@@ -52,11 +52,10 @@ sub DirectoryName($){
 
 sub main() {
 my ($summary, $summary_leaf, $summary_tmp, $upper_directory);    
-my ($script);
-my ($Started) = time();
-#print STDERR sprintf("%4d ", __LINE__), 'Started: ', $Started, "\n";
-#print scalar(gmtime($Started)), "\n";
+
+my ($Started) = time();  # (set for max time to find out smaller, then minimum
 my ($Ended);
+
     $upper_directory = $ENV{'HOME'}.'/public_html/pkgsrc/check-update/';
 my ($output_directory, $output_directory_tmp, $leaf ) = DirectoryName($upper_directory);
 my ($whole_tmp) = $output_directory_tmp. '00_whole.html';
@@ -135,9 +134,9 @@ foreach my $file (@ARGV) {
 #
 #   E X E C U T I O N   T I M E
 #
-    if ($statsline[14] > 1421500000) { # set lower limit in case blank etc
-	if ($Started > $statsline[14] ) { $Started = $statsline[14]; }}   # find minimum time
-    if     ($Ended   < $statsline[15] ) { $Ended   = $statsline[15]; }	  # find maximum time
+    if ($statsline[15] > 1421500000) { # set lower limit in case blank etc  (Sat Jan 17 22:06:40 2015)
+	if ($Started > $statsline[15] ) { $Started = $statsline[15]; }}   # find minimum time
+    if     ($Ended   < $statsline[16] ) { $Ended   = $statsline[16]; }	  # find maximum time
 }
 
 
