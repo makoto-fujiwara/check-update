@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-22 03:27" ; # write by emacs time-stamp
+$VERSION = "2015-01-22 03:41" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 #   requirement:
 #       net/curl
@@ -402,7 +402,9 @@ sub ColorUrlDigit($) {
     my($higher) = $1;
     my($digit)  = $2;
     # some strange case, $url does not include http:// line, in such case, just returun the original
-    if (! ($url =~ m|^http.*://|)) { $target = $url; }
+    if (! ($url =~ m|^http.*://| ||
+	   $url =~ m|^ftp.*://|     )) {
+	$target = $url; }
     elsif ($higher && $digit )  {
     $target = sprintf ("<a href=\"%s\">%s</a><a class=\"rev\" href=\"%s\">%s</a>",
 		      $higher, $higher,
@@ -1884,7 +1886,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
     my ($HomePageString);
     if ($HomePageStat != 200 ) { $HomePageString =  "<span class=\"pale_dns\"> (". $HomePageStat.')</span> ';}
     my ($MasterSiteString);
-    if ($MasterSiteStat != 200 ) { $MasterSiteString =  "<span class=\"pale_dns\">(". $MasterSiteStat.')</span> ';}
+    if ($MasterSiteStat != 200 && $available eq '0.0' ) { $MasterSiteString =  "<span class=\"pale_dns\">(". $MasterSiteStat.')</span> ';}
     # ------ E D I T         M A I N T A I N E R  -------
     $MAINTAINER =~ s/\@NetBSD.org//i;
     $MAINTAINER =  substr($MAINTAINER, 0, 13);  # pkgsrc-users@ 13 letters
