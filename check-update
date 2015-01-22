@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-22 03:49" ; # write by emacs time-stamp
+$VERSION = "2015-01-22 05:54" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 #   requirement:
 #       net/curl
@@ -586,25 +586,6 @@ print STDERR sprintf("%4d ", __LINE__ ), '(PKGBODY) ', $PKGBODY,' (CAND) ', $VER
 
 # taking care worpress-4.1-ja.tar.gz type (version is embedded).
     my($DISTBODY) = $DISTBASE;
-    if (! ($VERSION_CANDIDATE =~ /^[0-9.pl-]+$/ ) ) {
-	$DISTBODY =~ s/-$PKGVERSION//;
-	$VERSION_CANDIDATE = $DISTBODY;
-	$VERSION_CANDIDATE =~ s/$PKGBODY//;
-print STDERR sprintf("%4d ", __LINE__ ),
-    '(DISTBODY) ', $DISTBODY,
-    ' (CAND) ', $VERSION_CANDIDATE,
-    ' (PKGVERSION) ', $PKGVERSION,
-    "\n" if $DEBUG_DISTBASE_PATTERN;	
-	my($SpecialPattern) = $DISTBASE;
-#	my($SpecialPattern) = 's/$DISTBASE/$1/;';	
-	$SpecialPattern =~ s|$PKGVERSION|([0-9.-]+)|;
-	$SpecialPattern =~ s|^|\$line =~ s/.*|;
-	$SpecialPattern =~ s|$|.*/\$1/;|;
-	$SpecialPattern{$DISTBASE} = $SpecialPattern;
-#     'ja-wordpress',	'$line =~ s/wordpress-\([0-9.]\)*-ja/$1/;',
-	print STDERR sprintf("%4d ", __LINE__ ), '(SpecialPattern) ', $SpecialPattern,"\n";
-    }
-print STDERR sprintf("%4d ", __LINE__ ), '(DISTBODY) ', $DISTBODY,' (CAND) ', $VERSION_CANDIDATE,"\n" if $DEBUG_DISTBASE_PATTERN;
     #
     # First, very simple patterns
     #
@@ -666,9 +647,31 @@ print STDERR sprintf("%4d ", __LINE__ ), ' ', $dir, '/', $PackageName, '; (DISTB
     $DISTBASE   =~ s/(.*cal3d).*/$1/;    
 print STDERR sprintf("%4d ", __LINE__ ), ' ', $dir, '/', $PackageName, '; (DISTBASE) ', $DISTBASE,"\n" if $DEBUG_DISTBASE_PATTERN;	
     }
+    
     elsif ( grep (/$PackageName/, @DontSkipEndingDigit) > 0 ) {
 	$DISTBASE = $PackageName;
-    } else {
+    }
+    elsif (! ($VERSION_CANDIDATE =~ /^[0-9.pl]+$/ ) ) {
+	$DISTBODY =~ s/-$PKGVERSION//;
+	$VERSION_CANDIDATE = $DISTBODY;
+	$VERSION_CANDIDATE =~ s/$PKGBODY//;
+print STDERR sprintf("%4d ", __LINE__ ),
+    '(DISTBODY) ', $DISTBODY,
+    ' (CAND) ', $VERSION_CANDIDATE,
+    ' (PKGVERSION) ', $PKGVERSION,
+    "\n" if $DEBUG_DISTBASE_PATTERN;	
+     
+	my($SpecialPattern) = $DISTBASE;
+#	my($SpecialPattern) = 's/$DISTBASE/$1/;';	
+	$SpecialPattern =~ s|$PKGVERSION|([0-9.]+)|;
+	$SpecialPattern =~ s|^|\$line =~ s/.*|;
+	$SpecialPattern =~ s|$|.*/\$1/;|;
+	$SpecialPattern{$DISTBASE} = $SpecialPattern;
+#     'ja-wordpress',	'$line =~ s/wordpress-\([0-9.]\)*-ja/$1/;',
+	print STDERR sprintf("%4d ", __LINE__ ), '(SpecialPattern) ', $SpecialPattern,"\n";
+print STDERR sprintf("%4d ", __LINE__ ), '(DISTBODY) ', $DISTBODY,' (CAND) ', $VERSION_CANDIDATE,"\n" if $DEBUG_DISTBASE_PATTERN;
+}
+     else {
     $DISTBASE   =~ s/[-_]*[0-9._-]+$//;	
     }	
 					# R-evaluate -> evaluate_0.5.5
