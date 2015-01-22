@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-22 01:30" ; # write by emacs time-stamp
+$VERSION = "2015-01-22 01:38" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 #   requirement:
 #       net/curl
@@ -580,25 +580,16 @@ print STDERR sprintf("%4d ", __LINE__ ),
 
 print STDERR sprintf("%4d ", __LINE__ ), 'DISTBODY(', $DISTBODY,') CAND(', $VERSION_CANDIDATE,")\n" if $DEBUG_DISTBASE_PATTERN;
     #
-    # First, very simple (two type of) patterns
+    # First, very simple patterns
     #
     if ( $VERSION_CANDIDATE =~ /^[0-9.pl-]+$/ ) {
 	$DISTBASE =~ s/$VERSION_CANDIDATE//;
-    } elsif ($PKGNAME eq $DISTBASE) {		# in this case, just edit $DISTBASE
-	$DISTBASE =~ s/-$PKGVERSION//;
+    } elsif ($PKGNAME eq	 $DISTBASE  ||
+	     $PKGNAME eq 'py27-'.$DISTBASE  ||
+	     $PKGNAME eq   'p5-'.$DISTBASE  ||
+	     0 ) {
 print STDERR sprintf("%4d ", __LINE__ ), ' ', $dir, '/', $PackageName, '; DISTBASE (', $DISTBASE,")\n" if $DEBUG_DISTBASE_PATTERN;
-	#
-	# Python special
-	#
-    } elsif ($PKGNAME eq 'py27-'.$DISTBASE) {	# in this case, just edit $DISTBASE
-	$DISTBASE =~ s/-$PKGVERSION//;
-print STDERR sprintf("%4d ", __LINE__ ), ' ', $dir, '/', $PackageName, '; DISTBASE (', $DISTBASE,")\n" if $DEBUG_DISTBASE_PATTERN;
-	#
-	# Perl5 special
-	#
-    } elsif ($PKGNAME eq 'p5-'.$DISTBASE) {	# in this case, just edit $DISTBASE
-	$DISTBASE =~ s/-$PKGVERSION//;
-print STDERR sprintf("%4d ", __LINE__ ), ' ', $dir, '/', $PackageName, '; DISTBASE (', $DISTBASE,")\n" if $DEBUG_DISTBASE_PATTERN;
+	$DISTBASE =~ s/-$PKGVERSION//; 
 	#
 	# Complicated others
 	#
