@@ -4,7 +4,7 @@ our(@ARGV);
 use Getopt::Std;
 
 my($VERSION);
-$VERSION = "2015-01-22 00:25" ; # write by emacs time-stamp
+$VERSION = "2015-01-22 00:47" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 
 sub usage() {
@@ -94,8 +94,12 @@ my ($Header, $Body, $TableHeader, $Stats) = (0, 1, 2, 3); #  Define constant
 open(WHOLE, "> $whole_tmp") || print STDERR sprintf("%4d ", __LINE__), "Problem open file $whole_tmp: $!\n";
 open(STATS, "> $stats_tmp") || print STDERR sprintf("%4d ", __LINE__), "Problem open file $stats_tmp: $!\n";
 #
-#   Read by-category output files
-#
+#   Read each by-category output files
+#   1. Decide the state when reading the file, (see $state declare below)
+#   2. print to WHOLE STATS (depending by state)
+#   3. correct Header from <pre> .. </pre> part (only from the first file)
+#   4. correct the ForMergeCount: line from each file   
+# 
 foreach my $file (@ARGV) {
 #    $file = $upper_directory . $file;
     my ($state)		= $Header;    # constant: (0) Header (1) Body (2) TableHeader (3) Stats

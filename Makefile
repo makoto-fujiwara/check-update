@@ -52,20 +52,28 @@ RM=		/bin/rm
 # get the last digit of the date
 DAY=		${DATE:C/.*([0-9])$/\1/}
 
-all: ${WORK}/.done
+all: ${DIRECTORY}/${DATE}/.done
 
+${DIRECTORY}/${DATE}:
+	mv ${WORK} ${DIRECTORY}/${DATE};
 
-${WORK}/.done: ${CATEGORIES:S/$/.${DAY}.html/} ${WORK}
+# Merge the results
+${WORK}/.done: ${CATEGORIES:S/$/.${DAY}.html/} 
 	(cd ${WORK}; \
 	${MERGE} *.html )
-	mv ${WORK} ${DIRECTORY}/${DATE};
 	touch  ${WORK}/.done
 
+# check-update by-category, output directory is ${WORK}
 .for i in ${CATEGORIES}
-$i.${DAY}.html:
+$i.${DAY}.html: ${WORK}
 	(cd /usr/pkgsrc; \
 	${CHECK_UPDATE} -u -f -m -c $i -d ${WORK} -S $i.${DAY}.html ; )
 .endfor
+
+${WORK}:
+	(if ! [-d ${WORK}]; then\
+	mkdir ${WORK} ;\
+	fi)
 
 clean:
 	${RM}  ${WORK}/.done

@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-20 14:39" ; # write by emacs time-stamp
+$VERSION = "2015-01-22 00:48" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 #   requirement:
 #       net/curl
@@ -1244,6 +1244,9 @@ sub Stats($$){
     my($number) = "%-20s %6d  %s\n";
     my($number2) = "%-40s %6d  %s\n";
     my($number3) = "%-40s %6d  %s\n";    
+
+##  Be carefull to have each header has colon(:) for merge-process be done correctly
+
     print  SUMMARY '<pre>',"\n";
     print  SUMMARY '<a href="./?C=M;O=D"> Upper directory</a>',"\n";
     printf SUMMARY $string2,  'Script Time Stamp:', $VERSION;
@@ -1259,7 +1262,7 @@ sub Stats($$){
     printf SUMMARY $number,  'No Master Sites:',	$NoMasterSites,	'(usually in files directory)';
     printf SUMMARY $number,  'NotFound (404):',		$NotFound,	'MASTER_SITES returns 404, and no recovery';
     printf SUMMARY $number,  'Forbidden(403/550):',	$Forbidden;
-    printf SUMMARY $number,  "Site not in DNS",		$DNSProblem;
+    printf SUMMARY $number,  "Site not in DNS:",	$DNSProblem;
 
     printf SUMMARY $number,  'Skipped:',		$SkippedEndingDigit,	'(Skipped, the name ends with digits)';
     printf SUMMARY $number,  'Matured:',		$SkipTooOld,	'(No update expected)';
