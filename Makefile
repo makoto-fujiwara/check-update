@@ -42,30 +42,28 @@ CATEGORIES= \
 
 CHECK_UPDATE=	/export/git-repository/check-update/check-update
 CHECK_UPDATE=	/e/modena/git-repository/check-update/check-update
+CHECK_UPDATE=	/e/modena/git-repository/check-update/check-update-20150123
 MERGE=		/e/modena/git-repository/check-update/merge-check-update
 
 DIRECTORY=	${HOME}/public_html/pkgsrc/check-update
-DATE!=		date +%Y%m%d
+DATE!=		date +%Y%m%d-%H
 WORK=		${DIRECTORY}/.${DATE}
 RM=		/bin/rm
-
-# get the last digit of the date
-DAY=		${DATE:C/.*([0-9])$/\1/}
 
 ${DIRECTORY}/${DATE}: ${WORK}/.done
 	mv ${WORK} ${DIRECTORY}/${DATE};
 
 # Merge the results
-${WORK}/.done: ${CATEGORIES:S/$/.${DAY}.html/} 
+${WORK}/.done: ${CATEGORIES:S/$/.html/}
 	(cd ${WORK}; \
 	${MERGE} *.html )
-	touch  ${WORK}/.done
+	touch ${WORK}/.done
 
 # check-update by-category, output directory is ${WORK}
 .for i in ${CATEGORIES}
-$i.${DAY}.html: ${WORK}
+$i.html: ${WORK}
 	(cd /usr/pkgsrc; \
-	${CHECK_UPDATE} -u -f -m -c $i -d ${WORK} -S $i.${DAY}.html ; )
+	${CHECK_UPDATE} -u -f -m -c $i -d ${WORK} -S $i.html ; )
 .endfor
 
 ${WORK}:
@@ -77,16 +75,25 @@ clean:
 	${RM}  ${WORK}/.done
 # gmtime tm_wday
 
-# --- /home/makoto/public_html/pkgsrc/check-update/.20150120/.done ---
-# (cd /home/makoto/public_html/pkgsrc/check-update/.20150120;  /e/modena/git-repository/check-update/merge-check-update *.html )
-# mv /home/makoto/public_html/pkgsrc/check-update/.20150120 /home/makoto/public_html/pkgsrc/check-update/20150120;
-# touch  /home/makoto/public_html/pkgsrc/check-update/.20150120/.done
-# touch: /home/makoto/public_html/pkgsrc/check-update/.20150120/.done: No such file or directory
-# *** [/home/makoto/public_html/pkgsrc/check-update/.20150120/.done] Error code 1
-# 
-# make: stopped in /e/modena/git-repository/check-update
-# 1 error
-# 
-# make: stopped in /e/modena/git-repository/check-update
-# 8094.36s 4150.30s 5:15:12.15 64% 0+0k 94+0io 75680999pf+0w
-# h87@makoto 04:43:01/150121(..git-repository/check-update)%
+
+
+h87ming /home/makoto/public_html/pkgsrc/check-update/.20150123-11/.devel.html to /home/makoto/public_html/pkgsrc/check-update/.20150123-11/devel.html                                          
+--- /home/makoto/public_html/pkgsrc/check-update/.20150123-11/.done ---
+(cd /home/makoto/public_html/pkgsrc/check-update/.20150123-11;  /e/modena/git-repository/check-update/merge-check-update *.html )
+touch /home/makoto/public_html/pkgsrc/check-update/.20150123-11/.done
+--- /home/makoto/public_html/pkgsrc/check-update/20150123-11 ---html
+mv /home/makoto/public_html/pkgsrc/check-update/.20150123-11 /home/makoto/public_html/pkgsrc/check-update/20150123-11;
+9981.82s 4255.56s 7:26:36.19 53% 0+0k 3+0io 74437813pf+0w.done.html
+h87@makoto 18:43:44/150123(..git-repository/check-update)% lslt  ~/pu
+
+
+@makoto 18:56:46/150123(..git-repository/check-update)% find  ~/public_html/pkgsrc/check-update/ -cmin -30 -ls                                                                               
+66149495     16 drwxr-xr-x   12 makoto            wheel                  7680 Jan 23 18:35 /home/makoto/public_html/pkgsrc/check-update/
+66151145      8 drwxr-xr-x    2 makoto            wheel                   512 Jan 23 18:35 /home/makoto/public_html/pkgsrc/check-update/.20150123
+66151224   5568 -rw-r--r--    1 makoto            wheel               2808478 Jan 23 18:35 /home/makoto/public_html/pkgsrc/check-update/.20150123/00_whole.html
+66151261      8 -rw-r--r--    1 makoto            wheel                  2177 Jan 23 18:35 /home/makoto/public_html/pkgsrc/check-update/.20150123/00_Stats.html
+66151256      8 drwxr-xr-x    2 makoto            wheel                  1024 Jan 23 18:35 /home/makoto/public_html/pkgsrc/check-update/20150123-11
+66151289    896 -rw-r--r--    1 makoto            wheel                403249 Jan 23 18:35 /home/makoto/public_html/pkgsrc/check-update/20150123-11/devel.html
+66151271      0 -rw-r--r--    1 makoto            wheel                     0 Jan 23 18:35 /home/makoto/public_html/pkgsrc/check-update/20150123-11/.done
+h87@makoto 18:56:52/150123(..git-repository/check-update)%                                                                                                                                      
+[0] 0:tcsh  1:zsh- 2:tcsh*                                     

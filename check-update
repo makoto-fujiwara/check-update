@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-23 00:51" ; # write by emacs time-stamp
+$VERSION = "2015-01-23 15:38" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 #   requirement:
 #       net/curl
@@ -67,6 +67,7 @@ my ($NotAvailable)	= 0;
 my ($NoMasterSites)	= 0;
 my ($NoHost)	= 0;	# DNS query failed
 my ($SkipTooOld) = 0;  # count
+my ($StatTEXLIVE) = 0;
 
 #my ($MasterSite404);		# by package status
 my ($StatsMasterSite404) = 0;	# for count
@@ -151,7 +152,7 @@ qw(
     );
 # arp-scan is the same as HOMEPAGE (strange)
 # Now global variables in Makefile
-    my ($MAINTAINER, $HOMEPAGE, $GEM_PACKAGE, $PEAR_PACKAGE, $HS_PACKAGE, $SFProject) ;
+    my ($MAINTAINER, $HOMEPAGE, $GEM_PACKAGE, $PEAR_PACKAGE, $HS_PACKAGE, $SFProject, $TEXLIVE) ;
 
     my ($PKGBASE, $PKGNAME, $DISTBASE, $MASTER_SITE, $META_PACKAGE);
     my (@MASTER_SITES);
@@ -1174,8 +1175,8 @@ sub ReadMakefile($$)  {		# <- Main
     my ($category) =	shift;
     my ($directory) =	shift;
     my ($Makefile)  =	"$pkgsrc/$category/$directory/Makefile";
-    my ($MAINTAINER, $HOMEPAGE, $GEM_PACKAGE, $PEAR_PACKAGE, $HS_PACKAGE, $SFProject) 
-	= ('',	     '',        0,            0,             0,		  -1);
+    my ($MAINTAINER, $HOMEPAGE, $GEM_PACKAGE, $PEAR_PACKAGE, $HS_PACKAGE, $SFProject, $texlive) 
+	= ('',	     '',        0,            0,             0,		  -1,         0);
 #print STDERR '   ***', __FILE__ , ' -> ', (caller 0)[3], ': ',  sprintf("%4d ", __LINE__ ),"\n";
 #    print STDERR "Checking $Makefile\n";    
     if ( -f $Makefile ) {
@@ -1188,13 +1189,15 @@ sub ReadMakefile($$)  {		# <- Main
 	    if ( m|^.\s*include.*\.\./\.\./lang/ruby/gem\.mk|)	{ $GEM_PACKAGE++;}
 	    if ( m|^.\s*include.*\.\./\.\./lang/php/pear\.mk|)	{ $PEAR_PACKAGE++;}
 	    if ( m|^.\s*include.*\.\./\.\./mk/haskell\.mk|)	{ $HS_PACKAGE++;}
+	    if ( m|^.\s*include.*\.\./\.\./print/texlive/package\.mk|)	{ $texlive++;}
+
 	   #        MASTER_SITES=     ${MASTER_SITE_SOURCEFORGE:=modauthkerb/}
  	    if ( m|^MASTER_SITES=\s+\$\{MASTER_SITE_SOURCEFORGE:=(.*)/|) { $SFProject = $1;}
 	}
 	close(MAKEFILE);
 	if ($MAINTAINER eq '' ) { $MAINTAINER = GetVariableValue($category, $directory, 'MAINTAINER');}
 	if ($HOMEPAGE eq '' )   { $HOMEPAGE = GetVariableValue($category, $directory, 'HOMEPAGE');}
-	return ($MAINTAINER, $HOMEPAGE, $GEM_PACKAGE, $PEAR_PACKAGE, $HS_PACKAGE, $SFProject);
+	return ($MAINTAINER, $HOMEPAGE, $GEM_PACKAGE, $PEAR_PACKAGE, $HS_PACKAGE, $SFProject, $texlive);
     }
 }    
 sub ReadTodo($){
@@ -1257,6 +1260,7 @@ sub Stats($$){
 
 	+ $SkippedEndingDigit
 	+ $SkipTooOld
+	+ $StatTEXLIVE
 	+ $MetaPackage
 	+ $Reverse
 
@@ -1276,6 +1280,7 @@ sub Stats($$){
 
 	  $SkippedEndingDigit ,
 	  $SkipTooOld ,
+	  $StatTEXLIVE ,
 	  $MetaPackage ,
 	  $Reverse ,
 
@@ -1310,6 +1315,7 @@ sub Stats($$){
 
     printf SUMMARY $number,  'Skipped:',		$SkippedEndingDigit,	'(Skipped, the name ends with digits)';
     printf SUMMARY $number,  'Matured:',		$SkipTooOld,	'(No update expected)';
+    printf SUMMARY $number,  'Texlive:',		$StatTEXLIVE,	'(Texlive is skipped for now)';
     printf SUMMARY $number,  'META_PACKAGE:',		$MetaPackage,	'(Excluding meta-pkgs directory)';
     printf SUMMARY $number,  'Confusing:',		$Reverse,	'<span class="reverse">(Found version wrong, hilighted, only for debug purpose)</span>';
 
@@ -1746,7 +1752,7 @@ foreach my $dir (@categories) {
     if ( grep (/$PackageName/, @SkipTooOld) > 0 ) { $SkipTooOld++; next;}
 # -------------------
 # Read Makefile
-       ($MAINTAINER, $HOMEPAGE, $GEM_PACKAGE, $PEAR_PACKAGE, $HS_PACKAGE, $SFProject) 
+       ($MAINTAINER, $HOMEPAGE, $GEM_PACKAGE, $PEAR_PACKAGE, $HS_PACKAGE, $SFProject, $TEXLIVE)
 	= ReadMakefile($dir, $PackageName);
     #my ($PKGBASE, $PKGNAME, $DISTBASE, $MASTER_SITE, $META_PACKAGE);
     #my (@MASTER_SITES);
@@ -1763,7 +1769,8 @@ foreach my $dir (@categories) {
 	else {($HomePageStat, $location) = CheckHeader($HOMEPAGE); }
 	
     $PKGBASE	= GetVariableValue ($dir, $PackageName, 'PKGBASE');
-# -----------------------------------------------------------------------
+	# -----------------------------------------------------------------------
+    if ($TEXLIVE) { next; $StatTEXLIVE++;} # skip texlive for the moment
     if ($GEM_PACKAGE) {
 	$DISTBASE = GetVariableValue ($dir, $PackageName, 'DISTNAME');
 	$DISTBASE =~ s/-[0-9.-]+//;
