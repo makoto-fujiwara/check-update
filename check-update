@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-23 00:48" ; # write by emacs time-stamp
+$VERSION = "2015-01-23 00:51" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 #   requirement:
 #       net/curl
@@ -673,7 +673,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
 #	return $DISTBODY;	# return without editting below
 #     'ja-wordpress',	'$line =~ s/wordpress-\([0-9.]\)*-ja/$1/;',
 	print STDERR sprintf("%4d ", __LINE__ ), 
-	    '(SpecialPattern) ', $DISTBASE,' -> ', $SpecialPatternx, ' (hash) ', $SpecialPattern{$DISTBASE},"\n";
+	    '(SpecialPattern) ', $DISTBASE,' -> ', $SpecialPatternx, ' (hash) ', $SpecialPattern{$DISTBASE},"\n" if $DEBUG_EVAL_PATTERN;
 print STDERR sprintf("%4d ", __LINE__ ), '(DISTBODY) ', $DISTBODY,' (CAND) ', $VERSION_CANDIDATE,"\n" if $DEBUG_DISTBASE_PATTERN;
 }
      else {
