@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-22 07:22" ; # write by emacs time-stamp
+$VERSION = "2015-01-23 00:48" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 #   requirement:
 #       net/curl
@@ -108,7 +108,7 @@ our(%opts);
 my (@SkipTooOld) = qw(xview-lib estic zenicb tex2rtf gkermit kermit gturing bridge-hands ccxstream weewm);
 
 # Simple means $distbase-([0-9.]+)-(extran string not necessary)..
-my (@SimplePattern)  = qw(renpy crimson crack-attack hands flags autotrace simulavr hal sign parchive cabextract);
+my (@SimplePattern)  = qw(renpy crimson crack-attack hands flags autotrace simulavr hal sign parchive cabextract celt);
 #my (@Debian) = qw(signing-party);
 
 # key is DISTBASE (but please note DISTBASE itself is extracted by this script)
@@ -146,6 +146,8 @@ qw(
     3proxy	http://3proxy.ru/download/
     arp-scan	http://www.nta-monitor.com/tools-resources/security-tools/arp-scan
     skampi	http://liinwww.ira.uka.de/~skampi/download.html
+    abcMIDI	http://ifdo.pugmarks.com/~seymour/runabc/top.html
+    xmms-crossfade	http://www.eisenlohr.org/xmms-crossfade/download.html
     );
 # arp-scan is the same as HOMEPAGE (strange)
 # Now global variables in Makefile
@@ -661,14 +663,17 @@ print STDERR sprintf("%4d ", __LINE__ ),
     ' (PKGVERSION) ', $PKGVERSION,
     "\n" if $DEBUG_DISTBASE_PATTERN;	
      
-	my($SpecialPattern) = $DISTBASE;
-#	my($SpecialPattern) = 's/$DISTBASE/$1/;';	
-	$SpecialPattern =~ s|$PKGVERSION|([0-9.]+)|;
-	$SpecialPattern =~ s|^|\$line =~ s/.*|;
-	$SpecialPattern =~ s|$|.*/\$1/;|;
-	$SpecialPattern{$DISTBASE} = $SpecialPattern;
+	my($SpecialPatternx) = $DISTBASE;
+#	my($SpecialPatternx) = 's/$DISTBASE/$1/;';	
+	$SpecialPatternx =~ s|$PKGVERSION|([0-9.]+)|;
+	$SpecialPatternx =~ s|^|\$line =~ s/.*|;
+	$SpecialPatternx =~ s|$|.*/\$1/;|;
+	$SpecialPattern{$DISTBODY} = $SpecialPatternx;
+	$DISTBASE = $DISTBODY;
+#	return $DISTBODY;	# return without editting below
 #     'ja-wordpress',	'$line =~ s/wordpress-\([0-9.]\)*-ja/$1/;',
-	print STDERR sprintf("%4d ", __LINE__ ), '(SpecialPattern) ', $SpecialPattern,"\n";
+	print STDERR sprintf("%4d ", __LINE__ ), 
+	    '(SpecialPattern) ', $DISTBASE,' -> ', $SpecialPatternx, ' (hash) ', $SpecialPattern{$DISTBASE},"\n";
 print STDERR sprintf("%4d ", __LINE__ ), '(DISTBODY) ', $DISTBODY,' (CAND) ', $VERSION_CANDIDATE,"\n" if $DEBUG_DISTBASE_PATTERN;
 }
      else {
@@ -1771,7 +1776,7 @@ foreach my $dir (@categories) {
 #   printf STDERR "%4d %-20s: ", sprintf("%4d ", __LINE__ ), $PackageName;
 	my($PKGNAME)	= $PKGBASE . '-'. $PKGVERSION;
 	$DISTBASE	= GetDistBase($dir, $PackageName, $PKGBASE, $PKGVERSION, $PKGNAME);
-
+print STDERR sprintf("%4d ", __LINE__ ), '(DISTBASE) ', $DISTBASE, "\n" if $DEBUG_DISTBASE_PATTERN;
 	$META_PACKAGE	= GetVariableValue ($dir, $PackageName, 'META_PACKAGE');
 	if ($META_PACKAGE =~ /yes/i) { $MetaPackage++; next;}
 
