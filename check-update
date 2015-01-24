@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-23 15:38" ; # write by emacs time-stamp
+$VERSION = "2015-01-24 01:25" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 #   requirement:
 #       net/curl
@@ -109,7 +109,7 @@ our(%opts);
 my (@SkipTooOld) = qw(xview-lib estic zenicb tex2rtf gkermit kermit gturing bridge-hands ccxstream weewm);
 
 # Simple means $distbase-([0-9.]+)-(extran string not necessary)..
-my (@SimplePattern)  = qw(renpy crimson crack-attack hands flags autotrace simulavr hal sign parchive cabextract celt);
+my (@SimplePattern)  = qw(renpy crimson crack-attack hands flags autotrace simulavr hal sign parchive cabextract celt auctex);
 #my (@Debian) = qw(signing-party);
 
 # key is DISTBASE (but please note DISTBASE itself is extracted by this script)
@@ -129,8 +129,7 @@ my (%SpecialPattern) = (
 #    'sign',		'$line =~ s/The latest version is ([0-9.]+),/$1/ ;', #  security/sign  1-bit ui</a><br --> 
     );
 
-my(%SourceForgeAlternative) =  
-qw( 
+my(%SourceForgeAlternative) = qw( 
     burn	http://sourceforge.net/projects/gsburn/files/burn/burn-0.4.1/ 
     acidrip	http://sourceforge.net/projects/acidrip/files/acidrip/0.14%20-%20Your%20two-wheeled%20knife/
     dirac	http://sourceforge.net/projects/dirac/files/dirac-codec/Dirac-1.0.2/
@@ -140,8 +139,7 @@ qw(
     OroboROX	http://sourceforge.net/projects/rox/files/OroboROX/0.9.8/
     pcmanfm	http://sourceforge.net/projects/pcmanfm/files/PCManFM%20%2B%20Libfm%20%28tarball%20release%29/PCManFM/
 );
-my(%DownLoadAlternative) =
-qw(
+my(%DownLoadAlternative) = qw(
     openbox	http://openbox.org/wiki/Openbox:Download
     oroborus	http://ftp.debian.org/debian/pool/main/o/oroborus/
     3proxy	http://3proxy.ru/download/
@@ -149,6 +147,21 @@ qw(
     skampi	http://liinwww.ira.uka.de/~skampi/download.html
     abcMIDI	http://ifdo.pugmarks.com/~seymour/runabc/top.html
     xmms-crossfade	http://www.eisenlohr.org/xmms-crossfade/download.html
+    );
+# for print/xpdf-arabic etc
+my (%MonthToDigit) = qw (
+    -jan- 01
+    -feb- 02
+    -mar- 03
+    -apr- 04
+    -may- 05
+    -jun- 06
+    -jul- 07
+    -aug- 08
+    -sep- 09
+    -oct- 10
+    -nov- 11
+    -dec- 12
     );
 # arp-scan is the same as HOMEPAGE (strange)
 # Now global variables in Makefile
@@ -563,8 +576,10 @@ sub ExpandURL($$) {		# <- Not used now (?)
     }
     return $full;
 }
+# ----------------------------------------------------------------------
 # This routine to find the Base name of distribution file.
 # It will be used to separate the version portion from distribution file.
+# ----------------------------------------------------------------------
 sub GetDistBase($$$$$) {	# <- Main       DISTBASEDISTBASE
     my ($dir) = shift;		# category
     my ($PackageName) = shift;	# leaf
@@ -589,11 +604,14 @@ print STDERR sprintf("%4d ", __LINE__ ), '(PKGBODY) ', $PKGBODY,' (CAND) ', $VER
 
 # taking care worpress-4.1-ja.tar.gz type (version is embedded).
     my($DISTBODY) = $DISTBASE;
-    #
-    # First, very simple patterns
-    #
+    # --------------------------------------
+    #      1. First, very simple patterns
+    # --------------------------------------
     if ( $VERSION_CANDIDATE =~ /^[0-9.pl-]+$/ ) {
 	$DISTBASE =~ s/$VERSION_CANDIDATE//;
+    # --------------------------------------
+    #      2. then can be managed with simple rule
+    # --------------------------------------
     } elsif ($PKGNAME eq	 $DISTBASE  ||
 	     $PKGNAME eq 'py27-'.$DISTBASE  ||
 	     $PKGNAME eq   'p5-'.$DISTBASE  ||
@@ -601,9 +619,9 @@ print STDERR sprintf("%4d ", __LINE__ ), '(PKGBODY) ', $PKGBODY,' (CAND) ', $VER
 	     0 ) {
 print STDERR sprintf("%4d ", __LINE__ ), ' ', $dir, '/', $PackageName, '; DISTBASE (', $DISTBASE,")\n" if $DEBUG_DISTBASE_PATTERN;
 	$DISTBASE =~ s/-$PKGVERSION//; 
-	#
-	# Complicated others
-	#
+	# ----------------------------------
+	#      3. Complicated others
+	# ----------------------------------
     } else {
 
 #    print STDERR sprintf("%4d ", __LINE__ ), ' ', $DISTBASE, "\n";
@@ -629,9 +647,15 @@ print STDERR sprintf("%4d ", __LINE__ ), ' ', $dir, '/', $PackageName, '; DISTBA
 #    $DISTBASE   =~ s/p([0-9]+)$/\.\1/;	# zorro-1.1p8 -> zorro-1.1.8    
     $DISTBASE   =~ s/-[0-9.]+a[0-9]+//;	# (net) arpwatch-2.1a15
 print STDERR sprintf("%4d ", __LINE__ ), ' ', $dir, '/', $PackageName, '; (DISTBASE) ', $DISTBASE,"\n" if $DEBUG_DISTBASE_PATTERN;
+	# ----------------------------------
+	#  3 - 2
+	# ----------------------------------
     if ( $DISTBASE=~ /otp_src_R.*/ ) {   # erlang -> otp_src_R16B02 etc -> 16.02 
 	$DISTBASE = "otp_src_";
 	} # ignore old style
+	# ----------------------------------
+	#  3 - 3
+	# ----------------------------------
     elsif (	$DISTBASE =~ /perl5/	||
 		$DISTBASE =~ /hdf5/	||
 		$DISTBASE =~ /libosip2/	||
@@ -650,9 +674,14 @@ print STDERR sprintf("%4d ", __LINE__ ), ' ', $dir, '/', $PackageName, '; (DISTB
     $DISTBASE   =~ s/(.*cal3d).*/$1/;    
 print STDERR sprintf("%4d ", __LINE__ ), ' ', $dir, '/', $PackageName, '; (DISTBASE) ', $DISTBASE,"\n" if $DEBUG_DISTBASE_PATTERN;	
     }
-    
+	# ----------------------------------
+	#  3 - 4
+	# ----------------------------------
     elsif ( grep (/$PackageName/, @DontSkipEndingDigit) > 0 ) {
 	$DISTBASE = $PackageName;
+	# ----------------------------------
+	#  3 - 5
+	# ----------------------------------
     }
     elsif (! ($VERSION_CANDIDATE =~ /^[0-9.pl]+$/ ) ) {
 	$DISTBODY =~ s/-$PKGVERSION//;
@@ -676,7 +705,10 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	print STDERR sprintf("%4d ", __LINE__ ), 
 	    '(SpecialPattern) ', $DISTBASE,' -> ', $SpecialPatternx, ' (hash) ', $SpecialPattern{$DISTBASE},"\n" if $DEBUG_EVAL_PATTERN;
 print STDERR sprintf("%4d ", __LINE__ ), '(DISTBODY) ', $DISTBODY,' (CAND) ', $VERSION_CANDIDATE,"\n" if $DEBUG_DISTBASE_PATTERN;
-}
+    }
+	# ----------------------------------
+	#  3 - 6
+	# ----------------------------------
      else {
     $DISTBASE   =~ s/[-_]*[0-9._-]+$//;	
     }	
@@ -1316,7 +1348,7 @@ sub Stats($$){
     printf SUMMARY $number,  'Skipped:',		$SkippedEndingDigit,	'(Skipped, the name ends with digits)';
     printf SUMMARY $number,  'Matured:',		$SkipTooOld,	'(No update expected)';
     printf SUMMARY $number,  'Texlive:',		$StatTEXLIVE,	'(Texlive is skipped for now)';
-    printf SUMMARY $number,  'META_PACKAGE:',		$MetaPackage,	'(Excluding meta-pkgs directory)';
+    printf SUMMARY $number,  'META_PACKAGE:',		$MetaPackage,	'(Excluding meta-pkgs category)';
     printf SUMMARY $number,  'Confusing:',		$Reverse,	'<span class="reverse">(Found version wrong, hilighted, only for debug purpose)</span>';
 
     printf SUMMARY $number,  'Not Listed:',		$NotListed,'';
@@ -1770,7 +1802,7 @@ foreach my $dir (@categories) {
 	
     $PKGBASE	= GetVariableValue ($dir, $PackageName, 'PKGBASE');
 	# -----------------------------------------------------------------------
-    if ($TEXLIVE) { next; $StatTEXLIVE++;} # skip texlive for the moment
+    if ($TEXLIVE) { $StatTEXLIVE++; next;} # skip texlive for the moment
     if ($GEM_PACKAGE) {
 	$DISTBASE = GetVariableValue ($dir, $PackageName, 'DISTNAME');
 	$DISTBASE =~ s/-[0-9.-]+//;
