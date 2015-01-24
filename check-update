@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-24 02:50" ; # write by emacs time-stamp
+$VERSION = "2015-01-24 08:32" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 #   requirement:
 #       net/curl
@@ -96,7 +96,7 @@ my ($output_URL)	= 'http://www.ki.nu/~makoto/';
 my ($output_directory)	= $ENV{'HOME'}.'/public_html/'. $output_leaf;
 my ($update_pkgsrc) = 0;	# cvs update prior to execution
 my ($full_list) = 0;
-my ($enable_digit_ending_package) = 0;
+my ($disable_digit_ending_package) = 0;	# Change logic and name
 my ($MeasureTime) = 0;
 my ($FindDepends) = 0;
 my (@TimeTopTen);
@@ -211,7 +211,7 @@ my (@CANDIDATE);	# collecting candidate of the version
 my (%DISTBASE_CACHE);   # push(@DISTBASE_CACHE, \[$distbase, $version, $timestamp, $refcount]);
 
 
-my (@DontSkipEndingDigit)  = qw (eric4);
+my (@DontSkipEndingDigit)  = qw (eric4 fltk2);
 # 100 -> 1.0.0 type
 my (@THREE) = qw( falcons-eye quakedata abcde binkd bwwtex cryptopp dirb sr-examples pscpug DatLib DatUtil ROMbuild xzip libdsk libgeotiff ploticus-examples shapelib proj vs mlvwm lwm biew);
                                                # vs <- lang/sr-exaples
@@ -339,7 +339,7 @@ Synopsis:
 Where:
    -c : category (implies -f)
    -d : output directory (default $output_directory)
-   -D : Don't skip ending digit package (default: skip) #'
+   -D : Skip ending digit package (default: don't skip) #'
    -f : (full) output Recent-version-unavailable too.
         (default: output that part to different file)
    -h : (help) show this message (putting after options may show default value)
@@ -609,7 +609,11 @@ print STDERR sprintf("%4d ", __LINE__ ),
     "       (PKGBASE)\t", $PKGBASE,      "\n",
     "       (DISTBASE)\t", $DISTBASE,      "\n",
     "       (PKGVERSION)\t", $PKGVERSION , "\n" if $DEBUG_DISTBASE_PATTERN;
-    return $PKGBASE;
+    # --------------------------------------
+    #      0. If  very simple patterns
+    # --------------------------------------
+    if ($PKGBASE .'-'. $PKGVERSION eq $DISTBASE ) { return $PKGBASE}
+
     # Get several value to do very simple logic for the very first 'if' line below.
     my($PKGBODY) = $PKGNAME;	# For Substracting $PKGVERSION from $PKGNAME
     				# This variable appears only these several lines, to pickup $VERSION_CANDIDATE
@@ -1683,7 +1687,7 @@ getopts( 'c:Dd:fFhM:mP:p:s:S:tT:uvVwx:', \%opts);
 
 if ($opts{'c'}) { $category = $opts{'c'}; $full_list++;}
 if ($opts{'d'}) { $output_directory = $opts{'d'};}
-if ($opts{'D'}) { $enable_digit_ending_package++;}
+if ($opts{'D'}) { $disable_digit_ending_package++;}
 if ($opts{'f'}) { $full_list++;}
 if ($opts{'F'}) { $FindDepends++;}
 if ($opts{'M'}) { $maintainer = $opts{'M'} }
@@ -1813,7 +1817,7 @@ foreach my $dir (@categories) {
 
     $TotalChecked++;
     if ( (grep (/$PackageName/, @DontSkipEndingDigit) == 0 ) &&
-        ! $enable_digit_ending_package && $PackageName =~ /[0-9]$/ ) {
+        ! $disable_digit_ending_package && $PackageName =~ /[0-9]$/ ) {
 	$SkippedEndingDigit++;
 	next;}
     if ( grep (/$PackageName/, @SkipTooOld) > 0 ) { $SkipTooOld++; next;}
