@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-24 01:25" ; # write by emacs time-stamp
+$VERSION = "2015-01-24 01:37" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 #   requirement:
 #       net/curl
@@ -278,7 +278,7 @@ sub CountPerid($);
 sub DistbaseCacheUpdate($$$);
 sub DistbaseCacheQuery($$);
 sub ExpandURL($$);
-sub GetDistbase($$$$$);
+sub GetDistBase($$$$$);
 sub GetMasterSiteCandidate($$$);
 sub GetMasterSiteSub($$$$);
 sub GetVariableValue($$$);
@@ -654,7 +654,7 @@ print STDERR sprintf("%4d ", __LINE__ ), ' ', $dir, '/', $PackageName, '; (DISTB
 	$DISTBASE = "otp_src_";
 	} # ignore old style
 	# ----------------------------------
-	#  3 - 3
+	#  3 - 3    distbase has digit
 	# ----------------------------------
     elsif (	$DISTBASE =~ /perl5/	||
 		$DISTBASE =~ /hdf5/	||
@@ -675,12 +675,12 @@ print STDERR sprintf("%4d ", __LINE__ ), ' ', $dir, '/', $PackageName, '; (DISTB
 print STDERR sprintf("%4d ", __LINE__ ), ' ', $dir, '/', $PackageName, '; (DISTBASE) ', $DISTBASE,"\n" if $DEBUG_DISTBASE_PATTERN;	
     }
 	# ----------------------------------
-	#  3 - 4
+	#  3 - 4  The name ends with digit, but don't skip
 	# ----------------------------------
     elsif ( grep (/$PackageName/, @DontSkipEndingDigit) > 0 ) {
 	$DISTBASE = $PackageName;
 	# ----------------------------------
-	#  3 - 5
+	#  3 - 5  Failed so far, 
 	# ----------------------------------
     }
     elsif (! ($VERSION_CANDIDATE =~ /^[0-9.pl]+$/ ) ) {
@@ -691,10 +691,12 @@ print STDERR sprintf("%4d ", __LINE__ ),
     '(DISTBODY) ', $DISTBODY,
     ' (CAND) ', $VERSION_CANDIDATE,
     ' (PKGVERSION) ', $PKGVERSION,
-    "\n" if $DEBUG_DISTBASE_PATTERN;	
-     
+    "\n" if $DEBUG_DISTBASE_PATTERN;
+	# --------------------
+	# rescue for the case $PKGVERSION is embedded in $DISTNAME, like "wordpress-\([0-9.]\)*-ja"
+	# --------------------
 	my($SpecialPatternx) = $DISTBASE;
-#	my($SpecialPatternx) = 's/$DISTBASE/$1/;';	
+#	my($SpecialPatternx) = 's/$DISTBASE/$1/;';
 	$SpecialPatternx =~ s|$PKGVERSION|([0-9.]+)|;
 	$SpecialPatternx =~ s|^|\$line =~ s/.*|;
 	$SpecialPatternx =~ s|$|.*/\$1/;|;
@@ -707,7 +709,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
 print STDERR sprintf("%4d ", __LINE__ ), '(DISTBODY) ', $DISTBODY,' (CAND) ', $VERSION_CANDIDATE,"\n" if $DEBUG_DISTBASE_PATTERN;
     }
 	# ----------------------------------
-	#  3 - 6
+	#  3 - 6  Strip $PKGVERSION from $DISTNAME with simple rule
 	# ----------------------------------
      else {
     $DISTBASE   =~ s/[-_]*[0-9._-]+$//;	
