@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-24 12:28" ; # write by emacs time-stamp
+$VERSION = "2015-01-24 13:53" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 #   requirement:
 #       net/curl
@@ -615,12 +615,23 @@ print STDERR sprintf("%4d ", __LINE__ ),
     if ($PKGBASE .'-'. $PKGVERSION eq $DISTBASE ) { return $PKGBASE }
 
     # Get several value to do very simple logic for the very first 'if' line below.
-    my($PKGBODY) = $PKGNAME;	# For Substracting $PKGVERSION from $PKGNAME
+    my($PKGBODY) = $DISTBASE;	# For Substracting $PKGVERSION from $PKGNAME
     				# This variable appears only these several lines, to pickup $VERSION_CANDIDATE
-    $PKGBODY =~ s/-$PKGVERSION//;
+
     my($VERSION_CANDIDATE) = $DISTBASE;
-    $VERSION_CANDIDATE =~ s/-$PKGBODY//;
+    $VERSION_CANDIDATE =~ s/$PKGBASE-//;
+    $VERSION_CANDIDATE =  MonthToDigit($VERSION_CANDIDATE);
 print STDERR sprintf("%4d ", __LINE__ ), '(PKGBODY) ', $PKGBODY,' (CAND) ', $VERSION_CANDIDATE,"\n" if $DEBUG_DISTBASE_PATTERN;
+    my($testA) = $PKGBASE;
+    my($testB) = $DISTBASE;
+print STDERR sprintf("%4d ", __LINE__ ), 
+    '(testA) ', $testA,
+    ' (VERSION_CANDIDATE) ', $VERSION_CANDIDATE,
+    ' (PKGNAME) ', $PKGNAME,
+    ' (PKGBASE) ', $PKGBASE,   "\n" if $DEBUG_DISTBASE_PATTERN;    
+    if ($testA.'-'.$VERSION_CANDIDATE eq $PKGNAME ) {
+	print STDERR sprintf("%4d ", __LINE__ ), '(DISTBASE) ', $PKGBASE,"\n" if $DEBUG_DISTBASE_PATTERN;
+	return $PKGBASE;}
 
 # taking care worpress-4.1-ja.tar.gz type (version is embedded).
     my($DISTBODY) = $DISTBASE;
@@ -1384,10 +1395,10 @@ sub Stats($$){
     printf SUMMARY $number,  'Forbidden(403/550):',	$Forbidden;
     printf SUMMARY $number,  "Site not in DNS:",	$DNSProblem;
 
-    printf SUMMARY $number,  'Skipped:',		$SkippedEndingDigit,	'(Skipped, the name ends with digits)';
+    printf SUMMARY $number,  'Package name ends with digit:',$SkippedEndingDigit,	'(The name ends with digits, may give false version)';
     printf SUMMARY $number,  'Matured:',		$SkipTooOld,	'(No update expected)';
     printf SUMMARY $number,  'Texlive:',		$StatTEXLIVE,	'(Texlive is skipped for now)';
-    printf SUMMARY $number,  'META_PACKAGE:',		$MetaPackage,	'(Excluding meta-pkgs category)';
+    printf SUMMARY $number,  'META_PACKAGE:',		$MetaPackage,	'(Other than meta-pkgs category)';
     printf SUMMARY $number,  'Confusing:',		$Reverse,	'<span class="reverse">(Found version wrong, hilighted, only for debug purpose)</span>';
 
     printf SUMMARY $number,  'Not Listed:',		$NotListed,'';
@@ -1675,17 +1686,16 @@ sub ValidateMasterSite($$) {
     my ($dir)		= shift;
     my ($PackageName)	= shift;
 }
-sub MonthToDigit ($$){
-    my ($distbase) = shift;
+sub MonthToDigit ($){
     my ($version) = shift;
-
-print STDERR sprintf("%4d ", __LINE__ ), ' (2) ', $distbase, ' --> ', $version,"\n" if $DEBUG_DISTBASE_PATTERN;
+print STDERR sprintf("%4d ", __LINE__ ), $version, ' --> ' if $DEBUG_DISTBASE_PATTERN;
     my ($month, $digit);
-    if ($version =~ /-[0-9]+(-[jfmasond][a-z][a-z]-).*/ ) { 
+    if ($version =~ /[0-9]+(-[jfmasond][a-z][a-z]-).*/ ) { 
 	$month = $1;
 	$digit = $MonthToDigit{$month};
-	$version =~  s/-([0-9]+)-[jfmasond][a-z][a-z]-([0-9]+)\.tar/$1$digit$2/;
+	$version =~  s/([0-9]+)-[jfmasond][a-z][a-z]-([0-9]+)/$1$digit$2/;
     }
+print STDERR  $version,"\n" if $DEBUG_DISTBASE_PATTERN;
     return $version;
 }
 ## ----------------------------------------
