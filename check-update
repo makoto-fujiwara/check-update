@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-24 08:32" ; # write by emacs time-stamp
+$VERSION = "2015-01-24 12:28" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 #   requirement:
 #       net/curl
@@ -607,19 +607,19 @@ sub GetDistBase($$$$$) {	# <- Main       DISTBASEDISTBASE
 print STDERR sprintf("%4d ", __LINE__ ),
          "  (PKGNAME)\t", $PKGNAME,        "\n",
     "       (PKGBASE)\t", $PKGBASE,      "\n",
-    "       (DISTBASE)\t", $DISTBASE,      "\n",
+    "       (DISTNAME)\t", $DISTBASE,      "\n",
     "       (PKGVERSION)\t", $PKGVERSION , "\n" if $DEBUG_DISTBASE_PATTERN;
     # --------------------------------------
     #      0. If  very simple patterns
     # --------------------------------------
-    if ($PKGBASE .'-'. $PKGVERSION eq $DISTBASE ) { return $PKGBASE}
+    if ($PKGBASE .'-'. $PKGVERSION eq $DISTBASE ) { return $PKGBASE }
 
     # Get several value to do very simple logic for the very first 'if' line below.
     my($PKGBODY) = $PKGNAME;	# For Substracting $PKGVERSION from $PKGNAME
     				# This variable appears only these several lines, to pickup $VERSION_CANDIDATE
     $PKGBODY =~ s/-$PKGVERSION//;
     my($VERSION_CANDIDATE) = $DISTBASE;
-    $VERSION_CANDIDATE =~ s/$PKGBODY//;
+    $VERSION_CANDIDATE =~ s/-$PKGBODY//;
 print STDERR sprintf("%4d ", __LINE__ ), '(PKGBODY) ', $PKGBODY,' (CAND) ', $VERSION_CANDIDATE,"\n" if $DEBUG_DISTBASE_PATTERN;
 
 # taking care worpress-4.1-ja.tar.gz type (version is embedded).
@@ -1675,6 +1675,19 @@ sub ValidateMasterSite($$) {
     my ($dir)		= shift;
     my ($PackageName)	= shift;
 }
+sub MonthToDigit ($$){
+    my ($distbase) = shift;
+    my ($version) = shift;
+
+print STDERR sprintf("%4d ", __LINE__ ), ' (2) ', $distbase, ' --> ', $version,"\n" if $DEBUG_DISTBASE_PATTERN;
+    my ($month, $digit);
+    if ($version =~ /-[0-9]+(-[jfmasond][a-z][a-z]-).*/ ) { 
+	$month = $1;
+	$digit = $MonthToDigit{$month};
+	$version =~  s/-([0-9]+)-[jfmasond][a-z][a-z]-([0-9]+)\.tar/$1$digit$2/;
+    }
+    return $version;
+}
 ## ----------------------------------------
 ##         M A I N   R o u t i n e    Main
 ## ----------------------------------------
@@ -1819,7 +1832,7 @@ foreach my $dir (@categories) {
     if ( (grep (/$PackageName/, @DontSkipEndingDigit) == 0 ) &&
         ! $disable_digit_ending_package && $PackageName =~ /[0-9]$/ ) {
 	$SkippedEndingDigit++;
-	next;}
+	}
     if ( grep (/$PackageName/, @SkipTooOld) > 0 ) { $SkipTooOld++; next;}
 # -------------------
 # Read Makefile
