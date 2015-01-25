@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-25 10:06" ; # write by emacs time-stamp
+$VERSION = "2015-01-25 12:26" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 #   requirement:
 #       net/curl
@@ -1459,7 +1459,7 @@ sub Stats($$){
 	+ $NotListed
 	;
     my($ForMergeCount) = sprintf 
-    "ForMergeCount:%d,%d,%d,%d, %d,%d,%d,%d, %d,%d,%d,%d, %d, %d,   %d, %d, %d\n",
+    "ForMergeCount:%d,%d,%d,%d,  %d,%d,%d,%d,  %d,%d,%d,%d,  %d,%d,%d,%d,  %d,%d\n",
 	  $Found  ,
 	  $TODO_LIST ,
 	  $OK  ,
@@ -1477,9 +1477,10 @@ sub Stats($$){
 
 	  $Reverse ,
 	  $NotListed ,
-
 	$Sum,
-	$TotalChecked, $started, time();
+	$TotalChecked, 
+	
+	$started, time();
 
     my($string2) = "       %-21s %6s %s\n";
     my($string) =  "%-21s %6s  %s\n";
