@@ -41,10 +41,9 @@ closedir(DIR);
 
 open(HTML, ">$HTML") || print "Problem opening to write $HTML: $!\n";
 
-    Header(*HTML);
+Header(*HTML);
 foreach my $dir (@DATE) {
     my($directory) = $DIR.'/'.$dir;
-#    print STDERR sprintf("%4d ", __LINE__), $directory,"\n";    
     opendir(DIR, $directory) || print "Problem opening directory: $directory: $!\n";
     while( $_ = readdir(DIR) ) {
 	if (/^\.$/)	{ next;}
@@ -57,7 +56,6 @@ foreach my $dir (@DATE) {
 	    while(<FILE>) {
 		chomp;
 		if (/ForMerge/ ) {
-#	    print $dir.'/'.$category, ' -> ', $_;
 		    my($category) = $category_html;
     		    $category =~ s|(\.[0-9]){0,}\.html||;
 		    $CATEGORY{$category}++;
@@ -70,18 +68,18 @@ foreach my $dir (@DATE) {
     closedir(DIR);
 }
 
-    my(@DATE) =  sort keys %ForMerge;
+my(@DATE) =  sort keys %ForMerge;
     
-    print HTML "<table cellspacing=0 cellpadding=3 border=0>\n";
-    print HTML "<tr class=\"head\"><th>category</th>";
+print HTML "<table cellspacing=0 cellpadding=3 border=0>\n";
+print HTML "<tr class=\"head\"><th>category</th>";
 foreach my $date  (@DATE) {
     print HTML "<th><a href=\"./$date\">$date</a></th>";
 }
-    print HTML "</tr>\n";
+print HTML "</tr>\n";
 
-    my (%EVEN) = (0, "even", 1, " ");
-    my ($toggle) = 1;
-    my (@HTML);
+my (%EVEN) = (0, "even", 1, " ");
+my ($toggle) = 1;
+my (@HTML);
 
 foreach my $category (sort keys %CATEGORY) {
     my ($html) = '';
@@ -98,11 +96,11 @@ foreach my $category (sort keys %CATEGORY) {
     $html .=  "</tr>\n";
     push(@HTML, $html);    
 }
-    print HTML "<tr class=\"total\" align= \"right\"><td>Total</td>\n";
-    foreach my $date (sort keys %FOUND) {
-	print HTML '<td>', "<a href=\"", $date, "/00_Stats.html\">". $FOUND{$date}, '</a></td>';
-    }
-    print HTML '</tr>',"\n";
-    print HTML @HTML;
+print HTML "<tr class=\"total\" align= \"right\"><td>Total</td>\n";
+foreach my $date (sort keys %FOUND) {
+    print HTML '<td>', "<a href=\"", $date, "/00_Stats.html\">". $FOUND{$date}, '</a></td>';
+}
+print HTML '</tr>',"\n";
+print HTML @HTML;
 
 __END__;
