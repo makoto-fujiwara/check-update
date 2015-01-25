@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-25 08:56" ; # write by emacs time-stamp
+$VERSION = "2015-01-25 09:59" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 #   requirement:
 #       net/curl
@@ -622,18 +622,27 @@ sub GetDistBaseSimple($$){
 # distname ast-ksh-2012-08-01
 # pkgname  
 sub GetDistBaseReduce($$$$){
-    my ($pkgbase)	= shift;	# ast-ksh
-    my ($pkgname)	= shift;	# ast-ksh-201208012
+    my ($pkgbase)	= shift;	# (static-)ast-ksh
+    my ($pkgname)	= shift;	# (static-)ast-ksh-201208012
     my ($pkgversion)	= shift;	# 201210801
     my ($distname)	= shift;	# ast-ksh-2012-08-01
 
     my ($value)		= '';
-    my ($distversion)	= $pkgname;	# ast-ksh-201208012
+    my ($distversion)	= $distname;	# ast-ksh-2012-08-01
 
     $distversion	=~ s/$pkgbase-//;	# 2012-08-01
-    $distversion	=~ s/-//g;		# 
-    if ($distversion == $pkgversion) { $value = $pkgbase ;}
-    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> value: ', $value, "\n" if $DEBUG_DISTBASE_PATTERN;
+    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> distversion: ', $distversion, "\n" if $DEBUG_DISTBASE_PATTERN;    
+    $distversion	=~ s/-//g;		# 20120801
+    if ($distversion == $pkgversion) { 
+	$value = $pkgbase ;
+	print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> value: ', $value, "\n" if $DEBUG_DISTBASE_PATTERN;
+    } else {
+	my ($datestring) = $distname;	# ast-ksh-2012-08-01
+	my ($candidate)  = $distname;	# ast-ksh-2012-08-01
+	$datestring =~ s|.*(\d{4})-(\d{2})-(\d{2})|$1$2$3|;	# 20120801
+	$candidate =~  s|-\d{4}-\d{2}-\d{2}||;			# 2012-08-01
+	if ($datestring eq $pkgversion) { $value = $candidate; }
+    }
     return $value;
 }
 sub GetDistBaseSwap($$$){
@@ -1445,8 +1454,8 @@ sub Stats($$){
 	+ $SkipTooOld
 	+ $StatTEXLIVE
 	+ $MetaPackage
-	+ $Reverse
 
+	+ $Reverse
 	+ $NotListed
 	;
     my($ForMergeCount) = sprintf 
@@ -1465,9 +1474,10 @@ sub Stats($$){
 	  $SkipTooOld ,
 	  $StatTEXLIVE ,
 	  $MetaPackage ,
-	  $Reverse ,
 
+	  $Reverse ,
 	  $NotListed ,
+
 	$Sum,
 	$TotalChecked, $started, time();
 
@@ -1480,7 +1490,7 @@ sub Stats($$){
 ##  Be carefull to have each header has colon(:) for merge-process be done correctly
 
     print  SUMMARY '<pre>',"\n";
-    print  SUMMARY '<a href="./../00_Summary.html"> Summary </a> | <a href="./?C=M;O=D"> Upper directory</a>',"\n";
+    print  SUMMARY '<a href="../../00_Summary.html"> Summary </a> | <a href="./?C=M;O=D"> Upper directory</a>',"\n";
     printf SUMMARY $string2,  'Script Time Stamp:', $VERSION;
     printf SUMMARY $string2,  'Started:',           $started_string, 'UTC';
     printf SUMMARY $string2,  'Ended:',             $ended, 'UTC';    
@@ -1491,12 +1501,12 @@ sub Stats($$){
     printf SUMMARY $number,  'Up-to-date:',		$OK,	'OK, Already up-to-date';
     printf SUMMARY $number,  'Not Available:',		$NotAvailable,	'Failed to get update info '. $indicated;
 
-    printf SUMMARY $number,  'No Master Sites:',	$NoMasterSites,	'(usually in files directory)';
+    printf SUMMARY $number,  'No Master Sites:',	$NoMasterSitesStats,	'(usually in files directory)';
     printf SUMMARY $number,  'NotFound (404):',		$NotFound,	'MASTER_SITES returns 404, and no recovery';
     printf SUMMARY $number,  'Forbidden(403/550):',	$Forbidden;
     printf SUMMARY $number,  "Site not in DNS:",	$DNSProblem;
 
-    printf SUMMARY $number,  'Package name ends with digit:',$SkippedEndingDigit,	'(The name ends with digits, may give false version)';
+    printf SUMMARY $number,  'Name ends with digit:',  $SkippedEndingDigit,	'(The name ends with digits, may give false version)';
     printf SUMMARY $number,  'Matured:',		$SkipTooOld,	'(No update expected)';
     printf SUMMARY $number,  'Texlive:',		$StatTEXLIVE,	'(Texlive is skipped for now)';
     printf SUMMARY $number,  'META_PACKAGE:',		$MetaPackage,	'(Other than meta-pkgs category)';

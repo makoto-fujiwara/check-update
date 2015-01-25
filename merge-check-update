@@ -4,7 +4,7 @@ our(@ARGV);
 use Getopt::Std;
 
 my($VERSION);
-$VERSION = "2015-01-25 03:22" ; # write by emacs time-stamp
+$VERSION = "2015-01-25 09:26" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 
 sub usage() {
@@ -176,8 +176,8 @@ push(@STATS, sprintf( "Elapsed:\t            %s\n", ExecutionTime($Started, $End
 my ($url)	= sprintf ("http://www.ki.nu/~makoto/pkgsrc/check-update/%s/00_whole.html", $leaf);
 my ($url_stat)	= sprintf ("http://www.ki.nu/~makoto/pkgsrc/check-update/%s/00_Stats",   $leaf);
 
-push(@STATS, sprintf( "Whole listing: <a href=\"%s\">%s</a>\n", $url,	   $url     ) );
 push(@STATS, sprintf( "        Stats: <a href=\"%s\">%s</a>\n", $url_stat, $url_stat) );
+push(@STATS, sprintf( "Whole listing: <a href=\"%s\">%s</a>\n", $url,	   $url     ) );
 push(@STATS, sprintf( "</pre>\n") );
 
      print WHOLE @STATS;
