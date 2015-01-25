@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-25 05:53" ; # write by emacs time-stamp
+$VERSION = "2015-01-25 06:10" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 #   requirement:
 #       net/curl
@@ -1256,8 +1256,13 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (3) ', $distbase, ' --> ', $version,"
 	}
 	if ($version =~ m|[0-9.]+pre[0-9]| ) { next;}
 	if ($version eq '') { next;}
-	if ( ! $distbase =~ m|rc| &&
+## RCRCRC
+print STDERR sprintf("%4d ", __LINE__ ), ' (distbase) ', $distbase,' (version) ', $version, "\n" if $DEBUG_DISTBASE_PATTERN;
+	if ( ! ($distbase =~ m|rc| ) &&
 	       $version =~ m|[0-9.]+rc[0-9]| )  { next;} # in case $distbase has not 'rc' in it, ignore rc stuff  RRRRRRRCCCCC i
+	if ( ! ($distbase =~ m|pre[0-9]| ) &&
+	       $version =~ m|[0-9._-]+pre[0-9]| )  { next;} # in case $distbase has not 'pre' in it, ignore rc stuff  RRRRRRRCCCCC i
+print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> distbase: ', $distbase, "\n" if $DEBUG_DISTBASE_PATTERN;
 	if ($version eq '') { next;}
 	# 552 -> 5.5.2, 2.1.3 -> 213 (nkf) etc
 #	if ($version =~ /1-bit ui/) { next;} # security sign pecuriarity
@@ -1266,12 +1271,13 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (3) ', $distbase, ' --> ', $version,"
 #	    $count   =	CountPeriod($version);
 
     } # end while
+print STDERR sprintf("%4d ", __LINE__ ), ' (distbase) ', $distbase,' (version) ', $version, "\n" if $DEBUG_DISTBASE_PATTERN;	
     close(CURL);
     } # while( $curl_lines == 0 && $repeat-- > 0 ) do {
     my ($returnCode) = 0;
     print STDERR sprintf("%4d ", __LINE__ ), '==> curl_lines: ', $curl_lines, "\n" if $DEBUG_DISTBASE_PATTERN;
     if ($curl_lines == 0 ) { $returnCode = -1; };
-print STDERR sprintf("%4d ", __LINE__ ), ' (.) ', $distbase,' ', $_,"\n" if $DEBUG_DISTBASE_PATTERN;
+print STDERR sprintf("%4d ", __LINE__ ), ' (distbase) ', $distbase,' (version) ', $version, "\n" if $DEBUG_DISTBASE_PATTERN;
     ($returnCode, @candidate);
 }
 sub PkgVersion($) {
