@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-25 05:30" ; # write by emacs time-stamp
+$VERSION = "2015-01-25 05:53" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 #   requirement:
 #       net/curl
@@ -614,6 +614,33 @@ sub GetDistBaseSimple($$){
     if ($distname =~ /$pkgname/ ) {
 	return $pkgname;}
 }
+sub GetDistBaseSwap($$$){
+    # --------------------------------------
+    #      0-1.
+    #   (PKGNAME)        bsdtar-3.1.2
+    #   (PKGBASE)        bsdtar
+    #   (DISTNAME)       libarchive-3.1.2
+    #   (PKGVERSION)     3.1.2
+    # --------------------------------------
+    my($pkgname, $pkgbase, $distname) = @_ ;
+    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3],
+	'> (pkgname) ', $pkgname,
+	 ' (pkgbase) ', $pkgbase,
+	 ' (distname)', $distname, "\n" if $DEBUG_DISTBASE_PATTERN;
+    my($numbers)=  $pkgname ;
+       $numbers	=~ s/$pkgbase-// ;
+    my($body)	=  $distname ;
+    my($value) = '';
+    $body	=~ s/-$numbers// ;
+    if ( $body =~ m|^[a-zA-Z]+$|)	{ $value = $body;}
+    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], 
+	'> $value: ', $value,
+	' numbers: ', $numbers,
+	"\n" if $DEBUG_DISTBASE_PATTERN;
+    return $value;
+}
+#    $DISTBASE = GetDistBaseSwap($PKGNAME, $PKGBASE, $DISTBASE);
+
 sub GetDistBase($$$$$) {	# <- Main       DISTBASEDISTBASE
     my ($dir) = shift;		# category
     my ($PackageName) = shift;	# leaf
@@ -652,7 +679,17 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	print STDERR sprintf("%4d ", __LINE__ ), '(DISTBASE) ', $PKGBASE,"\n" if $DEBUG_DISTBASE_PATTERN;
 	return $PKGBASE;}
     # --------------------------------------
-    #      0-1. if (-) is onlye one in PKGNAME, remove - and after
+    #      0-1.
+    #   (PKGNAME)        bsdtar-3.1.2
+    #   (PKGBASE)        bsdtar
+    #   (DISTNAME)       libarchive-3.1.2
+    #   (PKGVERSION)     3.1.2
+    # --------------------------------------
+    $DISTBASE = GetDistBaseSwap($PKGNAME, $PKGBASE, $DISTBASE);
+    if ($DISTBASE) { return $DISTBASE; }
+
+    # --------------------------------------
+    #      0-2. if (-) is onlye one in PKGNAME, remove - and after
     #      if resultant string in DISTNAME, take it as DISTBASE
     # --------------------------------------
     $DISTBASE = GetDistBaseSimple($PKGNAME, $DISTBASE);
@@ -1715,7 +1752,7 @@ sub ValidateMasterSite($$) {
 }
 sub MonthToDigit ($){
     my ($version) = shift;
-print STDERR sprintf("%4d ", __LINE__ ), $version, ' --> ' if $DEBUG_DISTBASE_PATTERN;
+print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[3], '> ', $version, ' --> ' if $DEBUG_DISTBASE_PATTERN;
     my ($month, $digit);
     if ($version =~ /[0-9]+(-[jfmasond][a-z][a-z]-).*/ ) { 
 	$month = $1;
