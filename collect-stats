@@ -4,7 +4,9 @@ use strict;
 sub Header($){
     *HTML = shift;
     print HTML <<HEAD;
-    <html><style>
+    <html>
+   <title>pksrc to-be-updated stats</title>
+   <style>
    body     { font-size: small;}
    table    { font-size: small;}
    tr.even  { background-color: \#e0f0e0}
@@ -18,9 +20,12 @@ my($DIR) = $ENV{'HOME'}.'/public_html/pkgsrc/check-update';
 my($URL) = 'http://www.ki.nu/~makoto/pkgsrc/check-update/';
 my($date);
 my(@DATE);
+
+# collect number
 my(%FOUND);
-my($th_not_done) = 1;
-my($th_line) = '<table cellspacing=0 cellpadding=3 border=1>'."\n";
+my(%TODO);
+my(%OK);
+
 my(@th);
 my(%ForMerge);
 my($HTML) = $DIR.'/00_summary.html';
@@ -71,14 +76,17 @@ foreach my $dir (@DATE) {
 my(@DATE) =  sort keys %ForMerge;
     
 print HTML "<table cellspacing=0 cellpadding=3 border=0>\n";
-print HTML "<tr class=\"head\"><th>category</th>";
+print HTML "<tr class=\"head\"><th>Date</th>";
 foreach my $date  (@DATE) {
-    print HTML "<th><a href=\"./$date\">$date</a></th>";
+    my ($short) =  $date; 
+        $short =~ s/^2015//;
+        $short =~ s/-[0-9]+$//;
+    print HTML "<th><a href=\"./$date/00_Stats.html\">$short</a></th>";
 }
 print HTML "</tr>\n";
 
 my (%EVEN) = (0, "even", 1, " ");
-my ($toggle) = 1;
+my ($toggle) = 0;
 my (@HTML);
 
 foreach my $category (sort keys %CATEGORY) {
@@ -91,16 +99,31 @@ foreach my $category (sort keys %CATEGORY) {
 	    $ForMerge	=~ s/ForMergeCount://;;
 	my (@ForMerge)	= split (',', $ForMerge);
 	$html .= '<td><a href="'. "$date/$category". '">'. $ForMerge[0]. '</a></td>';
-	$FOUND{$date} +=  $ForMerge[0];
+	$FOUND{$date}	+= $ForMerge[0];
+	$TODO{$date}	+= $ForMerge[1];
+	$OK{$date}	+= $ForMerge[2];
     }
     $html .=  "</tr>\n";
     push(@HTML, $html);    
 }
-print HTML "<tr class=\"total\" align= \"right\"><td>Total</td>\n";
+print HTML "<tr class=\"total\" align= \"right\"><td>To be updated</td>\n";
 foreach my $date (sort keys %FOUND) {
     print HTML '<td>', "<a href=\"", $date, "/00_Stats.html\">". $FOUND{$date}, '</a></td>';
 }
 print HTML '</tr>',"\n";
+
+print HTML "<tr class=\"todo\" align= \"right\"><td>TODO</td>\n";
+foreach my $date (sort keys %TODO) {
+    print HTML '<td>', "<a href=\"", $date, "/00_Stats.html\">". $TODO{$date}, '</a></td>';
+}
+print HTML '</tr>',"\n";
+
+print HTML "<tr class=\"ok\" align= \"right\"><td>OK</td>\n";
+foreach my $date (sort keys %OK) {
+    print HTML '<td>', "<a href=\"", $date, "/00_Stats.html\">". $OK{$date}, '</a></td>';
+}
+print HTML '</tr>',"\n";
+
 print HTML @HTML;
 
 __END__;
