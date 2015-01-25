@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-24 13:53" ; # write by emacs time-stamp
+$VERSION = "2015-01-25 05:30" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 #   requirement:
 #       net/curl
@@ -274,6 +274,10 @@ my (@V1000) = qw (enum);
 
 # p5-HTTP-Request-Form (HTTP-Request-Form) (1513 ) Now:  0.9.5.2 ->   0.952 Todo:       
 my (@SingleDigit) = qw(HTTP-Request-Form);
+
+# archivers/hpack 79 -> 0.79
+my (@ZeroDot) = qw (hpack);
+    
 # Term-ReadLine-Perl5
 my (@DIGIT_IN_NAME) = qw(cal3d emacs-w3m x2x w3m nec2c xnec2c asn1c py34-unittest2py3k p5-GD-Graph3d popa3d tex-algorithm2e sqlalchemy-i18n hdf5-c++ );
 #
@@ -567,6 +571,7 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (3) ', $version, ' --> '  if $DEBUG_D
 	    if (grep (/^$distbase$/, @SPRINTF1_3)  > 0 ) { $version = LeftJustify($version,1,3);} # count(1.3)
     	    if (grep (/^$distbase$/, @SingleDigit)  > 0 ) { $version = SingleDigit($version);}
     	    if (grep (/^$distbase$/, @DELETE02)  > 0 ) { $version = Delete02($version);}
+            if (grep (/^$distbase$/, @ZeroDot)  > 0 )  { $version = '0.'. $version;}
 
 print STDERR sprintf("%4d ", __LINE__ ), ' (4) ', $version, "\n" if $DEBUG_DISTBASE_PATTERN;
 #	print STDERR sprintf("%4d ", __LINE__ ), ' ', $_, "\n", $distbase, ' --> ', $version,"\n";
@@ -595,6 +600,20 @@ sub ExpandURL($$) {		# <- Not used now (?)
 # This routine to find the Base name of distribution file.
 # It will be used to separate the version portion from distribution file.
 # ----------------------------------------------------------------------
+    # --------------------------------------
+    #      0-1. if (-) is onlye one in PKGNAME, remove - and after
+    #      if resultant string in DISTNAME, take it as DISTBASE
+    # --------------------------------------
+sub GetDistBaseSimple($$){
+    my ($pkgname)	= shift;
+    my ($distname)	= shift;
+
+    my (@partial) = split('-', $pkgname);
+    if ($#partial != 1 ) { return '';}
+    $pkgname =~ s|-$partial[1]||;
+    if ($distname =~ /$pkgname/ ) {
+	return $pkgname;}
+}
 sub GetDistBase($$$$$) {	# <- Main       DISTBASEDISTBASE
     my ($dir) = shift;		# category
     my ($PackageName) = shift;	# leaf
@@ -632,6 +651,12 @@ print STDERR sprintf("%4d ", __LINE__ ),
     if ($testA.'-'.$VERSION_CANDIDATE eq $PKGNAME ) {
 	print STDERR sprintf("%4d ", __LINE__ ), '(DISTBASE) ', $PKGBASE,"\n" if $DEBUG_DISTBASE_PATTERN;
 	return $PKGBASE;}
+    # --------------------------------------
+    #      0-1. if (-) is onlye one in PKGNAME, remove - and after
+    #      if resultant string in DISTNAME, take it as DISTBASE
+    # --------------------------------------
+    $DISTBASE = GetDistBaseSimple($PKGNAME, $DISTBASE);
+    if ($DISTBASE) { return $DISTBASE; }
 
 # taking care worpress-4.1-ja.tar.gz type (version is embedded).
     my($DISTBODY) = $DISTBASE;
@@ -1169,7 +1194,9 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (3) ', $distbase, ' --> ', $version,"
             $version =~ s/-src-//;	# qt-everywhere-opensource --> -src-5.2.1
 	    $version =~ s/-src//;	# qt-everywhere-opensource --> -src-5.2.1	     
 	    $version =~ s/\.src//;
-    	    $version =~ s/_src_all//;	#  p7zip_9.20.1_src_all.tar 
+    	    $version =~ s/_src_all//;	#  p7zip_9.20.1_src_all.tar
+       	    $version =~ s/src//;	#  archivers/hpack79src
+       	    $version =~ s/dos//;	#  archivers/hpack79dos
 #	    $version =~ s/pre[0-9]//;
 	    $version =~ s/^[_.-]//;
 	     $version =~ s/[_.-]/\./g;
