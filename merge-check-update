@@ -4,7 +4,7 @@ our(@ARGV);
 use Getopt::Std;
 
 my($VERSION);
-$VERSION = "2015-01-22 00:47" ; # write by emacs time-stamp
+$VERSION = "2015-01-25 03:22" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 
 sub usage() {
@@ -39,13 +39,21 @@ sub DirectoryName($){
     my ($output_directory,
 	$output_directory_tmp,
 	$leaf)	;
-	my($sec, $min, $hour, $date, $mon, $year, $dofweek, $dayofyear, $summertime) 
-	    = gmtime();
-	$leaf
-	    = sprintf("%04d%02d%02d", $year + 1900, $mon + 1, $date); 
+#
+#	my($sec, $min, $hour, $date, $mon, $year, $dofweek, $dayofyear, $summertime) 
+#	    = gmtime();
+#	$leaf
+#	    = sprintf("%04d%02d%02d", $year + 1900, $mon + 1, $date); 
+    # do not generate, but use `pwd`
+    $leaf = `pwd`;
+    chomp($leaf);
+#   print __LINE__, ' ', $leaf,"\n"; 
+    $leaf =~ s|.*/([^/]+)$|$1|;
+#   print __LINE__, ' ', $leaf,"\n"; 
     if ($upper_directory) {
 	$output_directory     = $upper_directory .      $leaf .'/';
 	$output_directory_tmp = $upper_directory . '.'. $leaf .'/'; }
+#   print __LINE__. ' '. $output_directory_tmp .' '.  $output_directory. ' '. $leaf ."\n";
     if (! -d $output_directory_tmp ) { mkdir  $output_directory_tmp ;}
     return ($output_directory, $output_directory_tmp, $leaf);
 };

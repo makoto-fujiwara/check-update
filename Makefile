@@ -46,9 +46,9 @@ CHECK_UPDATE=	/e/modena/git-repository/check-update/check-update-20150123
 MERGE=		/e/modena/git-repository/check-update/merge-check-update
 
 DIRECTORY=	${HOME}/public_html/pkgsrc/check-update
-DATEX!=		date +%Y%m%d-%H
+DATE_H!=	date +%Y%m%d-%H
 # To allow 'env DATE=20150101 make -j 16' for executing beyond date boundary
-DATE?=		${DATE}
+DATE?=		${DATE_H}
 WORK=		${DIRECTORY}/.${DATE}
 RM=		/bin/rm
 
