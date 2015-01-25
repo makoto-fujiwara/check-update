@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-25 09:59" ; # write by emacs time-stamp
+$VERSION = "2015-01-25 10:06" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 #   requirement:
 #       net/curl
@@ -1450,7 +1450,7 @@ sub Stats($$){
 	+ $Forbidden
 	+ $DNSProblem
 
-	+ $SkippedEndingDigitStats,
+	+ $SkippedEndingDigitStats
 	+ $SkipTooOld
 	+ $StatTEXLIVE
 	+ $MetaPackage
@@ -1481,11 +1481,11 @@ sub Stats($$){
 	$Sum,
 	$TotalChecked, $started, time();
 
-    my($string2) = "       %-20s %6s %s\n";
-    my($string) = "%-20s %6s  %s\n";
-    my($number) = "%-20s %6d  %s\n";
-    my($number2) = "%-40s %6d  %s\n";
-    my($number3) = "%-40s %6d  %s\n";    
+    my($string2) = "       %-21s %6s %s\n";
+    my($string) =  "%-21s %6s  %s\n";
+    my($number) =  "%-21s %6d  %s\n";
+    my($number2) = "%-41s %6d  %s\n";
+    my($number3) = "%-41s %6d  %s\n";    
 
 ##  Be carefull to have each header has colon(:) for merge-process be done correctly
 
@@ -1506,7 +1506,7 @@ sub Stats($$){
     printf SUMMARY $number,  'Forbidden(403/550):',	$Forbidden;
     printf SUMMARY $number,  "Site not in DNS:",	$DNSProblem;
 
-    printf SUMMARY $number,  'Name ends with digit:',  $SkippedEndingDigit,	'(The name ends with digits, may give false version)';
+    printf SUMMARY $number,  'Name ends with digit:',	$SkippedEndingDigit,	'(The name ends with digits, may give false version)';
     printf SUMMARY $number,  'Matured:',		$SkipTooOld,	'(No update expected)';
     printf SUMMARY $number,  'Texlive:',		$StatTEXLIVE,	'(Texlive is skipped for now)';
     printf SUMMARY $number,  'META_PACKAGE:',		$MetaPackage,	'(Other than meta-pkgs category)';
