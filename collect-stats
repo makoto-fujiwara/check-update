@@ -1,0 +1,108 @@
+#! /usr/pkg/bin/perl
+use strict;
+
+sub Header($){
+    *HTML = shift;
+    print HTML <<HEAD;
+    <html><style>
+   body     { font-size: small;}
+   table    { font-size: small;}
+   tr.even  { background-color: \#e0f0e0}
+   tr.total { background-color: \#f0f0f0}
+   tr.head  { background-color: \#e0e0f0}
+    </style><body>
+HEAD
+}
+
+my($DIR) = $ENV{'HOME'}.'/public_html/pkgsrc/check-update';
+my($URL) = 'http://www.ki.nu/~makoto/pkgsrc/check-update/';
+my($date);
+my(@DATE);
+my(%FOUND);
+my($th_not_done) = 1;
+my($th_line) = '<table cellspacing=0 cellpadding=3 border=1>'."\n";
+my(@th);
+my(%ForMerge);
+my($HTML) = $DIR.'/00_summary.html';
+#   $HTML  = '/tmp/00_summary.html';
+my(%CATEGORY);
+
+opendir(DIR, $DIR) || print "Problem opening directory: $DIR: $!\n";
+while( $_ = readdir(DIR) ) {
+    if (/^\.$/) { next;}
+    if (/^\.\.$/) { next;}
+    if (/(^2.*)/) {
+	$date = $1;
+	if (-d $DIR.'/'.$date) {
+	    push(@DATE, $date);}
+    }
+}
+closedir(DIR);
+
+open(HTML, ">$HTML") || print "Problem opening to write $HTML: $!\n";
+
+    Header(*HTML);
+foreach my $dir (@DATE) {
+    my($directory) = $DIR.'/'.$dir;
+#    print STDERR sprintf("%4d ", __LINE__), $directory,"\n";    
+    opendir(DIR, $directory) || print "Problem opening directory: $directory: $!\n";
+    while( $_ = readdir(DIR) ) {
+	if (/^\.$/)	{ next;}
+	if (/^\.\.$/)	{ next;}
+	if (/^00/ )	{ next;}
+	my($category_html) = $_;
+	my($category_path) =  $directory.'/'.$category_html;
+	if (-f $category_path) {
+	    open(FILE, $category_path) || print "Problem opening file: $category_path: $!\n";
+	    while(<FILE>) {
+		chomp;
+		if (/ForMerge/ ) {
+#	    print $dir.'/'.$category, ' -> ', $_;
+		    my($category) = $category_html;
+    		    $category =~ s|(\.[0-9]){0,}\.html||;
+		    $CATEGORY{$category}++;
+		    $ForMerge{$dir}{$category} = $_;
+		}
+	    }
+	    close(FILE);
+	}
+    } # while (date directory)
+    closedir(DIR);
+}
+
+    my(@DATE) =  sort keys %ForMerge;
+    
+    print HTML "<table cellspacing=0 cellpadding=3 border=0>\n";
+    print HTML "<tr class=\"head\"><th>category</th>";
+foreach my $date  (@DATE) {
+    print HTML "<th><a href=\"./$date\">$date</a></th>";
+}
+    print HTML "</tr>\n";
+
+    my (%EVEN) = (0, "even", 1, " ");
+    my ($toggle) = 1;
+    my (@HTML);
+
+foreach my $category (sort keys %CATEGORY) {
+    my ($html) = '';
+	
+    push(@HTML, '<tr class="'. $EVEN{$toggle}. '" align= "right"><td>'. $category . '</td>');
+    $toggle = 1 - $toggle;
+    foreach my $date (@DATE) {
+	my ($ForMerge)  = $ForMerge{$date}{$category};
+	    $ForMerge	=~ s/ForMergeCount://;;
+	my (@ForMerge)	= split (',', $ForMerge);
+	$html .= '<td><a href="'. "$date/$category". '">'. $ForMerge[0]. '</a></td>';
+	$FOUND{$date} +=  $ForMerge[0];
+    }
+    $html .=  "</tr>\n";
+    push(@HTML, $html);    
+}
+    print HTML "<tr class=\"total\" align= \"right\"><td>Total</td>\n";
+    foreach my $date (sort keys %FOUND) {
+	print HTML '<td>', "<a href=\"", $date, "/00_Stats.html\">". $FOUND{$date}, '</a></td>';
+    }
+    print HTML '</tr>',"\n";
+    print HTML @HTML;
+
+__END__;
