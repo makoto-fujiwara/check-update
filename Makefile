@@ -60,8 +60,8 @@ all: ${DIRECTORY}/${DATE}
 ${DIRECTORY}/${DATE}: ${WORK}/.done
 	mv ${WORK} ${DIRECTORY}/${DATE};
 
-# Merge the results
-${WORK}/.done: ${CATEGORIES:S/$/.html/} ${DEVEL:S/$/.html/}
+# Merge the results (slower to start ealiear)
+${WORK}/.done: net.html ${DEVEL:S/$/.html/}${CATEGORIES:S/$/.html/} 
 	(cd ${WORK}; \
 	${MERGE} *.html )
 	touch ${WORK}/.done
