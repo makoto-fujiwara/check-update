@@ -4,7 +4,7 @@ our(@ARGV);
 use Getopt::Std;
 
 my($VERSION);
-$VERSION = "2015-01-25 09:26" ; # write by emacs time-stamp
+$VERSION = "2015-01-26 01:40" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 
 sub usage() {
@@ -34,29 +34,29 @@ sub ExecutionTime($$){
 #   $upper_directoy/.20150120     ($output_directory_tmp)
 #                    20150120     ($leaf)
 
-sub DirectoryName($){
-    my ($upper_directory) = shift;
-    my ($output_directory,
-	$output_directory_tmp,
-	$leaf)	;
-#
-#	my($sec, $min, $hour, $date, $mon, $year, $dofweek, $dayofyear, $summertime) 
-#	    = gmtime();
-#	$leaf
-#	    = sprintf("%04d%02d%02d", $year + 1900, $mon + 1, $date); 
-    # do not generate, but use `pwd`
-    $leaf = `pwd`;
-    chomp($leaf);
-#   print __LINE__, ' ', $leaf,"\n"; 
-    $leaf =~ s|.*/([^/]+)$|$1|;
-#   print __LINE__, ' ', $leaf,"\n"; 
-    if ($upper_directory) {
-	$output_directory     = $upper_directory .      $leaf .'/';
-	$output_directory_tmp = $upper_directory . '.'. $leaf .'/'; }
-#   print __LINE__. ' '. $output_directory_tmp .' '.  $output_directory. ' '. $leaf ."\n";
-    if (! -d $output_directory_tmp ) { mkdir  $output_directory_tmp ;}
-    return ($output_directory, $output_directory_tmp, $leaf);
-};
+# sub DirectoryName($){
+#     my ($upper_directory) = shift;
+#     my ($output_directory,
+# 	$output_directory_tmp,
+# 	$leaf)	;
+# #
+# #	my($sec, $min, $hour, $date, $mon, $year, $dofweek, $dayofyear, $summertime) 
+# #	    = gmtime();
+# #	$leaf
+# #	    = sprintf("%04d%02d%02d", $year + 1900, $mon + 1, $date); 
+#     # do not generate, but use `pwd`
+#     $leaf = `pwd`;
+#     chomp($leaf);
+# #   print __LINE__, ' ', $leaf,"\n"; 
+#     $leaf =~ s|.*/([^/]+)$|$1|;
+# #   print __LINE__, ' ', $leaf,"\n"; 
+#     if ($upper_directory) {
+# 	$output_directory     = $upper_directory .      $leaf .'/';
+# 	$output_directory_tmp = $upper_directory . '.'. $leaf .'/'; }
+# #   print __LINE__. ' '. $output_directory_tmp .' '.  $output_directory. ' '. $leaf ."\n";
+#     if (! -d $output_directory_tmp ) { mkdir  $output_directory_tmp ;}
+#     return ($output_directory, $output_directory_tmp, $leaf);
+# };
 
 sub main() {
 my ($summary, $summary_leaf, $summary_tmp, $upper_directory);    
@@ -65,27 +65,37 @@ my ($Started) = time();  # (set for max time to find out smaller, then minimum
 my ($Ended);
 
     $upper_directory = $ENV{'HOME'}.'/public_html/pkgsrc/check-update/';
-my ($output_directory, $output_directory_tmp, $leaf ) = DirectoryName($upper_directory);
-my ($whole_tmp) = $output_directory_tmp. '00_whole.html';
-my ($stats_tmp) = $output_directory_tmp. '00_Stats.html';
-#print STDERR sprintf("%4d ", __LINE__), ':', $whole, ': >', $whole_tmp,"<\n";
+#my ($output_directory, $output_directory_tmp, $leaf ) = DirectoryName($upper_directory);
+
+my ($leaf)   = `pwd`;
+chomp($leaf);
+    $leaf    =~ s|.*$upper_directory||;
+
+my ($whole_tmp) = '00_whole.html';
+my ($stats_tmp) = '00_Stats.html';
+# print STDERR sprintf("%4d ", __LINE__),"\n",
+#     ' upper_directory ', $upper_directory, "\n",
+#     ' pwd ', `pwd`,
+#     ' leaf ', $leaf, "\n";
+# #exit;
 my ($string);
 my (@headers);
 
     my(	  $Found  ,
 	  $TODO_LIST ,
 	  $OK  ,
-	  
 	  $NotAvailable ,
+
 	  $NoMasterSites ,
 	  $Forbidden ,
 	  $SkippedEndingDigit ,
-
 	  $SkipTooOld ,
+
 	  $MetaPackage ,
 	  $Reverse ,
 	  $NotListed ,
 	  $StatsMasterSite404 ,
+
 	$Sum,
 	$TotalChecked, $started, $time);
 
@@ -146,19 +156,21 @@ foreach my $file (@ARGV) {
 #
 #   E X E C U T I O N   T I M E
 #
-    if ($statsline[15] > 1421500000) { # set lower limit in case blank etc  (Sat Jan 17 22:06:40 2015)
-	if ($Started > $statsline[15] ) { $Started = $statsline[15]; }}   # find minimum time
-    if     ($Ended   < $statsline[16] ) { $Ended   = $statsline[16]; }	  # find maximum time
+    my ($last_index) = $#statsline; #	To point the last element and but one.
+    if ($statsline[$last_index - 1 ] > 1421500000) { # set lower limit in case blank etc  (Sat Jan 17 22:06:40 2015)
+	if ($Started > $statsline[$last_index - 1 ] ) { $Started = $statsline[$last_index - 1]; }}   # find minimum time
+    if     ($Ended   < $statsline[$last_index] ) { $Ended   = $statsline[$last_index]; }	  # find maximum time
 }
 
 
 my(@STATS);	# to print two destination, STATS and WHOLE, making buffer
 
 push(@STATS, "<pre>\n");
-push(@STATS, '<a href="./?C=M;O=D"> This directory</a> | <a href="../?C=M;O=D"> Upper directory</a>'."\n");
-
-#
-#
+push(@STATS, 
+  ' <a href="./?C=M;O=D">This directory</a> |'.
+  ' <a href="../?C=M;O=D">Upper directory</a> |'.
+  ' <a href="../00_summary.html">Summary</a>'.
+  "\n");
 #
 foreach my $el ( 0.. $#sums) {
 
@@ -173,8 +185,10 @@ push(@STATS, sprintf( "Started:\t %s UTC\n", scalar(gmtime($Started))) );
 push(@STATS, sprintf( "Ended:  \t %s UTC\n", scalar(gmtime($Ended)))   );
 push(@STATS, sprintf( "Elapsed:\t            %s\n", ExecutionTime($Started, $Ended)) );
 
-my ($url)	= sprintf ("http://www.ki.nu/~makoto/pkgsrc/check-update/%s/00_whole.html", $leaf);
-my ($url_stat)	= sprintf ("http://www.ki.nu/~makoto/pkgsrc/check-update/%s/00_Stats",   $leaf);
+my ($real_leaf) = $leaf;
+   $real_leaf   =~ s/^\.//;
+my ($url)	= sprintf ("http://www.ki.nu/~makoto/pkgsrc/check-update/%s/00_whole.html", $real_leaf);
+my ($url_stat)	= sprintf ("http://www.ki.nu/~makoto/pkgsrc/check-update/%s/00_Stats.html", $real_leaf);
 
 push(@STATS, sprintf( "        Stats: <a href=\"%s\">%s</a>\n", $url_stat, $url_stat) );
 push(@STATS, sprintf( "Whole listing: <a href=\"%s\">%s</a>\n", $url,	   $url     ) );
