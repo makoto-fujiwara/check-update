@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-26 06:47" ; # write by emacs time-stamp
+$VERSION = "2015-01-26 12:25" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 #   requirement:
 #       net/curl
@@ -36,6 +36,7 @@ my ($DEBUG_COUNT);
 my ($DEBUG_RUBYGEM);
 my ($DEBUG_SF);
 my ($DEBUG_STATS);
+my ($DEBUG_DIVIDE_DEVEL) = 0;
 
 my ($curl_head)		= 'curl -k -I --location --insecure';
 my ($curl_head_secure)	= 'curl -k -I --location --insecure -s';
@@ -105,7 +106,8 @@ my ($FindDepends) = 0;
 my (@TimeTopTen);
 my ($LimitedList);
 my ($merge_mode) = 0;
-my ($maintainer) = 0;	# output for the maintainer
+my ($maintainer) = 0;		# output for the maintainer
+my ($divide_devel) = '';	# execute divided manner on devel category
 
 my ($start_time) = time();
 our(%opts);
@@ -229,7 +231,7 @@ my (@THREE) = qw( falcons-eye quakedata abcde binkd bwwtex cryptopp dirb sr-exam
 my (@ZIP) = qw (zip unzip fMSX);
 
 # 100 -> 1.00 type
-my (@VER32) = qw(gigbase gku bunzip wxRemind qkc atasm bicom bww2tex cgic PDF par jpilot-syncmail asterisk-perl pyserial datlib dutil mdiff rbuild rinfo zident adodb lzma lzop upx piewm sawfish wmctrl wmakerconf mesch gigabase plnode);
+my (@VER32) = qw(gigbase gku bunzip wxRemind qkc atasm bicom bww2tex cgic PDF par jpilot-syncmail asterisk-perl pyserial datlib dutil mdiff rbuild rinfo zident adodb lzma lzop upx piewm sawfish wmctrl wmakerconf mesch gigabase plnode uno);
 
 # 31 -> 3.1 # 3370 -> 3.370 devel/cfitsio
 my (@VER22) = qw(doc2html cfitsio lcc ctags);	# doc2html
@@ -1784,7 +1786,10 @@ sub SummaryName(){
 	elsif ($DEBUG_CACHE)		{ $summary = '.cache.html';}
 	elsif ($DEBUG_HTTP_HEADER)	{ $summary = '.header.html';}
 	elsif ($partial) 		{ $summary = '.partial' .'.html';}
-	elsif ($category)		{ $summary = $category .'.html';}
+	elsif ($category)		{ 
+	    
+	    $summary = $category . $divide_devel . '.html';
+	}
 	else       			{
 	    my($sec, $min, $hour, $date, $mon, $year, $dofweek, $dayofyear, $summertime) 
 		= gmtime();
@@ -1874,7 +1879,7 @@ my ($PackageStart);	# For timing, not used for now
 my ($PackageEnd);
 
 my ($argv)    = join ' ', @ARGV;	# to show at Stats()
-getopts( 'c:Dd:fFhM:mP:p:s:S:tT:uvVwx:', \%opts);
+getopts( 'c:Dd:fFhM:mP:p:s:S:tT:uvVwx:y:', \%opts);
 
 if ($opts{'c'}) { $category = $opts{'c'}; $full_list++;}
 if ($opts{'d'}) { $output_directory = $opts{'d'};}
@@ -1891,7 +1896,9 @@ if ($opts{'S'}) { $summary  =  $opts{'S'};}
 if ($opts{'x'}) { 
     ParseDebug($opts{'x'});
 }
-    SummaryName();  # should be before Usage() is called, and after opts c, x, S, C
+
+if ($opts{'y'}) { $divide_devel = $opts{'y'};}# (ad-hoc :-) '': none,  1: [A-Za-o]*,  2: p*,  3: [q-z]*
+    SummaryName();  # should be before Usage() is called, and after opts c, x, S, C 
 if ($opts{'h'}) { Usage($summary, $output_directory); exit 0; }
 
 if ($opts{'t'}) { $MeasureTime++; }
@@ -1902,6 +1909,9 @@ if ($opts{'V'}) { ShowVersion(); exit;}
 if ($opts{'w'}) { $include_wip++};
 if ($opts{'W'}) { $include_reverse++};
 
+my(%DIVIDE_DEVEL) = ( 1, '[A-Za-o].*',
+		      2, 'p.*',
+		      3, '[q-z].*' );
 chdir $pkgsrc;
 
 print STDERR sprintf("%4d ", __LINE__ ), 'output directory is '. $output_directory ."\n";
@@ -1972,6 +1982,8 @@ foreach my $dir (@categories) {
     #    F O R   E A C H  P A C K A G E     ( to line 1835 ..)
     #  ------------------------------------
     foreach my $PackageName (@PackageNames) {
+
+
 	$MasterSiteStat = 0;
 	$NoMasterSites = 0;
 	$HomePageStat = 0;
@@ -1996,6 +2008,26 @@ foreach my $dir (@categories) {
 	if ($PackageName =~ /$opts{'s'}/ ) { $skip_until_match = 0; }
 	else { next;}
     }
+# ----------------------------------------------------------
+	my ($develPattern) = $DIVIDE_DEVEL{$divide_devel};
+	if ( $category eq 'devel'	&&
+	     $divide_devel  		&&  
+	     ! ($PackageName =~ /^$develPattern/)  ) {
+print STDERR sprintf("%4d ", __LINE__ ), 
+	     ' category ',    $category,
+	     ' divide_devel ', $divide_devel,
+             ' PackageName ' , $PackageName,
+	     ' DIVIDE_DEVEL{$divide_devel} ', $DIVIDE_DEVEL{$divide_devel}, " :Skipping..\n"
+if $DEBUG_DIVIDE_DEVEL;
+	     next;}
+
+print STDERR sprintf("%4d ", __LINE__ ), 
+	     ' category ',    $category,
+	     ' divide_devel ', $divide_devel,
+             ' PackageName ' , $PackageName,
+	    ' DIVIDE_DEVEL{$divide_devel} ', $DIVIDE_DEVEL{$divide_devel}, " :Processing..\n"
+	if $DEBUG_DIVIDE_DEVEL;
+# ----------------------------------------------------------	
     my ($this_PackageDir) = $dir.'/'.$PackageName;
     my ($reverse)   = 0;	# for displaying flag
 

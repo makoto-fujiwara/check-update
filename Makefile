@@ -9,7 +9,6 @@ CATEGORIES= \
 	converters \
 	cross \
 	databases \
-	devel \
 	editors \
 	emulators \
 	filesystems \
@@ -40,6 +39,8 @@ CATEGORIES= \
 	www \
 	x11 \
 
+DEVEL = devel1 devel2 devel3
+
 CHECK_UPDATE=	/e/modena/git-repository/check-update/check-update
 MERGE=		/e/modena/git-repository/check-update/merge-check-update
 SUMMARY=	/e/modena/git-repository/check-update/collect-stats
@@ -53,14 +54,14 @@ DATE?=		${DATE_H}
 WORK=		${DIRECTORY}/.${DATE}
 RM=		/bin/rm
 
-${SUMMARY}:
+all: ${DIRECTORY}/${DATE}
 	(cd ${DIRECTORY}; ${SUMMARY} );
 
 ${DIRECTORY}/${DATE}: ${WORK}/.done
 	mv ${WORK} ${DIRECTORY}/${DATE};
 
 # Merge the results
-${WORK}/.done: ${CATEGORIES:S/$/.html/}
+${WORK}/.done: ${CATEGORIES:S/$/.html/} ${DEVEL:S/$/.html/}
 	(cd ${WORK}; \
 	${MERGE} *.html )
 	touch ${WORK}/.done
@@ -72,8 +73,15 @@ $i.html: ${WORK}
 	${CHECK_UPDATE} -f -m -c $i -d ${WORK} -S $i.html ; )
 .endfor
 
+# devel category special
+.for y in 1 2 3 
+devel$y.html: ${WORK}
+	(cd /usr/pkgsrc; \
+	${CHECK_UPDATE} -f -m -c devel -y $y -d ${WORK} -S ${.TARGET} ; )
+.endfor
+
 ${WORK}:
-	(if ! [-d ${WORK}]; then\
+	(if ! [ -d ${WORK} ]; then\
 	mkdir ${WORK} ;\
 	fi)
 
