@@ -1,4 +1,5 @@
 #! /usr/pkg/bin/perl
+# The script to generating 00_Summary.html for whole statistics
 use strict;
 
 sub Header($){
@@ -12,8 +13,15 @@ sub Header($){
    tr.even  { background-color: \#e0f0e0}
    tr.total { background-color: \#f0f0f0}
    tr.head  { background-color: \#e0e0f0}
+    span.tiny {font-size: tiny;}
     </style><body>
+<h1> Number of Packages to be updated (Summary)</h1>
+The system in debug status, the numbers shown vary by tool side.
+Don't rely on too much, thanks for an attention.
+<br>
+<span class="tiny"> devel is divided into [A-Za-o]* p* [q-z]* for speed up reason</span>
 HEAD
+#'
 }
 
 my($DIR) = $ENV{'HOME'}.'/public_html/pkgsrc/check-update';
@@ -47,8 +55,8 @@ closedir(DIR);
 open(HTML, ">$HTML") || print "Problem opening to write $HTML: $!\n";
 
 Header(*HTML);
-foreach my $dir (@DATE) {
-    my($directory) = $DIR.'/'.$dir;
+foreach my $date (@DATE) {
+    my($directory) = $DIR.'/'.$date;
     opendir(DIR, $directory) || print "Problem opening directory: $directory: $!\n";
     while( $_ = readdir(DIR) ) {
 	if (/^\.$/)	{ next;}
@@ -64,7 +72,7 @@ foreach my $dir (@DATE) {
 		    my($category) = $category_html;
     		    $category =~ s|(\.[0-9]){0,}\.html||;
 		    $CATEGORY{$category}++;
-		    $ForMerge{$dir}{$category} = $_;
+		    $ForMerge{$date}{$category} = $_;
 		}
 	    }
 	    close(FILE);
@@ -73,6 +81,7 @@ foreach my $dir (@DATE) {
     closedir(DIR);
 }
 
+# column list
 my(@DATE) =  sort keys %ForMerge;
     
 print HTML "<table cellspacing=0 cellpadding=3 border=0>\n";
@@ -118,7 +127,7 @@ foreach my $date (sort keys %TODO) {
 }
 print HTML '</tr>',"\n";
 
-print HTML "<tr class=\"ok\" align= \"right\"><td>OK</td>\n";
+print HTML "<tr class=\"ok\" align= \"right\"><td>OK (up-to-date)</td>\n";
 foreach my $date (sort keys %OK) {
     print HTML '<td>', "<a href=\"", $date, "/00_Stats.html\">". $OK{$date}, '</a></td>';
 }
