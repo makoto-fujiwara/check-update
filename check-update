@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-27 01:09" ; # write by emacs time-stamp
+$VERSION = "2015-01-27 07:06" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 #   requirement:
 #       net/curl
@@ -452,17 +452,18 @@ sub ClassifyPackage(@) {
     foreach my $p (@packages) {
 	my ($with_digit)	= 0 ;
 	my ($family)	= 0 ;
-	if ($p =~ /(.*)[0-9]$/) { 
-	    my ($body) = $1 ; 
-	    if ( $body && grep (/^$body[0-9]+$/, @packages ) > 1 ) {  
-		$FAMILY{$p}++ ; 
+	if ($p =~ /(.*)([0-9])$/) { 
+	    my ($body) = $1 ;
+	    my ($suffix) = $2;
+	    if ( $body && grep (/^$body[0-9]*([0-9])$/, @packages ) > 1 ) {  
+		$FAMILY{$p} = '$version =~ s/.*'.$body.'[-]*('.$suffix.'[0-9_.]+).*/$1/' ;
 #		print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1) family: ', $p, "\n" if $DEBUG_CLASSIFY;
 	    }
 	}
-	if ($p =~ /(.*)[0-9](.*)/) { 
-	    my ($one, $two) = ($1, $2);
-	    if ($one && $two && grep (/^$one[0-9]+$two$/, @packages) > 1 ) {
-		$FAMILY{$p}++ ; 
+	if ($p =~ /(.*)([0-9])(.*)/) { 
+	    my ($one, $two, $three) = ($1, $2, $3);
+	    if ($one && $two && grep (/^$one[0-9]+$three$/, @packages) > 1 ) {
+		$FAMILY{$p} = '$version =~ s/.*'.$one.'[-]*('.$two.'[0-9_.]+)'.$three.'.*/$1/' ;
 #		print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>      family: ', $p, "\n" if $DEBUG_CLASSIFY;
 	    }
 	}
@@ -1291,8 +1292,10 @@ print STDERR sprintf("%4d ", __LINE__ ), '(', $distbase,') ', $_,"\n" if
 	    $_ =~ /.*$distbase-([0-9.]+).*/;
 	    $version = $1;
 	} elsif ( $SpecialPatternY ) {
-print STDERR sprintf("%4d ", __LINE__ ), '( SpecialPatternY) ', $SpecialPatternY,"\n" if   ($DEBUG_CURL_LISTING ||  $DEBUG_EVAL_PATTERN);		
+	    $version = $_;
+print STDERR sprintf("%4d ", __LINE__ ), '(SpecialPatternY) ', $SpecialPatternY,"\n" if   ($DEBUG_CURL_LISTING ||  $DEBUG_EVAL_PATTERN);		
 	    eval $SpecialPatternY ;
+print STDERR sprintf("%4d ", __LINE__ ), '($version) ', $version, "\n" if   ($DEBUG_CURL_LISTING ||  $DEBUG_EVAL_PATTERN);		
 	} elsif ( grep (/$distbase/, keys %SpecialPattern)) {
 	    print STDERR sprintf("%4d ", __LINE__ ), '(', $distbase,') ', $_,"\n" if $DEBUG_EVAL_PATTERN;
 	    #  E V A L U A T E SpecialPattern
@@ -2008,6 +2011,7 @@ foreach my $dir (@categories) {
     
     printf STDERR "%4d     ---  (%s) ---\n", sprintf("%4d ", __LINE__ ), $dir;
 
+    # set regexp in %FAMILY
     ClassifyPackage(@PackageNames);
     # ------------------------------------
     #    F O R   E A C H  P A C K A G E     ( to line 1835 ..)
@@ -2038,7 +2042,10 @@ foreach my $dir (@categories) {
 	if ($PackageName =~ /$opts{'s'}/ ) { $skip_until_match = 0; }
 	else { next;}
     }
-# ------ DIVIDE DEVEL Special, if devel, check if it is in the particular part -------
+# -------------- D I V I D E    D E V E L  Special -----------------------
+#  If category is devel, check if it is in the particular part of three parts.
+#  This is to speed up by parallel execution if make -j multiple requested 
+# -------------------------------------------------------------------------
 	my ($develPattern) = $DIVIDE_DEVEL{$divide_devel};
 	if ( $category eq 'devel'	&&
 	     $divide_devel  		&&  
@@ -2075,10 +2082,6 @@ print STDERR sprintf("%4d ", __LINE__ ),
     $TotalChecked++;			# becoming serial so on (to count)
     # ----------------------------------------------------------------------------
 
-    if ( (grep (/$PackageName/, @DontSkipEndingDigit) == 0 ) &&
-        ! $disable_digit_ending_package && $PackageName =~ /[0-9]$/ ) {
-	$SkippedEndingDigit++;
-	}
     if ( grep (/$PackageName/, @SkipTooOld) > 0 ) { $SkipTooOld++; next;}
 # -------------------
 # Read Makefile and get several VALUES
@@ -2115,7 +2118,10 @@ print STDERR sprintf("%4d ", __LINE__ ), '(DISTBASE) ', $DISTBASE, "\n" if $DEBU
 	$URL =  $MASTER_SITE;
 	$URL =~ s/ .*//;	# Pick the very first word
 	chomp($URL);
-
+	if ( my ($p) = $FAMILY{$PackageName} ) {
+	    print STDERR sprintf("%4d ", __LINE__ ), '(PackageName) ', $PackageName, ' (p) ', $p, "\n" if $DEBUG_CLASSIFY;
+	    $SpecialPatternY = $p ;
+	}
 	# ---------------------------------------------------------------
 	if ($MASTER_SITE =~ m|http://downloads.sourceforge.net/sourceforge/([^/]+)/| ) {
 	    $SFProject = $1; }
@@ -2213,7 +2219,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
     print STDERR sprintf("%4d ", __LINE__ ). ' '. $DISTBASE. ' -> '. $available. "\n" if $DEBUG_CACHE;
     DistbaseCacheUpdate($DISTBASE, $URL, $available);
 	#  ------------------------------------
-	#  O U T P U T    H T M L   L I N E
+	#  O U T P U T    H T M L    L I N E
 	#  ------------------------------------
     if ($http_code) { $available = $http_code; $to_list = 1; }
 
