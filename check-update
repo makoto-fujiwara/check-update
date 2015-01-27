@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-27 11:57" ; # write by emacs time-stamp
+$VERSION = "2015-01-27 12:49" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 #   requirement:
 #       net/curl
@@ -658,6 +658,20 @@ sub GetDistBaseSimple($$){
 ' (pkgname) ', $pkgname, "\n" if $DEBUG_DISTBASE_PATTERN;
 	return $pkgname;}
 }
+sub GetDistBasePerlModule($$$){
+   my ($pkgbase)	= shift;
+   my ($pkgname)	= shift;
+   my ($distname)	= shift;
+
+   my ($distbase) = $distname;
+       $distbase =~ s|-[0-9.]+||;
+print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], '> ',"\n" if $DEBUG_DISTBASE_PATTERN;   
+   if ( $pkgname =~ m|p5-(.*)-([0-9.]+)| && $distbase eq "$1" ) {
+       print STDERR sprintf("%4d <", __LINE__), '<', (caller 0)[3], '> pkgname :', $pkgname,
+	   ' distname ', $distname, "\n" if $DEBUG_DISTBASE_PATTERN;
+       return $distbase;}
+   else { return '';}
+ }
 # distname ast-ksh-2012-08-01
 # pkgname  
 sub GetDistBaseReduce($$$$){
@@ -783,7 +797,8 @@ print STDERR sprintf("%4d ", __LINE__ ),
     my ($thisreturn) =	GetDistBaseSwap($PKGNAME, $PKGBASE, $DISTBASE);
     if ($thisreturn) { return $thisreturn }
 
-    print STDERR sprintf("%4d ", __LINE__ ), '(PKGNAME) ', $PKGNAME, ' (PKGBASE) ', $PKGBASE, ' (DISTNAME) ', $DISTBASE
+    print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ',
+	'(PKGNAME) ', $PKGNAME, ' (PKGBASE) ', $PKGBASE, ' (DISTNAME) ', $DISTBASE
 ,"\n" if $DEBUG_DISTBASE_PATTERN;
 
     # --------------------------------------
@@ -792,14 +807,16 @@ print STDERR sprintf("%4d ", __LINE__ ),
     # --------------------------------------
     $thisreturn = GetDistBaseSimple($PKGNAME, $DISTBASE);
     if ($thisreturn) { return $thisreturn; }
-
-print STDERR sprintf("%4d ", __LINE__ ),"\n" if $DEBUG_DISTBASE_PATTERN;
+print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], '> ',"\n" if $DEBUG_DISTBASE_PATTERN;
 
     # (distname) ast-ksh-2012-08-01 -> (pkgname) ast-ksh-20120801
     $thisreturn = GetDistBaseReduce($PKGBASE, $PKGNAME, $PKGVERSION, $DISTBASE);
     if ($thisreturn) { return $thisreturn; }
+print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], '> ',"\n" if $DEBUG_DISTBASE_PATTERN;
 
-print STDERR sprintf("%4d ", __LINE__ ),"\n" if $DEBUG_DISTBASE_PATTERN;
+    $thisreturn =  GetDistBasePerlModule($PKGBASE, $PKGNAME, $DISTBASE);
+    if ($thisreturn) { return $thisreturn; }
+print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], '> ',"\n" if $DEBUG_DISTBASE_PATTERN;
 
 #    $thisreturn = GetDistBaseIOzone($PKGBASE, $PKGNAME, $PKGVERSION, $DISTBASE);
 #    if ($thisreturn) { return $thisreturn; }
@@ -936,7 +953,8 @@ print STDERR sprintf("%4d ", __LINE__ ), '(DISTBODY) ', $DISTBODY,' (CAND) ', $V
     $DISTBASE   =~ s/-[0-9.]+ucl$/$1/;	# (mbone) wbd-1.0ucl
    # AnyEvent-BDB-1.1 -> (?)
     }
-print STDERR sprintf("%4d ", __LINE__ ), ' ', $dir, '/', $PackageName, '; DISTBASE (', $DISTBASE,")\n" if $DEBUG_DISTBASE_PATTERN;
+print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ',
+$dir, '/', $PackageName, '; DISTBASE (', $DISTBASE,")\n" if $DEBUG_DISTBASE_PATTERN;
     return $DISTBASE;
 }
 sub GetGemVersion($){		# <- Main
