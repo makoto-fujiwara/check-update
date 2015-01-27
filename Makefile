@@ -1,4 +1,5 @@
 CATEGORIES= \
+	net \
 	archivers \
 	audio \
 	benchmarks \
@@ -25,7 +26,6 @@ CATEGORIES= \
 	mbone \
 	misc \
 	multimedia \
-	net \
 	news \
 	parallel \
 	pkgtools \
@@ -61,23 +61,23 @@ ${DIRECTORY}/${DATE}: ${WORK}/.done
 	mv ${WORK} ${DIRECTORY}/${DATE};
 
 # Merge the results (slower to start ealiear)
-${WORK}/.done: net.html ${DEVEL:S/$/.html/}${CATEGORIES:S/$/.html/} 
+${WORK}/.done: ${DEVEL:S/$/.html/} ${CATEGORIES:S/$/.html/} 
 	(cd ${WORK}; \
 	${MERGE} *.html )
 	touch ${WORK}/.done
-
-# check-update by-category, output directory is ${WORK}
-.for i in ${CATEGORIES}
-$i.html: ${WORK}
-	(cd /usr/pkgsrc; \
-	${CHECK_UPDATE} -f -m -c $i -d ${WORK} -S $i.html ; )
-.endfor
 
 # devel category special
 .for y in 1 2 3 
 devel$y.html: ${WORK}
 	(cd /usr/pkgsrc; \
 	${CHECK_UPDATE} -f -m -c devel -y $y -d ${WORK} -S ${.TARGET} ; )
+.endfor
+
+# check-update by-category, output directory is ${WORK}
+.for i in ${CATEGORIES}
+$i.html: ${WORK}
+	(cd /usr/pkgsrc; \
+	${CHECK_UPDATE} -f -m -c $i -d ${WORK} -S $i.html ; )
 .endfor
 
 ${WORK}:

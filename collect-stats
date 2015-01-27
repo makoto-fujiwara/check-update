@@ -36,7 +36,7 @@ my(%OK);
 
 my(@th);
 my(%ForMerge);
-my($HTML) = $DIR.'/00_summary.html';
+my($HTML) = $DIR.'/00_Summary.html';
 #   $HTML  = '/tmp/00_summary.html';
 my(%CATEGORY);
 
