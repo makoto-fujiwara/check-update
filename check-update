@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-26 12:25" ; # write by emacs time-stamp
+$VERSION = "2015-01-27 01:09" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 #   requirement:
 #       net/curl
@@ -37,6 +37,7 @@ my ($DEBUG_RUBYGEM);
 my ($DEBUG_SF);
 my ($DEBUG_STATS);
 my ($DEBUG_DIVIDE_DEVEL) = 0;
+my ($DEBUG_CLASSIFY) = 1;
 
 my ($curl_head)		= 'curl -k -I --location --insecure';
 my ($curl_head_secure)	= 'curl -k -I --location --insecure -s';
@@ -439,6 +440,34 @@ print STDERR sprintf("%4d ", __LINE__ ), ' hostname -> ', $hostname, "\n" if $DE
     return 1;
 }
 # http://basercms.net/packages/download/basercms/3.0.6.1
+#
+my(%FAMILY);
+sub ClassifyPackage(@) {
+    # classify packages into Normal or Family
+    # Family means like 
+    #	x11/gtksourcereview[ 23]
+    #	databases/postgresql9[0123]-server
+    # Normal is others, even ending with digit(s)
+    my (@packages) = @_;
+    foreach my $p (@packages) {
+	my ($with_digit)	= 0 ;
+	my ($family)	= 0 ;
+	if ($p =~ /(.*)[0-9]$/) { 
+	    my ($body) = $1 ; 
+	    if ( $body && grep (/^$body[0-9]+$/, @packages ) > 1 ) {  
+		$FAMILY{$p}++ ; 
+#		print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1) family: ', $p, "\n" if $DEBUG_CLASSIFY;
+	    }
+	}
+	if ($p =~ /(.*)[0-9](.*)/) { 
+	    my ($one, $two) = ($1, $2);
+	    if ($one && $two && grep (/^$one[0-9]+$two$/, @packages) > 1 ) {
+		$FAMILY{$p}++ ; 
+#		print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>      family: ', $p, "\n" if $DEBUG_CLASSIFY;
+	    }
+	}
+    }
+}
 sub ColorUrlDigit($) {
     my($url) = shift;
     my($target);
@@ -1978,11 +2007,12 @@ foreach my $dir (@categories) {
     closedir(CATEGORIES);
     
     printf STDERR "%4d     ---  (%s) ---\n", sprintf("%4d ", __LINE__ ), $dir;
+
+    ClassifyPackage(@PackageNames);
     # ------------------------------------
     #    F O R   E A C H  P A C K A G E     ( to line 1835 ..)
     #  ------------------------------------
     foreach my $PackageName (@PackageNames) {
-
 
 	$MasterSiteStat = 0;
 	$NoMasterSites = 0;
@@ -2008,7 +2038,7 @@ foreach my $dir (@categories) {
 	if ($PackageName =~ /$opts{'s'}/ ) { $skip_until_match = 0; }
 	else { next;}
     }
-# ----------------------------------------------------------
+# ------ DIVIDE DEVEL Special, if devel, check if it is in the particular part -------
 	my ($develPattern) = $DIVIDE_DEVEL{$divide_devel};
 	if ( $category eq 'devel'	&&
 	     $divide_devel  		&&  
@@ -2027,7 +2057,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
              ' PackageName ' , $PackageName,
 	    ' DIVIDE_DEVEL{$divide_devel} ', $DIVIDE_DEVEL{$divide_devel}, " :Processing..\n"
 	if $DEBUG_DIVIDE_DEVEL;
-# ----------------------------------------------------------	
+# ------------------------------------------------------------------------------------
     my ($this_PackageDir) = $dir.'/'.$PackageName;
     my ($reverse)   = 0;	# for displaying flag
 
@@ -2040,27 +2070,23 @@ print STDERR sprintf("%4d ", __LINE__ ),
     my ($Makefile) = $this_PackageDir.'/Makefile';
     if ( ! -f "$Makefile")        { print STDERR "Makefile does not exist or is not file\n"; next; }
 
-    $TotalChecked++;
+
+    # ----------- I M P O R T A N T    S T A T I S T I S   V A L U E -------------
+    $TotalChecked++;			# becoming serial so on (to count)
+    # ----------------------------------------------------------------------------
+
     if ( (grep (/$PackageName/, @DontSkipEndingDigit) == 0 ) &&
         ! $disable_digit_ending_package && $PackageName =~ /[0-9]$/ ) {
 	$SkippedEndingDigit++;
 	}
     if ( grep (/$PackageName/, @SkipTooOld) > 0 ) { $SkipTooOld++; next;}
 # -------------------
-# Read Makefile
-       ($MAINTAINER, $HOMEPAGE, $GEM_PACKAGE, $PEAR_PACKAGE, $HS_PACKAGE, $SFProject, $TEXLIVE)
-	= ReadMakefile($dir, $PackageName);
-    #my ($PKGBASE, $PKGNAME, $DISTBASE, $MASTER_SITE, $META_PACKAGE);
-    #my (@MASTER_SITES);
-    #my ($available, $http_code);
-    #my ($URL);
-    #my ($output_record);	# string to output HTML
-    $PKGVERSION		= GetVariableValue ($dir, $PackageName, 'PKGVERSION_NOREV');
+# Read Makefile and get several VALUES
 
-    #my ($max_version);
-    #my ($http_code);
-    #my ($returnCode, @candidate);
-	my ($location);
+    ($MAINTAINER, $HOMEPAGE, $GEM_PACKAGE, $PEAR_PACKAGE, $HS_PACKAGE, $SFProject, $TEXLIVE)
+	= ReadMakefile($dir, $PackageName);
+    $PKGVERSION		= GetVariableValue ($dir, $PackageName, 'PKGVERSION_NOREV');
+	my ($location); # destination to be directed
 	if (! CheckDNS($HOMEPAGE)) { $HomePageStat = 'DNS';}
 	else {($HomePageStat, $location) = CheckHeader($HOMEPAGE); }
 	
@@ -2074,7 +2100,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	$http_code = 0;
 	print STDERR sprintf("%4d ", __LINE__ ), ' HOMEPAGE: ', $HOMEPAGE,"\n" if $DEBUG_RUBYGEM;
 # -----------------------------------------------------------------------
-    } else {
+    } else {	# $GEM_PACKAGE
 # -----------------------------------------------------------------------	
 #   printf STDERR "%4d %-20s: ", sprintf("%4d ", __LINE__ ), $PackageName;
 	my($PKGNAME)	= $PKGBASE . '-'. $PKGVERSION;
