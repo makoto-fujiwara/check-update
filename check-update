@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-27 07:10" ; # write by emacs time-stamp
+$VERSION = "2015-01-27 11:57" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 #   requirement:
 #       net/curl
@@ -148,6 +148,7 @@ my(%SourceForgeAlternative) = qw (
     xmltv	http://sourceforge.net/projects/xmltv/files/xmltv/0.5.66/
     OroboROX	http://sourceforge.net/projects/rox/files/OroboROX/0.9.8/
     pcmanfm	http://sourceforge.net/projects/pcmanfm/files/PCManFM%20%2B%20Libfm%20%28tarball%20release%29/PCManFM/
+     gtkglarea	http://sourceforge.net/projects/openev/files/gtkglarea/gtkglarea-1.2.3/
 );
 
 my(%DownLoadAlternative) = qw (
@@ -225,7 +226,7 @@ my (%DISTBASE_CACHE);   # push(@DISTBASE_CACHE, \[$distbase, $version, $timestam
 
 my (@DontSkipEndingDigit)  = qw (eric4 fltk2);
 # 100 -> 1.0.0 type
-my (@THREE) = qw( falcons-eye quakedata abcde binkd bwwtex cryptopp dirb sr-examples pscpug DatLib DatUtil ROMbuild xzip libdsk libgeotiff ploticus-examples shapelib proj vs mlvwm lwm biew);
+my (@THREE) = qw(gtkglarea falcons-eye quakedata abcde binkd bwwtex cryptopp dirb sr-examples pscpug DatLib DatUtil ROMbuild xzip libdsk libgeotiff ploticus-examples shapelib proj vs mlvwm lwm biew);
                                                # vs <- lang/sr-exaples
 # 300 -> 3.0  unzip
 # 600 -> 6.0  zip
@@ -1850,8 +1851,8 @@ sub GetSFProjectCandidate($$) {
     } else {
 	$MasterSiteStat = $status;
 	$master_site  =  'http://sourceforge.net/projects/'. $SFProject .'/files/' ;
-		print STDERR sprintf("%4d ", __LINE__ ), ' (2) master_site(', $master_site, ') status('. $status.' SFProject: ', $SFProject, "\n"  if $DEBUG_SF;
-	($returnCode, @candidate) = ParseDirectory($master_site, $SFProject);
+		print STDERR sprintf("%4d ", __LINE__ ), ' (2) master_site(', $master_site, ') status('. $status.' SFProject: ', $SFProject, ' DISTBASE: ', $DISTBASE, "\n"  if $DEBUG_SF;
+	($returnCode, @candidate) = ParseDirectory($master_site, $DISTBASE); # x11/gtkglarea
 		print STDERR sprintf("%4d ", __LINE__ ), ' returns ', $returnCode,"\n"   if $DEBUG_SF;
     }
     if ($#candidate  == -1 )  {   
