@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-27 12:49" ; # write by emacs time-stamp
+$VERSION = "2015-01-27 13:27" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 #   requirement:
 #       net/curl
@@ -2205,10 +2205,14 @@ print STDERR sprintf("%4d ", __LINE__ ),
 ' (PKGBASE) ', $PKGBASE, ' --> http: ', $MasterSiteStat, 'Now: ', $PKGVERSION, ' $available: ', $available,"\n" if $DEBUG_DISTBASE_PATTERN;        
 
     my($to_list) = 1;
-	my ($DISTBASE_TO_SHOW) = $DISTBASE;
+	my ($DISTBASE_TO_SHOW)	= $DISTBASE;
+	my ($PKGBASE_TO_SHOW)	= $PKGBASE;
 	$DISTBASE_TO_SHOW =~ s/$PKGBASE/=/;
+	if ( $DISTBASE_TO_SHOW ne '='){
+	    ($PKGBASE_TO_SHOW) =~ s/$DISTBASE/ =>/;}
+
     printf STDERR  "%20s %15s %4s Now: %8s -> %7s Todo: %5s ", 
-	$PKGBASE, '('.$DISTBASE_TO_SHOW.')', '('.sprintf("%4d ", __LINE__ ).')', $PKGVERSION,  $available, $TODO{$PKGBASE};
+	$PKGBASE_TO_SHOW, '('.$DISTBASE_TO_SHOW.')', '('.sprintf("%4d ", __LINE__ ).')', $PKGVERSION,  $available, $TODO{$PKGBASE};
     # ------------------------------------------------------------
     #   F I N D    T H E    C O N D I T I O N    T O    L I S T
     # ------------------------------------------------------------
