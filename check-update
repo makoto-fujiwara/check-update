@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-28 12:41" ; # write by emacs time-stamp
+$VERSION = "2015-01-28 12:48" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -465,19 +465,26 @@ sub ClassifyPackage(@) {
     foreach my $p (@packages) {
 	my ($with_digit)	= 0 ;
 	my ($family)	= 0 ;
+
+	# normal numbering
 	if ($p =~ /(.*)([0-9])$/) { 
-	    my ($body) = $1 ;
+	    my ($pybody) = $1 ;
 	    my ($suffix) = $2;
+#	    my ($py) = $pybody;    $py =~ m|py|;
+	    my ($body) = $pybody;  $body =~ s|py-||;
 	    if ( $body && grep (/^$body[0-9]*([0-9])$/, @packages ) > 1 ) {  
 		$FAMILY{$p} = '$version =~ s/.*'.$body.'[-]*('.$suffix.'[0-9_.]+).*/$1/' ;
 		print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1) family: ', $p, "\n" if $DEBUG_FAMILY;
 	    }
+#	        print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (2) family: ', $p, "\n" if $DEBUG_FAMILY;
 	}
-	if ($p =~ /(.*)([0-9])(.*)/) { 
+
+	# Sandwitched number
+	elsif ($p =~ /(.*)([0-9])(.*)/) { 
 	    my ($one, $two, $three) = ($1, $2, $3);
 	    if ($one && $two && grep (/^$one[0-9]+$three$/, @packages) > 1 ) {
 		$FAMILY{$p} = '$version =~ s/.*'.$one.'[-]*('.$two.'[0-9_.]+)'.$three.'.*/$1/' ;
-		print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>      family: ', $p, "\n" if $DEBUG_FAMILY;;
+		print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (3) family: ', $p, "\n" if $DEBUG_FAMILY;;
 	    }
 	}
     }
