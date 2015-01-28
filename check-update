@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-28 08:35" ; # write by emacs time-stamp
+$VERSION = "2015-01-28 10:23" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 #   requirement:
 #       net/curl
@@ -96,6 +96,7 @@ my ($skip_until_match) = 0;
 my ($starting) = 0;
 my ($partial) = 0;  # not whole execution, don't write to normal summary file
 my ($include_wip) = 0;	# whether includes wip(1) or not(0)
+my ($update_wip) = 0;	# cvs update before execution
 my ($include_reverse) = 0;	# whether includes confusing entry (default no)
 my ($output_leaf)	= 'pkgsrc/check-update';
 my ($output_URL)	= 'http://www.ki.nu/~makoto/';
@@ -344,17 +345,16 @@ sub Usage($$) {
     print <<HELP;
 Check the version is current
 Synopsis:
-   check-update [-C] [-D] [-v] [-f] [-t] [-w] [-u] [-V]
-                [ -c category] 
-                [ -d directory-to-output ]
-                [ -p pkgsrc-directory ]  
-                [ -P package-only ] 
-                [ -s pattern-to-start]
-                [ -S summary-output]
-    		[ -T limited-list-name ]
-                [ -W wip-directory ]
-                [ -x debug_items ]
-                [ -y [123]]
+   check-update	[-C] [-D] [-f] [-h] [-r] [-t] [-u] [-v] [-V] [-w] [-W]
+		[ -c category] 
+		[ -d directory-to-output ]
+		[ -p pkgsrc-directory ]	 
+		[ -P package-only ] 
+		[ -s pattern-to-start]
+		[ -S summary-output]
+		[ -T limited-list-name ]
+		[ -x debug_items ]
+		[ -y [123]]
 Where:
    -c : category (implies -f)
    -d : output directory (default $output_directory)
@@ -364,6 +364,7 @@ Where:
    -h : (help) show this message (putting after options may show default value)
    -P : check particular package
    -p : pkgsrc directory (default /usr/pkgsrc)
+   -r : Include Reverse results in listing
    -s : skip until match 
    -S : summary output file (default $summary)
    -t : Measure time (not implemented yet)
@@ -386,10 +387,10 @@ Where:
         s:  sourceforge
         S:  stats number
         r:  rubygems
-    -y : Ask for devel category split special, with 1,2 or 3
-        where: 1 is for '[A-Za-o]*'
-               2 is for 'p*'
-	       3 if for [q-z]*
+    -y : Select one of split devel category out of 1, 2 or 3 where: 
+        1:  for '[A-Za-o]*'
+        2:  for 'p*'
+	3:  for [q-z]*
 HELP
 }
 
@@ -1140,7 +1141,7 @@ printf (STDERR "%4d %20s  %s\n", __LINE__, '('.$VARNAME.')', $lines[0] ) if $DEB
 sub GetWipInfo($){
     my ($wip_directory) = shift;
     my ($pwd) = `pwd`;
-    
+    # collect PKGBASE -> PKGVERSION hash
 }
 sub GreyDigitIf00($$){
     my ($http_code)	= shift;
@@ -1939,7 +1940,7 @@ my ($PackageStart);	# For timing, not used for now
 my ($PackageEnd);
 
 my ($argv)    = join ' ', @ARGV;	# to show at Stats()
-getopts( 'c:Dd:fFhM:mP:p:s:S:tT:uvVwx:y:', \%opts);
+getopts( 'c:Dd:fFhM:mP:p:rs:S:tT:uvVwWx:y:', \%opts);
 
 if ($opts{'c'}) { $category = $opts{'c'}; $full_list++;}
 if ($opts{'d'}) { $output_directory = $opts{'d'};}
@@ -1952,6 +1953,7 @@ if ($opts{'p'}) { $pkgsrc = $opts{'p'};}
 if ($opts{'P'}) { $selected =  $opts{'P'}; $partial++;}
 if ($opts{'s'}) { $starting =  $opts{'s'}; $skip_until_match++; $partial++;}
 
+if ($opts{'r'}) { $include_reverse++};
 if ($opts{'S'}) { $summary  =  $opts{'S'};}
 if ($opts{'x'}) { 
     ParseDebug($opts{'x'});
@@ -1967,7 +1969,7 @@ if ($opts{'u'}) { $update_pkgsrc++;}
 if ($opts{'v'}) { $verbose++;}
 if ($opts{'V'}) { ShowVersion(); exit;}
 if ($opts{'w'}) { $include_wip++};
-if ($opts{'W'}) { $include_reverse++};
+if ($opts{'W'}) { $update_wip++};
 
 my(%DIVIDE_DEVEL) = ( 1, '[A-Za-o].*',
 		      2, 'p.*',
