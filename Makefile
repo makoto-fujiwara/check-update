@@ -1,5 +1,7 @@
 CATEGORIES= \
 	net \
+	www \
+	x11 \
 	archivers \
 	audio \
 	benchmarks \
@@ -36,8 +38,6 @@ CATEGORIES= \
 	textproc \
 	time \
 	wm \
-	www \
-	x11 \
 
 DEVEL = devel1 devel2 devel3
 
