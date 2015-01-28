@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-28 14:34" ; # write by emacs time-stamp
+$VERSION = "2015-01-28 14:39" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -839,6 +839,9 @@ print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], '> ',"\n" if $DEBUG_
 	'(PKGNAME) ', $PKGNAME, ' (PKGBASE) ', $PKGBASE, ' (DISTNAME) ', $DISTBASE
 ,"\n" if $DEBUG_DISTBASE;
 
+    $thisreturn =  GetDistBasePerlModule($PKGBASE, $PKGNAME, $DISTBASE);
+    if ($thisreturn) { return $thisreturn; }
+print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], '> ',"\n" if $DEBUG_DISTBASE;
 
     # --------------------------------------
     #      0-2. if (-) is onlye one in PKGNAME, remove - and after
@@ -853,9 +856,6 @@ print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], '> ',"\n" if $DEBUG_
     if ($thisreturn) { return $thisreturn; }
 print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], '> ',"\n" if $DEBUG_DISTBASE;
 
-    $thisreturn =  GetDistBasePerlModule($PKGBASE, $PKGNAME, $DISTBASE);
-    if ($thisreturn) { return $thisreturn; }
-print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], '> ',"\n" if $DEBUG_DISTBASE;
 
 
 #    $thisreturn = GetDistBaseIOzone($PKGBASE, $PKGNAME, $PKGVERSION, $DISTBASE);
