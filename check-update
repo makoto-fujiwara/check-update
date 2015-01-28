@@ -3,8 +3,10 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-28 10:23" ; # write by emacs time-stamp
+$VERSION = "2015-01-28 12:41" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
+my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
+			        # avoid problem on devel/py-ipython-10
 #   requirement:
 #       net/curl
 #       misc/rubygems.
@@ -37,7 +39,7 @@ my ($DEBUG_RUBYGEM);
 my ($DEBUG_SF);
 my ($DEBUG_STATS);
 my ($DEBUG_DIVIDE_DEVEL) = 0;
-my ($DEBUG_CLASSIFY) = 0;
+my ($DEBUG_FAMILY) = 0;
 my ($DEBUG_SPECIAL_PATTERN);
 
 my ($curl_head)		= 'curl -k -I --location --insecure';
@@ -378,6 +380,7 @@ Where:
         a:  Enable all
         d:  distbase
         e:  eval pattern
+        f:  debug classify (found family)
         h:  http header
         c:  cache  (URL and distbase combination to version)
         C:  curl command
@@ -456,6 +459,7 @@ sub ClassifyPackage(@) {
     # Family means like 
     #	x11/gtksourcereview[ 23]
     #	databases/postgresql9[0123]-server
+    #	py-ipython01[03]
     # Normal is others, even ending with digit(s)
     my (@packages) = @_;
     foreach my $p (@packages) {
@@ -466,14 +470,14 @@ sub ClassifyPackage(@) {
 	    my ($suffix) = $2;
 	    if ( $body && grep (/^$body[0-9]*([0-9])$/, @packages ) > 1 ) {  
 		$FAMILY{$p} = '$version =~ s/.*'.$body.'[-]*('.$suffix.'[0-9_.]+).*/$1/' ;
-#		print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1) family: ', $p, "\n" if $DEBUG_CLASSIFY;
+		print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1) family: ', $p, "\n" if $DEBUG_FAMILY;
 	    }
 	}
 	if ($p =~ /(.*)([0-9])(.*)/) { 
 	    my ($one, $two, $three) = ($1, $2, $3);
 	    if ($one && $two && grep (/^$one[0-9]+$three$/, @packages) > 1 ) {
 		$FAMILY{$p} = '$version =~ s/.*'.$one.'[-]*('.$two.'[0-9_.]+)'.$three.'.*/$1/' ;
-#		print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>      family: ', $p, "\n" if $DEBUG_CLASSIFY;
+		print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>      family: ', $p, "\n" if $DEBUG_FAMILY;;
 	    }
 	}
     }
@@ -604,7 +608,7 @@ print STDERR "\n", sprintf("%4d ", __LINE__ ), ' (2) ', $distbase, ' --> ', $ver
 	    if (grep (/^$distbase$/, @ZIP) > 0 )	{ $version = Zip($version, 3);}
 	    if (grep (/^$distbase$/, @VER32) > 0 ) { $version = Three($version, 2);}
 	    if (grep (/^$distbase$/, @VER22) > 0 ) { $version = Two($version);}
-print STDERR sprintf("%4d ", __LINE__ ), ' (3) ', $version, ' --> '  if $DEBUG_DISTBASE;
+print STDERR sprintf("%4d ", __LINE__ ), ' (3) <', (caller 0)[3] ,'> ', $version, ' --> '  if $DEBUG_DISTBASE;
     	    if (grep (/^$distbase$/, @DOT2)  > 0 ) { $version = InsertDot($version, 2);}
        	    if (grep (/^$distbase$/, @DOT3)  > 0 ) { $version = InsertDot($version, 3);}
        	    if (grep (/^$distbase$/, @DOT32)  > 0 ) { $version = InsertDot2($version, 2,4);}
@@ -675,7 +679,21 @@ sub GetDistBasePerlModule($$$){
        $distbase =~ s|-[0-9.]+||;
 print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], '> ',"\n" if $DEBUG_DISTBASE;   
    if ( $pkgname =~ m|p5-(.*)-([0-9.]+)| && $distbase eq "$1" ) {
-       print STDERR sprintf("%4d <", __LINE__), '<', (caller 0)[3], '> pkgname :', $pkgname,
+       print STDERR sprintf("%4d ", __LINE__), '<', (caller 0)[3], '> pkgname :', $pkgname,
+	   ' distname ', $distname, "\n" if $DEBUG_DISTBASE;
+       return $distbase;}
+   else { return '';}
+ }
+sub GetDistBasePythonModule($$$){
+   my ($pkgbase)	= shift;
+   my ($pkgname)	= shift;
+   my ($distname)	= shift;
+
+   my ($distbase) = $distname;
+       $distbase =~ s|-[0-9.]+||;
+print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], '> ',"\n" if $DEBUG_DISTBASE;   
+   if ( $pkgname =~ m|py[23][347]-(.*)-([0-9.]+)| && $distbase eq "$1" ) {
+       print STDERR sprintf("%4d ", __LINE__), '<', (caller 0)[3], '> pkgname :', $pkgname,
 	   ' distname ', $distname, "\n" if $DEBUG_DISTBASE;
        return $distbase;}
    else { return '';}
@@ -716,19 +734,18 @@ sub GetDistBaseSwap($$$){
     # --------------------------------------
     my($pkgname, $pkgbase, $distname) = @_ ;
     print STDERR sprintf("%4d <", __LINE__), (caller 0)[3],
-	'> (pkgname) ', $pkgname,
-	 ' (pkgbase) ', $pkgbase,
-	 ' (distname) ', $distname, "\n" if $DEBUG_DISTBASE;
+	'> (pkgname) ', $pkgname,"\n",
+	 '                             (pkgbase) ', $pkgbase,"\n",
+	 '                             (distname) ', $distname, "\n" if $DEBUG_DISTBASE;
     my($numbers)=  $pkgname ;
        $numbers	=~ s/$pkgbase-// ;
     my($body)	=  $distname ;
     my($value) = '';
     $body	=~ s/-$numbers// ;
     if ( $body =~ m|^[a-zA-Z]+$|)	{ $value = $body;}
-    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], 
-	'> $value: ', $value,
-	' numbers: ', $numbers,
-	"\n" if $DEBUG_DISTBASE;
+    print STDERR ('                          > distbase : ', $value, "\n",
+		  '                           > version : ', $numbers,"\n")
+	if $DEBUG_DISTBASE; 
     return $value;
 }
 #    $DISTBASE = GetDistBaseSwap($PKGNAME, $PKGBASE, $DISTBASE);
@@ -795,6 +812,11 @@ print STDERR sprintf("%4d ", __LINE__ ),
     if ($testA.'-'.$VERSION_CANDIDATE eq $PKGNAME ) {
 	print STDERR sprintf("%4d ", __LINE__ ), '(DISTBASE) ', $PKGBASE,"\n" if $DEBUG_DISTBASE;
 	return $PKGBASE;}
+
+    my ($thisreturn) =  GetDistBasePythonModule($PKGBASE, $PKGNAME, $DISTBASE);
+    if ($thisreturn) { return $thisreturn; }
+print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], '> ',"\n" if $DEBUG_DISTBASE;
+
     # --------------------------------------
     #      0-1.
     #   (PKGNAME)        bsdtar-3.1.2
@@ -802,12 +824,13 @@ print STDERR sprintf("%4d ", __LINE__ ),
     #   (DISTNAME)       libarchive-3.1.2
     #   (PKGVERSION)     3.1.2
     # --------------------------------------
-    my ($thisreturn) =	GetDistBaseSwap($PKGNAME, $PKGBASE, $DISTBASE);
+        $thisreturn =	GetDistBaseSwap($PKGNAME, $PKGBASE, $DISTBASE);
     if ($thisreturn) { return $thisreturn }
 
     print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ',
 	'(PKGNAME) ', $PKGNAME, ' (PKGBASE) ', $PKGBASE, ' (DISTNAME) ', $DISTBASE
 ,"\n" if $DEBUG_DISTBASE;
+
 
     # --------------------------------------
     #      0-2. if (-) is onlye one in PKGNAME, remove - and after
@@ -825,6 +848,7 @@ print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], '> ',"\n" if $DEBUG_
     $thisreturn =  GetDistBasePerlModule($PKGBASE, $PKGNAME, $DISTBASE);
     if ($thisreturn) { return $thisreturn; }
 print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], '> ',"\n" if $DEBUG_DISTBASE;
+
 
 #    $thisreturn = GetDistBaseIOzone($PKGBASE, $PKGNAME, $PKGVERSION, $DISTBASE);
 #    if ($thisreturn) { return $thisreturn; }
@@ -1232,6 +1256,7 @@ sub ParseDebug($){
     e EvalPattern
     l CurlListing
     d DistbasePattern
+    f Classify (find family)
     h HTTPHeader
     c Cache
     C CurlCommand
@@ -1242,7 +1267,7 @@ sub ParseDebug($){
     r RubyGems );
 
     print STDERR sprintf("%4d ", __LINE__ ), ' DEBUG pattern (',  $pattern,  ') -> ';
-    foreach my $e (qw (a d e h c C n p s S l r)){
+    foreach my $e (qw (a d e f h c C n p s S l r)){
 	print STDERR $e.'(';
 	if (grep (/$e/, $pattern) > 0 ||
 	    grep (/a/, $pattern) > 0  ) {
@@ -1258,6 +1283,7 @@ sub ParseDebug($){
     $DEBUG_HTTP_HEADER		= $DEBUG{'h'} + $DEBUG{'a'} ;	# -x h
     $DEBUG_CACHE		= $DEBUG{'c'} + $DEBUG{'a'} ;	# -x c
     $DEBUG_CURL			= $DEBUG{'C'} + $DEBUG{'a'} ;	# -x c
+    $DEBUG_FAMILY		= $DEBUG{'f'} + $DEBUG{'a'} ;	# -x c
     $DEBUG_COUNT		= $DEBUG{'n'} + $DEBUG{'a'} ;	# -x n
     $DEBUG_SF			= $DEBUG{'s'} + $DEBUG{'a'} ;	# -x s
     $DEBUG_STATS		= $DEBUG{'S'} + $DEBUG{'a'} ;	# -x S
@@ -1314,8 +1340,11 @@ sub ParseDirectory($$){
 	if ( /buildrump-1369495826.tar.bz2/) { next;} # ignore old stuff (misc/rump)
 #print STDERR sprintf("%4d ", __LINE__ ), ' ( ) ', $_,"\n" if $DEBUG_DISTBASE;
 	if ( $distbase eq 'libXaw' && /libXaw3d/ )	{ next;}
-print STDERR sprintf("%4d ", __LINE__ ), '(', $distbase,') ', $_,"\n" if 
+
+# ----------  A L W A Y S   G O  T H R U   H E R E  --------------
+print STDERR sprintf("%4d ** ", __LINE__ ), '(', $distbase,') ', $_,"\n" if 
 	    ($DEBUG_CURL_LISTING ||  $DEBUG_EVAL_PATTERN);
+# ----------------------------------------------------------------
 
 	if ( grep (/$distbase/, @SimplePattern)) {
 	    $_ =~ /.*$distbase-([0-9.]+).*/;
@@ -1406,6 +1435,7 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (3) ', $distbase, ' --> ', $version,"
 	}
 	if ($version =~ m|[0-9.]+pre[0-9]| ) { next;}
 	if ($version eq '') { next;}
+	if (length($version) > $MAXSTRINGLEN ) { next;} # skip too long
 ## RCRCRC
 print STDERR sprintf("%4d ", __LINE__ ), ' (distbase) ', $distbase,' (version) ', $version, "\n" if $DEBUG_DISTBASE;
 	if ( ! ($distbase =~ m|rc| ) &&
@@ -1414,6 +1444,8 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (distbase) ', $distbase,' (version) '
 	       $version =~ m|[0-9._-]+pre[0-9]| )  { next;} # in case $distbase has not 'pre' in it, ignore rc stuff  RRRRRRRCCCCC i
 print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> distbase: ', $distbase,' (version) ', $version, "\n" if $DEBUG_DISTBASE;
 	if ($version eq '') { next;}
+	if ( ! ($version =~ /[0-9]/ )) { next; } # need at least one digit
+
 	# 552 -> 5.5.2, 2.1.3 -> 213 (nkf) etc
 #	if ($version =~ /1-bit ui/) { next;} # security sign pecuriarity
 	my($edit_version) = EditVersion($distbase, $version);
@@ -2138,7 +2170,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
 #   printf STDERR "%4d %-20s: ", sprintf("%4d ", __LINE__ ), $PackageName;
 	my($PKGNAME)	= $PKGBASE . '-'. $PKGVERSION;
 	$DISTBASE	= GetDistBase($dir, $PackageName, $PKGBASE, $PKGVERSION, $PKGNAME);
-print STDERR sprintf("%4d ", __LINE__ ), '(DISTBASE) ', $DISTBASE, "\n" if $DEBUG_DISTBASE;
+print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> (DISTBASE) ', $DISTBASE, "\n" if $DEBUG_DISTBASE;
 	$META_PACKAGE	= GetVariableValue ($dir, $PackageName, 'META_PACKAGE');
 	if ($META_PACKAGE =~ /yes/i) { $MetaPackage++; next;}
 
@@ -2149,7 +2181,7 @@ print STDERR sprintf("%4d ", __LINE__ ), '(DISTBASE) ', $DISTBASE, "\n" if $DEBU
 	$URL =~ s/ .*//;	# Pick the very first word
 	chomp($URL);
 	if ( my ($p) = $FAMILY{$PackageName} ) {
-	    print STDERR sprintf("%4d ", __LINE__ ), '(PackageName) ', $PackageName, ' (p) ', $p, "\n" if $DEBUG_CLASSIFY;
+	    print STDERR sprintf("%4d ", __LINE__ ), '(PackageName) ', $PackageName, ' (p) ', $p, "\n" if $DEBUG_FAMILY;
 	    $SpecialPatternY = $p ;
 	}
 	# ---------------------------------------------------------------
@@ -2172,7 +2204,7 @@ printf STDERR  "%20s %15s %4s Skipping, MASTER_SITES is empty\n",
 
 	my($http_code, $master_site) = GetMasterSiteSub($PKGBASE, $DISTBASE, $URL, $HOMEPAGE);
 print STDERR sprintf("%4d ", __LINE__ ), 
-' (PKGBASE) ', $PKGBASE, ' --> http: ', $http_code, 'Now: ', $PKGVERSION, ' $available: ', $available,"\n" if $DEBUG_DISTBASE;        
+' (PKGBASE) ', $PKGBASE, ' --> http: ', $http_code, ' Now: ', $PKGVERSION, ' $available: ', $available,"\n" if $DEBUG_DISTBASE;
 	    $returnCode = -1;
 
 	if ($HS_PACKAGE) {
@@ -2451,4 +2483,7 @@ output:
 ------------
  <a href="/">/</a><a class="rev" href="/1.3.0/">1.3.0/</a>
 ------------
+
+(Problem)
+devel/py-ipython010 has alt=" ....long stiring ..."
 
