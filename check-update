@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-28 12:48" ; # write by emacs time-stamp
+$VERSION = "2015-01-28 14:34" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -119,7 +119,7 @@ our(%opts);
 my (@SkipTooOld) = qw(xview-lib estic zenicb tex2rtf gkermit kermit gturing bridge-hands ccxstream weewm);
 
 # Simple means $distbase-([0-9.]+)-(extran string not necessary)..
-my (@SimplePattern)  = qw(gmpc renpy crimson crack-attack hands flags autotrace simulavr hal sign parchive cabextract celt auctex CPAN);
+my (@SimplePattern)  = qw(gmpc renpy crimson crack-attack hands flags autotrace simulavr hal sign parchive cabextract celt auctex);
 #my (@Debian) = qw(signing-party);
 
 my ($SpecialPatternY);
@@ -141,6 +141,7 @@ my (%SpecialPattern) = (
     'lzop',		'$line =~ s/.*lzop-([0-9.]+)\..*/$1/;',
     'synce',		'$line =~ s/.*synce-gvfs-([0-9.]+)\..*/$1/;',#
     'iozone',		'$line =~ s/.*iozone([0-9_.]+)\.tar.*/$1/;',#
+    'CPAN',		'$line =~ s/.*CPAN-([0-9_.]+)\.tar.*/$1/;',#
     );
 
 my(%SourceForgeAlternative) = qw (
@@ -211,7 +212,7 @@ my (%MonthToDigit) = qw (
 sub SpecialPattern($$){
     my($distbase) = shift;
     my($line) = shift;
-    print STDERR sprintf("%4d ", __LINE__ ), ' ', $line, "\n" if $DEBUG_EVAL_PATTERN ;
+    print STDERR sprintf("%4d ", __LINE__ ), ' ', $line, 'Pattern', $SpecialPattern{$distbase}, "\n" if $DEBUG_EVAL_PATTERN ;
 #    print STDERR sprintf("%4d ", __LINE__ ), $distbase,' -> ', $SpecialPattern{$distbase}, "\n" if $DEBUG_EVAL_PATTERN ;
     my($return) ;
     eval $SpecialPattern{$distbase} ;
