@@ -15,15 +15,16 @@ sub Header($){
    tr.total { background-color: \#f0f0f0}
    tr.head  { background-color: \#e0e0f0}
 
-    td.p2   { background-color: \#f0e0e0}
-    td.p1   { background-color: \#f0f0e0}
-    td.m1   { background-color: \#e0f0e0}
-    td.m2   { background-color: \#e0f0f0}
+    td.p2   { background-color: \#e8e8e8}
+    td.p1   { background-color: \#f0f0f0}
+    td.m1   { background-color: \#f8f8f8}
+    td.m2   { background-color: \#ffffff}
 
-    td.pg2   { background-color: \#e0d0d0}
-    td.pg1   { background-color: \#e0e0d0}
-    td.mg1   { background-color: \#d0e0d0}
-    td.mg2   { background-color: \#d0e0e0}
+    td.pg2  { background-color: \#c8e0c8}
+    td.pg1  { background-color: \#d0e8d0}
+    td.zg   { background-color: \#d8f0d8}
+    td.mg1  { background-color: \#e0f8e0}
+    td.mg2  { background-color: \#e8ffe8}
 
     span.tiny {font-size: tiny;}
     </style><body>
@@ -139,12 +140,13 @@ foreach my $category (sort keys %CATEGORY) {
 	    if    ($diff > 2  ) { $class =  "class=\"pg2\""; }
 	    elsif ($diff > 0  ) { $class =  "class=\"pg1\""; }
 	    elsif ($diff < -2 ) { $class =  "class=\"mg2\""; }
-	    elsif ($diff < 0  ) { $class =  "class=\"mb2\""; }
+	    elsif ($diff < 0  ) { $class =  "class=\"mg1\""; }
+	    else                { $class =  "class=\"zg\""; }
 	} else { # white row
 	    if    ($diff > 2  ) { $class =  "class=\"p2\""; }
 	    elsif ($diff > 0  ) { $class =  "class=\"p1\""; }
 	    elsif ($diff < -2 ) { $class =  "class=\"m2\""; }
-	    elsif ($diff < 0  ) { $class =  "class=\"m2\""; }
+	    elsif ($diff < 0  ) { $class =  "class=\"m1\""; }
 	}
 	
 	$html .= '<td '. $class. '><a href="'. "$date/$category". '">'. $ForMerge[0]. '</a></td>';
