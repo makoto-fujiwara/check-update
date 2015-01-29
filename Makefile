@@ -41,9 +41,9 @@ CATEGORIES= \
 
 DEVEL = devel1 devel2 devel3
 
-CHECK_UPDATE=	/e/modena/git-repository/check-update/check-update
-MERGE=		/e/modena/git-repository/check-update/merge-check-update
-SUMMARY=	/e/modena/git-repository/check-update/collect-stats
+CHECK_UPDATE=	/export/git-work/check-update/check-update
+MERGE=		/export/git-work/check-update/merge-check-update
+SUMMARY=	/export/git-work/check-update/collect-stats
 
 DIRECTORY=	${HOME}/public_html/pkgsrc/check-update
 DATE_H!=	env TZ=UTC date +%Y%m%d-%H
