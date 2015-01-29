@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-29 03:01" ; # write by emacs time-stamp
+$VERSION = "2015-01-29 11:51" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -2237,6 +2237,12 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	    ' returnCode: ', $returnCode, 
 	    ' candidate#: ', $#candidate,
 	    "\n" if $DEBUG_DISTBASE;
+	if ($#candidate == -1 ) {
+	    print STDERR sprintf("%4d ", __LINE__ ), 'MASTER_SITE ', $MASTER_SITE if $DEBUG_DISTBASE;
+	    if ( $MASTER_SITE  =~ m|http://pypi.python.org/| ) {
+		($returnCode, @candidate) = ParseDirectory(
+		    "https://pypi.python.org/pypi/".$DISTBASE, $DISTBASE);
+		print STDERR sprintf("%4d ", __LINE__ ), 'MASTER_SITE ', $MASTER_SITE if $DEBUG_DISTBASE;} }
 	if ($#candidate == -1  &&  $DownLoadAlternative{$DISTBASE}) {
 	    $MASTER_SITE= $DownLoadAlternative{$DISTBASE};
 	    print STDERR sprintf("%4d ", __LINE__ ), 'MASTER_SITE ', $MASTER_SITE if $DEBUG_DISTBASE;
