@@ -15,8 +15,9 @@ sub Header($){
    tr.total { background-color: \#f0f0f0}
    tr.head  { background-color: \#e0e0f0}
 
-    td.p2   { background-color: \#e8e8e8}
-    td.p1   { background-color: \#f0f0f0}
+    td.p2   { background-color: \#e0e0e0}
+    td.p1   { background-color: \#e8e8e8}
+    td.eq   { background-color: \#f0f0f0}
     td.m1   { background-color: \#f8f8f8}
     td.m2   { background-color: \#ffffff}
 
@@ -30,9 +31,9 @@ sub Header($){
     </style><body>
 <h1> Number of Packages to be updated (Summary)</h1>
 The system in debug status, the numbers shown vary by tool side.
-Don't rely on too much, thanks for an attention.
+Don't rely on too much, thanks for your attention.
 <br>
-<span class="tiny"> devel is divided into [A-Za-o]* p* [q-z]* for speed up reason</span>
+<span class="tiny"> devel is divided into (1) [A-Za-o]* (2) p* (3) [q-z]* for speed up reason</span>
 HEAD
 #'
 }
@@ -44,12 +45,13 @@ my(@DATE);
 
 # collect number
 my(%FOUND);
-my(%TODO);
-my(%OK);
+my(%TODO);	# More to be updated by doc/TODO info
+my(%OK);	# Up-to-date
+my(%NA);	# Not Available
 
 my(@th);
 my(%ForMerge);
-my($HTML) = $DIR.'/00_Summary.html';
+my($HTML) = $DIR.'/99_Summary.html';
 #   $HTML  = '/tmp/00_summary.html';
 my(%CATEGORY);
 
@@ -147,6 +149,7 @@ foreach my $category (sort keys %CATEGORY) {
 	    elsif ($diff > 0  ) { $class =  "class=\"p1\""; }
 	    elsif ($diff < -2 ) { $class =  "class=\"m2\""; }
 	    elsif ($diff < 0  ) { $class =  "class=\"m1\""; }
+	    else                { $class =  "class=\"eq\""; }
 	}
 	
 	$html .= '<td '. $class. '><a href="'. "$date/$category". '">'. $ForMerge[0]. '</a></td>';
@@ -155,6 +158,7 @@ foreach my $category (sort keys %CATEGORY) {
 	$FOUND{$date}	+= $ForMerge[0];
 	$TODO{$date}	+= $ForMerge[1];
 	$OK{$date}	+= $ForMerge[2];
+	$NA{$date}	+= $ForMerge[3];
     }
     $html .=  "</tr>\n";
     push(@HTML, $html);    
@@ -167,13 +171,19 @@ print HTML '</tr>',"\n";
 
 print HTML "<tr class=\"todo\" align= \"right\"><td>TODO</td>\n";
 foreach my $date (sort keys %TODO) {
-    print HTML '<td>', "<a href=\"", $date, "/00_Stats.html\">". $TODO{$date}, '</a></td>';
+    print HTML '<td>', $TODO{$date}, '</td>';
 }
 print HTML '</tr>',"\n";
 
 print HTML "<tr class=\"ok\" align= \"right\"><td>OK (up-to-date)</td>\n";
 foreach my $date (sort keys %OK) {
-    print HTML '<td>', "<a href=\"", $date, "/00_Stats.html\">". $OK{$date}, '</a></td>';
+    print HTML '<td>', $OK{$date}, '</a></td>';
+}
+print HTML '</tr>',"\n";
+
+print HTML "<tr class=\"na\" align= \"right\"><td>Unable to find ver.</td>\n";
+foreach my $date (sort keys %NA) {
+    print HTML '<td>', $NA{$date}, '</td>';
 }
 print HTML '</tr>',"\n";
 
