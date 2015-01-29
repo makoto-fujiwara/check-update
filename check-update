@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-29 11:51" ; # write by emacs time-stamp
+$VERSION = "2015-01-29 14:23" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -165,6 +165,8 @@ my(%DownLoadAlternative) = qw (
     abcMIDI	http://ifdo.pugmarks.com/~seymour/runabc/top.html
     xmms-crossfade	http://www.eisenlohr.org/xmms-crossfade/download.html
     ast-ksh	http://www2.research.att.com/sw/download/
+    Event-ExecFlow	http://www.exit1.org/download/event-execflow
+    Event-RPC	http://www.exit1.org/download/event-rpc
     );
 # for print/xpdf-arabic etc
 my (@MonthToDigit) = qw (
