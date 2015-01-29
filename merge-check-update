@@ -4,7 +4,7 @@ our(@ARGV);
 use Getopt::Std;
 
 my($VERSION);
-$VERSION = "2015-01-26 01:40" ; # write by emacs time-stamp
+$VERSION = "2015-01-28 23:58" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 
 sub usage() {
@@ -169,7 +169,7 @@ push(@STATS, "<pre>\n");
 push(@STATS, 
   ' <a href="./?C=M;O=D">This directory</a> |'.
   ' <a href="../?C=M;O=D">Upper directory</a> |'.
-  ' <a href="../00_summary.html">Summary</a>'.
+  ' <a href="../00_Summary.html">Summary</a>'.
   "\n");
 #
 foreach my $el ( 0.. $#sums) {
