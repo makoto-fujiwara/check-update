@@ -4,15 +4,27 @@ use strict;
 
 sub Header($){
     *HTML = shift;
+# td..g. is for grey
     print HTML <<HEAD;
     <html>
    <title>pksrc to-be-updated stats</title>
    <style>
    body     { font-size: small;}
    table    { font-size: small;}
-   tr.even  { background-color: \#e0f0e0}
+   tr.even  { background-color: \#f0f0f0}
    tr.total { background-color: \#f0f0f0}
    tr.head  { background-color: \#e0e0f0}
+
+    td.p2   { background-color: \#f0e0e0}
+    td.p1   { background-color: \#f0f0e0}
+    td.m1   { background-color: \#e0f0e0}
+    td.m2   { background-color: \#e0f0f0}
+
+    td.pg2   { background-color: \#e0d0d0}
+    td.pg1   { background-color: \#e0e0d0}
+    td.mg1   { background-color: \#d0e0d0}
+    td.mg2   { background-color: \#d0e0e0}
+
     span.tiny {font-size: tiny;}
     </style><body>
 <h1> Number of Packages to be updated (Summary)</h1>
@@ -86,6 +98,9 @@ my(@DATE) =  sort keys %ForMerge;
     
 print HTML "<table cellspacing=0 cellpadding=3 border=0>\n";
 print HTML "<tr class=\"head\"><th>Date</th>";
+# ---------------------------------------------------------
+#  F I R S T   L E V E L   B Y   D A T E ( put title line )
+# ---------------------------------------------------------
 foreach my $date  (@DATE) {
     my ($short) =  $date; 
         $short =~ s/^2015//;
@@ -98,16 +113,43 @@ my (%EVEN) = (0, "even", 1, " ");
 my ($toggle) = 0;
 my (@HTML);
 
+#my (%PrevDateByCategory);	# remember prev 
+# ---------------------------------------------------------------
+#  S E C O N D    L E V E L   B Y    C A T E G O R Y  (vertical)
+# ---------------------------------------------------------------
 foreach my $category (sort keys %CATEGORY) {
     my ($html) = '';
 	
     push(@HTML, '<tr class="'. $EVEN{$toggle}. '" align= "right"><td>'. $category . '</td>');
     $toggle = 1 - $toggle;
+
+    # -------------------------------------------------------
+    #  T H I R D    L E V E L   B Y    D A T E   (horizontal)
+    # -------------------------------------------------------
+    my ($LeftColumnValue);
     foreach my $date (@DATE) {
 	my ($ForMerge)  = $ForMerge{$date}{$category};
 	    $ForMerge	=~ s/ForMergeCount://;;
 	my (@ForMerge)	= split (',', $ForMerge);
-	$html .= '<td><a href="'. "$date/$category". '">'. $ForMerge[0]. '</a></td>';
+	my ($class) = '';
+	my ($diff) = 0;
+	if ($LeftColumnValue) { $diff =  $ForMerge[0] - $LeftColumnValue }
+
+	if ($toggle) { # grey row
+	    if    ($diff > 2  ) { $class =  "class=\"pg2\""; }
+	    elsif ($diff > 0  ) { $class =  "class=\"pg1\""; }
+	    elsif ($diff < -2 ) { $class =  "class=\"mg2\""; }
+	    elsif ($diff < 0  ) { $class =  "class=\"mb2\""; }
+	} else { # white row
+	    if    ($diff > 2  ) { $class =  "class=\"p2\""; }
+	    elsif ($diff > 0  ) { $class =  "class=\"p1\""; }
+	    elsif ($diff < -2 ) { $class =  "class=\"m2\""; }
+	    elsif ($diff < 0  ) { $class =  "class=\"m2\""; }
+	}
+	
+	$html .= '<td '. $class. '><a href="'. "$date/$category". '">'. $ForMerge[0]. '</a></td>';
+	$LeftColumnValue = $ForMerge[0];
+	# calculate sum for those three to output later
 	$FOUND{$date}	+= $ForMerge[0];
 	$TODO{$date}	+= $ForMerge[1];
 	$OK{$date}	+= $ForMerge[2];
