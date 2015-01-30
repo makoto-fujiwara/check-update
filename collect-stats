@@ -152,7 +152,7 @@ foreach my $category (sort keys %CATEGORY) {
 	    else                { $class =  "class=\"eq\""; }
 	}
 	
-	$html .= '<td '. $class. '><a href="'. "$date/$category". '">'. $ForMerge[0]. '</a></td>';
+	$html .= '<td '. $class. '><a href="'. "$date/$category". '.html">'. $ForMerge[0]. '</a></td>';
 	$LeftColumnValue = $ForMerge[0];
 	# calculate sum for those three to output later
 	$FOUND{$date}	+= $ForMerge[0];
