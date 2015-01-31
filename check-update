@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-31 04:42" ; # write by emacs time-stamp
+$VERSION = "2015-01-31 07:46" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -1383,23 +1383,22 @@ print STDERR sprintf("%4d ", __LINE__ ), '($version) ', $version, "\n" if   ($DE
 	} elsif ( grep (/$distbase/, keys %SpecialPattern)) {
 	    print STDERR sprintf("%4d ", __LINE__ ), '(', $distbase,') ', $_,"\n" if $DEBUG_EVAL_PATTERN;
 	    #  E V A L U A T E SpecialPattern
-	    $version = SpecialPattern($distbase, $_);}
-	elsif ( $distbase eq 'Unicode-Map' && 
+	    $version = SpecialPattern($distbase, $_);
+	} elsif ( $distbase eq 'Unicode-Map' && 
 		$_ =~ /Unicode-Map8(.*)/ ) { 
 print STDERR sprintf("%4d ", __LINE__ ), ' (1a)', $distbase, ' --> ', $version,"\n" if $DEBUG_DISTBASE;
-next;}
-	elsif ( $distbase eq 'otp_src_R' &&
+next;
+	} elsif ( $distbase eq 'otp_src_R' &&
 		/\b$distbase([0-9]+)B([0-9]*)/ ) {
-	    $version =	$1.$2 ;}
-	elsif ( $distbase eq 'xmx-2.1alpha.pl')	{ 
+	    $version =	$1.$2 ;
+	} elsif ( $distbase eq 'xmx-2.1alpha.pl')	{ 
 	    s/alpha/a/g;
     	    s/beta/b/g;
 		$_ =~ /xmx-(.*)pl.*\.tar\.gz/;
 		$version = $1;
 print STDERR sprintf("%4d ", __LINE__ ), ' (01)', $distbase,' version-> ', $version,"\n" if $DEBUG_DISTBASE;
-	}
 	# avoid 2, www/p5-Catalyst-View-Mason2 will not picked for www/p5-Catalyst-View-Mason
-	elsif ( /(.*\b)$distbase([013-9_.-][0-9a-z_.-]+)\.(gz|bz2|zip|xz|7z|tgz|tbz|tar|Z)/ ||
+	} elsif ( /(.*\b)$distbase([013-9_.-][0-9a-z_.-]+)\.(gz|bz2|zip|xz|7z|tgz|tbz|tar|Z)/ ||
 		/(.*\b)$distbase-v([0-9.]+)-linux/ ||
 		/(.*\b)$distbase-([0-9.]+)\.python/ ||	# devel/pythontidy
 		/(.*\b)$distbase.v([0-9.]+)/ ||
@@ -1442,7 +1441,7 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (3) ', $distbase, ' --> ', $version,"
        	    $version =~ s/dos//;	#  archivers/hpack79dos
 #	    $version =~ s/pre[0-9]//;
 	    $version =~ s/^[_.-]//;
-	     $version =~ s/[_.-]/\./g;
+	    $version =~ s/[_.-]/\./g;
        	    $version =~ s/([0-9])p([0-9]+)/$1\.$2/;	# zorro 1.1p8, 1.1p8 ->1.1.8, while unzip60 is retained  
        	    $version =~ s/p[0-9]+//;
     	    $version =~ s/\.diff//;	# beav_1.40.diff
@@ -1464,12 +1463,12 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (3) ', $distbase, ' --> ', $version,"
 	if ($version eq '') { next;}
 	if (length($version) > $MAXSTRINGLEN ) { next;} # skip too long
 ## RCRCRC
-print STDERR sprintf("%4d ", __LINE__ ), ' (distbase) ', $distbase,' (version) ', $version, "\n" if $DEBUG_DISTBASE;
+print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '> (distbase) ', $distbase,' (version) ', $version, "\n" if $DEBUG_DISTBASE;
 	if ( ! ($distbase =~ m|rc| ) &&
 	       $version =~ m|[0-9.]+rc[0-9]| )  { next;} # in case $distbase has not 'rc' in it, ignore rc stuff  RRRRRRRCCCCC i
 	if ( ! ($distbase =~ m|pre[0-9]| ) &&
 	       $version =~ m|[0-9._-]+pre[0-9]| )  { next;} # in case $distbase has not 'pre' in it, ignore rc stuff  RRRRRRRCCCCC i
-print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> distbase: ', $distbase,' (version) ', $version, "\n" if $DEBUG_DISTBASE;
+print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> (distbase) ', $distbase,' (version) ', $version, "\n" if $DEBUG_DISTBASE;
 	if ($version eq '') { next;}
 	if ( ! ($version =~ /[0-9]/ )) { next; } # need at least one digit
 
@@ -2253,11 +2252,13 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	}
 	} # if ($SFProject) { -> else
 
- print STDERR sprintf("%4d ", __LINE__ ), 
+ print STDERR sprintf("%4d ", __LINE__ ),
 	    '(DISTBASE) ', $DISTBASE, 
-	    ' returnCode: ', $returnCode, 
+	    ' returnCode: ', $returnCode,
 	    ' candidate#: ', $#candidate,
 	    "\n" if $DEBUG_DISTBASE;
+print STDERR sprintf("%4d ", __LINE__ ),
+    join (' ', @candidate) ,"\n";
 	if ($#candidate == -1  &&  ( $MASTER_SITE  =~ m|http://pypi.python.org/| )) {
 	    print STDERR sprintf("%4d ", __LINE__ ), 'MASTER_SITE ', $MASTER_SITE if $DEBUG_DISTBASE;
 	    ($returnCode, @candidate) = ParseDirectory(
