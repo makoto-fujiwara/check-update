@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-31 14:03" ; # write by emacs time-stamp
+$VERSION = "2015-01-31 14:05" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -2485,6 +2485,8 @@ GC Warning: Out of Memory! Heap size: 247 MiB. Returning NULL!
     * stats are not correct in above
 (TODO)
    * caching for curl -l result. Just for previous ONE. see devel/p5-Test* example 
+   * Avoid devel/p5-Data-Printer-0.35_1 as DEVELOPER RELEASE.
+
    *
    http://-> https:// location header can not be handled properly
    devel/RTFM 	RTFM 	2.4.5 	->	0.0	2.4.5	pkgsrc-users	http://download.bestpractical.com/pub/rt/release/
