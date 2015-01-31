@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-31 09:51" ; # write by emacs time-stamp
+$VERSION = "2015-01-31 12:12" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -640,7 +640,7 @@ sub EditVersion($$) {
     my ($distbase) = shift;
     my ($version) = shift;
     if ( ! ($version =~ /[0-9]/    ) ) { return -1;}
-    if ( ! ($version =~ /$distbase.*[0-9]/) ) { return -1;} 
+#   if ( ! ($version =~ /$distbase.*[0-9]/) ) { return -1;} 
 
 print STDERR "\n", sprintf("%4d ", __LINE__ ), ' (2) ', $distbase, ' --> ', $version,"\n" if $DEBUG_DISTBASE;
 
@@ -1689,7 +1689,7 @@ sub Stats($$){
 	+ $NotListed
 	;
     my($ForMergeCount) = sprintf 
-    "ForMergeCount:%d,%d,%d,%d,  %d,%d,%d,%d,  %d,%d,%d,%d,  %d,%d,%d,%d,  %d,%d\n",
+    "<!-- ForMergeCount:%d,%d,%d,%d,  %d,%d,%d,%d,  %d,%d,%d,%d,  %d,%d,%d,%d,  %d,%d -->\n",
 	  $Found  ,
 	  $TODO_LIST ,
 	  $OK  ,
