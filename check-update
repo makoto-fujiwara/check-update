@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-31 14:05" ; # write by emacs time-stamp
+$VERSION = "2015-01-31 14:19" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -163,9 +163,10 @@ my(%SourceForgeAlternative) = qw (
      gtkglarea	http://sourceforge.net/projects/openev/files/gtkglarea/gtkglarea-1.2.3/
 );
 
-# PackageName to $DISTBASE association Special (ending digit is main customer)
+# PKGBASE to $DISTBASE association Special (ending digit is main customer)
 my(%DISTBASE) = qw (
-    basic256 basic256
+    basic256	basic256
+    nhc98	nhc98src
     );
    
 my(%DownLoadAlternative) = qw (
@@ -184,6 +185,7 @@ my(%DownLoadAlternative) = qw (
     LuaJit	http://luajit.org/download.html
     LuaJit2	http://luajit.org/download.html
     basic256	http://sourceforge.net/projects/kidbasic/
+    nhc98src	https://www.haskell.org/nhc98/download.html
     ); #
 
 # for print/xpdf-arabic etc
@@ -876,6 +878,10 @@ print STDERR sprintf("%4d ", __LINE__ ),
     "       (PKGBASE)\t", $PKGBASE,      "\n",
     "       (DISTNAME)\t", $DISTBASE,      "\n",
     "       (PKGVERSION)\t", $PKGVERSION , "\n" if $DEBUG_DISTBASE;
+#  %DISTBASE special
+    if  (my $distbase = $DISTBASE{$PKGBASE}) {
+	return $distbase;}
+
     # --------------------------------------
     #      0. If  very simple patterns
     # --------------------------------------
