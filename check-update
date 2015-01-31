@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-31 12:48" ; # write by emacs time-stamp
+$VERSION = "2015-01-31 14:03" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -163,6 +163,11 @@ my(%SourceForgeAlternative) = qw (
      gtkglarea	http://sourceforge.net/projects/openev/files/gtkglarea/gtkglarea-1.2.3/
 );
 
+# PackageName to $DISTBASE association Special (ending digit is main customer)
+my(%DISTBASE) = qw (
+    basic256 basic256
+    );
+   
 my(%DownLoadAlternative) = qw (
     openbox	http://openbox.org/wiki/Openbox:Download
     oroborus	http://ftp.debian.org/debian/pool/main/o/oroborus/
@@ -178,6 +183,7 @@ my(%DownLoadAlternative) = qw (
     mercury-srcdist	http://dl.mercurylang.org/index.html
     LuaJit	http://luajit.org/download.html
     LuaJit2	http://luajit.org/download.html
+    basic256	http://sourceforge.net/projects/kidbasic/
     ); #
 
 # for print/xpdf-arabic etc
@@ -2478,8 +2484,11 @@ GC Warning: Out of Memory! Heap size: 247 MiB. Returning NULL!
 
     * stats are not correct in above
 (TODO)
+   * caching for curl -l result. Just for previous ONE. see devel/p5-Test* example 
+   *
    http://-> https:// location header can not be handled properly
    devel/RTFM 	RTFM 	2.4.5 	->	0.0	2.4.5	pkgsrc-users	http://download.bestpractical.com/pub/rt/release/
+
 
     * decide the only one final status for each package (for (0.0) case)  and then collect the Stats
 
