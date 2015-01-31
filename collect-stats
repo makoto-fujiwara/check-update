@@ -15,22 +15,28 @@ sub Header($){
    tr.total { background-color: \#f0f0f0}
    tr.head  { background-color: \#e0e0f0}
 
-    td.p2   { background-color: \#e0e0e0}
-    td.p1   { background-color: \#e8e8e8}
-    td.eq   { background-color: \#f0f0f0}
-    td.m1   { background-color: \#f8f8f8}
+    td.p2   { background-color: \#c0c0c0}
+    td.p1   { background-color: \#d0d0d0}
+    td.eq   { background-color: \#e0e0e0}
+    td.m1   { background-color: \#f0f0f0}
     td.m2   { background-color: \#ffffff}
 
-    td.pg2  { background-color: \#c8e0c8}
-    td.pg1  { background-color: \#d0e8d0}
-    td.zg   { background-color: \#d8f0d8}
-    td.mg1  { background-color: \#e0f8e0}
+    td.pg2  { background-color: \#a8bfa8}
+    td.pg1  { background-color: \#b8cfb8}
+    td.zg   { background-color: \#c8dfc8}
+    td.mg1  { background-color: \#d8efd8}
     td.mg2  { background-color: \#e8ffe8}
 
     span.tiny {font-size: tiny;}
     </style><body>
 <h1> Number of Packages to be updated (Summary)</h1>
 The system in debug status, the numbers shown vary by tool side.
+	<ul>
+	<li> (check-update) system changes
+	<li> Network situation
+	<li> (pkgsrc) the package is updated
+	<li> (upstream) place new version
+	</ul>
 Don't rely on too much, thanks for your attention.
 <br>
 <span class="tiny"> devel is divided into (1) [A-Za-o]* (2) p* (3) [q-z]* for speed up reason</span>

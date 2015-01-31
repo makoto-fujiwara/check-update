@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-31 09:37" ; # write by emacs time-stamp
+$VERSION = "2015-01-31 09:51" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -117,7 +117,10 @@ my ($divide_devel) = '';	# execute divided manner on devel category
 
 my ($start_time) = time();
 our(%opts);
-my (@SkipTooOld) = qw(xview-lib estic zenicb tex2rtf gkermit kermit gturing bridge-hands ccxstream weewm);
+# ----------------------------------------
+#      N O  D E V E L O P M E N T 
+# ----------------------------------------
+my (@SkipTooOld) = qw(xview-lib estic zenicb tex2rtf gkermit kermit gturing bridge-hands ccxstream weewm Cg-compiler);
 
 # Simple means $distbase-([0-9.]+)-(extran string not necessary)..
 my (@SimplePattern)  = qw(gmpc 
@@ -173,6 +176,8 @@ my(%DownLoadAlternative) = qw (
     Event-RPC	http://www.exit1.org/download/event-rpc
     pyproj	https://github.com/jswhit/pyproj/releases/
     mercury-srcdist	http://dl.mercurylang.org/index.html
+    LuaJit	http://luajit.org/download.html
+    LuaJit2	http://luajit.org/download.html
     ); #
 
 # for print/xpdf-arabic etc
@@ -831,8 +836,11 @@ sub GetDistBaseMercury($$$$){
     my ($distname)	= shift;	#
 
     my ($distbody)	=  $distname;
+    $distbody =~ s/_/-/; # basic256_0.9.6.71  --> basic256-0.9.6.71 
+    
 print STDERR sprintf("%4d ", __LINE__ ), '(distbody) ',  $distbody,"\n" if $DEBUG_DISTBASE;
 	$distbody	=~ s/-$pkgversion//;
+print STDERR sprintf("%4d ", __LINE__ ), '(distbody) ',  $distbody,"\n" if $DEBUG_DISTBASE;
     if ( ! ($distbody =~ /[0-9.]+/) ) {
 print STDERR sprintf("%4d ", __LINE__ ),
     ' (distname) ', $distname, ' (distbody) ', $distbody, "\n" if $DEBUG_DISTBASE;
