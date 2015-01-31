@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-29 16:23" ; # write by emacs time-stamp
+$VERSION = "2015-01-31 00:16" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -89,6 +89,7 @@ my ($StatsHomePageStat) = 0;	# for count
 my ($CVSweb) = 'http://cvsweb.netbsd.org/bsdweb.cgi/pkgsrc/';
 
 # opts, option related variables
+my ($option_batch) = 0;
 my ($category);
 my ($verbose) = 0;
 my ($selected) = '';	# Check this package only
@@ -201,7 +202,7 @@ my (%MonthToDigit) = qw (
     );
 # arp-scan is the same as HOMEPAGE (strange)
 # Now global variables in Makefile
-    my ($MAINTAINER, $HOMEPAGE, $GEM_PACKAGE, $PEAR_PACKAGE, $HS_PACKAGE, $SFProject, $TEXLIVE) ;
+    my ($MAINTAINER, $HOMEPAGE, $GEM_PACKAGE, $PEAR_PACKAGE, $HS_PACKAGE, $SFProject, $TEXLIVE, $EGG_PACKAGE) ;
 
     my ($PKGBASE, $PKGNAME, $DISTBASE, $MASTER_SITE, $META_PACKAGE);
     my (@MASTER_SITES);
@@ -1542,6 +1543,7 @@ sub ReadMakefile($$)  {		# <- Main
 	    if ( m|^.\s*include.*\.\./\.\./lang/ruby/gem\.mk|)	{ $GEM_PACKAGE++;}
 	    if ( m|^.\s*include.*\.\./\.\./lang/php/pear\.mk|)	{ $PEAR_PACKAGE++;}
 	    if ( m|^.\s*include.*\.\./\.\./mk/haskell\.mk|)	{ $HS_PACKAGE++;}
+	    if ( m|^.\s*include.*\.\./\.\./lang/python/egg\.mk|)	{ $EGG_PACKAGE++;}
 	    if ( m|^.\s*include.*\.\./\.\./print/texlive/package\.mk|)	{ $texlive++;}
 
 	   #        MASTER_SITES=     ${MASTER_SITE_SOURCEFORGE:=modauthkerb/}
@@ -1550,7 +1552,7 @@ sub ReadMakefile($$)  {		# <- Main
 	close(MAKEFILE);
 	if ($MAINTAINER eq '' ) { $MAINTAINER = GetVariableValue($category, $directory, 'MAINTAINER');}
 	if ($HOMEPAGE eq '' )   { $HOMEPAGE = GetVariableValue($category, $directory, 'HOMEPAGE');}
-	return ($MAINTAINER, $HOMEPAGE, $GEM_PACKAGE, $PEAR_PACKAGE, $HS_PACKAGE, $SFProject, $texlive);
+	return ($MAINTAINER, $HOMEPAGE, $GEM_PACKAGE, $PEAR_PACKAGE, $HS_PACKAGE, $SFProject, $texlive, $EGG_PACKAGE);
     }
 }    
 sub ReadTodo($){
@@ -1986,11 +1988,12 @@ my ($PackageEnd);
 my ($argv)    = join ' ', @ARGV;	# to show at Stats()
 getopts( 'c:Dd:fFhM:mP:p:rs:S:tT:uvVwWx:y:', \%opts);
 
+if ($opts{'b'}) { $option_batch++;}	# used be default, not implemented
 if ($opts{'c'}) { $category = $opts{'c'}; $full_list++;}
 if ($opts{'d'}) { $output_directory = $opts{'d'};}
-if ($opts{'D'}) { $disable_digit_ending_package++;}
+if ($opts{'D'}) { $disable_digit_ending_package++;}	# not useful now
 if ($opts{'f'}) { $full_list++;}
-if ($opts{'F'}) { $FindDepends++;}
+if ($opts{'F'}) { $FindDepends++;}	# not implemented yet
 if ($opts{'M'}) { $maintainer = $opts{'M'} }
 if ($opts{'m'}) { $merge_mode++;}	# shows ForMergeCount (can be always true ?)
 if ($opts{'p'}) { $pkgsrc = $opts{'p'};}
@@ -2007,13 +2010,13 @@ if ($opts{'y'}) { $divide_devel = $opts{'y'};}# (ad-hoc :-) '': none,  1: [A-Za-
     SummaryName();  # should be before Usage() is called, and after opts c, x, S, C 
 if ($opts{'h'}) { Usage($summary, $output_directory); exit 0; }
 
-if ($opts{'t'}) { $MeasureTime++; }
-if ($opts{'T'}) { $LimitedList = $opts{'T'};}
+if ($opts{'t'}) { $MeasureTime++; }	# not implemented yet
+if ($opts{'T'}) { $LimitedList = $opts{'T'};}	# ditto
 if ($opts{'u'}) { $update_pkgsrc++;}
 if ($opts{'v'}) { $verbose++;}
 if ($opts{'V'}) { ShowVersion(); exit;}
-if ($opts{'w'}) { $include_wip++};
-if ($opts{'W'}) { $update_wip++};
+if ($opts{'w'}) { $include_wip++};	# not implemented yet
+if ($opts{'W'}) { $update_wip++};	# not implemented yet
 
 my(%DIVIDE_DEVEL) = ( 1, '[A-Za-o].*',
 		      2, 'p.*',
@@ -2160,7 +2163,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
 # -------------------
 # Read Makefile and get several VALUES
 
-    ($MAINTAINER, $HOMEPAGE, $GEM_PACKAGE, $PEAR_PACKAGE, $HS_PACKAGE, $SFProject, $TEXLIVE)
+    ($MAINTAINER, $HOMEPAGE, $GEM_PACKAGE, $PEAR_PACKAGE, $HS_PACKAGE, $SFProject, $TEXLIVE, $EGG_PACKAGE)
 	= ReadMakefile($dir, $PackageName);
     $PKGVERSION		= GetVariableValue ($dir, $PackageName, 'PKGVERSION_NOREV');
 	my ($location); # destination to be directed
@@ -2245,7 +2248,14 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	    print STDERR sprintf("%4d ", __LINE__ ), 'MASTER_SITE ', $MASTER_SITE if $DEBUG_DISTBASE;
 	    ($returnCode, @candidate) = ParseDirectory(
 		"https://pypi.python.org/pypi/".$DISTBASE, $DISTBASE);}
-	print STDERR sprintf("%4d ", __LINE__ ), 'MASTER_SITE ', $MASTER_SITE, ' DISTBASE ', $DISTBASE, "\n" if $DEBUG_DISTBASE;	
+
+	if ($#candidate == -1  && $EGG_PACKAGE) {
+	    print STDERR sprintf("%4d ", __LINE__ ), 'MASTER_SITE ', $MASTER_SITE if $DEBUG_DISTBASE;
+	    ($returnCode, @candidate) = ParseDirectory(
+		"https://warehouse.python.org/project/".$DISTBASE, $DISTBASE);}
+
+	
+	print STDERR sprintf("%4d ", __LINE__ ), 'MASTER_SITE ', $MASTER_SITE, ' DISTBASE ', $DISTBASE, "\n" if $DEBUG_DISTBASE;
 	print STDERR sprintf("%4d ", __LINE__ ),  $DownLoadAlternative{$DISTBASE}, "\n" if $DEBUG_DISTBASE;
 	if ($#candidate == -1  &&  $DownLoadAlternative{$DISTBASE}) {
 	    $MASTER_SITE= $DownLoadAlternative{$DISTBASE};
