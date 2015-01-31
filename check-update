@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-31 12:36" ; # write by emacs time-stamp
+$VERSION = "2015-01-31 12:48" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -710,13 +710,19 @@ sub GetDistBaseSimple($$){
 ' (pkgname) ', $pkgname, "\n" if $DEBUG_DISTBASE;
 	return $pkgname;}
 }
+# Some special case: (letter v )
+# 862   (PKGNAME)        p5-Algorithm-CheckDigits-1.3.0
+#       (PKGBASE)        p5-Algorithm-CheckDigits
+#       (DISTNAME)       Algorithm-CheckDigits-v1.3.0
+#       (PKGVERSION)     1.3.0
+
 sub GetDistBasePerlModule($$$){
    my ($pkgbase)	= shift;
    my ($pkgname)	= shift;
    my ($distname)	= shift;
 
    my ($distbase) = $distname;
-       $distbase =~ s|-[0-9.]+||;
+       $distbase =~ s|-v*[0-9.]+||;
 print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], '> ',"\n" if $DEBUG_DISTBASE;   
    if ( $pkgname =~ m|p5-(.*)-([0-9.]+)| && $distbase eq "$1" ) {
        print STDERR sprintf("%4d ", __LINE__), '<', (caller 0)[3], '> pkgname :', $pkgname,
