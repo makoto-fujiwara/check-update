@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-31 00:16" ; # write by emacs time-stamp
+$VERSION = "2015-01-31 04:42" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -140,9 +140,9 @@ my (%SpecialPattern) = (
 #    'NovaWM', 	        '$line =~ s/.*$distbase-([0-9.]+).*/$1/ ;', #   -0.8.1_alpha.tar.bz2 (716.3 kB)
 #    'sign',		'$line =~ s/The latest version is ([0-9.]+),/$1/ ;', #  security/sign  1-bit ui</a><br --> 
     'lzop',		'$line =~ s/.*lzop-([0-9.]+)\..*/$1/;',
-    'synce',		'$line =~ s/.*synce-gvfs-([0-9.]+)\..*/$1/;',#
-    'iozone',		'$line =~ s/.*iozone([0-9_.]+)\.tar.*/$1/;',#
-    'CPAN',		'$line =~ s/.*CPAN-([0-9_.]+)\.tar.*/$1/;',#
+    'synce',		'$line =~ s/.*synce-gvfs-([0-9.]+)\..*/$1/;',
+    'iozone',		'$line =~ s/.*iozone([0-9_.]+)\.tar.*/$1/;',
+    'CPAN',		'$line =~ s/.*CPAN-([0-9_.]+)\.tar.*/$1/;',
     'pyproj',		'$line =~ s/.*v([0-9_.]+)rel/$1/;',#
     );
 
@@ -764,6 +764,7 @@ sub GetDistBaseSwap($$$){
 #    $DISTBASE = GetDistBaseSwap($PKGNAME, $PKGBASE, $DISTBASE);
 
 
+# not used for now (?)
 sub GetDistBaseIOZone($$$$){
 
 #1036   (PKGVERSION_NOREV)  3.429
@@ -783,6 +784,18 @@ print STDERR sprintf("%4d ", __LINE__ ), "\n" if $DEBUG_DISTBASE;
 	$value = $pkgbase;
 	$SpecialPatternY = '$line =~ /.*$value([0-9_]+).*/';  }
     else			{ $value = ''; }
+    return $value;
+}
+sub GetDistBasepwlib($$$$){
+    my ($pkgbase)	= shift;	#
+    my ($pkgname)	= shift;	#
+    my ($pkgversion)	= shift;	#
+    my ($distname)	= shift;	#
+    
+    my ($value)		= $distname;	# pwlib-v1_8_3-src
+    $value		=~ s/-v[0-9_]+-src//;# pwlib(-v1_8_3-src)
+print STDERR sprintf("%4d ", __LINE__ ), ' distbase: ', $value, "\n" if $DEBUG_DISTBASE;
+    $SpecialPatternY = '$line =~ /.*$value-v([0-9_]+)-src.*/$1/';  
     return $value;
 }
 
@@ -848,6 +861,10 @@ print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], '> ',"\n" if $DEBUG_
     if ($thisreturn) { return $thisreturn; }
 print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], '> ',"\n" if $DEBUG_DISTBASE;
 
+         $thisreturn = GetDistBasepwlib($PKGBASE, $PKGNAME, $PKGVERSION, $DISTBASE);
+print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], '> ',"\n" if $DEBUG_DISTBASE;
+     if ($thisreturn) { return $thisreturn; }
+
     # --------------------------------------
     #      0-2. if (-) is onlye one in PKGNAME, remove - and after
     #      if resultant string in DISTNAME, take it as DISTBASE
@@ -861,10 +878,6 @@ print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], '> ',"\n" if $DEBUG_
     if ($thisreturn) { return $thisreturn; }
 print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], '> ',"\n" if $DEBUG_DISTBASE;
 
-
-
-#    $thisreturn = GetDistBaseIOzone($PKGBASE, $PKGNAME, $PKGVERSION, $DISTBASE);
-#    if ($thisreturn) { return $thisreturn; }
 #
 #print STDERR sprintf("%4d ", __LINE__ ),"\n" if $DEBUG_DISTBASE;
 # taking care worpress-4.1-ja.tar.gz type (version is embedded).
@@ -1415,6 +1428,7 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (3) ', $distbase, ' --> ', $version,"
 	    $version =~ s/(\d+)B(\d+)/$1.$2/;  # erlang otp_src_R16B02 -> 16.02
 	    $version =~ s/_bin_win//; # shapelib129_bin_win.zip
 	    $version =~ s/\.tar//;
+	    $version =~ s/-src-tar//;	# pwlib-v1_11_1-src-tar
 	    $version =~ s/release//;
 	    $version =~ s/\.cmake//;
 	    $version =~ s/source//;
