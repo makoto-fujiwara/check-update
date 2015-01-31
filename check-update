@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-01-31 08:50" ; # write by emacs time-stamp
+$VERSION = "2015-01-31 09:37" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -120,7 +120,9 @@ our(%opts);
 my (@SkipTooOld) = qw(xview-lib estic zenicb tex2rtf gkermit kermit gturing bridge-hands ccxstream weewm);
 
 # Simple means $distbase-([0-9.]+)-(extran string not necessary)..
-my (@SimplePattern)  = qw(gmpc renpy crimson crack-attack hands flags autotrace simulavr hal sign parchive cabextract celt auctex ntp);
+my (@SimplePattern)  = qw(gmpc 
+renpy crimson crack-attack hands flags autotrace simulavr hal 
+sign parchive cabextract celt auctex ntp mercury-srcdist);
 #my (@Debian) = qw(signing-party);
 
 my ($SpecialPatternY);
@@ -170,8 +172,9 @@ my(%DownLoadAlternative) = qw (
     Event-ExecFlow	http://www.exit1.org/download/event-execflow
     Event-RPC	http://www.exit1.org/download/event-rpc
     pyproj	https://github.com/jswhit/pyproj/releases/
-    mercury	http://dl.mercurylang.org/index.html
-    );
+    mercury-srcdist	http://dl.mercurylang.org/index.html
+    ); #
+
 # for print/xpdf-arabic etc
 my (@MonthToDigit) = qw (
     xpdf-arabic
@@ -777,7 +780,7 @@ sub GetDistBaseSwap($$$){
     if ( $body =~ m|^[a-zA-Z]+$|)	{ $value = $body;}
     print STDERR ('                          > distbase : ', $value, "\n",
 		  '                           > version : ', $numbers,"\n")
-	if $DEBUG_DISTBASE; 
+	if $DEBUG_DISTBASE;
     return $value;
 }
 #    $DISTBASE = GetDistBaseSwap($PKGNAME, $PKGBASE, $DISTBASE);
@@ -805,7 +808,7 @@ print STDERR sprintf("%4d ", __LINE__ ), "\n" if $DEBUG_DISTBASE;
     else			{ $value = ''; }
     return $value;
 }
-sub GetDistBasepwlib($$$$){
+sub GetDistBasePwlib($$$$){
     my ($pkgbase)	= shift;	#
     my ($pkgname)	= shift;	#
     my ($pkgversion)	= shift;	#
@@ -816,6 +819,25 @@ sub GetDistBasepwlib($$$$){
 print STDERR sprintf("%4d ", __LINE__ ), ' distbase: ', $value, "\n" if $DEBUG_DISTBASE;
     $SpecialPatternY = '$line =~ /.*$value-v([0-9_]+)-src.*/$1/';  
     return $value;
+}
+# 832   (PKGNAME)        mercury-14.01.1
+#       (PKGBASE)        mercury
+#       (DISTNAME)       mercury-srcdist-14.01.1
+#       (PKGVERSION)     14.01.1
+sub GetDistBaseMercury($$$$){
+    my ($pkgbase)	= shift;	#
+    my ($pkgname)	= shift;	#
+    my ($pkgversion)	= shift;	#
+    my ($distname)	= shift;	#
+
+    my ($distbody)	=  $distname;
+print STDERR sprintf("%4d ", __LINE__ ), '(distbody) ',  $distbody,"\n" if $DEBUG_DISTBASE;
+	$distbody	=~ s/-$pkgversion//;
+    if ( ! ($distbody =~ /[0-9.]+/) ) {
+print STDERR sprintf("%4d ", __LINE__ ),
+    ' (distname) ', $distname, ' (distbody) ', $distbody, "\n" if $DEBUG_DISTBASE;
+	return $distbody;
+    } else { return '';}
 }
 
 #    if ($thisreturn) { return $thisreturn; }
@@ -876,11 +898,15 @@ print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], '> ',"\n" if $DEBUG_
 	'(PKGNAME) ', $PKGNAME, ' (PKGBASE) ', $PKGBASE, ' (DISTNAME) ', $DISTBASE
 ,"\n" if $DEBUG_DISTBASE;
 
+     $thisreturn = GetDistBaseMercury($PKGBASE, $PKGNAME, $PKGVERSION, $DISTBASE);
+print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], '> ',"\n" if $DEBUG_DISTBASE;
+     if ($thisreturn) { return $thisreturn; }
+
     $thisreturn =  GetDistBasePerlModule($PKGBASE, $PKGNAME, $DISTBASE);
     if ($thisreturn) { return $thisreturn; }
 print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], '> ',"\n" if $DEBUG_DISTBASE;
 
-         $thisreturn = GetDistBasepwlib($PKGBASE, $PKGNAME, $PKGVERSION, $DISTBASE);
+         $thisreturn = GetDistBasePwlib($PKGBASE, $PKGNAME, $PKGVERSION, $DISTBASE);
 print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], '> ',"\n" if $DEBUG_DISTBASE;
      if ($thisreturn) { return $thisreturn; }
 
@@ -929,7 +955,7 @@ print STDERR sprintf("%4d ", __LINE__ ), ' ', $dir, '/', $PackageName, '; DISTBA
 
 #    print STDERR sprintf("%4d ", __LINE__ ), ' ', $DISTBASE, "\n";
     # if - is included, strip - and after
-    # if _ is included, strip _ and after
+    # if _ is included, strip _ and afte
     $DISTBASE   =~ s/(tcp_wrappers.*)-ipv6/$1/;		# (security) tcp_wrappers_7.6-ipv6.4
     $DISTBASE   =~ s/([0-9]+)r([0-9]+)/$1.$2/;		# math/xgap xgap4r16
 #   $DISTBASE   =~ s/-rc[0-9]//;	# mail/mutt-kz-1.5.22-rc1
