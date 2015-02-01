@@ -43,7 +43,7 @@ DEVEL = devel1 devel2 devel3
 
 CHECK_UPDATE=	/export/git-work/check-update/check-update
 MERGE=		/export/git-work/check-update/merge-check-update
-SUMMARY=	/export/git-work/check-update/collect-stats
+COLLECT_STATS=	/export/git-work/check-update/collect-stats
 
 DIRECTORY=	${HOME}/public_html/pkgsrc/check-update
 DATE_H!=	env TZ=UTC date +%Y%m%d-%H
@@ -55,7 +55,7 @@ WORK=		${DIRECTORY}/.${DATE}
 RM=		/bin/rm
 
 all: ${DIRECTORY}/${DATE}
-	(cd ${DIRECTORY}; ${SUMMARY} );
+	(cd ${DIRECTORY}; ${COLLECT_STATS} );
 
 ${DIRECTORY}/${DATE}: ${WORK}/.done
 	mv ${WORK} ${DIRECTORY}/${DATE};
