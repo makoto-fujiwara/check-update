@@ -22,4 +22,4 @@ Instead, make -j 12 may be good to finish in several hours
 
 >  check-update -x d -c category -P packagename
 
-it the way to debug particular package.
+is the way to debug particular package.
