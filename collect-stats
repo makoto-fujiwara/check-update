@@ -30,16 +30,18 @@ sub Header($){
     span.tiny {font-size: tiny;}
     </style><body>
 <h1> Number of Packages to be updated (Summary)</h1>
-The system in debug status, the numbers shown vary by tool side.
+The system in debug status, the numbers shown vary by:
 	<ul>
-	<li> (check-update) system changes
-	<li> Network situation
-	<li> (pkgsrc) the package is updated
-	<li> (upstream) place new version
+	<li> (check-update) 
+	<a href="https://github.com/makoto-fujiwara/check-update/">system</a> changes
+	<li> (network) DNS and Server status
+	<li> (pkgsrc) the package(s) are updated
+	<li> (upstream) new version(s) are placed
 	</ul>
 Don't rely on too much, thanks for your attention.
 <br>
-<span class="tiny"> devel is divided into (1) [A-Za-o]* (2) p* (3) [q-z]* for speed up reason</span>
+<span class="tiny"> devel category is divided into (1) [A-Za-o]* (2) p* (3) [q-z]* for speed up reason</span>
+<br> the darker the background color, the worse.
 HEAD
 #'
 }
@@ -138,7 +140,7 @@ foreach my $category (sort keys %CATEGORY) {
     my ($LeftColumnValue);
     foreach my $date (@DATE) {
 	my ($ForMerge)  = $ForMerge{$date}{$category};
-	    $ForMerge	=~ s/ForMergeCount://;;
+	    $ForMerge	=~ s/.*ForMergeCount://;;
 	my (@ForMerge)	= split (',', $ForMerge);
 	my ($class) = '';
 	my ($diff) = 0;
