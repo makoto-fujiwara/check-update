@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-02-01 03:03" ; # write by emacs time-stamp
+$VERSION = "2015-02-03 12:27" ; # write by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -34,6 +34,7 @@ my ($DEBUG_VER_PATTERN) = 0;
 my ($DEBUG_EVAL_PATTERN);
 my ($DEBUG_HTTP_HEADER);
 my ($DEBUG_CACHE);
+my ($DEBUG_CURL_CACHE);
 my ($DEBUG_COUNT);
 my ($DEBUG_RUBYGEM);
 my ($DEBUG_SF);
@@ -114,6 +115,9 @@ my ($LimitedList);
 my ($merge_mode) = 0;
 my ($maintainer) = 0;		# output for the maintainer
 my ($divide_devel) = '';	# execute divided manner on devel category
+
+my (@CurlCache);		# keep the last time listing resuls;
+my ($LastCurl);			# The curl command when above cache stored
 
 my ($start_time) = time();
 our(%opts);
@@ -1362,10 +1366,12 @@ sub ParseDebug($){
     p SpecialPattern
     s SourceForge
     S Stats
-    r RubyGems );
+    r RubyGems
+    x CurlCache
+	);
 
     print STDERR sprintf("%4d ", __LINE__ ), ' DEBUG pattern (',  $pattern,  ') -> ';
-    foreach my $e (qw (a d e f h c C n p s S l r)){
+    foreach my $e (qw (a d e f h c C n p s S l r x)){
 	print STDERR $e.'(';
 	if (grep (/$e/, $pattern) > 0 ||
 	    grep (/a/, $pattern) > 0  ) {
@@ -1387,6 +1393,7 @@ sub ParseDebug($){
     $DEBUG_STATS		= $DEBUG{'S'} + $DEBUG{'a'} ;	# -x S
     $DEBUG_RUBYGEM		= $DEBUG{'r'} + $DEBUG{'a'} ;	# -x r
     $DEBUG_SPECIAL_PATTERN	= $DEBUG{'p'} + $DEBUG{'a'} ;	# -x p
+    $DEBUG_CURL_CACHE		= $DEBUG{'x'} + $DEBUG{'a'} ;	# -x x
     print STDERR "\n";
 }
 sub ParseDirectory($$){
@@ -1416,8 +1423,22 @@ sub ParseDirectory($$){
 	if ($master_site eq '') { print STDERR sprintf("%4d ", __LINE__ ), " \$master_site is empty\n"; return -1;}
 	my ($curl_command) = "$curl_list_secure $sslv3 $master_site";
 	print STDERR sprintf("%4d ", __LINE__ ), $curl_command, "\n" if $DEBUG_CURL;
-    open(CURL, "$curl_command |") || print STDERR "Problem w3m: $!\n";
-    while (<CURL>) {
+	my(@ThisCurl);
+	    print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[3], '> ',"\n",
+		'      Last curl ', $LastCurl,    "\n",
+		'      This curl ', $curl_command,"\n" if $DEBUG_CURL_CACHE;
+	if ($LastCurl eq $curl_command ) {
+	    @ThisCurl = @CurlCache;
+	    print STDERR sprintf("%4d ", __LINE__ ), ' *** ', $distbase,
+		' ==> Using @CurlCache',"\n" if $DEBUG_CURL_CACHE;
+	} else {
+	    $LastCurl = $curl_command;
+	    open(CURL, "$curl_command |") || print STDERR "Problem w3m: $!\n";	    
+	    @ThisCurl = <CURL>;
+	    close(CURL);
+	    @CurlCache = @ThisCurl;
+	}
+    while ($_ = shift @ThisCurl ) {
 #	print STDERR sprintf("%4d ", __LINE__ ), ' ', $_, "\n";
 #print STDERR sprintf("%4d ", __LINE__ ), ' (PKGNAME) ', $PKGNAME, ' ', $_,"\n" if $DEBUG_DISTBASE;        
 	$curl_lines++;
@@ -1561,8 +1582,7 @@ print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> distbase: ', $distbas
 
     } # end while
 print STDERR sprintf("%4d ", __LINE__ ), ' (distbase) ', $distbase,' (version) ', $version, "\n" if $DEBUG_DISTBASE;	
-    close(CURL);
-    } # while( $curl_lines == 0 && $repeat-- > 0 ) do {
+    }
     my ($returnCode) = 0;
     print STDERR sprintf("%4d ", __LINE__ ), '==> curl_lines: ', $curl_lines, "\n" if $DEBUG_DISTBASE;
     if ($curl_lines == 0 ) { $returnCode = -1; };
