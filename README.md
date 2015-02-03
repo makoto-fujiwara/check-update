@@ -1,7 +1,17 @@
 # check-update
+
 Tool for pkgsrc tree. Reading whole tree and generates the list
 of To-Be-Updated packges.
 
+## Files
+- Makefile
+- environment-sample.mk
+- README.md	      (Markdown document, this file)
+- check-update	      (perl script) Main Script to find a new version of the package
+- collect-stats	      (perl script) Compile table into 00_Summary.html
+- merge-check-update  (perl script) Merge by-category result into 00_Whole.html
+
+## check-update
 >  check-update -h
 
 will tell you the other options.
