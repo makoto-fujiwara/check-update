@@ -1,4 +1,7 @@
-CATEGORIES= \
+.include "environment.mk"
+
+# the order is important if you make -j 24 etc to speed up
+CATEGORIES?= \
 	net \
 	www \
 	x11 \
@@ -39,13 +42,14 @@ CATEGORIES= \
 	time \
 	wm \
 
-DEVEL = devel1 devel2 devel3
+DEVEL? = devel1 devel2 devel3
 
-CHECK_UPDATE=	/export/git-work/check-update/check-update
-MERGE=		/export/git-work/check-update/merge-check-update
-COLLECT_STATS=	/export/git-work/check-update/collect-stats
+CHECK_UPDATE?=	/export/git-work/check-update/check-update
+MERGE?=		/export/git-work/check-update/merge-check-update
+COLLECT_STATS?=	/export/git-work/check-update/collect-stats
 
-DIRECTORY=	${HOME}/public_html/pkgsrc/check-update
+DIRECTORY?=	${HOME}/public_html/pkgsrc/check-update
+
 DATE_H!=	env TZ=UTC date +%Y%m%d-%H
 # To allow 'env DATE=20150101-12 make -j 16' for executing beyond date boundary
 # and Please note  that DATE= is necessay almost always
