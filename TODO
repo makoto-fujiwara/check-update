@@ -1,3 +1,7 @@
+(TODO)
+  distbase for 
+  - math/gnumeric110
+  - math/gnumeric112
 (BAD case)
  *** 209: ham/7plus -> 7pl225sr
      109: w3m -dump ftp://ftp.fi.NetBSD.org/pub/NetBSD/packages/distfiles/
@@ -26,9 +30,6 @@ GC Warning: Out of Memory! Heap size: 247 MiB. Returning NULL!
 
     * stats are not correct in above
 (TODO)
-   * caching for curl -l result. Just for previous ONE. see devel/p5-Test* example 
-   * Avoid devel/p5-Data-Printer-0.35_1 as DEVELOPER RELEASE.
-
    *
    http://-> https:// location header can not be handled properly
    devel/RTFM 	RTFM 	2.4.5 	->	0.0	2.4.5	pkgsrc-users	http://download.bestpractical.com/pub/rt/release/
