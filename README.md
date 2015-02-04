@@ -4,7 +4,7 @@ Tool for pkgsrc tree. Reading whole tree and generates the list
 of To-Be-Updated packges.
 
 ## Files
-- README.md	      (0. Markdown document, this file)
+- README.md	      (0. [Markdown](https://help.github.com/articles/markdown-basics/) document, this file)
 - environment-sample.mk  (1. local setup)
 - Makefile		(2. for example 'make -j 24' for 16 thread machine)
 - check-update	      (perl script) 3. Main Script to find a new version of the packages
