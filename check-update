@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-02-03 15:43" ; # write by emacs time-stamp
+$VERSION = "2015-02-04 00:27" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -2487,3 +2487,16 @@ print STDERR "renaming $summary_tmp to $summary\n";
 system ("mv $summary_tmp $summary");
 exit;
 __END__
+## Local Variables:
+## outline-regexp: "^[ 	]*sub\\s-+\\([-[:alnum:]+_:]+\\)\\|^\\(?:my\\|our\\)\\s-+\\([$@%][-[:alnum:]+_:]+\\)\\s-*=\\|^[ 	]*package\\s-+\\([-[:alnum:]+_:]+\\);\\|^=head[0-9][ 	]+\\(.*\\)\\|^=cut\\>\\|##"
+## End:
+
+; please note I have copy in ~/.emacs-sub/time-stamp-setup.el
+(require 'time-stamp)
+(add-hook 'write-file-hooks 'time-stamp)
+(setq time-stamp-active t)
+(setq time-stamp-time-zone "UTC")
+(setq time-stamp-format "%04y-%02m-%02d %02H:%02M");
+(setq time-stamp-start "$VERSION = \"") ;
+(setq time-stamp-end "\"") ;
+(setq time-stamp-line-limit "10") ; ; default is 8
