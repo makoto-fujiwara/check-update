@@ -1,7 +1,8 @@
 # check-update
 
-Tool for pkgsrc tree. Reading whole tree and generates the list
-of To-Be-Updated packges.
+Tool for [pkgsrc](http://www.netbsd.org/docs/software/packages.html)
+tree. Reading [whole tree](http://cvsweb.netbsd.org/bsdweb.cgi/pkgsrc/)
+and generates the list of To-Be-Updated packges.
 
 ## Files
 
@@ -31,7 +32,7 @@ cvs udpate done smoothly).
 
 But it will take several tens of hours.
 Instead, make -j 12 may be good to finish in several hours
-(make is assumed as BSD make).
+(make is assumed to be BSD make).
 
 >  check-update -x d -c category -P packagename
 
