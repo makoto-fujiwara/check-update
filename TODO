@@ -1,35 +1,8 @@
 (TODO)
-  distbase for 
-  - math/gnumeric110
+  - Diff output
+  - math/gnumeric110    distbase
   - math/gnumeric112
-(BAD case)
- *** 209: ham/7plus -> 7pl225sr
-     109: w3m -dump ftp://ftp.fi.NetBSD.org/pub/NetBSD/packages/distfiles/
-     221: available: 0.0 PKGVERSION: 225 
-     # ----------------------------
-     7plus -> 225(0.0) ftp://ftp.fi.NetBSD.org/pub/NetBSD/packages/distfiles/
-     # ----------------------------
-
-GC Warning: Out of Memory! Heap size: 247 MiB. Returning NULL!
-     225: available: 0.0 PKGVERSION: 2.3.99.7 
-     # ----------------------------
-     abcde -> 2.3.99.7(0.0) http://ftp-stud.fht-esslingen.de/pub/Mirrors/gentoo/distfiles/
-     # ----------------------------
- *** 214: audio/amaroc -> amaroc
-     120: w3m -dump http://downloads.sourceforge.net/sourceforge/amaroc/
-     225: available: 0.0 PKGVERSION: 0.3 
-     # ----------------------------
-                    http://sourceforge.net/projects/amaroc/files/amaroc/0.3/
-
- *** 217: audio/amarok-kde3 -> amarok
-     123: w3m -dump ftp://ftp.kde.org/pub/kde/stable/amarok/1.4.10/src/
-     228: available: 1.4.10 PKGVERSION: 1.4.10 amarok  OK
-
-(Problem)
-    * available is empty -> not listed now (example arp-scan)  see $curl_lines
-
-    * stats are not correct in above
-(TODO)
+  - devel/RTFM
    *
    http://-> https:// location header can not be handled properly
    devel/RTFM 	RTFM 	2.4.5 	->	0.0	2.4.5	pkgsrc-users	http://download.bestpractical.com/pub/rt/release/
@@ -76,6 +49,33 @@ GC Warning: Out of Memory! Heap size: 247 MiB. Returning NULL!
       (like adding 00 for the name)
     * Disable DISTBASE_CACHE (for debug ?)
 
+(BAD case)
+ *** 209: ham/7plus -> 7pl225sr
+     109: w3m -dump ftp://ftp.fi.NetBSD.org/pub/NetBSD/packages/distfiles/
+     221: available: 0.0 PKGVERSION: 225 
+     # ----------------------------
+     7plus -> 225(0.0) ftp://ftp.fi.NetBSD.org/pub/NetBSD/packages/distfiles/
+     # ----------------------------
+
+GC Warning: Out of Memory! Heap size: 247 MiB. Returning NULL!
+     225: available: 0.0 PKGVERSION: 2.3.99.7 
+     # ----------------------------
+     abcde -> 2.3.99.7(0.0) http://ftp-stud.fht-esslingen.de/pub/Mirrors/gentoo/distfiles/
+     # ----------------------------
+ *** 214: audio/amaroc -> amaroc
+     120: w3m -dump http://downloads.sourceforge.net/sourceforge/amaroc/
+     225: available: 0.0 PKGVERSION: 0.3 
+     # ----------------------------
+                    http://sourceforge.net/projects/amaroc/files/amaroc/0.3/
+
+ *** 217: audio/amarok-kde3 -> amarok
+     123: w3m -dump ftp://ftp.kde.org/pub/kde/stable/amarok/1.4.10/src/
+     228: available: 1.4.10 PKGVERSION: 1.4.10 amarok  OK
+
+(Problem)
+    * available is empty -> not listed now (example arp-scan)  see $curl_lines
+
+    * stats are not correct in above
 (done)
     * Cache most recently used distbase (upto 30 ?)
        DistbaseCacheUpdate();
@@ -87,22 +87,9 @@ GC Warning: Out of Memory! Heap size: 247 MiB. Returning NULL!
       ( or the category name )
 --------------------
 
-## Local Variables:
-## outline-regexp: "^[ 	]*sub\\s-+\\([-[:alnum:]+_:]+\\)\\|^\\(?:my\\|our\\)\\s-+\\([$@%][-[:alnum:]+_:]+\\)\\s-*=\\|^[ 	]*package\\s-+\\([-[:alnum:]+_:]+\\);\\|^=head[0-9][ 	]+\\(.*\\)\\|^=cut\\>\\|##"
-## End:
-
 Following is 0.6-26 
 graphics/R-latticeExtra 	R-latticeExtra	0.6.26	->	26		pkgsrc-users@NetBSD.org 	http://cran.r-project.org/src/contrib/
 
-; please note I have copy in ~/.emacs-sub/time-stamp-setup.el
-(require 'time-stamp)
-(add-hook 'write-file-hooks 'time-stamp)
-(setq time-stamp-active t)
-(setq time-stamp-time-zone "UTC")
-(setq time-stamp-format "%04y-%02m-%02d %02H:%02M");
-(setq time-stamp-start "$VERSION = \"") ;
-(setq time-stamp-end "\"") ;
-(setq time-stamp-line-limit "10") ; ; default is 8
 
 x11/tktable is not fixed yet:
 http://sourceforge.net/projects/tktable/files/
@@ -144,4 +131,3 @@ output:
 
 (Problem)
 devel/py-ipython010 has alt=" ....long stiring ..."
-
