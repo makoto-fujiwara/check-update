@@ -4,14 +4,15 @@ Tool for pkgsrc tree. Reading whole tree and generates the list
 of To-Be-Updated packges.
 
 ## Files
+
 File name | | Description
-----------|-|-------------
-README.md	      |0| [Markdown](https://help.github.com/articles/markdown-basics/) document, this file)
-environment-sample.mk  |1| local setup)
-Makefile		|2| for example 'make -j 24' for 16 thread machine)
-check-update	      |3| (perl script) Main Script to find a new version of the packages
-merge-check-update  |4| (perl script) Merge by-category results into 00_Whole.html
-collect-stats	    |5|  (perl script) Compile table from the directory into [00_Summary.html](http://www.ki.nu/~makoto/pkgsrc/check-update/00_Summary.html)
+---------- | - | -------------
+README.md	      | 0 | [Markdown](https://help.github.com/articles/markdown-basics/) document, this file)
+environment-sample.mk  | 1 | local setup)
+Makefile		| 2 | for example 'make -j 24' for 16 thread machine)
+check-update	      | 3 | (perl script) Main Script to find a new version of the packages
+merge-check-update  | 4 | (perl script) Merge by-category results into 00_Whole.html
+collect-stats	    | 5 |  (perl script) Compile table from the directory into [00_Summary.html](http://www.ki.nu/~makoto/pkgsrc/check-update/00_Summary.html)
 
 ## check-update
 >  check-update -h
