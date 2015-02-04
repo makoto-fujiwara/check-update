@@ -36,12 +36,12 @@ Don't rely on too much, thanks for your attention. <!-- ' -->
 	<li> (check-update) 
 	<a href="https://github.com/makoto-fujiwara/check-update/">system</a> changes
 	<li> (network) DNS and Server status
-	<li> (pkgsrc) the package(s) are updated
+	<li> <a href="http://www.netbsd.org/docs/software/packages.html">(pkgsrc)</a> the package(s) are updated
 	<li> (upstream) new version(s) are placed
 	</ul>
 
 <br>
-<span class="tiny"> devel category is divided into (1) [A-Za-o]* (2) p* (3) [q-z]* for speed up reason</span>
+<span class="tiny"> devel category is divided into (1. [A-Za-o]*) (2. p* ) (3. [q-z]* ) for speed up reason</span>
 <br> the darker the background color, the worse.
 HEAD
 #'
