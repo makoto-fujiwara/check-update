@@ -7,7 +7,7 @@ sub Header($){
 # td..g. is for grey
     print HTML <<HEAD;
     <html>
-   <title>pksrc to-be-updated stats</title>
+   <title>pkgsrc to-be-updated stats</title>
    <style>
    body     { font-size: small;}
    table    { font-size: small;}
@@ -30,7 +30,8 @@ sub Header($){
     span.tiny {font-size: tiny;}
     </style><body>
 <h1> Number of Packages to be updated (Summary)</h1>
-The system in debug status, the numbers shown vary by:
+	The system in debug status, the numbers shown vary by following reasons.
+Don't rely on too much, thanks for your attention. <!-- ' -->
 	<ul>
 	<li> (check-update) 
 	<a href="https://github.com/makoto-fujiwara/check-update/">system</a> changes
@@ -38,7 +39,7 @@ The system in debug status, the numbers shown vary by:
 	<li> (pkgsrc) the package(s) are updated
 	<li> (upstream) new version(s) are placed
 	</ul>
-Don't rely on too much, thanks for your attention.
+
 <br>
 <span class="tiny"> devel category is divided into (1) [A-Za-o]* (2) p* (3) [q-z]* for speed up reason</span>
 <br> the darker the background color, the worse.
