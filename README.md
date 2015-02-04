@@ -4,12 +4,12 @@ Tool for pkgsrc tree. Reading whole tree and generates the list
 of To-Be-Updated packges.
 
 ## Files
-- Makefile
-- environment-sample.mk
-- README.md	      (Markdown document, this file)
-- check-update	      (perl script) Main Script to find a new version of the package
-- collect-stats	      (perl script) Compile table into [00_Summary.html](http://www.ki.nu/~makoto/pkgsrc/check-update/00_Summary.html)
-- merge-check-update  (perl script) Merge by-category result into 00_Whole.html
+- README.md	      (0. Markdown document, this file)
+- environment-sample.mk  (1. local setup)
+- Makefile		(2. for example 'make -j 24' for 16 thread machine)
+- check-update	      (perl script) 3. Main Script to find a new version of the packages
+- merge-check-update  (perl script) 4. Merge by-category results into 00_Whole.html
+- collect-stats	      (perl script) 5. Compile table from the directory into [00_Summary.html](http://www.ki.nu/~makoto/pkgsrc/check-update/00_Summary.html)
 
 ## check-update
 >  check-update -h
