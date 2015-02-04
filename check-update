@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-02-04 00:27" ; # written by emacs time-stamp
+$VERSION = "2015-02-04 01:30" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -843,6 +843,19 @@ print STDERR sprintf("%4d ", __LINE__ ), ' distbase: ', $value, "\n" if $DEBUG_D
     $SpecialPatternY = '$line =~ /.*$value-v([0-9_]+)-src.*/$1/';  
     return $value;
 }
+sub GetDistBaseNoHyphen($$$$){
+    my ($pkgbase)	= shift;	#
+    my ($pkgname)	= shift;	#
+    my ($pkgversion)	= shift;	#
+    my ($distname)	= shift;	#
+    
+    my ($value)		= $distname;	# delegate9.9.1
+    if ( ! ($value =~ /-/) ) {
+	print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[3], '> distbase: ', $value, "\n" if $DEBUG_DISTBASE;
+	$value =~ s/[0-9.]+//;
+    }  else { $value = '';}
+    return $value;
+}
 # 832   (PKGNAME)        mercury-14.01.1
 #       (PKGBASE)        mercury
 #       (DISTNAME)       mercury-srcdist-14.01.1
@@ -935,6 +948,10 @@ print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], '> ',"\n" if $DEBUG_
     $thisreturn =  GetDistBasePerlModule($PKGBASE, $PKGNAME, $DISTBASE);
     if ($thisreturn) { return $thisreturn; }
 print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], '> ',"\n" if $DEBUG_DISTBASE;
+
+             $thisreturn = GetDistBaseNoHyphen($PKGBASE, $PKGNAME, $PKGVERSION, $DISTBASE);
+print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], '> return(', $thisreturn, ")\n" if $DEBUG_DISTBASE;
+     if ($thisreturn) { return $thisreturn; }
 
          $thisreturn = GetDistBasePwlib($PKGBASE, $PKGNAME, $PKGVERSION, $DISTBASE);
 print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], '> ',"\n" if $DEBUG_DISTBASE;
