@@ -7,12 +7,12 @@ of To-Be-Updated packges.
 
 File name  | Description
 ---------- | -------------
-README.md	      | 0  [Markdown](https://help.github.com/articles/markdown-basics/) document, this file)
-environment-sample.mk  | 1  local setup)
-Makefile		| 2  for example 'make -j 24' for 16 thread machine)
-check-update	      | 3  (perl script) Main Script to find a new version of the packages
-merge-check-update  | 4  (perl script) Merge by-category results into 00_Whole.html
-collect-stats	    | 5   (perl script) Compile table from the directory into [00_Summary.html](http://www.ki.nu/~makoto/pkgsrc/check-update/00_Summary.html)
+README.md	      |   [Markdown](https://help.github.com/articles/markdown-basics/) document  (this file)
+environment-sample.mk  |  local setup)
+Makefile		|   for example 'make -j 24' for 16 thread machine)
+check-update	      |   (perl script) Main Script to find a new version of the packages
+merge-check-update  |   (perl script) Merge by-category results into 00_Whole.html
+collect-stats	    |    (perl script) Compile table from the directory into [00_Summary.html](http://www.ki.nu/~makoto/pkgsrc/check-update/00_Summary.html)
 
 ## check-update
 >  check-update -h
@@ -36,11 +36,3 @@ Instead, make -j 12 may be good to finish in several hours
 >  check-update -x d -c category -P packagename
 
 is the way to debug particular package.
-
-
-put example from [Mastering Markdown](https://guides.github.com/features/mastering-markdown/)
-
-First Header | Second Header
------------- | -------------
-Content from cell 1 | Content from cell 2
-Content in the first column | Content in the second column
