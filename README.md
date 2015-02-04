@@ -36,3 +36,11 @@ Instead, make -j 12 may be good to finish in several hours
 >  check-update -x d -c category -P packagename
 
 is the way to debug particular package.
+
+
+put example from [Mastering Markdown](https://guides.github.com/features/mastering-markdown/)
+
+First Header | Second Header
+------------ | -------------
+Content from cell 1 | Content from cell 2
+Content in the first column | Content in the second column
