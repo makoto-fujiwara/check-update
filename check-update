@@ -2506,6 +2506,7 @@ system ("mv $summary_tmp $summary");
 exit;
 __END__
 ## Local Variables:
+## mode: outline-minor
 ## outline-regexp: "^[ 	]*sub\\s-+\\([-[:alnum:]+_:]+\\)\\|^\\(?:my\\|our\\)\\s-+\\([$@%][-[:alnum:]+_:]+\\)\\s-*=\\|^[ 	]*package\\s-+\\([-[:alnum:]+_:]+\\);\\|^=head[0-9][ 	]+\\(.*\\)\\|^=cut\\>\\|##"
 ## End:
 
