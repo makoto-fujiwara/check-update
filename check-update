@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-02-04 02:20" ; # written by emacs time-stamp
+$VERSION = "2015-02-05 11:30" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -842,7 +842,7 @@ sub GetDistBasePwlib($$$$){
     
     my ($value)		= $distname;	# pwlib-v1_8_3-src
     $value		=~ s/-v[0-9_]+-src//;# pwlib(-v1_8_3-src)
-print STDERR sprintf("%4d ", __LINE__ ), ' distbase: ', $value, "\n" if $DEBUG_DISTBASE;
+print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[3], '> distbase: ', $value, "\n" if $DEBUG_DISTBASE;
     $SpecialPatternY = '$line =~ /.*$value-v([0-9_]+)-src.*/$1/';  
     return $value;
 }
@@ -856,6 +856,21 @@ sub GetDistBaseNoHyphen($$$$){
     if ( ! ($value =~ /-/) ) {
 	print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[3], '> distbase: ', $value, "\n" if $DEBUG_DISTBASE;
 	$value =~ s/[0-9.]+//;
+    }  else { $value = '';}
+    return $value;
+}
+sub GetDistBaseOneHyphen($$$$){
+    my ($pkgbase)	= shift;	#
+    my ($pkgname)	= shift;	#
+    my ($pkgversion)	= shift;	#
+    my ($distname)	= shift;	#
+    
+    my ($value)		= $distname;	# delegate9.9.1
+    my (@parts)		= split '-', $distname;
+	print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[3], '> distbase: ', $value, '@parts -> ', join(':', @parts), " <-\n" if $DEBUG_DISTBASE;    
+    if ($#parts == 1 && $part[1] =~ /^[0-9]/ ) {	# meaning only one hyphen and rest starts digit
+	print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[3], '> distbase: ', $value, "\n" if $DEBUG_DISTBASE;
+	$value =~ s/-[0-9.]+.*//;
     }  else { $value = '';}
     return $value;
 }
@@ -948,13 +963,17 @@ print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], '> ',"\n" if $DEBUG_
 print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], '> ',"\n" if $DEBUG_DISTBASE;
      if ($thisreturn) { return $thisreturn; }
 
-    $thisreturn =  GetDistBasePerlModule($PKGBASE, $PKGNAME, $DISTBASE);
-    if ($thisreturn) { return $thisreturn; }
-print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], '> ',"\n" if $DEBUG_DISTBASE;
-
              $thisreturn = GetDistBaseNoHyphen($PKGBASE, $PKGNAME, $PKGVERSION, $DISTBASE);
 print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], '> return(', $thisreturn, ")\n" if $DEBUG_DISTBASE;
      if ($thisreturn) { return $thisreturn; }
+
+             $thisreturn = GetDistBaseOneHyphen($PKGBASE, $PKGNAME, $PKGVERSION, $DISTBASE);
+print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], '> return(', $thisreturn, ")\n" if $DEBUG_DISTBASE;
+     if ($thisreturn) { return $thisreturn; }
+
+    $thisreturn =  GetDistBasePerlModule($PKGBASE, $PKGNAME, $DISTBASE);
+    if ($thisreturn) { return $thisreturn; }
+print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], '> ',"\n" if $DEBUG_DISTBASE;
 
          $thisreturn = GetDistBasePwlib($PKGBASE, $PKGNAME, $PKGVERSION, $DISTBASE);
 print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], '> ',"\n" if $DEBUG_DISTBASE;
@@ -1449,7 +1468,7 @@ sub ParseDirectory($$){
 	    print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[3], '> ',"\n",
 		'      Last curl ', $LastCurl,    "\n",
 		'      This curl ', $curl_command,"\n" if $DEBUG_CURL_CACHE;
-	if    ( ($LastCurl =~ /$local_ports_string/) && ( $#LOCAL_PORTS > 30 )) {
+	if    ( ($LastCurl =~ m|$local_ports_string$|) && ( $#LOCAL_PORTS > 30 )) { # with enough lines
 	    @ThisCurl = @LOCAL_PORTS ;
 	} elsif ($LastCurl eq $curl_command ) {
 	    @ThisCurl = @CurlCache;
@@ -1460,7 +1479,7 @@ sub ParseDirectory($$){
 	    open(CURL, "$curl_command |") || print STDERR "Problem w3m: $!\n";	    
 	    @ThisCurl = <CURL>;
 	    close(CURL);
-	    if ($curl_command =~ /$local_ports_string/)  {
+	    if ($curl_command =~ m|$local_ports_string$|)  {
 		@LOCAL_PORTS = @ThisCurl; }
 	    else {
 	    @CurlCache = @ThisCurl;
