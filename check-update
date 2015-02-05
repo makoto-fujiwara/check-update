@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-02-05 11:30" ; # written by emacs time-stamp
+$VERSION = "2015-02-05 14:37" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -196,33 +196,10 @@ my(%DownLoadAlternative) = qw (
     ); #
 
 # for print/xpdf-arabic etc
-my (@MonthToDigit) = qw (
-    xpdf-arabic
-    xpdf-chinese-simplified
-    xpdf-chinese-traditional
-    xpdf-cyrillic
-    xpdf-greek
-    xpdf-hebrew
-    xpdf-japanese
-    xpdf-korean
-    xpdf-latin2
-    xpdf-thai
-    xpdf-turkish
-    );
-
 my (%MonthToDigit) = qw (
-    -jan- 01
-    -feb- 02
-    -mar- 03
-    -apr- 04
-    -may- 05
-    -jun- 06
-    -jul- 07
-    -aug- 08
-    -sep- 09
-    -oct- 10
-    -nov- 11
-    -dec- 12
+    -jan- 01  -apr- 04  -jul- 07   -oct- 10
+    -feb- 02  -may- 05  -aug- 08   -nov- 11
+    -mar- 03  -jun- 06  -sep- 09   -dec- 12
     );
 # arp-scan is the same as HOMEPAGE (strange)
 # Now global variables in Makefile
@@ -242,8 +219,6 @@ sub SpecialPattern($$){
     my($distbase) = shift;
     my($line) = shift;
     print STDERR sprintf("%4d ", __LINE__ ), ' ', $line, ' Pattern ', $SpecialPattern{$distbase}, "\n" if $DEBUG_EVAL_PATTERN ;
-#    print STDERR sprintf("%4d ", __LINE__ ), $distbase,' -> ', $SpecialPattern{$distbase}, "\n" if $DEBUG_EVAL_PATTERN ;
-    my($return) ;
     eval $SpecialPattern{$distbase} ;
 
     # not to return garbage
@@ -254,9 +229,7 @@ sub SpecialPattern($$){
 }
 
 my (@CANDIDATE);	# collecting candidate of the version
-
 my (%DISTBASE_CACHE);   # push(@DISTBASE_CACHE, \[$distbase, $version, $timestamp, $refcount]);
-
 
 my (@DontSkipEndingDigit)  = qw (eric4 fltk2);
 # 100 -> 1.0.0 type
@@ -868,7 +841,7 @@ sub GetDistBaseOneHyphen($$$$){
     my ($value)		= $distname;	# delegate9.9.1
     my (@parts)		= split '-', $distname;
 	print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[3], '> distbase: ', $value, '@parts -> ', join(':', @parts), " <-\n" if $DEBUG_DISTBASE;    
-    if ($#parts == 1 && $part[1] =~ /^[0-9]/ ) {	# meaning only one hyphen and rest starts digit
+    if ($#parts == 1 && $parts[1] =~ /^[0-9]/ ) {	# meaning only one hyphen and rest starts digit
 	print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[3], '> distbase: ', $value, "\n" if $DEBUG_DISTBASE;
 	$value =~ s/-[0-9.]+.*//;
     }  else { $value = '';}
@@ -1018,8 +991,6 @@ print STDERR sprintf("%4d ", __LINE__ ), ' ', $dir, '/', $PackageName, '; DISTBA
 	# ----------------------------------
 	#      3. Complicated others
 	# ----------------------------------
-#    } elsif ( grep (/$PKGBASE/, @MonthToDigit) ) {
-#	$DISTBASE
     } else {
 
 #    print STDERR sprintf("%4d ", __LINE__ ), ' ', $DISTBASE, "\n";
