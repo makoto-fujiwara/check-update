@@ -1441,6 +1441,8 @@ sub ParseDirectory($$){
 	if ($master_site eq '') { print STDERR sprintf("%4d ", __LINE__ ), " \$master_site is empty\n"; return -1;}
 	my ($curl_command) = "$curl_list_secure $sslv3 $master_site";
 	print STDERR sprintf("%4d ", __LINE__ ), $curl_command, "\n" if $DEBUG_CURL;
+
+# --------------- H A N D L I N G  @CurlCache ------------------------
 	my(@ThisCurl);
 	    print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[3], '> ',"\n",
 		'      Last curl ', $LastCurl,    "\n",
@@ -1457,6 +1459,8 @@ sub ParseDirectory($$){
 	    @CurlCache = @ThisCurl;
 	}
     while ($_ = shift @ThisCurl ) {
+# --------------------------------------------------------------------
+
 #	print STDERR sprintf("%4d ", __LINE__ ), ' ', $_, "\n";
 #print STDERR sprintf("%4d ", __LINE__ ), ' (PKGNAME) ', $PKGNAME, ' ', $_,"\n" if $DEBUG_DISTBASE;        
 	$curl_lines++;
@@ -1577,7 +1581,7 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (3) ', $distbase, ' --> ', $version,"
 	if ($version =~ m|[0-9.]+pre[0-9]| ) { next;}
 	if ($version eq '') { next;}
 	if (length($version) > $MAXSTRINGLEN ) { next;} # skip too long
-## RCRCRC
+#  RCRCRC
 print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '> (distbase) ', $distbase,' (version) ', $version, "\n" if $DEBUG_DISTBASE;
 	if ( ! ($distbase =~ m|rc| ) &&
 	       $version =~ m|[0-9.]+rc[0-9]| )  { next;} # in case $distbase has not 'rc' in it, ignore rc stuff  RRRRRRRCCCCC i
