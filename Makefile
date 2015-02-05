@@ -42,7 +42,7 @@ CATEGORIES?= \
 	time \
 	wm \
 
-DEVEL? = devel1 devel2 devel3
+DEVEL?= devel1 devel2 devel3
 
 PKGSRC?=	/usr/pkgsrc
 
