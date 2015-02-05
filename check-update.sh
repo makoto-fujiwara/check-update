@@ -2,8 +2,10 @@
 CVSROOT=:pserver:anoncvs@anoncvs.jp.netbsd.org:/cvs/cvsroot
 WIPROOT=:pserver:anoncvs@pkgsrc-wip.cvs.sourceforge.net:/cvs/pkgsrc-wip/cvsroot
 SITE_PATCH=${HOME}/public_html/pkgsrc/mk/fetch-sites.mk.diff-6
-JOBS=24
-JOBS=12
+# ---------------------------
+# sysctl -w kern.maxproc=2088
+# unlimit
+JOBS=36
 
 # Check if required packages installed
 FAIL=0
