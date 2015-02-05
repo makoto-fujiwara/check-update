@@ -117,6 +117,8 @@ my ($maintainer) = 0;		# output for the maintainer
 my ($divide_devel) = '';	# execute divided manner on devel category
 
 my (@CurlCache);		# keep the last time listing resuls;
+my (@LOCAL_PORTS);
+my ($local_ports_string) = 	'netbsd.org/pub/NetBSD/packages/distfiles/LOCAL_PORTS/';
 my ($LastCurl);			# The curl command when above cache stored
 
 my ($start_time) = time();
@@ -1447,7 +1449,9 @@ sub ParseDirectory($$){
 	    print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[3], '> ',"\n",
 		'      Last curl ', $LastCurl,    "\n",
 		'      This curl ', $curl_command,"\n" if $DEBUG_CURL_CACHE;
-	if ($LastCurl eq $curl_command ) {
+	if    ( ($LastCurl =~ /$local_ports_string/) && ( $#LOCAL_PORTS > 30 )) {
+	    @ThisCurl = @LOCAL_PORTS ;
+	} elsif ($LastCurl eq $curl_command ) {
 	    @ThisCurl = @CurlCache;
 	    print STDERR sprintf("%4d ", __LINE__ ), ' *** ', $distbase,
 		' ==> Using @CurlCache',"\n" if $DEBUG_CURL_CACHE;
@@ -1456,7 +1460,11 @@ sub ParseDirectory($$){
 	    open(CURL, "$curl_command |") || print STDERR "Problem w3m: $!\n";	    
 	    @ThisCurl = <CURL>;
 	    close(CURL);
+	    if ($curl_command =~ /$local_ports_string/)  {
+		@LOCAL_PORTS = @ThisCurl; }
+	    else {
 	    @CurlCache = @ThisCurl;
+	    }
 	}
     while ($_ = shift @ThisCurl ) {
 # --------------------------------------------------------------------
