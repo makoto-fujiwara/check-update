@@ -44,6 +44,8 @@ CATEGORIES?= \
 
 DEVEL? = devel1 devel2 devel3
 
+PKGSRC?=	/usr/pkgsrc
+
 CHECK_UPDATE?=	/export/git-work/check-update/check-update
 MERGE?=		/export/git-work/check-update/merge-check-update
 COLLECT_STATS?=	/export/git-work/check-update/collect-stats
@@ -73,15 +75,13 @@ ${WORK}/.done: ${DEVEL:S/$/.html/} ${CATEGORIES:S/$/.html/}
 # devel category special
 .for y in 1 2 3 
 devel$y.html: ${WORK}
-	(cd /usr/pkgsrc; \
-	${CHECK_UPDATE} -f -m -c devel -y $y -d ${WORK} -S ${.TARGET} ; )
+	${CHECK_UPDATE} -f -m -p ${PKGSRC} -c devel -y $y -d ${WORK} -S ${.TARGET}
 .endfor
 
 # check-update by-category, output directory is ${WORK}
 .for i in ${CATEGORIES}
 $i.html: ${WORK}
-	(cd /usr/pkgsrc; \
-	${CHECK_UPDATE} -f -m -c $i -d ${WORK} -S $i.html ; )
+	${CHECK_UPDATE} -f -m -p ${PKGSRC} -c $i -d ${WORK} -S $i.html;
 .endfor
 
 ${WORK}:
