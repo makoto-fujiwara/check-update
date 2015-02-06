@@ -9,7 +9,7 @@ JOBS=36
 
 # Check if required packages installed
 FAIL=0
-for p in httping curl git-base p5-Net-DNS rubygems; do
+for p in httping curl git-base p5-Net-DNS rubygems mozilla-rootcerts; do
    NOT_EXIST=0
    pkg_info -q -c $p  > /dev/null 2>&1
    RC=$?
