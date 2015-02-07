@@ -1,0 +1,205 @@
+#! /usr/pkg/bin/perl
+use strict;
+use 5.012; # so readdir assigns to $_ in a lone while test
+my($DEBUG) = 0;
+
+my($directory) = $ENV{'HOME'}. '/public_html/pkgsrc/check-update/';
+
+sub PrintHeader() {
+    print HTML <<SUMMARY;
+<html>
+<style>
+    body    { font-size: small;}
+    table   { font-size: small;}
+    tr.user      { background-color: \#e8e8f0; }
+    tr.reverse   { background-color: \#e0c8e8; }
+    tr.plus      { background-color: \#e0e0ff; }
+    tr.minus     { background-color: \#ffe0e0; }
+    span.reverse { background-color: \#e0c8e8; }        
+    a.rev { background: \#328032;color: white;}
+    span.brown     { color: brown;}
+    span.grey      { color: \#608060;}
+    span.grey      { color: \#c09090;}
+    span.pale550   { color: \#e0e090;}
+    span.pale404   { color: \#f0a000;}
+    span.pale403   { color: \#90e0e0;}
+
+    span.pale302   { color: \#806080;}
+    span.pale301   { color: \#804080;}
+
+    span.pale_dns  { color: \#c040c0;}
+    span.pale_arrow { color: \#c090c0;}
+    span.pale0_0    { color: \#e0e090;}
+    td.update { background: \#d0c8c8;}
+    td.grey   { background: \#c0c0c0;}
+</style>
+
+<body>
+<table cellspacing=0 cellpadding=3 border=0>
+<tr><th>directory</th><th>Package</th><th>Now</th><th></th>
+<th>Update-To</th><th>TODO</th><th>MAINTAINER</th><th>MASTER_SITES (only the first one checked) </th></tr>
+SUMMARY
+}
+
+sub FindRecentTwo($);
+# ------------------------------------------
+sub FindRecentTwo($) {
+    my ($directory) = shift;
+    my (@list);
+
+    opendir(my $dh, $directory) || print "Problem reading directory($directory):$!\n";
+    while( readdir $dh ) {
+	if ( /^20/ ) { push(@list, $_);};
+    }
+    closedir($dh);
+    my(@sorted) = sort @list;
+    return ($sorted[$#sorted], $sorted[$#sorted - 1]);
+ }
+# ------------------------------------------
+# retrieve one logical record of <tr> ... </tr>
+sub GetOneRecord($){
+    my ($dh) = shift;
+    my ($line) = '';
+    my ($start) = '';
+    my ($EOR) = 0;	# EndOfRecord
+    while ( ($EOR == 0)  && ($line = readline $dh )) {
+#	print STDERR sprintf("%4d ", __LINE__), $line;
+	chomp ($line);
+	   if (           $line =~ m|<tr class="user">|  )  { $start = $line ; }
+	elsif (           $line =~ m|<tr>|  )   { $start .= $line ; }
+	elsif ( $start && ($line =~ m|</tr>|))	{ $start .= $line ; $EOR++ ; }
+	elsif ( $start )	 		{ $start .= $line ;          } # alread started
+    }
+    my ($name, $version);
+	print STDERR sprintf("%4d ", __LINE__), $start;
+    #                             1          2            3            4          5          6   
+    if ( $start =~ m|<tr.*["]*><td>(.*)</td><td>(.*)</td><td>(.*)</td><td>.*</td><td>.*</td><td>.*</td><td>.*</td><td>.*</td><td>.*</td></tr>| ) { 
+	if (0) {
+	print STDERR '1 ', $1, "\n";
+	print STDERR '2 ', $2, "\n";
+	print STDERR '3 ', $3, "\n";
+	print STDERR '4 ', $4, "\n";}
+	$name = $1;
+	$version = $3;
+	$name =~ s|<a href[^>]+>||;
+	$name =~ s|</a>||;
+    } else {
+	# usually header or etc.
+    }
+    
+    return ($name, $version, $start);
+}
+# ------------------------------------------
+my (@Pointer) = ();
+
+#my ($limit);
+sub GetLines($){
+   my ($name) = shift;    
+   my ($version, $buffer);
+   $#Pointer = -1; # make it empty
+#   $limit = 10;
+   print STDERR sprintf("%4d ", __LINE__), $name, "\n";
+   open(NAME, $name) || print sprintf("%4d ", __LINE__), "Problem opening $name to read $! \n";
+    do { 
+	($name, $version, $buffer) = (GetOneRecord(*NAME));
+#	print STDERR sprintf("%04d ", __LINE__), $buffer ,' ===',"\n"; 
+	push(@Pointer, [$name, $version, $buffer]); 
+	}
+   while $buffer  ; # && $limit--;
+   close(NAME);
+   return @Pointer;
+}
+sub EditClass($$) {
+    my ($line)  = shift;
+    my ($color) = shift;
+
+    $line =~ s|<tr class="user">|<tr>|;
+    $line =~ s|<tr>|<tr class="$color">|;
+    return $line;
+}
+sub WriteDiff($$) {
+    my ($B) = shift;
+    my ($A) = shift;
+    print STDERR sprintf("%4d ", __LINE__), $A, "\n";
+    print STDERR sprintf("%4d ", __LINE__), $B, "\n";
+    
+
+    my(@A_lines) = GetLines($A);
+    my($a, $b) = (0, 0);
+    
+if ($DEBUG) {
+    print STDERR "======= AAAA  ================ ", __LINE__, "\n";
+    while (my $i = shift @A_lines) {
+   print STDERR "------------------------------- ", __LINE__, "\n";
+	print $i ->[2],"\n";
+    }
+    print STDERR "==============================", __LINE__, "\n";
+}
+    my(@B_lines) = GetLines($B);
+if ($DEBUG) {
+    print STDERR "======= BBBB ================== ", __LINE__, "\n";
+    while (my $i = shift @B_lines) {
+   print STDERR "------------------------------- ", __LINE__, "\n";
+	print $i ->[2],"\n";
+    }
+    print STDERR "============================== ", __LINE__, "\n";
+}
+
+    print STDERR sprintf("%4d ", __LINE__), 'a: ', $#A_lines, ' b: ', $#B_lines, "\n";
+    while ( $a <= $#A_lines && $b <= $#B_lines ) {
+
+	print STDERR sprintf("%4d ", __LINE__), '(a: ',$a,') ', $A_lines[$a] -> [0], '   ', $A_lines[$a] -> [1],
+	                                   "\t",'(b: ',$b,') ', $B_lines[$b] -> [0], '   ', $B_lines[$b] -> [1];
+	# 0 .. name
+	# 1 .. version
+	# 2 .. buffer (TEXT)
+	if ($a > 20 || $b > 20) { exit;}
+	if     ( $A_lines[$a] -> [0] eq $B_lines[$b] -> [0] )	{	# the names are the same
+	    if ( $A_lines[$a] -> [1] eq $B_lines[$b] -> [1] )	{ print HTML EditClass($A_lines[$a] -> [2], 'none') ; print STDERR "\t", ' = ';
+								  $a++; $b++;
+	    }  # The versions are the same
+	    else						{ print HTML EditClass($A_lines[$a] -> [2], 'plus') ; print STDERR "\t", ' a+ ';}
+	} elsif( $A_lines[$a + 1] -> [0] gt $B_lines[$b] -> [0] )	
+	    							{ print STDERR "\t", ' b- '; print HTML EditClass($B_lines[$b] -> [2], 'minus'); $b++;
+	} else 							{ print STDERR "\t", ' a+ '; print HTML EditClass($A_lines[$a] -> [2], 'plus') ; $a++;
+	    
+	}
+	print STDERR "\n";
+    }
+	print STDERR "\n";    
+    exit;
+    return;
+}
+# ------------------------------------------
+my($new, $before) = FindRecentTwo($directory);
+print STDERR sprintf("%4d ", __LINE__), 'before: ', $before,"\n";
+print STDERR sprintf("%4d ", __LINE__), 'new:    ', $new,"\n";
+
+my (@new);
+my (@before);
+
+opendir(my $dh, $directory.'/'. $new) || print "Problem reading directory($new):$!\n";
+while ( readdir $dh ) {
+    if (/^[a-z].*\.html/ ) { push(@new, $_)}
+}
+closedir($dh);
+
+opendir($dh, $directory.'/'. $before) || print "Problem reading directory($before):$!\n";
+while ( readdir $dh ) {
+    if (/^[a-z].*\.html/ ) { push(@before, $_)}
+}
+closedir($dh);
+
+    open(HTML, "> /tmp/A.html") ;
+
+    PrintHeader();
+
+foreach my $i ( sort @new) {
+    my ($before) = $directory . '/' . $before . '/' . $i;
+    my ($new)	 = $directory . '/' . $new    . '/' . $i;
+    print STDERR sprintf("%4d ", __LINE__), 'before: ', $before, "\n";
+    print STDERR sprintf("%4d ", __LINE__), 'new:    ', $new, "\n";    
+    WriteDiff($before, $new );
+}
+
+__END__
