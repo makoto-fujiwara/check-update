@@ -49,6 +49,7 @@ PKGSRC?=	/usr/pkgsrc
 CHECK_UPDATE?=	/export/git-work/check-update/check-update
 MERGE?=		/export/git-work/check-update/merge-check-update
 COLLECT_STATS?=	/export/git-work/check-update/collect-stats
+SUMMRY_DIFF?=	/export/git-work/check-update/summary-diff
 
 DIRECTORY?=	${HOME}/public_html/pkgsrc/check-update
 
@@ -60,8 +61,11 @@ DATE?=		${DATE_H}
 WORK=		${DIRECTORY}/.${DATE}
 RM=		/bin/rm
 
-all: ${DIRECTORY}/${DATE}
+all: ${DIRECTORY}/${DATE}/diff 
 	(cd ${DIRECTORY}; ${COLLECT_STATS} );
+
+${DIRECTORY}/${DATE}/diff: ${DIRECTORY}/${DATE}
+	(cd ${DIRECTORY}; ${SUMMRY_DIFF} );
 
 ${DIRECTORY}/${DATE}: ${WORK}/.done
 	mv ${WORK} ${DIRECTORY}/${DATE};

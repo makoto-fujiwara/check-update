@@ -13,7 +13,7 @@ sub PrintHeader() {
     table   { font-size: small;}
     tr.user      { background-color: \#e8e8f0; }
     tr.reverse   { background-color: \#e0c8e8; }
-    tr.plus      { background-color: \#e0e0ff; }
+    tr.plus      { background-color: \#d0d0ff; }
     tr.minus     { background-color: \#ffe0e0; }
     span.reverse { background-color: \#e0c8e8; }        
     a.rev { background: \#328032;color: white;}

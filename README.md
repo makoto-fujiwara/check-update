@@ -15,7 +15,7 @@ README.md	      |   [Markdown](https://help.github.com/articles/markdown-basics/
 [check-update](check-update)             | Main Script to find a new version of each package  (perl script) 
 [merge-check-update](merge-check-update) | Merge by-category results into 00_Whole.html  (perl script) 
 [collect-stats](collect-stats)	         | Compile table from the directory into [00_Summary.html](http://www.ki.nu/~makoto/pkgsrc/check-update/00_Summary.html)  (perl script) 
-
+[summary-diff](summary-diff)             | Generate diff to previous run
 ## check-update
 >  check-update -h
 

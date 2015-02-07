@@ -44,7 +44,7 @@ Don't rely on too much, thanks for your attention. <!-- ' -->
 <span class="tiny"> devel category is divided into (1. [A-Za-o]*) (2. p* ) (3. [q-z]* ) for speed up reason</span>
 <br> the darker the background color, the worse.
 HEAD
-#'
+#' -z]*
 }
 
 my($DIR) = $ENV{'HOME'}.'/public_html/pkgsrc/check-update';
@@ -106,7 +106,7 @@ foreach my $date (@DATE) {
 }
 
 # column list
-my(@DATE) =  sort keys %ForMerge;
+@DATE =  sort keys %ForMerge;
     
 print HTML "<table cellspacing=0 cellpadding=3 border=0>\n";
 print HTML "<tr class=\"head\"><th>Date</th>";
@@ -139,6 +139,11 @@ foreach my $category (sort keys %CATEGORY) {
     #  T H I R D    L E V E L   B Y    D A T E   (horizontal)
     # -------------------------------------------------------
     my ($LeftColumnValue);
+    my ($LastDate);
+
+    my ($PrevLastFound);
+    my ($LastFound);
+
     foreach my $date (@DATE) {
 	my ($ForMerge)  = $ForMerge{$date}{$category};
 	    $ForMerge	=~ s/.*ForMergeCount://;;
@@ -164,12 +169,18 @@ foreach my $category (sort keys %CATEGORY) {
 	$html .= '<td '. $class. '><a href="'. "$date/$category". '.html">'. $ForMerge[0]. '</a></td>';
 	$LeftColumnValue = $ForMerge[0];
 	# calculate sum for those three to output later
+	$LastFound = $PrevLastFound;
 	$FOUND{$date}	+= $ForMerge[0];
+	 $PrevLastFound	 = $ForMerge[0];
 	$TODO{$date}	+= $ForMerge[1];
 	$OK{$date}	+= $ForMerge[2];
 	$NA{$date}	+= $ForMerge[3];
-    }
-    $html .=  "</tr>\n";
+	$LastDate = $date;
+    } # foreach my $date (@DATE) 
+    my ($diff) = sprintf ("<td><a href=\"%s/diff/%s.html\"> %2d </a></td>", $LastDate, $category, $PrevLastFound - $LastFound);
+
+#    print STDERR $diff, "\n";
+    $html .=  $diff. "</tr>\n";
     push(@HTML, $html);    
 }
 print HTML "<tr class=\"total\" align= \"right\"><td>To be updated</td>\n";
