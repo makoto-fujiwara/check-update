@@ -36,8 +36,6 @@ sub PrintHeader() {
 
 <body>
 <table cellspacing=0 cellpadding=3 border=0>
-<tr><th>directory</th><th>Package</th><th>Now</th><th></th>
-<th>Update-To</th><th>TODO</th><th>MAINTAINER</th><th>MASTER_SITES (only the first one checked) </th></tr>
 SUMMARY
 }
 
@@ -49,7 +47,7 @@ sub FindRecentTwo($) {
 
     opendir(my $dh, $directory) || print "Problem reading directory($directory):$!\n";
     while( readdir $dh ) {
-	if ( /^20/ ) { push(@list, $_);};
+	if ( /^20[0-9-]+$/ ) { push(@list, $_);};
     }
     closedir($dh);
     my(@sorted) = sort @list;
@@ -182,16 +180,22 @@ while ( readdir $dh ) {
 closedir($dh);
 
 
+print STDERR sprintf("%4d ", __LINE__), 'directory: ', $directory, ' ', $new, "\n";
+my ($DIFF_DIR) = $directory.$new.'/diff';
+if (! -d $DIFF_DIR ) { mkdir $DIFF_DIR ;}
 
 foreach my $i ( sort @new) {
     my ($category) = $i;
         $category  =~ s/.html//;
+    my ($output_file) = $DIFF_DIR.'/'.$i;
     my ($before) = $directory . '/' . $before . '/' . $i;
     my ($new)	 = $directory . '/' . $new    . '/' . $i;
-    print STDERR sprintf("%4d ", __LINE__), '  before: ', $before, "\n"  if $DEBUG;
-    print STDERR sprintf("%4d ", __LINE__), '     new: ', $new, "\n"  if $DEBUG;
-    print STDERR sprintf("%4d ", __LINE__), 'category: ', $category, "\n"  if $DEBUG;
-    open(HTML, "> /tmp/$category.diff.html") ;
+
+    print STDERR sprintf("%4d ", __LINE__), $category .': output to: ', $output_file, "\n";
+    print STDERR sprintf("%4d ", __LINE__), '  before: ', $before, "\n" if $DEBUG;
+    print STDERR sprintf("%4d ", __LINE__), '     new: ', $new, "\n" if $DEBUG;
+
+    open(HTML, "> $output_file") ;
     PrintHeader();
     WriteDiff($before, $new );
     close(HTML);
