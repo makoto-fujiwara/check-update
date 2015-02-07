@@ -62,6 +62,8 @@ sub GetOneRecord($){
     my ($line) = '';
     my ($start) = '';
     my ($EOR) = 0;	# EndOfRecord
+    my ($EOF) = 0;
+    
     while ( ($EOR == 0)  && ($line = readline $dh )) {
 #	print STDERR sprintf("%4d ", __LINE__), $line;
 	chomp ($line);
@@ -70,8 +72,9 @@ sub GetOneRecord($){
 	elsif ( $start && ($line =~ m|</tr>|))	{ $start .= $line ; $EOR++ ; }
 	elsif ( $start )	 		{ $start .= $line ;          } # alread started
     }
+    if (undef($line)) { $EOF++;}
     my ($name, $version);
-	print STDERR sprintf("%4d ", __LINE__), $start;
+#	print STDERR sprintf("%4d ", __LINE__), $start;
     #                             1          2            3            4          5          6   
     if ( $start =~ m|<tr.*["]*><td>(.*)</td><td>(.*)</td><td>(.*)</td><td>.*</td><td>.*</td><td>.*</td><td>.*</td><td>.*</td><td>.*</td></tr>| ) { 
 	if (0) {
@@ -86,8 +89,8 @@ sub GetOneRecord($){
     } else {
 	# usually header or etc.
     }
-    
-    return ($name, $version, $start);
+    if ($EOF) { return ($name, $version, '');  }
+    else      { return ($name, $version, $start); }
 }
 # ------------------------------------------
 my (@Pointer) = ();
@@ -113,8 +116,10 @@ sub EditClass($$) {
     my ($line)  = shift;
     my ($color) = shift;
 
-    $line =~ s|<tr class="user">|<tr>|;
-    $line =~ s|<tr>|<tr class="$color">|;
+    if ($color ne 'none') {
+	$line =~ s|<tr class="user">|<tr>|;
+	$line =~ s|<tr>|<tr class="$color">|;
+    }
     return $line;
 }
 sub WriteDiff($$) {
@@ -125,35 +130,19 @@ sub WriteDiff($$) {
     
 
     my(@A_lines) = GetLines($A);
+    my(@B_lines) = GetLines($B);
     my($a, $b) = (0, 0);
     
-if ($DEBUG) {
-    print STDERR "======= AAAA  ================ ", __LINE__, "\n";
-    while (my $i = shift @A_lines) {
-   print STDERR "------------------------------- ", __LINE__, "\n";
-	print $i ->[2],"\n";
-    }
-    print STDERR "==============================", __LINE__, "\n";
-}
-    my(@B_lines) = GetLines($B);
-if ($DEBUG) {
-    print STDERR "======= BBBB ================== ", __LINE__, "\n";
-    while (my $i = shift @B_lines) {
-   print STDERR "------------------------------- ", __LINE__, "\n";
-	print $i ->[2],"\n";
-    }
-    print STDERR "============================== ", __LINE__, "\n";
-}
 
     print STDERR sprintf("%4d ", __LINE__), 'a: ', $#A_lines, ' b: ', $#B_lines, "\n";
-    while ( $a <= $#A_lines && $b <= $#B_lines ) {
-
+    while (( $a <= $#A_lines ) && ($b <= $#B_lines )) {
+    print STDERR sprintf("%4d ", __LINE__), 'a: ', $a, ' : ', $#A_lines, ' b: ', $b, ' : ', $#B_lines, "\n";
 	print STDERR sprintf("%4d ", __LINE__), '(a: ',$a,') ', $A_lines[$a] -> [0], '   ', $A_lines[$a] -> [1],
 	                                   "\t",'(b: ',$b,') ', $B_lines[$b] -> [0], '   ', $B_lines[$b] -> [1];
 	# 0 .. name
 	# 1 .. version
 	# 2 .. buffer (TEXT)
-	if ($a > 20 || $b > 20) { exit;}
+#	if ($a > 60 || $b > 60) { exit;}
 	if     ( $A_lines[$a] -> [0] eq $B_lines[$b] -> [0] )	{	# the names are the same
 	    if ( $A_lines[$a] -> [1] eq $B_lines[$b] -> [1] )	{ print HTML EditClass($A_lines[$a] -> [2], 'none') ; print STDERR "\t", ' = ';
 								  $a++; $b++;
@@ -161,16 +150,19 @@ if ($DEBUG) {
 	    else						{ print HTML EditClass($A_lines[$a] -> [2], 'plus') ; print STDERR "\t", ' a+ ';}
 	} elsif( $A_lines[$a + 1] -> [0] gt $B_lines[$b] -> [0] )	
 	    							{ print STDERR "\t", ' b- '; print HTML EditClass($B_lines[$b] -> [2], 'minus'); $b++;
-	} else 							{ print STDERR "\t", ' a+ '; print HTML EditClass($A_lines[$a] -> [2], 'plus') ; $a++;
-	    
-	}
+	} else 							{ print STDERR "\t", ' a+ '; print HTML EditClass($A_lines[$a] -> [2], 'plus') ; $a++; }
+							  
+	if  ( $A_lines[$a] -> [0] eq '' ||
+	      $B_lines[$b] -> [0] eq '')   { last;}
 	print STDERR "\n";
     }
-	print STDERR "\n";    
-    exit;
+    print STDERR "\n";
+    print STDERR sprintf("%4d ", __LINE__), ' =========================', #\
     return;
 }
-# ------------------------------------------
+## ------------------------------------------
+##                 M A I N 
+## ------------------------------------------
 my($new, $before) = FindRecentTwo($directory);
 print STDERR sprintf("%4d ", __LINE__), 'before: ', $before,"\n";
 print STDERR sprintf("%4d ", __LINE__), 'new:    ', $new,"\n";
@@ -190,16 +182,27 @@ while ( readdir $dh ) {
 }
 closedir($dh);
 
-    open(HTML, "> /tmp/A.html") ;
 
-    PrintHeader();
 
 foreach my $i ( sort @new) {
+    my ($category) = $i;
+        $category  =~ s/.html//;
     my ($before) = $directory . '/' . $before . '/' . $i;
     my ($new)	 = $directory . '/' . $new    . '/' . $i;
-    print STDERR sprintf("%4d ", __LINE__), 'before: ', $before, "\n";
-    print STDERR sprintf("%4d ", __LINE__), 'new:    ', $new, "\n";    
+    print STDERR sprintf("%4d ", __LINE__), '  before: ', $before, "\n";
+    print STDERR sprintf("%4d ", __LINE__), '     new: ', $new, "\n";
+    print STDERR sprintf("%4d ", __LINE__), 'category: ', $category, "\n";
+    open(HTML, "> /tmp/$category.diff.html") ;
+    PrintHeader();
     WriteDiff($before, $new );
+    close(HTML);
+
+
+    print STDERR sprintf("%4d ", __LINE__), ' =========================', #\
 }
 
 __END__
+## Local Variables:
+## mode: outline-minor
+## outline-regexp: "^[ 	]*sub\\s-+\\([-[:alnum:]+_:]+\\)\\|^\\(?:my\\|our\\)\\s-+\\([$@%][-[:alnum:]+_:]+\\)\\s-*=\\|^[ 	]*package\\s-+\\([-[:alnum:]+_:]+\\);\\|^=head[0-9][ 	]+\\(.*\\)\\|^=cut\\>\\|##"
+## End:
