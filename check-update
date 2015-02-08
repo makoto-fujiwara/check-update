@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-02-08 07:13" ; # written by emacs time-stamp
+$VERSION = "2015-02-08 12:03" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -128,7 +128,7 @@ our(%opts);
 #      N O  D E V E L O P M E N T 
 # ----------------------------------------
 my (@SkipTooOld) 
-    = qw(xview-lib estic zenicb tex2rtf gkermit kermit gturing bridge-hands ccxstream weewm Cg-compiler p5-File-FlockDir );
+    = qw(xview-lib estic zenicb tex2rtf gkermit kermit gturing bridge-hands ccxstream weewm Cg-compiler p5-File-FlockDir autoconf213);
 
 # Simple means $distbase-([0-9.]+)-(extran string not necessary)..
 my (@SimplePattern)  = qw(gmpc 
@@ -157,6 +157,7 @@ my (%SpecialPattern) = (
     'iozone',		'$line =~ s/.*iozone([0-9_.]+)\.tar.*/$1/;',
     'CPAN',		'$line =~ s/.*CPAN-([0-9_.]+)\.tar.*/$1/;',
     'pyproj',		'$line =~ s/.*v([0-9_.]+)rel/$1/;',#
+    'picprg',		'$line =~ s/.*picprg([0-9.]+)\.tgz/$1/;',#
     );
 
 my(%SourceForgeAlternative) = qw (
@@ -179,6 +180,8 @@ my(%SourceForgeAlternative) = qw (
 my(%DISTBASE) = qw (
     basic256	basic256
     nhc98	nhc98src
+    ntfsprogs	ntfs-3g_ntfsprogs
+    primer3	primer3-src
     );
    
 my(%DownLoadAlternative) = qw (
