@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-02-05 14:37" ; # written by emacs time-stamp
+$VERSION = "2015-02-08 05:00" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -126,7 +126,8 @@ our(%opts);
 # ----------------------------------------
 #      N O  D E V E L O P M E N T 
 # ----------------------------------------
-my (@SkipTooOld) = qw(xview-lib estic zenicb tex2rtf gkermit kermit gturing bridge-hands ccxstream weewm Cg-compiler);
+my (@SkipTooOld) 
+    = qw(xview-lib estic zenicb tex2rtf gkermit kermit gturing bridge-hands ccxstream weewm Cg-compiler File-FlockDir );
 
 # Simple means $distbase-([0-9.]+)-(extran string not necessary)..
 my (@SimplePattern)  = qw(gmpc 
@@ -166,7 +167,11 @@ my(%SourceForgeAlternative) = qw (
     xmltv	http://sourceforge.net/projects/xmltv/files/xmltv/0.5.66/
     OroboROX	http://sourceforge.net/projects/rox/files/OroboROX/0.9.8/
     pcmanfm	http://sourceforge.net/projects/pcmanfm/files/PCManFM%20%2B%20Libfm%20%28tarball%20release%29/PCManFM/
-     gtkglarea	http://sourceforge.net/projects/openev/files/gtkglarea/gtkglarea-1.2.3/
+    gtkglarea	http://sourceforge.net/projects/openev/files/gtkglarea/gtkglarea-1.2.3/
+    Glib-Object-Introspection	http://sourceforge.net/projects/gtk2-perl/files/Glib_Object_Introspection/
+    Gnome2	http://sourceforge.net/projects/gtk2-perl/files/Gnome2/1.045/
+    Gtk2-GladeXML	http://sourceforge.net/projects/gtk2-perl/files/Gtk2_GladeXML
+    Gnome2-Gconf	http://sourceforge.net/projects/gtk2-perl/files/Gnome2_GConf/1.044/
 );
 
 # PKGBASE to $DISTBASE association Special (ending digit is main customer)
