@@ -61,11 +61,13 @@ DATE?=		${DATE_H}
 WORK=		${DIRECTORY}/.${DATE}
 RM=		/bin/rm
 
-all: ${DIRECTORY}/${DATE}/diff 
-	(cd ${DIRECTORY}; ${COLLECT_STATS} );
+all: ${DIRECTORY}/${DATE}/diff
 
-${DIRECTORY}/${DATE}/diff: ${DIRECTORY}/${DATE}
+${DIRECTORY}/${DATE}/diff:  ${DIRECTORY}/${DATE}/00_Summary.html
 	(cd ${DIRECTORY}; ${SUMMRY_DIFF} );
+
+${DIRECTORY}/${DATE}/00_Summary.html:
+	(cd ${DIRECTORY}; ${COLLECT_STATS} );
 
 ${DIRECTORY}/${DATE}: ${WORK}/.done
 	mv ${WORK} ${DIRECTORY}/${DATE};
