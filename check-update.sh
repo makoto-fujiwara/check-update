@@ -1,7 +1,7 @@
 #!/bin/sh
 CVSROOT=:pserver:anoncvs@anoncvs.jp.netbsd.org:/cvs/cvsroot
 WIPROOT=:pserver:anoncvs@pkgsrc-wip.cvs.sourceforge.net:/cvs/pkgsrc-wip/cvsroot
-SITE_PATCH=${HOME}/public_html/pkgsrc/mk/fetch-sites.mk.diff-6
+SITE_PATCH=${HOME}/public_html/pkgsrc/mk/fetch-sites.mk.diff
 # ---------------------------
 # sysctl -w kern.maxproc=2088
 # unlimit
@@ -9,7 +9,8 @@ JOBS=36
 
 # Check if required packages installed
 FAIL=0
-for p in httping curl git-base p5-Net-DNS rubygems mozilla-rootcerts; do
+echo ' *** Checking packages required'
+for p in httping curl git-base p5-Net-DNS *rubygems mozilla-rootcerts; do
    NOT_EXIST=0
    pkg_info -q -c $p  > /dev/null 2>&1
    RC=$?
@@ -20,6 +21,8 @@ for p in httping curl git-base p5-Net-DNS rubygems mozilla-rootcerts; do
    done;
 
 if [ $FAIL = 1 ] ; then exit; fi
+
+echo ' *** Updating from git repository'
 
 git pull
 
