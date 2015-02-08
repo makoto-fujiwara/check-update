@@ -66,7 +66,7 @@ all: ${DIRECTORY}/${DATE}/diff
 ${DIRECTORY}/${DATE}/diff:  ${DIRECTORY}/${DATE}/00_Summary.html
 	(cd ${DIRECTORY}; ${SUMMRY_DIFF} );
 
-${DIRECTORY}/${DATE}/00_Summary.html:
+${DIRECTORY}/${DATE}/00_Summary.html: ${DIRECTORY}/${DATE}
 	(cd ${DIRECTORY}; ${COLLECT_STATS} );
 
 ${DIRECTORY}/${DATE}: ${WORK}/.done
