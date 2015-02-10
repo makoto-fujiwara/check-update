@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-02-10 09:25" ; # written by emacs time-stamp
+$VERSION = "2015-02-10 11:24" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -2538,8 +2538,8 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	    ($PKGBASE_TO_SHOW) =~ s/$DISTBASE/ =>/;}
 
     $console_string .= 
-    sprintf  "%20s %15s %4s Now: %8s -> %7s Todo: %5s ", 
-	$PKGBASE_TO_SHOW, '('.$DISTBASE_TO_SHOW.')', '('.sprintf("%4d ", __LINE__ ).')', $PKGVERSION,  $available, $TODO{$PKGBASE};
+    sprintf  ("%20s %15s %4s Now: %8s -> %7s Todo: %5s ", 
+	$PKGBASE_TO_SHOW, '('.$DISTBASE_TO_SHOW.')', '('.sprintf("%4d ", __LINE__ ).')', $PKGVERSION,  $available, $TODO{$PKGBASE});
     # ------------------------------------------------------------
     #   F I N D    T H E    C O N D I T I O N    T O    L I S T
     # ------------------------------------------------------------
@@ -2617,7 +2617,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
 #	$NotAvailable++;
 	}
 	$console_string .= "\n";
-    ColorString( $console_color, $console_string);
+    print STDERR ColorString( $console_color, $console_string);
     my($Elapsed) = time() - $PackageStart;
     RecordMaxElapsed($Elapsed);
     } #     foreach my $PackageName (@PackageNames) {
