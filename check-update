@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-02-10 06:27" ; # written by emacs time-stamp
+$VERSION = "2015-02-10 09:25" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -27,7 +27,7 @@ my (%TODO);			# found info in doc/TODO, $TODO{$package} = $version
 my ($summary_tmp);
 my ($summary_leaf);	# only for stats output
 
-my($gems_name);
+my ($gems_name);
 
 my ($DEBUG_CURL_LISTING);
 my ($DEBUG_CURL);
@@ -184,6 +184,7 @@ my(%DISTBASE) = qw (
     nhc98	nhc98src
     ntfsprogs	ntfs-3g_ntfsprogs
     primer3	primer3-src
+    appdata-tools appdata_tools
     );
    
 my(%DownLoadAlternative) = qw (
@@ -555,6 +556,24 @@ sub ClassifyPackage(@) {
 	}
     }
 }
+# ----------------------------------
+
+sub ColorString($$){
+    my (%COLOR) = ( qw (
+	black	30
+	red	31
+	green	32
+	yellow	33
+	blue	34
+	pink	35
+	magenta	36
+	white	37
+		    ));
+    my($color) = shift;
+    my($string) = shift;
+    return sprintf("%c[%dm%s%c[m", 0x1b, $COLOR{$color}, $string, 0x1b);
+}
+
 sub ColorUrlDigit($) {
     my($url) = shift;
     my($target);
@@ -1149,8 +1168,9 @@ print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ',
 $dir, '/', $PackageName, '; DISTBASE (', $DISTBASE,")\n" if $DEBUG_DISTBASE;
     return $DISTBASE;
 }
-sub GetGemVersion($){		# <- Main
+sub GetGemVersion($$){		# <- Main
     my ($dist_name) = shift;
+    my ($gems_name) = shift;
     my ($available);
 
 # modena@makoto 08:33:19/150114(..misc/screen)%  gem200.new list -r -q libarchive
@@ -1164,8 +1184,9 @@ sub GetGemVersion($){		# <- Main
 # libarchive-ruby-swig (0.6.3)
 # libarchive-static (1.0.5 ruby i386-mingw32 i386-mswin32)
 # libarchive-static-ruby186 (1.0.3 i386-mingw32 i386-mswin32)
-
-    open(GEM, "$gems_name list -r -q $dist_name|") || print STDERR "Failed to gem list: $!\n";
+    my ($gems_command) =  "$gems_name list -r -q $dist_name" ;
+    print STDERR sprintf("%4d <",__LINE__ ), (caller 0)[3], '> gems_command: ', $gems_command, "\n" if $DEBUG_RUBYGEM;
+    open(GEM, "$gems_command|") || print STDERR ColorString('red', sprintf("%04d", __LINE__). " Failed to gem list: $!\n");
     print STDERR sprintf("%4d ",__LINE__ ), "gem200.new list -r -q $dist_name\n" if $DEBUG_RUBYGEM;
     while(<GEM>) {
 	print STDERR sprintf("%4d ", __LINE__ ), ' ', $_  if $DEBUG_RUBYGEM;
@@ -1257,7 +1278,11 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (PKGNAME) ', $PKGNAME, ' --> DISTBASE
     if ($MasterSiteStat == 404 ) { 
 print STDERR sprintf("%4d ", __LINE__ ), ' (PKGNAME) ', $PKGNAME, ' --> DISTBASE (', $DISTBASE,") status: ", $MasterSiteStat, "\n" if $DEBUG_DISTBASE;
 	if ($master_site =~ m|github| ) {	
-	    print STDERR sprintf("%4d ", __LINE__ ), 'CheckHeader call: ', (CheckHeader($master_site.'../releases.html'))[0],"\n";}
+	    print STDERR ColorString('magenta', 
+				     sprintf("%4d ", __LINE__ ).
+				     'CheckHeader call: ' .
+				     (CheckHeader($master_site.'../releases.html'))[0]. ' '. $master_site."\n")
+		;}
 	if ($master_site =~ m|github| &&
 	    (CheckHeader($master_site.'../releases.html'))[0] == 200 ) {
 	    $master_site .= '../releases.html';
@@ -2260,7 +2285,10 @@ $pwd =~ chomp($pwd);
 open(SUMMARY, "> $summary_tmp") || print STDERR "Problem opening $summary for write:$!\n";
 PrintHeader($full_list);	# controlls style for highlighting
 
+
 foreach my $dir (@categories) {
+    my ($console_color) = '';
+
     if ( ! -d $dir)		{ next;}
     if ($dir =~ /^\.$/ )	{ next;}
     if ($dir =~ /^\.\.$/ )	{ next;}
@@ -2311,6 +2339,8 @@ foreach my $dir (@categories) {
     #    F O R   E A C H  P A C K A G E     ( to line 1835 ..)
     #  ------------------------------------
     foreach my $PackageName (@PackageNames) {
+
+	my ($console_string) = '';
 
 	$MasterSiteStat = 0;
 	$NoMasterSites = 0;
@@ -2393,7 +2423,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
     if ($GEM_PACKAGE) {
 	$DISTBASE = GetVariableValue ($dir, $PackageName, 'DISTNAME');
 	$DISTBASE =~ s/-[0-9.-]+//;
-	$available = GetGemVersion($DISTBASE);
+	$available = GetGemVersion($DISTBASE, $gems_name);
 	$http_code = 0;
 	print STDERR sprintf("%4d ", __LINE__ ), ' HOMEPAGE: ', $HOMEPAGE,"\n" if $DEBUG_RUBYGEM;
 # -----------------------------------------------------------------------
@@ -2429,8 +2459,11 @@ print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> (DISTBASE) ', $D
 	} else {
 	# ---------------------------------------------------------------
 	    if ($MASTER_SITE eq '') { 
-printf STDERR  "%20s %15s %4s Skipping, MASTER_SITES is empty\n",
-	$PKGBASE, '('.$DISTBASE.')', '('.sprintf("%4d ", __LINE__ ).')'; $NoMasterSites++;   next;}
+printf STDERR  ColorString('red', 
+	sprintf("%20s %15s %4s Skipping, MASTER_SITES is empty\n",
+		$PKGBASE, '('.$DISTBASE.')', '('.  __LINE__ .')')
+    	)
+       ; $NoMasterSites++;   next;}
 
 # Get Max version available at MASTER_SITES
 
@@ -2504,19 +2537,21 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	if ( $DISTBASE_TO_SHOW ne '='){
 	    ($PKGBASE_TO_SHOW) =~ s/$DISTBASE/ =>/;}
 
-    printf STDERR  "%20s %15s %4s Now: %8s -> %7s Todo: %5s ", 
+    $console_string .= 
+    sprintf  "%20s %15s %4s Now: %8s -> %7s Todo: %5s ", 
 	$PKGBASE_TO_SHOW, '('.$DISTBASE_TO_SHOW.')', '('.sprintf("%4d ", __LINE__ ).')', $PKGVERSION,  $available, $TODO{$PKGBASE};
     # ------------------------------------------------------------
     #   F I N D    T H E    C O N D I T I O N    T O    L I S T
     # ------------------------------------------------------------
     print STDERR sprintf("%4d ", __LINE__ ). ' '. $DISTBASE. ' -> '. $available. "\n" if $DEBUG_CACHE;
-    if    ( CompareVersion( $available, $PKGVERSION) >  0 )	{ $Found++; # for stats and just below
+    if    ( CompareVersion( $available, $PKGVERSION) >  0 )	{ $Found++; $console_color = 'black'; # for stats and just below
     } elsif ( $TODO{$PKGBASE} &&
-	      CompareVersion( $TODO{$PKGBASE}, $PKGVERSION) != 0 )	{ $TODO_LIST++; $to_list = 1;
-    } elsif ( CompareVersion( $available, $PKGVERSION) == 0 )	{ $to_list = 0;	 $OK++; # OK, disable to list
+	      CompareVersion( $TODO{$PKGBASE}, $PKGVERSION) != 0 )	{ $TODO_LIST++; $to_list = 1; $console_color = 'green';
+    } elsif ( CompareVersion( $available, $PKGVERSION) == 0 )	{ $to_list = 0;	 $OK++; $console_color = 'blue'; # OK, disable to list
     } elsif ( CompareVersion( EditVersion($DISTBASE, $available), $PKGVERSION) == 0 )
-    			{ $to_list = 0;	 $OK++; # OK, disable to list
+    			{ $to_list = 0;	 $OK++; $console_color = 'blue'; # OK, disable to list
     } elsif ( $available eq '0.0' || $available eq '') {
+	$console_color = 'magenta';
 	if    ($MasterSiteStat == 404 )	{ $NotFound++; }
 	elsif ($MasterSiteStat == 403 )	{ $Forbidden++;}
 	elsif ($MasterSiteStat == 550 )	{ $Forbidden++;}
@@ -2537,7 +2572,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	#  ------------------------------------
 	#  O U T P U T    H T M L    L I N E
 	#  ------------------------------------
-    if ($http_code) { $available = $http_code; $to_list = 1; }
+    if ($http_code) { $available = $http_code; $to_list = 1; $console_color = 'magenta'; }
 
     # Let background user (usually gray)  if MAINTAINER is not set.
     my($css);
@@ -2573,14 +2608,16 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	print SUMMARY $output_record;
 #	print STDERR "Needs update";
     } else { 
-	print STDERR "not-to-list";
+	$console_string .= "not-to-list";
+	$console_color = 'yellow';
     }
     if ($available eq '0.0') { 
 #	print NO_AVAIL $summary;
 #	print STDERR  ' fail to get ver. -> ', $URL;
 #	$NotAvailable++;
 	}
-    print STDERR "\n";
+	$console_string .= "\n";
+    ColorString( $console_color, $console_string);
     my($Elapsed) = time() - $PackageStart;
     RecordMaxElapsed($Elapsed);
     } #     foreach my $PackageName (@PackageNames) {
