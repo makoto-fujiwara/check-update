@@ -166,21 +166,27 @@ print STDERR sprintf("%4d ", __LINE__), 'new:    ', $new,"\n" if $DEBUG;
 
 my (@new);
 my (@before);
-
+# ---------------------------------------------------------
+#  reading new directory and put list of filename onto @new
+# ---------------------------------------------------------
 opendir(my $dh, $directory.'/'. $new) || print "Problem reading directory($new):$!\n";
 while ( readdir $dh ) {
     if (/^[a-z].*\.html/ ) { push(@new, $_)}
 }
 closedir($dh);
-
+# ------------------------------------------------------------
+#  reading new directory and put list of filename onto @before
+# ------------------------------------------------------------
 opendir($dh, $directory.'/'. $before) || print "Problem reading directory($before):$!\n";
 while ( readdir $dh ) {
     if (/^[a-z].*\.html/ ) { push(@before, $_)}
 }
 closedir($dh);
 
-
-print STDERR sprintf("%4d ", __LINE__), 'directory: ', $directory, ' ', $new, "\n";
+print STDERR sprintf("%4d ", __LINE__), 'directory: ', $directory, ' ', $new, "\n"  if $DEBUG;
+# ----------------------------------------------
+#  set output directory
+# ----------------------------------------------
 my ($DIFF_DIR) = $directory.$new.'/diff';
 if (! -d $DIFF_DIR ) { mkdir $DIFF_DIR ;}
 
@@ -188,6 +194,9 @@ foreach my $i ( sort @new) {
     my ($category) = $i;
         $category  =~ s/.html//;
     my ($output_file) = $DIFF_DIR.'/'.$i;
+    #-----------------------------------------------------------
+    # set filename, $before and $new have 'date-h' format string
+    #-----------------------------------------------------------
     my ($before) = $directory . '/' . $before . '/' . $i;
     my ($new)	 = $directory . '/' . $new    . '/' . $i;
 
