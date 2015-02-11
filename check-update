@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-02-10 11:24" ; # written by emacs time-stamp
+$VERSION = "2015-02-11 02:06" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -1172,6 +1172,7 @@ sub GetGemVersion($$){		# <- Main
     my ($dist_name) = shift;
     my ($gems_name) = shift;
     my ($available);
+    my (@candidate);
 
 # modena@makoto 08:33:19/150114(..misc/screen)%  gem200.new list -r -q libarchive
 # 
@@ -1187,12 +1188,15 @@ sub GetGemVersion($$){		# <- Main
     my ($gems_command) =  "$gems_name list -r -q $dist_name" ;
     print STDERR sprintf("%4d <",__LINE__ ), (caller 0)[3], '> gems_command: ', $gems_command, "\n" if $DEBUG_RUBYGEM;
     open(GEM, "$gems_command|") || print STDERR ColorString('red', sprintf("%04d", __LINE__). " Failed to gem list: $!\n");
-    print STDERR sprintf("%4d ",__LINE__ ), "gem200.new list -r -q $dist_name\n" if $DEBUG_RUBYGEM;
+    print STDERR sprintf("%4d ",__LINE__ ), "$gems_command\n" if $DEBUG_RUBYGEM;
     while(<GEM>) {
 	print STDERR sprintf("%4d ", __LINE__ ), ' ', $_  if $DEBUG_RUBYGEM;
-	if ( /\b$dist_name \(([0-9.]+).*\)/ ) { $available = $1 ;}
+	if ( /\b$dist_name \(([0-9.]+).*\)/ ) { 
+	    $available = $1 ;
+	    push(@candidate, $available); }
     }
     close(GEM);
+    $available = PickFromCandidate(@candidate);
     print STDERR sprintf("%4d ", __LINE__ ), ' GetGemVersion: ', $dist_name, ' -> ', $available, "\n" if $DEBUG_RUBYGEM;
 
     if ( $available )	{ return $available;}
