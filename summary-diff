@@ -123,6 +123,10 @@ sub EditClass($$) {
 sub WriteDiff($$) {
     my ($B) = shift;
     my ($A) = shift;
+
+    my ($plus_count) = 0;
+    my ($minus_count) = 0;
+
     print STDERR sprintf("%4d ", __LINE__), $A, "\n" if $DEBUG;
     print STDERR sprintf("%4d ", __LINE__), $B, "\n" if $DEBUG;
 
@@ -136,25 +140,28 @@ sub WriteDiff($$) {
     print STDERR sprintf("%4d ", __LINE__), 'a: ', $a, ' : ', $#A_lines, ' b: ', $b, ' : ', $#B_lines, "\n"  if $DEBUG;
     print STDERR sprintf("%4d ", __LINE__), '(a: ',$a,') ', $A_lines[$a] -> [0], '   ', $A_lines[$a] -> [1],
 	                                   "\t",'(b: ',$b,') ', $B_lines[$b] -> [0], '   ', $B_lines[$b] -> [1]  if $DEBUG;
+	# index:
 	# 0 .. name
 	# 1 .. version
 	# 2 .. buffer (TEXT)
 #	if ($a > 60 || $b > 60) { exit;}
 	if     ( $A_lines[$a] -> [0] eq $B_lines[$b] -> [0] )	{	# the names are the same
-	    if ( $A_lines[$a] -> [1] eq $B_lines[$b] -> [1] )	{ print HTML EditClass($A_lines[$a] -> [2], 'none') ; print STDERR "\t", ' = '  if $DEBUG;
+	    if ( $A_lines[$a] -> [1] eq $B_lines[$b] -> [1] )	{ print HTML EditClass($A_lines[$a] -> [2], 'none'), "\n" ; print STDERR "\t", ' = '  if $DEBUG;
 	    }  # The versions are the same
-	    else						{ print HTML EditClass($A_lines[$a] -> [2], 'plus') ; print STDERR "\t", ' a+ ' if $DEBUG;;}
+	    else						{ print HTML EditClass($A_lines[$a] -> [2], 'plus'), "\n"; $plus_count++ ; print STDERR "\t", ' a+ ' if $DEBUG;;}
 	    $a++ ; $b++;
 	} elsif( $A_lines[$a + 1] -> [0] gt $B_lines[$b] -> [0] )	
-	    							{ print STDERR "\t", ' b- ' if $DEBUG;; print HTML EditClass($B_lines[$b] -> [2], 'minus'); $b++;
-	} else 							{ print STDERR "\t", ' a+ ' if $DEBUG;; print HTML EditClass($A_lines[$a] -> [2], 'plus') ; $a++; }
-							  
+								{ print STDERR "\t", ' b- ' if $DEBUG;; print HTML EditClass($B_lines[$b] -> [2], 'minus'); $minus_count++; $b++;
+	} else 							{ print STDERR "\t", ' a+ ' if $DEBUG;; print HTML EditClass($A_lines[$a] -> [2], 'plus') ; $plus_count++;  $a++; }
+
 	if  ( $A_lines[$a] -> [0] eq '' ||
 	      $B_lines[$b] -> [0] eq '')   { last;}
 	print STDERR "\n" if $DEBUG;
     }
     print STDERR "\n" if $DEBUG;
-    print STDERR sprintf("%4d ", __LINE__), ' =========================',"\n"  if $DEBUG;
+    print STDERR sprintf("%4d ", __LINE__), ' =========================',"\n" if $DEBUG;
+    print STDERR "<!--  ForDiff plus: $plus_count minus: $minus_count -->\n" if $DEBUG;
+    print HTML   "<!--  ForDiff plus: $plus_count minus: $minus_count -->\n";
     return;
 }
 ## ------------------------------------------
@@ -200,13 +207,13 @@ foreach my $i ( sort @new) {
     my ($before) = $directory . '/' . $before . '/' . $i;
     my ($new)	 = $directory . '/' . $new    . '/' . $i;
 
-    print STDERR sprintf("%4d ", __LINE__), $category .': output to: ', $output_file, "\n";
+    print STDERR sprintf("%4d ", __LINE__), $category .': output to: ', $output_file, "\n" if $DEBUG;
     print STDERR sprintf("%4d ", __LINE__), '  before: ', $before, "\n" if $DEBUG;
     print STDERR sprintf("%4d ", __LINE__), '     new: ', $new, "\n" if $DEBUG;
 
     open(HTML, "> $output_file") ;
     PrintHeader();
-    WriteDiff($before, $new );
+    WriteDiff($before, $new);
     close(HTML);
 
 

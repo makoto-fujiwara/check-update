@@ -1,6 +1,7 @@
 #! /usr/pkg/bin/perl
 # The script to generating 00_Summary.html for whole statistics
 use strict;
+my($DEBUG) = 0;
 
 sub Header($){
     *HTML = shift;
@@ -60,6 +61,7 @@ my(%NA);	# Not Available
 
 my(@th);
 my(%ForMerge);
+my(%ForDiff);
 my($HTML) = $DIR.'/00_Summary.html';
 #   $HTML  = '/tmp/00_summary.html';
 my(%CATEGORY);
@@ -88,19 +90,36 @@ foreach my $date (@DATE) {
 	if (/^00/ )	{ next;}
 	my($category_html) = $_;
 	my($category_path) =  $directory.'/'.$category_html;
+	# -------------------------------------------------------------------
+	my($category) = $category_html;
+	   $category  =~ s|(\.[0-9]){0,}\.html||;
 	if (-f $category_path) {
 	    open(FILE, $category_path) || print "Problem opening file: $category_path: $!\n";
 	    while(<FILE>) {
 		chomp;
 		if (/ForMerge/ ) {
-		    my($category) = $category_html;
-    		    $category =~ s|(\.[0-9]){0,}\.html||;
 		    $CATEGORY{$category}++;
-		    $ForMerge{$date}{$category} = $_;
-		}
-	    }
-	    close(FILE);
-	}
+		    $ForMerge{$date}{$category} = $_;} }
+	    close(FILE); }
+	# -------------------------------------------------------------------
+	my($diff_path) =  $directory.'/diff/'.$category_html;
+	if (-f $diff_path) {
+#	    print STDERR sprintf("%4d ", __LINE__), "diff_path: ", $diff_path,"\n" if $DEBUG;
+	    open(FILE, $diff_path) || print "Problem opening file: $diff_path: $!\n";
+	    while(<FILE>) {
+		chomp;
+		if (/ForDiff plus: (\d+) minus: (\d+)/ ) {
+		    my ($plus) = $1; my ($minus) = $2;
+		    print STDERR sprintf("%4d ", __LINE__), "category: $category_path plus: $plus minus: $minus\n" if $DEBUG;
+		    my ($plus_string); if ($plus  == 0) { $plus_string = "0";} else {  $plus_string = '+' . $plus};
+		    my ($minus_string);if ($minus == 0) {$minus_string = "0";} else { $minus_string = '-' . $minus};
+		    my ($string) = $minus_string . '/'. $plus_string;
+		    if ($plus == 0 && $minus == 0 ) { $string = '0'};
+		    $ForDiff{$category} = $string;
+		    print STDERR sprintf("%4d ", __LINE__), "category: $category ==> plus: $plus minus: $minus\n" if $DEBUG;
+		}}
+	    close(FILE); }
+	# -------------------------------------------------------------------
     } # while (date directory)
     closedir(DIR);
 }
@@ -177,7 +196,8 @@ foreach my $category (sort keys %CATEGORY) {
 	$NA{$date}	+= $ForMerge[3];
 	$LastDate = $date;
     } # foreach my $date (@DATE) 
-    my ($diff) = sprintf ("<td><a href=\"%s/diff/%s.html\"> %2d </a></td>", $LastDate, $category, $PrevLastFound - $LastFound);
+    my ($diff) = sprintf ("<td><a href=\"%s/diff/%s.html\"> %s </a></td><!-- %s %s -->",
+			  $LastDate, $category, $ForDiff{$category}, $date, $category);
 
 #    print STDERR $diff, "\n";
     $html .=  $diff. "</tr>\n";
