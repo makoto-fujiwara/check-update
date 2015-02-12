@@ -1,10 +1,20 @@
 #! /usr/pkg/bin/perl
 use strict;
-use 5.012; # so readdir assigns to $_ in a lone while test
+use 5.012; # so readdir assigns to $_ in a lone while test (See perldoc -f readdir)
+use Getopt::Std;
+
 my($DEBUG) = 0;
-
 my($directory) = $ENV{'HOME'}. '/public_html/pkgsrc/check-update/';
+## ------------------------------------------
+##             P R O T O T Y P E 
+## ------------------------------------------
+sub FindRecentTwo($);
 
+## ------------------------------------------
+##            S U B R O U T I N E
+## ------------------------------------------
+sub Usage() {
+}
 sub PrintHeader() {
     print HTML <<SUMMARY;
 <html>
@@ -38,8 +48,6 @@ sub PrintHeader() {
 <table cellspacing=0 cellpadding=3 border=0>
 SUMMARY
 }
-
-sub FindRecentTwo($);
 # ------------------------------------------
 sub FindRecentTwo($) {
     my ($directory) = shift;
