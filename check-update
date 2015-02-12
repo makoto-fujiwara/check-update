@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-02-11 06:54" ; # written by emacs time-stamp
+$VERSION = "2015-02-12 07:25" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -176,6 +176,9 @@ my(%SourceForgeAlternative) = qw (
     Gnome2	http://sourceforge.net/projects/gtk2-perl/files/Gnome2/1.045/
     Gtk2-GladeXML	http://sourceforge.net/projects/gtk2-perl/files/Gtk2_GladeXML/1.007/
     Gnome2-GConf	http://sourceforge.net/projects/gtk2-perl/files/Gnome2_GConf/1.044/
+    Cairo	http://sourceforge.net/projects/gtk2-perl/files/Cairo/1.105/
+    Cairo-GObject http://sourceforge.net/projects/gtk2-perl/files/Cairo_GObject/
+    Gnome2-Canvas http://sourceforge.net/projects/gtk2-perl/files/Gnome2_Canvas/1.002/
 );
 
 # PKGBASE to $DISTBASE association Special (ending digit is main customer)
