@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-02-12 07:25" ; # written by emacs time-stamp
+$VERSION = "2015-02-12 16:03" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -299,6 +299,8 @@ my (@DELETE02) = qw(Class-C3-Componentised);
 my (@DOT133) = qw (DBIx-Class-Cursor-Cached IO-Pipeline Mixin-ExtraFields);
 # gdal-lib-1111 -> 1.11.1
 my (@DOT121) = qw (gdal);
+
+my (@DOT845) = qw (IO-Prompt);
 
 # devel/p5-Devel-FindRef 	p5-Devel-FindRef 	1.422 	->	1.44
 my(@SPRINTF1_3) = qw(Devel-FindRef);
@@ -715,6 +717,7 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (3) <', (caller 0)[3] ,'> ', $version
 	    if (grep (/^$distbase$/, @DOT133)  > 0 ) { $version = InsertDot133($version);}
 	    if (grep (/^$distbase$/, @DOT4)  > 0 ) { $version = InsertDot($version, 4);}
 	    if (grep (/^$distbase$/, @DOT121)  > 0 ) { $version = InsertDot121($version);}
+	    if (grep (/^$distbase$/, @DOT845)  > 0 ) { $version = InsertDot845($version);}
 	    if (grep (/^$distbase$/, @DELETEDOT)  > 0 ) { $version = DeleteDot($version, 2);}
 	    if (grep (/^$distbase$/, @ADDZERO)  > 0 ) { $version = AddZero($version, 1);}
 	    if (grep (/^$distbase$/, @ADDZERO2)  > 0 ) { $version = AddZero($version, 2);}
@@ -2086,6 +2089,7 @@ sub InsertDot2($$$){
     return $result;
 }
 
+# 1.001002 -> 1.1.2
 sub InsertDot133($){
     my($version) = shift;
     my($result) = $version;
@@ -2107,6 +2111,21 @@ sub InsertDot121($){
 			  substr($version, 0, 1),
 			  substr($version, 2, 2),
 			  substr($version, 4, 1));
+print STDERR sprintf("%4d ", __LINE__ ), ' ', $result, "\n" if $DEBUG_DISTBASE;	
+    }
+    return $result;
+}
+# 8 chars ->      4 5
+# 0.997002 -> 0.99.7.002
+sub InsertDot845($){
+    my($version) = shift;
+    my($result) = $version;
+    if (length($version) == 8) { 
+	$result = sprintf("%d.%2d.%d.%03d", 
+			  substr($version, 0, 1),
+			  substr($version, 2, 2),
+			  substr($version, 4, 1),
+			  substr($version, 5, 3));
 print STDERR sprintf("%4d ", __LINE__ ), ' ', $result, "\n" if $DEBUG_DISTBASE;	
     }
     return $result;
