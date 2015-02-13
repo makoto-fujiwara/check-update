@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-02-13 14:50" ; # written by emacs time-stamp
+$VERSION = "2015-02-13 15:48" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -191,6 +191,7 @@ my(%DISTBASE) = qw (
     appdata-tools appdata_tools
     p5-OLE-Storage_Lite	OLE-Storage_Lite
     p5-IPC-Run	IPC-Run
+    p5-App-Prove-Plugin-ProgressBar App-Prove-Plugin-ProgressBar
     );
    
 my(%DownLoadAlternative) = qw (
@@ -1394,6 +1395,35 @@ sub GitHubSpecial($$){
     return ( 200, @candidate)
 }
 
+sub GitHubChanges($$){
+# modena@makoto 00:00:51/150214(..devel/p5-App-Prove-Plugin-ProgressBar-Each)% 
+# curl --location -l  https://raw.githubusercontent.com/motemen/App-Prove-Plugin-ProgressBar-Each/master/Changes
+# 		                     https://github.com/motemen/App-Prove-Plugin-ProgressBar-Each/
+# ------------------------------------------
+# Revision history for Perl extension App::Prove::Plugin::ProgressBar::Each
+#
+# 0.01    Mon Jul  5 18:47:42 2010
+#         - original version
+# ------------------------------------------
+    my ($pkgname) = shift;
+        $pkgname =~ s|^p5-||;
+    my ($homepage) = shift;
+    my (@candidate);
+    my ($site) = $homepage;
+    my ($max_version) =  '0.0';
+    $site =~ s|http(.*):/|https:/|;
+    $site =~ s|github.com|raw.githubusercontent.com|;
+    $site .= 'master/Changes';
+    print STDERR sprintf("%04d <", __LINE__), (caller )[3], '>',"\n" if $DEBUG_DISTBASE;
+    open(CURL, "$curl_list_secure $site|") || print STDERR sprintf("%4d ", __LINE__), "Problem opening $site :$! \n";
+    while(<CURL>) {
+	my ($ver);
+	if (/([0-9.]+)\s/ )  { $ver = $1;}
+	if (CompareVersion($ver, $max_version) > 0) { $max_version = $ver;}
+    }
+    close(CURL);
+    return (200, $max_version);
+}
 sub GreyDigitIf00($$){
     my ($http_code)	= shift;
     my ($digit)		= shift;
@@ -2513,6 +2543,10 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	}
         if ($returnCode == -1  && $HOMEPAGE) {
 	    ($returnCode, @candidate) = ParseDirectory($HOMEPAGE, $DISTBASE);
+	    print STDERR sprintf("%4d ", __LINE__ ), $HOMEPAGE," checked.\n" if $DEBUG_DISTBASE;
+	}
+	if ($returnCode == -1  && $HOMEPAGE && $HOMEPAGE =~ /github.com/ ) {
+	    ($returnCode, @candidate) =  GitHubChanges($DISTBASE, $HOMEPAGE);
 	    print STDERR sprintf("%4d ", __LINE__ ), $HOMEPAGE," checked.\n" if $DEBUG_DISTBASE;
 	}
 	} # if ($SFProject) { -> else
