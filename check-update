@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-02-13 16:08" ; # written by emacs time-stamp
+$VERSION = "2015-02-13 23:54" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -214,7 +214,7 @@ my(%DownLoadAlternative) = qw (
     basic256	http://sourceforge.net/projects/kidbasic/
     nhc98src	https://www.haskell.org/nhc98/download.html
     connect	https://bitbucket.org/gotoh/connect/downloads
-    ); #
+    ); #'
 
 # for print/xpdf-arabic etc
 my (%MonthToDigit) = qw (
@@ -856,7 +856,7 @@ sub GetDistBaseSwap($$$){
     my($body)	=  $distname ;
     my($value) = '';
     $body	=~ s/-$numbers// ;
-    if ( $body =~ m|^[a-zA-Z]+$|)	{ $value = $body;}
+    if ( $body =~ m|^[a-zA-Z_-]+$|)	{ $value = $body;}
     print STDERR ('                          > distbase : ', $value, "\n",
 		  '                           > version : ', $numbers,"\n")
 	if $DEBUG_DISTBASE;
@@ -2547,7 +2547,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	    ($returnCode, @candidate) = ParseDirectory($HOMEPAGE, $DISTBASE);
 	    print STDERR sprintf("%4d ", __LINE__ ), $HOMEPAGE," checked.\n" if $DEBUG_DISTBASE;
 	}
-	if ($returnCode == -1  && $HOMEPAGE && $HOMEPAGE =~ /github.com/ ) {
+	if ($#candidate == -1  && $HOMEPAGE && $HOMEPAGE =~ /github.com/ ) {
 	    ($returnCode, @candidate) =  GitHubChanges($DISTBASE, $HOMEPAGE);
 	    print STDERR sprintf("%4d ", __LINE__ ), $HOMEPAGE," checked.\n" if $DEBUG_DISTBASE;
 	}
