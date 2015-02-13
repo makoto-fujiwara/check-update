@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-02-13 15:56" ; # written by emacs time-stamp
+$VERSION = "2015-02-13 16:08" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -158,9 +158,10 @@ my (%SpecialPattern) = (
     'synce',		'$line =~ s/.*synce-gvfs-([0-9.]+)\..*/$1/;',
     'iozone',		'$line =~ s/.*iozone([0-9_.]+)\.tar.*/$1/;',
     'CPAN',		'$line =~ s/.*CPAN-([0-9_.]+)\.tar.*/$1/;',
-    'pyproj',		'$line =~ s/.*v([0-9_.]+)rel/$1/;',#
-    'picprg',		'$line =~ s/.*picprg([0-9.]+)\.tgz/$1/;',#
-    'IPC-Run',		'$line =~ s/.*IPC-Run-([0-9.]+)\.tar.gz/$1/;',#
+    'pyproj',		'$line =~ s/.*v([0-9_.]+)rel/$1/;',
+    'picprg',		'$line =~ s/.*picprg([0-9.]+)\.tgz/$1/;',
+    'IPC-Run',		'$line =~ s/.*IPC-Run-([0-9.]+)\.tar.gz/$1/;',
+    'Term-ReadLine-Perl','$line =~ s/.*Term-ReadLine-Perl5-([0-9.]+)\.tar.gz/$1/;',#
     );
 
 my(%SourceForgeAlternative) = qw (
@@ -192,6 +193,7 @@ my(%DISTBASE) = qw (
     p5-OLE-Storage_Lite	OLE-Storage_Lite
     p5-IPC-Run	IPC-Run
     p5-App-Prove-Plugin-ProgressBar App-Prove-Plugin-ProgressBar
+    p5-Term-ReadLine-Perl Term-ReadLine-Perl
     );
    
 my(%DownLoadAlternative) = qw (
