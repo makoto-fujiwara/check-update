@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-02-13 15:48" ; # written by emacs time-stamp
+$VERSION = "2015-02-13 15:56" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -299,7 +299,7 @@ my (@ADDZERO2) = qw(Convert-BER Spreadsheet-ParseExcel Test-Reporter Sub-Uplevel
 my (@DELETE02) = qw(Class-C3-Componentised);
     
 # 1.001002 -> 1.1.2
-my (@DOT133) = qw (DBIx-Class-Cursor-Cached IO-Pipeline Mixin-ExtraFields);
+my (@DOT133) = qw (DBIx-Class-Cursor-Cached IO-Pipeline Mixin-ExtraFields Smart-Comments);
 # gdal-lib-1111 -> 1.11.1
 my (@DOT121) = qw (gdal);
 
