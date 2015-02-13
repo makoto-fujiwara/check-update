@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-02-13 10:57" ; # written by emacs time-stamp
+$VERSION = "2015-02-13 14:50" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -291,7 +291,7 @@ my (@DELETEDOT) = qw (nkf libssh zidrav4unix);
 
 # devel/p5-OOTools 	p5-OOTools 	2.30 	<-	2.3
 
-my (@ADDZERO) = qw(XML-AutoWriter Nmap-Parser xmahjongg Hash-Case Module-Starter OOTools Async-Interrupt Convert-UUlib JSON-XS IO-Util Module-Build Catalyst-Plugin-Authentication Curses-UI-POE);
+my (@ADDZERO) = qw(XML-AutoWriter Nmap-Parser xmahjongg Hash-Case Module-Starter OOTools Convert-UUlib JSON-XS IO-Util Module-Build Catalyst-Plugin-Authentication Curses-UI-POE);
 my (@ADDZERO2) = qw(Convert-BER Spreadsheet-ParseExcel Test-Reporter Sub-Uplevel Curses-UI-POE DateTime DateTime-Format-Builder DateTime-Format-Strptime 	CGI-FormBuilder DBIx-Abstract CPAN Devel-Symdump Test-Differences );
 # 1.001000 -> 1.0010 Class-C3-Componentised);
 
