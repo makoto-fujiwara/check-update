@@ -14,8 +14,8 @@ README.md	      |   [Markdown](https://help.github.com/articles/markdown-basics/
 [Makefile]          (Makefile)           | 1.  for example 'make -j 24' for 16 thread machine (BSD makefile)
 [check-update](check-update)             | 2.  Main Script to find a new version of each package  (perl script) 
 [merge-check-update](merge-check-update) | 3. Merge by-category results into 00_Whole.html  (perl script) 
-[collect-stats](collect-stats)	         | 4. Compile table from the directory into [00_Summary.html](http://www.ki.nu/~makoto/pkgsrc/check-update/00_Summary.html)  (perl script) 
-[summary-diff](summary-diff)             | 5. Generate diff to previous run
+[summary-diff](summary-diff)             | 4. Generate diff to previous run
+[collect-stats](collect-stats)	         | 5. Compile table from the directory into [00_Summary.html](http://www.ki.nu/~makoto/pkgsrc/check-update/00_Summary.html)  (perl script) 
 ## check-update
 >  check-update -h
 
