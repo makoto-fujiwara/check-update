@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-02-14 02:16" ; # written by emacs time-stamp
+$VERSION = "2015-02-14 07:45" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -26,8 +26,6 @@ my (%TODO);			# found info in doc/TODO, $TODO{$package} = $version
 # output to tmp name and rename it at the end of execution
 my ($summary_tmp);
 my ($summary_leaf);	# only for stats output
-
-my ($gems_name);
 
 my ($DEBUG_CURL_LISTING);
 my ($DEBUG_CURL);
@@ -1428,6 +1426,33 @@ sub GitHubChanges($$){
     close(CURL);
     return (200, $max_version);
 }
+sub GnomeSpecial($$){
+    my($PKGBASE) = shift;
+    my($master_site)  = shift;
+    my($GNOME_FTP_SITE) = 'http://ftp.gnome.org/pub/GNOME/sources/';
+    my($candidate) = '0.0';
+    my(@list);
+    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> package_base (', $PKGBASE,")\n" if $DEBUG_DISTBASE;
+    open(CURL, "$curl_list $GNOME_FTP_SITE/$PKGBASE/ |") ||
+	print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> Problem: ', "$!\n";
+    while(<CURL>) {
+	if ( m|<a href=\"([0-9]\.[0-9]*[02468])/| ) {
+	    my ($ver) = $1;
+	    push(@list, $ver);
+	    if (CompareVersion($ver, $candidate) > 0 ) { $candidate = $ver;}
+	}			   
+    }
+    close(CURL);
+    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>',
+		 $candidate,"\n" if $DEBUG_DISTBASE;
+#    open(CURL, "$curl_list $GNOME_FTP_SITE/$PKGBASE/$candidate/ |")  ||
+#    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> Problem: ', "$!\n";
+    my($site) = $GNOME_FTP_SITE . $PKGBASE .'/'. $candidate. '/';
+    my ($returnCode, @candidate) = ParseDirectory($site, $PKGBASE);
+#    close(CURL);
+    return ($returnCode, @candidate);
+}
+
 sub GreyDigitIf00($$){
     my ($http_code)	= shift;
     my ($digit)		= shift;
@@ -1580,7 +1605,8 @@ sub ParseDirectory($$){
     my($sslv3) = '';
 #   if ($master_site =~  m|https://code.google.com|) { $sslv3 = '-3';}
     while( $curl_lines == 0 && $repeat-- > 0 )  {
-	print STDERR sprintf("%4d ", __LINE__ ), ' ', $master_site, "   \n" if $DEBUG_DISTBASE ;
+	print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[3], 
+	    '> distbase (', $distbase, ') ', $master_site, "   \n" if $DEBUG_DISTBASE ;
 	if ($master_site eq '') { print STDERR sprintf("%4d ", __LINE__ ), " \$master_site is empty\n"; return -1;}
 	my ($curl_command) = "$curl_list_secure $sslv3 $master_site";
 	print STDERR sprintf("%4d ", __LINE__ ), $curl_command, "\n" if $DEBUG_CURL;
@@ -2551,8 +2577,11 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	}
 	if ($#candidate == -1  && $HOMEPAGE && $HOMEPAGE =~ /github.com/ ) {
 	    ($returnCode, @candidate) =  GitHubChanges($DISTBASE, $HOMEPAGE);
-	    print STDERR sprintf("%4d ", __LINE__ ), $HOMEPAGE," checked.\n" if $DEBUG_DISTBASE;
+	    print STDERR sprintf("%4d ", __LINE__ ), $HOMEPAGE," checked.\n" if $DEBUG_DISTBASE
 	}
+	if ($#candidate == -1  && $master_site =~ /gnome\.org/ ) {
+	   ($returnCode, @candidate) = GnomeSpecial($DISTBASE, $master_site);
+	    }
 	} # if ($SFProject) { -> else
 
  print STDERR sprintf("%4d ", __LINE__ ),
