@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-02-14 10:51" ; # written by emacs time-stamp
+$VERSION = "2015-02-14 11:04" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -161,6 +161,7 @@ my (%SpecialPattern) = (
     'IPC-Run',		'$line =~ s/.*IPC-Run-([0-9.]+)\.tar.gz/$1/;',
     'Term-ReadLine-Perl','$line =~ s/.*Term-ReadLine-Perl5-([0-9.]+)\.tar.gz/$1/;',#
     'acmesrc',		'$line =~ s/.*acme([0-9.]+)src\.tar\.gz.*/$1/;',
+    'openscad',		'$line =~ s/.*openscad-([0-9.]+)\.src\.tar\.gz.*/$1/;',
     );
 
 my(%SourceForgeAlternative) = qw (
@@ -216,6 +217,8 @@ my(%DownLoadAlternative) = qw (
     connect	https://bitbucket.org/gotoh/connect/downloads
     pcre++	http://www.daemon.de/PcreDownload
     boolean	http://boolean.klaasholwerda.nl/download/download.html
+    dinotrace	http://www.veripool.org/projects/dinotrace/wiki/Installing
+    openscad	http://files.openscad.org/
     ); #'
 
 # for print/xpdf-arabic etc
