@@ -1,4 +1,11 @@
 (TODO)
+  - GNOME is going to cause trouble:
+    Given a version x.y.z, they make a x.y/ directory, so when x.y.zz
+    comes out, it appears in x.y/, and your script will find it.
+
+    If a new x.yy.z comes out, where yy % 2 = 0, we will want to update
+    to x.yy.z, but its source file will appear in a new x.yy/ directory :-(
+
   - devel/RTFM
    *
    http://-> https:// location header can not be handled properly
