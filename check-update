@@ -1,9 +1,10 @@
 #!/usr/pkg/bin/perl
 use strict;
+#use warning;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-02-15 01:06" ; # written by emacs time-stamp
+$VERSION = "2015-02-15 14:52" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -196,6 +197,7 @@ my(%DISTBASE) = qw (
     p5-IPC-Run	IPC-Run
     p5-App-Prove-Plugin-ProgressBar App-Prove-Plugin-ProgressBar
     p5-Term-ReadLine-Perl Term-ReadLine-Perl
+    fixesproto4 fixesproto4
     );
    
 my(%DownLoadAlternative) = qw (
@@ -221,6 +223,7 @@ my(%DownLoadAlternative) = qw (
     dinotrace	http://www.veripool.org/projects/dinotrace/wiki/Installing
     openscad	http://files.openscad.org/
     qcad	http://www.qcad.org/archives/qcad/
+    frozen-bubble	http://www.frozen-bubble.org/downloads/
     ); #'
 
 # for print/xpdf-arabic etc
@@ -1438,25 +1441,26 @@ sub GnomeSpecial($$){
     my($master_site)  = shift;
     my($GNOME_FTP_SITE) = 'http://ftp.gnome.org/pub/GNOME/sources/';
     my($candidate);
+    my(@candidate);
     my(@list);
     print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> package_base (', $PKGBASE,")\n" if $DEBUG_GNOME;
-    open(CURL, "$curl_list $GNOME_FTP_SITE/$PKGBASE/ |") ||
-	print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> Problem: ', "$!\n" if $DEBUG_GNOME;
+    open(CURL, "$curl_list $GNOME_FTP_SITE/$PKGBASE/ 2>&1 |") ||
+      	print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> Problem: ', "$!\n";
+    my($ver) = '0.0';
     while(<CURL>) {
 	if ( m|<a href=\"([0-9]\.[0-9]*[02468])/| ) {
-	    my ($ver) = $1;
+	    $ver = $1;
 	    push(@list, $ver);
 	    if (CompareVersion($ver, $candidate) > 0 ) { $candidate = $ver;}
 	}			   
     }
     close(CURL);
-    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>',
-		 $candidate,"\n" if $DEBUG_GNOME;
-#    open(CURL, "$curl_list $GNOME_FTP_SITE/$PKGBASE/$candidate/ |")  ||
-#    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> Problem: ', "$!\n";
+    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>',  $candidate,"\n" if $DEBUG_GNOME;
+
     my($site) = $GNOME_FTP_SITE . $PKGBASE .'/'. $candidate. '/';
-    my ($returnCode, @candidate) = ParseDirectory($site, $PKGBASE);
-#    close(CURL);
+    my ($ver) = ParseDirectorySmall($site, $PKGBASE);
+
+    $returnCode = 0 ; $candidate[0] = $ver;
     return ($returnCode, @candidate);
 }
 
@@ -1588,12 +1592,35 @@ sub ParseDebug($){
     $DEBUG_CURL_CACHE		= $DEBUG{'x'} + $DEBUG{'a'} ;
     print STDERR "\n";
 }
+# for GnomeSpecial
 sub ParseDirectorySmall($$){
     my ($master_site) = shift;
     my ($distbase)   = shift;
-    # returns ($returnCode, @candidate);
-    my ($curl_command) = "$curl_list_secure $master_site";
-    
+
+# http://ftp.gnome.org/pub/GNOME/sources/3.10/';
+#  pick following line
+#  anjuta-3.10.0.tar.xz
+       print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> ', "\n" if $DEBUG_GNOME;
+    my ($curl_command) = "$curl_list $master_site";
+    my ($ver) = '0.0';
+    my ($ver_max) = $ver;
+    open(CURL, "$curl_command 2>&1 |") || print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> Problem ', "$!\n";
+    while(<CURL>){
+	if (m|$distbase|) {
+	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> ', $_ if $DEBUG_GNOME;
+	}
+	if ( m|.*$distbase-([0-9.]+)\.tar.*|) { 
+	    $ver = $1;
+	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> ', $_,"\n" if $DEBUG_GNOME;
+	    if (CompareVersion($ver, $ver_max) > 0 ) {
+		print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> ', $ver, ' > ', $ver_max,"\n" if $DEBUG_GNOME;
+		$ver_max = $ver;
+	    }
+	}
+    }
+    close(CURL);
+    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> returning: ', $ver_max, "\n" if $DEBUG_GNOME;
+    return $ver_max;
 }
 sub ParseDirectory($$){
     my ($master_site) = shift;
@@ -2251,6 +2278,7 @@ sub GetSFProjectCandidate($$) {
     my ($DISTBASE) = shift;
 
     my (@candidate);
+        $#candidate = -1;
     my ($master_site) = $SFProject;
     my ($returnCode);
 
@@ -2440,7 +2468,8 @@ foreach my $dir (@categories) {
     #    F O R   E A C H  P A C K A G E     ( to line 1835 ..)
     #  ------------------------------------
     foreach my $PackageName (@PackageNames) {
-
+	my ($candidate);
+	    $#candidate = -1;	# initialize as empty;
 	my ($console_string) = '';
 
 	$MasterSiteStat = 0;
@@ -2530,8 +2559,8 @@ print STDERR sprintf("%4d ", __LINE__ ),
 # -----------------------------------------------------------------------
     } else {	# $GEM_PACKAGE
 # -----------------------------------------------------------------------	
-	    print STDERR sprintf("%4d ", __LINE__ ), '#candidate: ', $#candidate, ' DISTBASE: ', $DISTBASE,"\n" if $DEBUG_GNOME;
-#   printf STDERR "%4d %-20s: ", sprintf("%4d ", __LINE__ ), $PackageName;
+	print STDERR sprintf("%4d ", __LINE__ ), '#candidate: ', $#candidate, ' DISTBASE: ', $DISTBASE,"\n" if $DEBUG_GNOME;
+
 	my($PKGNAME)	= $PKGBASE . '-'. $PKGVERSION;
 	$DISTBASE	= GetDistBase($dir, $PackageName, $PKGBASE, $PKGVERSION, $PKGNAME);
 print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> (DISTBASE) ', $DISTBASE, "\n" if $DEBUG_DISTBASE;
@@ -2582,16 +2611,16 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	if ($http_code eq 'DNS' ) {
 	    $MasterSiteStat = 'DNS';
 	}
-	    print STDERR sprintf("%4d ", __LINE__ ), '#candidate: ', $#candidate, ' DISTBASE: ', $DISTBASE,"\n" if $DEBUG_GNOME;
 	if ($#candidate == -1  && ($master_site =~ /gnome\.org/ ) ) {
 	   ($returnCode, @candidate) = GnomeSpecial($DISTBASE, $master_site);
 	    }
+	    print STDERR sprintf("%4d ", __LINE__ ), '#candidate: ', $#candidate, ' DISTBASE: ', $DISTBASE,"\n" if $DEBUG_GNOME;
 
-	if ($master_site && $http_code ne 'DNS' ) {
+	if ($#candidate == -1  && $master_site && $http_code ne 'DNS' ) {
 	    ($returnCode, @candidate) = ParseDirectory($master_site, $DISTBASE);
 	}
 
-        if ($returnCode == -1  && $HOMEPAGE) {
+        if ($#candidate == -1  && $HOMEPAGE) {
 	    ($returnCode, @candidate) = ParseDirectory($HOMEPAGE, $DISTBASE);
 	    print STDERR sprintf("%4d ", __LINE__ ), $HOMEPAGE," checked.\n" if $DEBUG_DISTBASE;
 	}
