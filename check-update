@@ -3,7 +3,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-02-14 15:23" ; # written by emacs time-stamp
+$VERSION = "2015-02-15 01:06" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -281,7 +281,7 @@ my (@DOT2) =  qw(pixmap HTTP-Lite XML-Elemental yencode xworm gambatte_src Class
 # IO-CaptureOutput
 # 	p5-sybperl 	2.16 	->	2.171	2.18
 #    dot is inserted after 3rd digit
-my (@DOT3) = qw (Data-AMF DateTime-Calendar-Mayan Template-Plugin-DateTime xsane IO-CaptureOutput sybperl gdal-lib SQL-Abstract-Limit CatalystX-CRUD-Model-RDBO BSD-Resource File-Temp FreezeThaw Module-CPANTS-Analyse util-linux ExtUtils-ModuleMaker SWF-File);
+my (@DOT3) = qw (Data-AMF DateTime-Calendar-Mayan Template-Plugin-DateTime xsane IO-CaptureOutput sybperl gdal-lib SQL-Abstract-Limit CatalystX-CRUD-Model-RDBO BSD-Resource File-Temp FreezeThaw Module-CPANTS-Analyse util-linux ExtUtils-ModuleMaker SWF-File Role-Basic);
 
 
 # 633 -> 6.33.0 InsertDot
@@ -1588,6 +1588,13 @@ sub ParseDebug($){
     $DEBUG_CURL_CACHE		= $DEBUG{'x'} + $DEBUG{'a'} ;
     print STDERR "\n";
 }
+sub ParseDirectorySmall($$){
+    my ($master_site) = shift;
+    my ($distbase)   = shift;
+    # returns ($returnCode, @candidate);
+    my ($curl_command) = "$curl_list_secure $master_site";
+    
+}
 sub ParseDirectory($$){
     my ($master_site) = shift;
     my ($distbase)   = shift;
@@ -1646,7 +1653,7 @@ sub ParseDirectory($$){
 #print STDERR sprintf("%4d ", __LINE__ ), ' (PKGNAME) ', $PKGNAME, ' ', $_,"\n" if $DEBUG_DISTBASE;        
 	$curl_lines++;
 	chomp();	
-       	if (/\[DIR\]/) { next; }	# skip directory
+     	if (/\[DIR\]/) { next; }	# skip directory
 	# arc-5.21p.tar.gz (84.8 kB)
         # http://www3.sympatico.ca/mt0000/bicom/bicom101.zip -> fails to matchp
 #	print STDERR sprintf("%4d ", __LINE__ ), ' ', $distbase, ' ', $_,"\n";
@@ -2575,9 +2582,15 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	if ($http_code eq 'DNS' ) {
 	    $MasterSiteStat = 'DNS';
 	}
+	    print STDERR sprintf("%4d ", __LINE__ ), '#candidate: ', $#candidate, ' DISTBASE: ', $DISTBASE,"\n" if $DEBUG_GNOME;
+	if ($#candidate == -1  && ($master_site =~ /gnome\.org/ ) ) {
+	   ($returnCode, @candidate) = GnomeSpecial($DISTBASE, $master_site);
+	    }
+
 	if ($master_site && $http_code ne 'DNS' ) {
 	    ($returnCode, @candidate) = ParseDirectory($master_site, $DISTBASE);
 	}
+
         if ($returnCode == -1  && $HOMEPAGE) {
 	    ($returnCode, @candidate) = ParseDirectory($HOMEPAGE, $DISTBASE);
 	    print STDERR sprintf("%4d ", __LINE__ ), $HOMEPAGE," checked.\n" if $DEBUG_DISTBASE;
@@ -2586,10 +2599,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	    ($returnCode, @candidate) =  GitHubChanges($DISTBASE, $HOMEPAGE);
 	    print STDERR sprintf("%4d ", __LINE__ ), $HOMEPAGE," checked.\n" if $DEBUG_DISTBASE
 	}
-	    print STDERR sprintf("%4d ", __LINE__ ), '#candidate: ', $#candidate, ' DISTBASE: ', $DISTBASE,"\n" if $DEBUG_GNOME;
-	if ($#candidate == -1  && ($master_site =~ /gnome\.org/ ) ) {
-	   ($returnCode, @candidate) = GnomeSpecial($DISTBASE, $master_site);
-	    }
+
 	} # if ($SFProject) { -> else
 
  print STDERR sprintf("%4d ", __LINE__ ),
