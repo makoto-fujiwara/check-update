@@ -431,24 +431,44 @@ Where:
         2:  for 'p*'
 	3:  for [q-z]*
 HELP
-}
+}; #'
 sub CheckRubyGems(){
     # Check if required packages are installed
     # httping curl git-base p5-Net-DNS *rubygems mozilla-rootcerts
     my($gems_name);
+    my($gems_package);
+    my($no_rubygems) = 1;
+
+    open(PKG_INFO, "pkg_info|") || print STDERR sprintf("%4d ", __LINE__), "Failed for pkg_info\n";
+    while(<PKG_INFO>) {
+	if (/^(.*rubygems-.*[0-9.]+)/ ) { $gems_package = $1; $no_rubygems = 0; } }
+    close(PKG_INFO);
+    if ($no_rubygems) { die sprintf("%4d <", __LINE__), (caller 0)[3], "> *** Please install misc/rubygems\n";}
+    print STDERR  sprintf("%4d <", __LINE__), (caller 0)[3], '> gems_package ', $gems_package,"\n"
+	if $DEBUG_RUBYGEM;
+    open(PKG_INFO, "pkg_info -qL $gems_package |");
+    while(<PKG_INFO>) {
+	if (m|.*/bin.*|) {
+	    $gems_name = $_; }}
+    close(PKG_INFO);
+    if ($gems_name eq '') { die;} else {print "gems_name: ", $gems_name,"\n" if $DEBUG_RUBYGEM;}
+
+    chomp($gems_name);
     # --------------------
     #      rubygems
     # --------------------
-    my(@gems) = qw(gem200.new gem19.new gem18.new );
-    while ($gems_name eq '') {
-	my ($gems) = shift @gems;
-	open (GEMS, "$gems list -r -q libarchive|");
-	my(@result) = <GEMS>;
-	close(GEMS);
-	#    print $gems, ' -> ', $#result,"\n";
-	if ( $#result > 5 ) { $gems_name = $gems; }
-    }
-    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> gems name is :', $gems_name,"\n";
+    open (GEMS, "$gems_name list -r -q libarchive|");
+    my(@result) = <GEMS>;
+    close(GEMS);
+    if ( $#result < 5 ) {
+	print STDERR  sprintf("%4d <", __LINE__), (caller 0)[3],
+	"> *** rubygems won't pull remote info.\n",
+	"  Network Problem ? or please install security/mozilla-rootcerts OR p5-Mozilla-CA.\n",
+	"  Following command is supposed to return serveral lines. Try it on your shell\n",
+	"     $gems_name list -r -q libarchive\n";
+	exit;}
+
+    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> gems name is :', $gems_name,"\n" if $DEBUG_RUBYGEM;
     return $gems_name;
 }
 sub CheckEnvironment(){
@@ -456,7 +476,7 @@ sub CheckEnvironment(){
     #    Other packages
     # --------------------
     my($bad_news) = 0;
-    foreach my $pkg (qw(curl git-base p5-Net-DNS mozilla-rootcerts)) {
+    foreach my $pkg (qw(curl git-base p5-Net-DNS )) {
 	if ( open(PKG_INFO, "pkg_info -q -c $pkg|") == 0 ) { $bad_news++;}
 	close(PKG_INFO);
     }
@@ -2385,6 +2405,8 @@ if ($opts{'V'}) { ShowVersion(); exit;}
 if ($opts{'w'}) { $include_wip++};	# not implemented yet
 if ($opts{'W'}) { $update_wip++};	# not implemented yet
 
+print STDERR sprintf("%4d ", __LINE__ ),
+    "Checking rubygems, please wait for a minute.\n";
 my($gems_name) = CheckRubyGems();
 if ($gems_name eq '')  { die "Please install misc/rubygems\n" ;}
 if (CheckEnvironment() == -1) { die "Please install necessary package(s).\n" ;}
@@ -2393,7 +2415,6 @@ my(%DIVIDE_DEVEL) = ( 1, '[A-Za-o].*',
 		      2, 'p.*',
 		      3, '[q-z].*' );
 chdir $pkgsrc;
-
 print STDERR sprintf("%4d ", __LINE__ ), 'output directory is '. $output_directory ."\n";
 print STDERR sprintf("%4d ", __LINE__ ), "output to $summary\n";
 
