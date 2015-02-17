@@ -4,7 +4,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-02-17 14:03" ; # written by emacs time-stamp
+$VERSION = "2015-02-17 14:16" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -164,6 +164,7 @@ my (%SpecialPattern) = (
     'Term-ReadLine-Perl','$line =~ s/.*Term-ReadLine-Perl5-([0-9.]+)\.tar.gz/$1/;',#
     'acmesrc',		'$line =~ s/.*acme([0-9.]+)src\.tar\.gz.*/$1/;',
     'openscad',		'$line =~ s/.*openscad-([0-9.]+)\.src\.tar\.gz.*/$1/;',
+    'gr-fcdproplus',	'$line =~ s/.*gr-fcdproplus_([0-9.]+)\.orig\.tar.*/$1/;',
     );
 
 my(%SourceForgeAlternative) = qw (
@@ -198,6 +199,7 @@ my(%DISTBASE) = qw (
     p5-App-Prove-Plugin-ProgressBar App-Prove-Plugin-ProgressBar
     p5-Term-ReadLine-Perl Term-ReadLine-Perl
     fixesproto4 fixesproto4
+    gr-fcdproplus gr-fcdproplus
     );
    
 my(%DownLoadAlternative) = qw (
