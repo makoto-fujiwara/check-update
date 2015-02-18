@@ -4,7 +4,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-02-18 07:38" ; # written by emacs time-stamp
+$VERSION = "2015-02-18 14:26" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -1991,7 +1991,8 @@ sub ReadMakefile($$)  {		# <- Main
 	}
 	close(MAKEFILE);
 	if ($MAINTAINER eq '' ) { $MAINTAINER = GetVariableValue($category, $directory, 'MAINTAINER');}
-	if ($HOMEPAGE eq '' )   { $HOMEPAGE = GetVariableValue($category, $directory, 'HOMEPAGE');}
+	if ($HOMEPAGE eq '' || $HOMEPAGE =~ m|\$\{.*\}|)
+	  { $HOMEPAGE = GetVariableValue($category, $directory, 'HOMEPAGE');}
 	return ($MAINTAINER, $HOMEPAGE, $GEM_PACKAGE, $PEAR_PACKAGE, $HS_PACKAGE, $SFProject, $texlive, $EGG_PACKAGE);
     }
 }    
