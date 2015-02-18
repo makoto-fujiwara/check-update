@@ -4,7 +4,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-02-18 06:24" ; # written by emacs time-stamp
+$VERSION = "2015-02-18 07:19" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -1479,6 +1479,40 @@ sub GitHubChanges($$){
     return (200, $max_version);
 }
 # --------------------------------------------------------------
+sub UpperDirectory($$){
+    my($PKGBASE) = shift;
+    my($master_site)  = shift;
+    my($upper);
+    my($leaf);
+    if ($master_site  =~ m|(.*)/(.*[v0-9.]+/$)| ) {
+	$upper = $1; $leaf = $2;}
+    my(@candidate);
+    my($candidate);
+
+    my(@list);
+    my($ver) = '0.0';
+
+    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> package_base (', $PKGBASE,")\n" if $DEBUG_GNOME;
+    open(CURL, "$curl_list $upper 2>&1 |") ||
+      	print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> Problem: ', "$!\n";
+    while(<CURL>) {
+	if ( m|<a href=\".*([0-9]\.[0-9]+)/| ||
+	     m|<a href=\".*([0-9]\.[0-9]+)\.tar\.| ) {
+	    $ver = $1;
+	    push(@list, $ver);
+	    if (CompareVersion($ver, $candidate) > 0 ) { $candidate = $ver;}
+	}			   
+    }
+    close(CURL);
+    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>',  $candidate,"\n" if $DEBUG_GNOME;
+
+    my($site) = $upper.'/'. $candidate. '/';
+    my ($ver) = ParseDirectorySmall($site, $PKGBASE);
+
+    $returnCode = 0 ; $candidate[0] = $ver;
+    return ($returnCode, @candidate);
+}
+# --------------------------------------------------------------
 sub GnomeSpecial($$){
     my($PKGBASE) = shift;
     my($master_site)  = shift;
@@ -1647,7 +1681,7 @@ sub ParseDirectorySmall($$){
 # http://ftp.gnome.org/pub/GNOME/sources/3.10/';
 #  pick following line
 #  anjuta-3.10.0.tar.xz
-       print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> ', "\n" if $DEBUG_GNOME;
+       print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> master_site: ', $master_site, "\n" if $DEBUG_GNOME;
     my ($curl_command) = "$curl_list $master_site";
     my ($ver) = '0.0';
     my ($ver_max) = $ver;
@@ -2675,7 +2709,11 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	}
 	if ($#candidate == -1  && ($master_site =~ /gnome\.org/ ) ) {
 	   ($returnCode, @candidate) = GnomeSpecial($DISTBASE, $master_site);
-	    }
+	}
+	    print STDERR sprintf("%4d ", __LINE__ ), '#candidate: ', $#candidate, ' DISTBASE: ', $DISTBASE,"\n" if $DEBUG_GNOME;
+
+	($returnCode, @candidate) = UpperDirectory($DISTBASE, $master_site);
+
 	    print STDERR sprintf("%4d ", __LINE__ ), '#candidate: ', $#candidate, ' DISTBASE: ', $DISTBASE,"\n" if $DEBUG_GNOME;
 
 	if ($#candidate == -1  && $master_site && $http_code ne 'DNS' ) {
