@@ -4,7 +4,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-02-18 14:26" ; # written by emacs time-stamp
+$VERSION = "2015-02-18 23:32" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -1485,15 +1485,21 @@ sub UpperDirectory($$){
     my($master_site)  = shift;
     my($upper);
     my($leaf);
-    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], 
-	'> master: ', $master_site,"\n"	if $DEBUG_GNOME;
-    if ($master_site  =~ m|(.*)/(.*[v0-9.]+/$)| ) {
-	$upper = $1; $leaf = $2;}
+    my($returnCode) = 0;
+
     my(@candidate);
     my($candidate);
 
     my(@list);
     my($ver) = '0.0';
+
+    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3],
+	'> master: ', $master_site,"\n"	if $DEBUG_GNOME;
+    if ($master_site  =~ m|(.*)/(.*[v0-9.]+/$)| ) {
+	$upper = $1; $leaf = $2;}
+
+    if ($upper eq '' || $leaf eq '' ) {
+	return ($returnCode, @candidate);}
 
     print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], 
 	'> upper: ', $upper, 'leaf: ', $leaf,"\n" if $DEBUG_GNOME;
