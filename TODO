@@ -1,4 +1,10 @@
 (TODO)
+  - README.md
+     * setup
+     * first trial
+     * tuning
+     * debugging
+     
   - If no argument, take current directory as category/package
     (In that case, no html output will generated)
   - If the (last) argument, say @ARGV has shape categery/package
