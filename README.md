@@ -11,7 +11,7 @@ File name  | Description
 README.md	      |   [Markdown](https://help.github.com/articles/markdown-basics/) document  (this file)
 [environment-sample.mk](environment-sample.mk) |  local setup example (to be read from Makefile below)
 [check-update.sh](check-update.sh)| 0. Shell script to drive whole thing, intending to be crontab driven								 
-[Makefile]          (Makefile)           | 1.  for example 'make -j 24' for 16 thread machine (BSD makefile)
+[Makefile]          (Makefile)           | 1. for example,  'make -j 24' for 16 thread machine (BSD makefile)
 [check-update](check-update)             | 2.  Main Script to find a new version of each package  (perl script) 
 [merge-check-update](merge-check-update) | 3. Merge by-category results into 00_Whole.html  (perl script) 
 [summary-diff](summary-diff)             | 4. Generate diff to previous run
