@@ -4,7 +4,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-02-18 00:38" ; # written by emacs time-stamp
+$VERSION = "2015-02-18 06:24" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -642,7 +642,7 @@ sub ColorUrlDigit($) {
     my($target);
     $url =~ s/^-http/http/;	# strip leftmost -
     # pick digit only leaf name from URL.
-    $url =~ m|(.*/)([v0-9.]+/$)|;
+    $url =~ m|(.*)/(.*[v0-9.]+/$)|;
     my($higher) = $1;
     my($digit)  = $2;
     # some strange case, $url does not include http:// line, in such case, just returun the original
@@ -650,9 +650,9 @@ sub ColorUrlDigit($) {
 	   $url =~ m|^ftp.*://|     )) {
 	$target = $url; }
     elsif ($higher && $digit )  {
-    $target = sprintf ("<a href=\"%s\">%s</a><a class=\"rev\" href=\"%s\">%s</a>",
+    $target = sprintf ("<a href=\"%s/\">%s/</a><a class=\"rev\" href=\"%s\">%s</a>",
 		      $higher, $higher,
-		      $higher.$digit,  $digit);}
+		      $higher.'/'. $digit,  $digit);}
     else { $target = sprintf ("<a href=\"%s\">%s</a>", $url, $url);}
     return $target;
 }
@@ -1478,6 +1478,7 @@ sub GitHubChanges($$){
     close(CURL);
     return (200, $max_version);
 }
+# --------------------------------------------------------------
 sub GnomeSpecial($$){
     my($PKGBASE) = shift;
     my($master_site)  = shift;
@@ -1508,7 +1509,7 @@ sub GnomeSpecial($$){
     $returnCode = 0 ; $candidate[0] = $ver;
     return ($returnCode, @candidate);
 }
-
+# --------------------------------------------------------------
 sub GreyDigitIf00($$){
     my ($http_code)	= shift;
     my ($digit)		= shift;
@@ -1637,6 +1638,7 @@ sub ParseDebug($){
     $DEBUG_CURL_CACHE		= $DEBUG{'x'} + $DEBUG{'a'} ;
     print STDERR "\n";
 }
+# ----------------------------------------------------
 # for GnomeSpecial
 sub ParseDirectorySmall($$){
     my ($master_site) = shift;
@@ -1667,6 +1669,7 @@ sub ParseDirectorySmall($$){
     print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> returning: ', $ver_max, "\n" if $DEBUG_GNOME;
     return $ver_max;
 }
+# ----------------------------------------------------
 sub ParseDirectory($$){
     my ($master_site) = shift;
     my ($distbase)   = shift;
