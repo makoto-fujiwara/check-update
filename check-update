@@ -4,7 +4,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-02-17 15:32" ; # written by emacs time-stamp
+$VERSION = "2015-02-18 00:38" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -90,26 +90,29 @@ my ($HomePageStat);		# by package status
 my ($StatsHomePageStat) = 0;	# for count
 
 #my ($PKGNAME, $PKGVERSION, $MASTER_SITES);
-my ($CVSweb) = 'http://cvsweb.netbsd.org/bsdweb.cgi/pkgsrc/';
+my ($CVSweb)	= 'http://cvsweb.netbsd.org/bsdweb.cgi/pkgsrc/';
+my (@SUFIX)	= qw(.tar.gz tar.bz2 tar.xz .zip);
 
 # opts, option related variables
 my ($option_batch) = 0;
-my ($category);
+my ($category);			# (c)
 my ($verbose) = 0;
-my ($selected) = '';	# Check this package only
+my ($selected) = '';		# (P) Check this package only
 my ($DISTNAME);
-my (@SUFIX) = qw(.tar.gz tar.bz2 tar.xz .zip);
-my ($skip_until_match) = 0;
-my ($starting) = 0;
-my ($partial) = 0;  # not whole execution, don't write to normal summary file
-my ($include_wip) = 0;	# whether includes wip(1) or not(0)
-my ($update_wip) = 0;	# cvs update before execution
-my ($include_reverse) = 0;	# whether includes confusing entry (default no)
+my ($skip_until_match) = 0;	# (s)
+my ($starting)	= 0;
+my ($partial)	= 0;		# not whole execution, don't write to normal summary file
+my ($include_wip) = 0;		# whether includes wip(1) or not(0)
+my ($update_wip) = 0;		# cvs update before execution
+my ($include_reverse) = 0;	# (r) whether includes confusing entry (default no)
+my ($skip_rubygems_check) = 0;  # (R) skip time consuming check (default -> always check)
+
 my ($output_leaf)	= 'pkgsrc/check-update';
 my ($output_URL)	= 'http://www.ki.nu/~makoto/';
 my ($output_directory)	= $ENV{'HOME'}.'/public_html/'. $output_leaf;
-my ($update_pkgsrc) = 0;	# cvs update prior to execution
-my ($full_list) = 0;
+
+my ($update_pkgsrc) = 0;	# (u) cvs update prior to execution
+my ($full_list) = 0;		# (f)
 my ($disable_digit_ending_package) = 0;	# Change logic and name
 my ($MeasureTime) = 0;
 my ($FindDepends) = 0;
@@ -387,7 +390,7 @@ sub Usage($$) {
     print <<HELP;
 Check the version is current
 Synopsis:
-   check-update	[-C] [-D] [-f] [-h] [-r] [-t] [-u] [-v] [-V] [-w] [-W]
+   check-update	[-C] [-D] [-f] [-h] [-r] [-R] [-t] [-u] [-v] [-V] [-w] [-W]
 		[ -c category] 
 		[ -d directory-to-output ]
 		[ -p pkgsrc-directory ]	 
@@ -407,6 +410,7 @@ Where:
    -P : check particular package
    -p : pkgsrc directory (default /usr/pkgsrc)
    -r : Include Reverse results in listing
+   -R : Skip RubyGems check (in case you are sure you have)
    -s : skip until match 
    -S : summary output file (default $summary)
    -t : Measure time (not implemented yet)
@@ -2399,7 +2403,7 @@ my ($PackageStart);	# For timing, not used for now
 my ($PackageEnd);
 
 my ($argv)    = join ' ', @ARGV;	# to show at Stats()
-getopts( 'c:Dd:fFhM:mP:p:rs:S:tT:uvVwWx:y:', \%opts);
+getopts( 'c:Dd:fFhM:mP:p:rRs:S:tT:uvVwWx:y:', \%opts);
 
 if ($opts{'b'}) { $option_batch++;}	# used be default, not implemented
 if ($opts{'c'}) { $category = $opts{'c'}; $full_list++;}
@@ -2411,9 +2415,10 @@ if ($opts{'M'}) { $maintainer = $opts{'M'} }
 if ($opts{'m'}) { $merge_mode++;}	# shows ForMergeCount (can be always true ?)
 if ($opts{'p'}) { $pkgsrc = $opts{'p'};}
 if ($opts{'P'}) { $selected =  $opts{'P'}; $partial++;}
-if ($opts{'s'}) { $starting =  $opts{'s'}; $skip_until_match++; $partial++;}
 
 if ($opts{'r'}) { $include_reverse++};
+if ($opts{'R'}) { $skip_rubygems_check++};
+if ($opts{'s'}) { $starting =  $opts{'s'}; $skip_until_match++; $partial++;}
 if ($opts{'S'}) { $summary  =  $opts{'S'};}
 if ($opts{'x'}) { 
     ParseDebug($opts{'x'});
@@ -2431,10 +2436,17 @@ if ($opts{'V'}) { ShowVersion(); exit;}
 if ($opts{'w'}) { $include_wip++};	# not implemented yet
 if ($opts{'W'}) { $update_wip++};	# not implemented yet
 
-print STDERR sprintf("%4d ", __LINE__ ),
-    "Checking rubygems, please wait for a minute.\n";
-my($gems_name) = CheckRubyGems();
-if ($gems_name eq '')  { die "Please install misc/rubygems\n" ;}
+my($gems_name);
+if ( $skip_rubygems_check) {
+    print STDERR sprintf("%4d ", __LINE__ ),
+	"Skip rubygems check with 'R' option.\n";
+}
+else {
+    print STDERR sprintf("%4d ", __LINE__ ),
+	"Checking rubygems, please wait for a minute.\n";
+    $gems_name = CheckRubyGems();
+    if ($gems_name eq '')  { die "Please install misc/rubygems\n" ;}
+}
 if (CheckEnvironment() == -1) { die "Please install necessary package(s).\n" ;}
 
 my(%DIVIDE_DEVEL) = ( 1, '[A-Za-o].*',
@@ -2458,7 +2470,7 @@ ReadTodo($pkgsrc);
 my ($pwd) = `pwd`;
 $pwd =~ chomp($pwd);
 
-open(SUMMARY, "> $summary_tmp") || print STDERR "Problem opening $summary for write:$!\n";
+open(SUMMARY, "> $summary_tmp") || print STDERR "Problem opening $summary for write: $!\n";
 PrintHeader($full_list);	# controlls style for highlighting
 
 
