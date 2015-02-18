@@ -16,6 +16,24 @@ README.md	      |   [Markdown](https://help.github.com/articles/markdown-basics/
 [merge-check-update](merge-check-update) | 3. Merge by-category results into 00_Whole.html  (perl script) 
 [summary-diff](summary-diff)             | 4. Generate diff to previous run
 [collect-stats](collect-stats)	         | 5. Compile table from the directory into [00_Summary.html](http://www.ki.nu/~makoto/pkgsrc/check-update/00_Summary.html)  (perl script) 
+
+### Prerequisite
+  - perl
+  - ruby
+  - rubygems
+  - mozilla-rootcerts or p5-Mozilla-CA
+  
+### Setup
+  - copy environment-sample.mk to environment.mk
+### First trial
+  - 
+### Tuning
+  - /usr/pkgsrc on tmpfs
+
+### Debugging
+  - See -x options
+
+### check-update
 ## check-update
 >  check-update -h
 
