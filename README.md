@@ -25,15 +25,17 @@ README.md	      |   [Markdown](https://help.github.com/articles/markdown-basics/
   
 ### Setup
   - copy environment-sample.mk to environment.mk
+
 ### First trial
   - 
+
 ### Tuning
   - /usr/pkgsrc on tmpfs
 
 ### Debugging
   - See -x options
 
-### check-update
+
 ## check-update
 >  check-update -h
 
