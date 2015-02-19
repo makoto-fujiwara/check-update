@@ -144,7 +144,7 @@ sub WriteDiff($$) {
 
     my(@A_lines) = GetLines($A);
     my(@B_lines) = GetLines($B);
-    my($a, $b) = (0, 0);
+#    my($a, $b) = (0, 0);
 
     my $diff = Algorithm::Diff->new( \@A_lines, \@B_lines );
 
@@ -152,21 +152,27 @@ sub WriteDiff($$) {
     while(  $diff->Next()  ) {
 	if ($diff->Same() ) {
 	    print HTML "  $_","\n"  for  $diff->Same(); next;}
-	if(  ! $diff->Items(2)  ) {
+#	if(  ! $diff->Items(2)  ) {
 #	            printf STDERR" ***  (delete) =+=  %d,%dd%d\n",
 #            $diff->Get(qw( Min1 Max1 Max2 ));
-	} elsif(  ! $diff->Items(1)  ) {
+#	} elsif(  ! $diff->Items(1)  ) {
 #	            printf " *** (added) =-= %da%d,%d\n",
 #           $diff->Get(qw( Max1 Min2 Max2 ));
-	} else {
+#	} else {
 #	    	    printf " *** -(changed) ---- %d,%dc%d,%d\n",
 #		$diff->Get(qw( Min1 Max1 Min2 Max2 ));
-	}
+#	}
 	for ($diff->Items(1)) {
-	    print STDERR "\t", ' a+ ' if $DEBUG; print HTML EditClass($_, 'plus') ,"\n"; $plus_count++;  $a++; };
+	    print STDERR "\t", ' a+ ' if $DEBUG; print HTML EditClass($_, 'plus') ,"\n"; $plus_count++; };
 	for ($diff->Items(2)) {
-	    print STDERR "\t", ' b- ' if $DEBUG; print HTML EditClass($_, 'minus'),"\n"; $minus_count++; $b++; };
+	    print STDERR "\t", ' b- ' if $DEBUG; print HTML EditClass($_, 'minus'),"\n"; $minus_count++; };
     }
+    print STDERR "\n" if $DEBUG;
+    print STDERR sprintf("%4d ", __LINE__), ' =========================',"\n" if $DEBUG;
+    print STDERR "<!--  ForDiff plus: $plus_count minus: $minus_count -->\n" if $DEBUG;
+    print HTML   "<!--  ForDiff plus: $plus_count minus: $minus_count -->\n";
+    return;
+
 }
 sub WriteDiff_old($$) {
     my ($B) = shift;
