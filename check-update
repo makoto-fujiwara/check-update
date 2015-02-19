@@ -4,7 +4,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-02-19 08:01" ; # written by emacs time-stamp
+$VERSION = "2015-02-19 09:51" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -1898,7 +1898,7 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (3) ', $distbase, ' --> ', $version,"
 	    $version =~ s/v([0-9._-]+)/$1/;
 	    }
 	}
-print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '> (distbase) ', $distbase,' (version) ', $version, "\n" if $DEBUG_DISTBASE;
+
 	if ($version =~ m|[0-9.]+pre[0-9]| ) { next;}
 	if ($version eq '') { next;}
 	if (length($version) > $MAXSTRINGLEN ) { next;} # skip too long
