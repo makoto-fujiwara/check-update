@@ -2,12 +2,15 @@
 use strict;
 #use warning;
 use Net::DNS;	# net/p5-Net-DNS
+use Getopt::Std;
+
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-02-19 09:51" ; # written by emacs time-stamp
+$VERSION = "2015-02-19 12:19" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
+our(@ARGV);
 #   requirement:
 #       net/curl
 #       misc/rubygems.
@@ -343,7 +346,7 @@ my (@ZeroDot) = qw (hpack);
 my (@DIGIT_IN_NAME) = qw(cal3d emacs-w3m x2x w3m nec2c xnec2c asn1c py34-unittest2py3k p5-GD-Graph3d popa3d tex-algorithm2e sqlalchemy-i18n hdf5-c++ );
 #
 my (@DISTBASE_DIGIT) = qw(perl5 hdf5 libosip2 xfwm4 Catalyst-View-Mason2);
-use Getopt::Std;
+
 ##    -------------------------
 ##    P R O T O T Y P E S
 ##    -------------------------
@@ -2494,10 +2497,25 @@ if ($opts{'V'}) { ShowVersion(); exit;}
 if ($opts{'w'}) { $include_wip++};	# not implemented yet
 if ($opts{'W'}) { $update_wip++};	# not implemented yet
 
+if (($category eq '' ) && ($selected =~ m|(.*)/(.*)| ) ||
+    ( $ARGV[0] =~ m|(.*)/(.*)| ) ) {
+    $category = $1; $selected = $2;
+    $skip_rubygems_check++;
+    $summary_tmp = '/dev/null';
+} elsif ( $category eq '' && $selected eq '' ){
+    my ($pwd) = `pwd`;
+    chomp($pwd);
+    $pwd =~ m|([^/]+)/([^/]+)$|;
+    $category = $1; $selected = $2;
+    $skip_rubygems_check++;
+    $summary_tmp = '/dev/null';
+}
+    print STDERR sprintf("%4d ", __LINE__), ' *** category (', $category, ') package (', $selected, ")\n";
+
 my($gems_name);
 if ( $skip_rubygems_check) {
     print STDERR sprintf("%4d ", __LINE__ ),
-	"Skip rubygems check with 'R' option.\n";
+	"Skip rubygems check.\n";
 }
 else {
     print STDERR sprintf("%4d ", __LINE__ ),
@@ -2511,8 +2529,11 @@ my(%DIVIDE_DEVEL) = ( 1, '[A-Za-o].*',
 		      2, 'p.*',
 		      3, '[q-z].*' );
 chdir $pkgsrc;
+
+if ( $summary_tmp ne '/dev/null') {
 print STDERR sprintf("%4d ", __LINE__ ), 'output directory is '. $output_directory ."\n";
 print STDERR sprintf("%4d ", __LINE__ ), "output to $summary\n";
+}
 
 opendir(PKGSRC, '.') || print STDERR sprintf("%4d ", __LINE__ ), " problem reading directory $pkgsrc: $! \n",
     __FILE__ , ' -> ', (caller 0)[3], ': ',  sprintf("%4d ", __LINE__ ),"\n" ;
@@ -2898,8 +2919,10 @@ print STDERR sprintf("%4d ", __LINE__ ),
   }   #     foreach my $dir (@categories) {
     Stats($start_time, $argv);
 close(SUMMARY);
-print STDERR "renaming $summary_tmp to $summary\n";
-system ("mv $summary_tmp $summary");
+if ( $summary_tmp ne '/dev/null') {
+    print STDERR "renaming $summary_tmp to $summary\n";
+    system ("mv $summary_tmp $summary");
+}
 exit;
 __END__
 ## Local Variables:
