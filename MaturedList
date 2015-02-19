@@ -1,5 +1,7 @@
-# List of package names not to check, mainly Matured 
+# List of package names not to check, mainly matured, or 
+# the DISTNAME won't tell the PKGVERSION.
 # category/package_name format. (Category is really ignored).
+# 
 textproc/hunspell
 textproc/hunspell-af_ZA
 textproc/hunspell-ar
