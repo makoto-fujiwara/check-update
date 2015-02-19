@@ -6,7 +6,7 @@ use Getopt::Std;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-02-19 12:19" ; # written by emacs time-stamp
+$VERSION = "2015-02-19 12:29" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -1877,7 +1877,7 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (3) ', $distbase, ' --> ', $version,"
        	    $version =~ s/dos//;	#  archivers/hpack79dos
 #	    $version =~ s/pre[0-9]//;
 	    $version =~ s/^[_.-]//;
-	    if ( ($distbase =~ /[A-Z][a-z]+-[A-Z][a-z]+/ ) ) { # perl module regular shape
+	    if ( ($distbase =~ /[A-Z][A-Za-z]+[0-9]*-[A-Z][a-z]+/ ) ) { # perl module regular shape
 		print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> Perl Module: ', $version, "\n" if $DEBUG_DISTBASE;
 		if ( $version =~ m|_[0-9]+$| ) { $version = ''; next;}	# skip  or after (DEVELOPER RELEASE)
 		print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> Perl Module: ', $version, "\n" if $DEBUG_DISTBASE;
