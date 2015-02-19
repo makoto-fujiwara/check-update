@@ -6,7 +6,7 @@ use Getopt::Std;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-02-19 14:19" ; # written by emacs time-stamp
+$VERSION = "2015-02-19 14:47" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -447,7 +447,8 @@ Where:
 	3:  for [q-z]*
 HELP
 }; #'
-sub CheckRubyGems(){
+sub CheckRubyGems($){
+    my($skip_rubygems_check ) = shift;
     # Check if required packages are installed
     # httping curl git-base p5-Net-DNS *rubygems mozilla-rootcerts
     my($gems_name);
@@ -475,6 +476,8 @@ sub CheckRubyGems(){
     if ($gems_name eq '') { die;} else {print "gems_name: ", $gems_name,"\n" if $DEBUG_RUBYGEM;}
 
     chomp($gems_name);
+
+    if($skip_rubygems_check ) { return $gems_name ; }
     # --------------------
     #      rubygems
     # --------------------
@@ -1269,7 +1272,7 @@ sub GetGemVersion($$){		# <- Main
 # libarchive-static-ruby186 (1.0.3 i386-mingw32 i386-mswin32)
     my ($gems_command) =  "$gems_name list -r -q $dist_name" ;
     print STDERR sprintf("%4d <",__LINE__ ), (caller 0)[3], '> gems_command: ', $gems_command, "\n" if $DEBUG_RUBYGEM;
-    open(GEM, "$gems_command|") || print STDERR ColorString('red', sprintf("%04d", __LINE__). " Failed to gem list: $!\n");
+    open(GEM, "$gems_command|") || print STDERR ColorString('red', sprintf("%04d", __LINE__). " Failed to $gems_command : $!\n");
     print STDERR sprintf("%4d ",__LINE__ ), "$gems_command\n" if $DEBUG_RUBYGEM;
     while(<GEM>) {
 	print STDERR sprintf("%4d ", __LINE__ ), ' ', $_  if $DEBUG_RUBYGEM;
@@ -2533,16 +2536,10 @@ if (($category eq '' ) && ($selected =~ m|(.*)/(.*)| ) ||
     print STDERR sprintf("%4d ", __LINE__), ' *** category (', $category, ') package (', $selected, ")\n";
 
 my($gems_name);
-if ( $skip_rubygems_check) {
-    print STDERR sprintf("%4d ", __LINE__ ),
-	"Skipping rubygems check.\n";
-}
-else {
-    print STDERR sprintf("%4d ", __LINE__ ),
-	"Checking rubygems, please wait for a minute.\n";
-    $gems_name = CheckRubyGems();
-    if ($gems_name eq '')  { die "Please install misc/rubygems\n" ;}
-}
+
+$gems_name = CheckRubyGems( $skip_rubygems_check );
+if ($gems_name eq '')  { die "Please install misc/rubygems\n" ;}
+
 if (CheckEnvironment() == -1) { die "Please install necessary package(s).\n" ;}
 
 if ( -f $MaturedList) {
