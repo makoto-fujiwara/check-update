@@ -4,7 +4,7 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-02-18 23:32" ; # written by emacs time-stamp
+$VERSION = "2015-02-19 08:01" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -448,18 +448,24 @@ sub CheckRubyGems(){
     my($gems_package);
     my($no_rubygems) = 1;
 
+    # --------------  looking for old rubygems  or just gem ------------------
     open(PKG_INFO, "pkg_info|") || print STDERR sprintf("%4d ", __LINE__), "Failed for pkg_info\n";
     while(<PKG_INFO>) {
-	if (/^(.*rubygems-.*[0-9.]+)/ ) { $gems_package = $1; $no_rubygems = 0; } }
+	if (/^(.*rubygems-.*[0-9.]+)/ )	{ $gems_package = $1; $no_rubygems = 0; }
+	if (/^ruby2*-[a-z]*/ )		{ $gems_name = 'gem'; $no_rubygems = 0; }  # hard code for ruby2.*
+    }
     close(PKG_INFO);
     if ($no_rubygems) { die sprintf("%4d <", __LINE__), (caller 0)[3], "> *** Please install misc/rubygems\n";}
     print STDERR  sprintf("%4d <", __LINE__), (caller 0)[3], '> gems_package ', $gems_package,"\n"
 	if $DEBUG_RUBYGEM;
+    if ($gems_name eq '') {
     open(PKG_INFO, "pkg_info -qL $gems_package |");
     while(<PKG_INFO>) {
 	if (m|.*/bin.*|) {
 	    $gems_name = $_; }}
     close(PKG_INFO);
+    }
+    # --------------------------------------------------------------------------
     if ($gems_name eq '') { die;} else {print "gems_name: ", $gems_name,"\n" if $DEBUG_RUBYGEM;}
 
     chomp($gems_name);
@@ -1697,10 +1703,14 @@ sub ParseDirectorySmall($$){
     my ($ver_max) = $ver;
     open(CURL, "$curl_command 2>&1 |") || print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> Problem ', "$!\n";
     while(<CURL>){
+#       print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> ', $distbase, "\n" if $DEBUG_GNOME;
+#       print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> ', $_, "\n" if $DEBUG_GNOME;
 	if (m|$distbase|) {
 	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> ', $_ if $DEBUG_GNOME;
 	}
-	if ( m|.*$distbase-([0-9.]+)\.tar.*|) { 
+# if GNOME, pick only even (minor) number
+	if ( (    $master_site =~ /GNOME/i   &&  m|.*$distbase-([0-9]\.[0-9]*[02468]\.[0-9]+)\.tar.*|) ||
+             ( ! ($master_site =~ /GNOME/i ) &&  m|.*$distbase-([0-9.]+)\.tar.*| ) )  {
 	    $ver = $1;
 	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> ', $_,"\n" if $DEBUG_GNOME;
 	    if (CompareVersion($ver, $ver_max) > 0 ) {
@@ -2723,8 +2733,12 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	}
 	    print STDERR sprintf("%4d ", __LINE__ ), '#candidate: ', $#candidate, ' DISTBASE: ', $DISTBASE, ' master_site ', $master_site, "\n" if $DEBUG_GNOME;
 
-	    # good for RBtool
-	($returnCode, @candidate) = UpperDirectory($DISTBASE, $master_site);
+#        if ($#candidate == -1 || $candidate[0] eq '0.0' ){
+#	    # good for RBtool
+#	($returnCode, @candidate) = UpperDirectory($DISTBASE, $master_site);
+#	} else {
+#		print STDERR sprintf("%4d ", __LINE__ ), 'candidate: ', $candidate[0], "\n" if $DEBUG_GNOME;
+#	}
 
 	    print STDERR sprintf("%4d ", __LINE__ ), '#candidate: ', $#candidate, ' DISTBASE: ', $DISTBASE,"\n" if $DEBUG_GNOME;
 
