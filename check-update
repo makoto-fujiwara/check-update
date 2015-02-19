@@ -6,7 +6,7 @@ use Getopt::Std;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-02-19 12:45" ; # written by emacs time-stamp
+$VERSION = "2015-02-19 14:19" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -26,6 +26,7 @@ my($my_name) = $0;
 my ($pkgsrc) = '/usr/pkgsrc';	#
 my ($summary);			# output file name
 my (%TODO);			# found info in doc/TODO, $TODO{$package} = $version
+my ($MaturedList) = 'MaturedList';# File name for the list of matured list category/package name format
 
 # output to tmp name and rename it at the end of execution
 my ($summary_tmp);
@@ -193,7 +194,7 @@ my(%SourceForgeAlternative) = qw (
     Cairo-GObject http://sourceforge.net/projects/gtk2-perl/files/Cairo_GObject/
     Gnome2-Canvas http://sourceforge.net/projects/gtk2-perl/files/Gnome2_Canvas/1.002/
     Glib	 http://sourceforge.net/projects/gtk2-perl/files/Glib/1.307/
-);
+); #'
 
 # PKGBASE to $DISTBASE association Special (ending digit is main customer)
 my(%DISTBASE) = qw (
@@ -1032,6 +1033,11 @@ print STDERR sprintf("%4d ", __LINE__ ),
     "       (PKGVERSION)\t", $PKGVERSION , "\n" if $DEBUG_DISTBASE;
 #  %DISTBASE special
     if  (my $distbase = $DISTBASE{$PKGBASE}) {
+	return $distbase;}
+
+    if  ($PKGBASE =~ m|aspell|) {
+	my ($distbase) = $PKGBASE;
+	$distbase =~ s|aspell|aspell6|;
 	return $distbase;}
 
     # --------------------------------------
@@ -2039,6 +2045,18 @@ sub ShowVersion(){
     print '(',$my_name,') Version: ', $VERSION,"\n";
     }
 
+sub SkipTooOld($){
+    my($MaturedList) = shift;
+    my ($count) = 0;
+    open(TOO_OLD, " $MaturedList ") || print STDERR sprintf("%4d <"), (caller 0)[3], '> Problem reading ', $MaturedList, ' ', $!,"\n";
+    while(<TOO_OLD>) {
+	chomp;
+	if ( m|^\s*# |       ) { next;}
+	if ( m|[^/]+/([^/]+)|) { push(@SkipTooOld, $1) ; $count++;}
+    }
+    close(TOO_OLD);
+    return ($count);
+}
 sub ExecutionTime($$){
     my ($started) = shift;
     my ($ended)   = shift;
@@ -2526,6 +2544,11 @@ else {
     if ($gems_name eq '')  { die "Please install misc/rubygems\n" ;}
 }
 if (CheckEnvironment() == -1) { die "Please install necessary package(s).\n" ;}
+
+if ( -f $MaturedList) {
+    print STDERR sprintf("%4d ", __LINE__ ), " *** Reading filename: ", $MaturedList," -> ";
+    printf STDERR "%d lines read\n", SkipTooOld($MaturedList);
+}
 
 my(%DIVIDE_DEVEL) = ( 1, '[A-Za-o].*',
 		      2, 'p.*',
