@@ -6,7 +6,7 @@ use Getopt::Std;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-02-20 06:01" ; # written by emacs time-stamp
+$VERSION = "2015-02-20 06:56" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -142,7 +142,8 @@ my (@SkipTooOld)
 # Simple means $distbase-([0-9.]+)-(extran string not necessary)..
 my (@SimplePattern)  = qw(gmpc 
 renpy crimson crack-attack hands flags autotrace simulavr hal 
-sign parchive cabextract celt auctex ntp mercury-srcdist);
+sign parchive cabextract celt auctex ntp mercury-srcdist Net-Libdnet);
+# Net-Libdnet is listed to avoid not to pick Net-Libdnet6-0.27 -as 6-0.27
 #my (@Debian) = qw(signing-party);
 
 my ($SpecialPatternY);
@@ -298,7 +299,7 @@ my (@DOT2) =  qw(pixmap HTTP-Lite XML-Elemental yencode xworm gambatte_src Class
 # IO-CaptureOutput
 # 	p5-sybperl 	2.16 	->	2.171	2.18
 #    dot is inserted after 3rd digit
-my (@DOT3) = qw (Data-AMF DateTime-Calendar-Mayan Template-Plugin-DateTime xsane IO-CaptureOutput sybperl gdal-lib SQL-Abstract-Limit CatalystX-CRUD-Model-RDBO BSD-Resource File-Temp FreezeThaw Module-CPANTS-Analyse util-linux ExtUtils-ModuleMaker SWF-File Role-Basic);
+my (@DOT3) = qw (Data-AMF DateTime-Calendar-Mayan Template-Plugin-DateTime xsane IO-CaptureOutput sybperl gdal-lib SQL-Abstract-Limit CatalystX-CRUD-Model-RDBO BSD-Resource File-Temp FreezeThaw Module-CPANTS-Analyse util-linux ExtUtils-ModuleMaker SWF-File Role-Basic Net-DHCP);
 
 
 # 633 -> 6.33.0 InsertDot
