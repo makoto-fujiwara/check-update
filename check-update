@@ -6,7 +6,7 @@ use Getopt::Std;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-02-19 15:49" ; # written by emacs time-stamp
+$VERSION = "2015-02-20 06:01" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -333,6 +333,10 @@ my (@DOT845) = qw (IO-Prompt);
 
 # devel/p5-Devel-FindRef 	p5-Devel-FindRef 	1.422 	->	1.44
 my(@SPRINTF1_3) = qw(Devel-FindRef);
+
+# 0.603 -> 0.6.3 # VerSprintf
+my (@NetINET6Glue) = qw (Net-INET6Glue);
+
 # www/p5-Reaction 	p5-Reaction 	0.2.5 	->	0.002005
 my (@SPRINTF) = qw (Reaction);
 
@@ -344,7 +348,7 @@ my (@SingleDigit) = qw(HTTP-Request-Form);
 
 # archivers/hpack 79 -> 0.79
 my (@ZeroDot) = qw (hpack);
-    
+
 # Term-ReadLine-Perl5
 my (@DIGIT_IN_NAME) = qw(cal3d emacs-w3m x2x w3m nec2c xnec2c asn1c py34-unittest2py3k p5-GD-Graph3d popa3d tex-algorithm2e sqlalchemy-i18n hdf5-c++ );
 #
@@ -614,7 +618,7 @@ sub ClassifyPackage(@) {
 	    my ($minor) = $2;
 	    $FAMILY{$p} = '$version =~ s/.*python-('.$major.'\.'.$minor.'\.[0-9]+)-docs-html.*/$1/' ; 	    
 	# normal numbering
-	} elsif ($p =~ /(.*)([0-9])$/) { 
+	} elsif ($p =~ /(.*)([0-9]+)$/) {
 	    my ($pybody) = $1 ;
 	    my ($suffix) = $2;
 #	    my ($py) = $pybody;    $py =~ m|py|;
@@ -798,6 +802,8 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (3) <', (caller 0)[3] ,'> ', $version
 	    if (grep (/^$distbase$/, @DELDOT422)  > 0 ) { $version = DelDot422($version, 5, 8);}
             # www/p5-Reaction 	p5-Reaction 	0.2.5 	->	0.002005
 	    if (grep (/^$distbase$/, @SPRINTF)  > 0 ) { $version = VerSprintf($version, 0,1,  2,3, 5,3 );}
+	    # p5-Net-INET6Glue 0.603 -> 0.6.2
+	    if (grep (/^$distbase$/, @NetINET6Glue)> 0 ) { $version = VerSprintf($version, 0,1,  2,1, 3,2 );}
 	    # devel/p5-Devel-FindRef 	p5-Devel-FindRef 	1.422 	->	1.44
 	    if (grep (/^$distbase$/, @SPRINTF1_3)  > 0 ) { $version = LeftJustify($version,1,3);} # count(1.3)
     	    if (grep (/^$distbase$/, @SingleDigit)  > 0 ) { $version = SingleDigit($version);}
@@ -2264,6 +2270,7 @@ sub AddZero($$) {
 }
 #                                                       (0,1,  1,3, 4,3)
 # # www/p5-Reaction 	p5-Reaction 	0.2.5 	<-	0.002005
+# #  $version = VerSprintf($version, 0,1,  2,3, 5,3 );}
 sub VerSprintf($$$) {
     my($version) = shift;
     my($one, $two, $three, $four, $five, $six) = @_;
