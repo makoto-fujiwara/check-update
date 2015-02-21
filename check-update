@@ -6,7 +6,7 @@ use Getopt::Std;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-02-20 07:09" ; # written by emacs time-stamp
+$VERSION = "2015-02-21 14:29" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -619,6 +619,11 @@ sub ClassifyPackage(@) {
 	    my ($major) = $1;
 	    my ($minor) = $2;
 	    $FAMILY{$p} = '$version =~ s/.*python-('.$major.'\.'.$minor.'\.[0-9]+)-docs-html.*/$1/' ; 	    
+	# postgresql
+	} elsif ($p =~ /postgresql([0-9])([0-9])-.*$/) {
+	    my ($major) = $1;
+	    my ($minor) = $2;
+	    $FAMILY{$p} = '$version =~ s/.*postgresql-('.$major.'\.'.$minor.'\.[0-9]+).*/$1/' ;
 	# normal numbering
 	} elsif ($p =~ /(.*)([0-9]+)$/) {
 	    my ($pybody) = $1 ;
