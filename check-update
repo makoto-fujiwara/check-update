@@ -6,7 +6,7 @@ use Getopt::Std;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-02-22 05:51" ; # written by emacs time-stamp
+$VERSION = "2015-02-22 06:46" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -1321,18 +1321,30 @@ $dir, '/', $PackageName, '; DISTBASE (', $DISTBASE,")\n" if $DEBUG_DISTBASE;
 sub GetGemFamilyVersion($$){		# <- Main
     my ($dist_name) = shift;
     my ($gems_name) = shift;
-    my ($suffix)    = $dist_name;
-        $suffix     =~ s|.*-([0-9.]+)|$1|;;
-        $dist_name  =~ s|-[0-9.]+||;;
-    my ($major)     = $suffix;
-        $major      =~ s|^([0-9]).*|$1|;
+    print STDERR sprintf("%4d <",__LINE__ ), (caller 0)[3],
+	'> distname: ', $dist_name,
+	"\n"  if $DEBUG_RUBYGEM;
+    my ($major, $minor);
+    if (
+	( $dist_name =~ m|^ruby-([A-Za-z]+)([0-9])([0-9])|)  ||
+	( $dist_name =~ m|^ruby-([A-Za-z]+)([0-9])|       )  ||
+	( $dist_name =~ m|^ruby-([A-Za-z]+)|              ) ) {
+    $dist_name = $1;
+    $major     = $2;
+    $minor     = $3;}
+
+    print STDERR sprintf("%4d <",__LINE__ ), 'distname: ', $dist_name, ' major: ', $major, ' minor: ', $minor, 
+	"\n"  ; #if $DEBUG_RUBYGEM;
+        $minor      =~  s|^[0-9]([0-9]).*|$1|;
+    if ($minor) { $minor = '.'.$minor;}
     my ($available);
     my (@candidate);
     my ($list);
     print STDERR sprintf("%4d <",__LINE__ ), (caller 0)[3],
-	'> suffix: ', $suffix,
-	' distname: ', $dist_name,
-	' major: ', $major, "\n"  if $DEBUG_RUBYGEM;
+	'> distname: ', $dist_name,
+	' major: ', $major,
+	' minor: ', $minor, 
+	"\n"  if $DEBUG_RUBYGEM;
     
     my ($gems_command) =  "$gems_name list -r -a -q '^". $dist_name. "\$\'" ;
     print STDERR sprintf("%4d <",__LINE__ ), (caller 0)[3], '> gems_command: ', $gems_command, "\n" if $DEBUG_RUBYGEM;
@@ -1352,7 +1364,7 @@ sub GetGemFamilyVersion($$){		# <- Main
     foreach my $c (@candidate) {
 	$c =~ s/ //;
 #	print STDERR sprintf("%4d ", __LINE__ ), 'm: ', $major, ' a :', $available, ' c: ', $c, "\n"if $DEBUG_RUBYGEM;
-	if (  ( $c =~  /^$major/                  ) &&
+	if (  ( $c =~  /^$major$minor/            ) &&
 	      (CompareVersion($c, $available) > 0 ) ) { $available = $c;}
     }
 
@@ -2827,7 +2839,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
     # GEM_PACKAGE and %FAMILY
     if ( my ($p) = $FAMILY{$PackageName}  && $GEM_PACKAGE ) {
 	$DISTBASE = GetVariableValue ($dir, $PackageName, 'DISTNAME');
-	$available = GetGemFamilyVersion($DISTBASE, $gems_name);
+	$available = GetGemFamilyVersion($PackageName, $gems_name);
 
     } elsif ($GEM_PACKAGE) {
 	$DISTBASE = GetVariableValue ($dir, $PackageName, 'DISTNAME');
