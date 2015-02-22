@@ -48,6 +48,9 @@ HEAD
 #' -z]*
 }
 
+# ------------------------------------------------------------
+#                         M A I N
+# ------------------------------------------------------------
 my($DIR) = $ENV{'HOME'}.'/public_html/pkgsrc/check-update';
 my($URL) = 'http://www.ki.nu/~makoto/pkgsrc/check-update/';
 my($date);
@@ -83,7 +86,8 @@ open(HTML, ">$HTML") || print "Problem opening to write $HTML: $!\n";
 while ( $#DATE > 20) { pop @DATE ;}
 
 Header(*HTML);
-foreach my $date (@DATE) {
+foreach my $date (sort @DATE) {
+    print STDERR sprintf("%4d " , __LINE__),' date: ', $date, "\n" if $DEBUG;
     my($directory) = $DIR.'/'.$date;
     opendir(DIR, $directory) || print "Problem opening directory: $directory: $!\n";
     while( $_ = readdir(DIR) ) {
