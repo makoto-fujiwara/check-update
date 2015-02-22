@@ -6,7 +6,7 @@ use Getopt::Std;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-02-22 01:52" ; # written by emacs time-stamp
+$VERSION = "2015-02-22 02:14" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -1804,7 +1804,7 @@ sub ParseDirectory($$){
     my (@candidate);
     my ($version);
     if ($master_site eq '')	{ print STDERR sprintf("%4d ", __LINE__ ), ' $master_site is empty ',	 "\n"; return -1;}
-    if ($master_site eq 'DNS'){ print STDERR sprintf("%4d ", __LINE__ ), ' ',$distbase,' has DNS problem',"\n"; return -1;}
+    if ($master_site eq 'DNS')	{ print STDERR sprintf("%4d ", __LINE__ ), ' ',$distbase,' has DNS problem',"\n"; return -1;}
     if (0) {
     print STDERR sprintf("%4d ", __LINE__ ), ' ', $master_site, "   \n" if  $DEBUG_DISTBASE ;
     if ($master_site =~ m|github\.com/| && $master_site =~ m|/v[0-9.]+| ) {
@@ -2765,7 +2765,8 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	= ReadMakefile($dir, $PackageName);
     $PKGVERSION		= GetVariableValue ($dir, $PackageName, 'PKGVERSION_NOREV');
 	my ($location); # destination to be directed
-	if (! CheckDNS($HOMEPAGE)) { $HomePageStat = 'DNS';}
+	if              ( $HOMEPAGE eq '')	{ $HomePageStat = '';}
+	elsif (! CheckDNS($HOMEPAGE))		{ $HomePageStat = 'DNS';}
 	else {($HomePageStat, $location) = CheckHeader($HOMEPAGE); }
 	
     $PKGBASE	= GetVariableValue ($dir, $PackageName, 'PKGBASE');
@@ -2955,8 +2956,10 @@ print STDERR sprintf("%4d ", __LINE__ ),
     my($homepage) = $PKGBASE;     # if HOMEPAGE is empty, don't use href, set for that
 	print STDERR sprintf("%4d ", __LINE__), "HOMEPAGE: ", $HOMEPAGE, "\n" if $DEBUG_DISTBASE;
     if ($HOMEPAGE) { $homepage = sprintf "<a href=\"%s\">%s</a>", $HOMEPAGE, $PKGBASE;}
-    my ($HomePageString);
-    if ($HomePageStat != 200 ) { $HomePageString =  "<span class=\"pale_dns\"> (". $HomePageStat.')</span> ';}
+    else           { $homepage =                  "<span class=\"grey\"> ". $PKGBASE .'</span> ';}
+       my ($HomePageString); # This is used after $homepage to show status in HTML
+    if    ($HomePageStat eq ''  ) { $HomePageString =  "<span class=\"grey\"> (empty)</span>";}
+    elsif ($HomePageStat != 200 ) { $HomePageString =  "<span class=\"pale_dns\"> (". $HomePageStat.')</span> ';}
     my ($MasterSiteString);
     if ($MasterSiteStat != 200 && $available eq '0.0' ) { $MasterSiteString =  "<span class=\"pale_dns\">(". $MasterSiteStat.')</span> ';}
     # ------ E D I T         M A I N T A I N E R  -------
