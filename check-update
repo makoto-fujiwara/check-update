@@ -6,7 +6,7 @@ use Getopt::Std;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-02-22 01:33" ; # written by emacs time-stamp
+$VERSION = "2015-02-22 01:40" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -381,6 +381,9 @@ my (@SingleDigit) = qw(HTTP-Request-Form);
 
 # archivers/hpack 79 -> 0.79
 my (@ZeroDot) = qw (hpack);
+
+# hyperestraier
+my (@hyperestraier) = qw (hyperestraier); 
 
 # Term-ReadLine-Perl5
 my (@DIGIT_IN_NAME) = qw(cal3d emacs-w3m x2x w3m nec2c xnec2c asn1c py34-unittest2py3k p5-GD-Graph3d popa3d tex-algorithm2e sqlalchemy-i18n hdf5-c++ );
@@ -850,6 +853,7 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (3) <', (caller 0)[3] ,'> ', $version
     	    if (grep (/^$distbase$/, @SingleDigit)  > 0 ) { $version = SingleDigit($version);}
     	    if (grep (/^$distbase$/, @DELETE02)  > 0 ) { $version = Delete02($version);}
             if (grep (/^$distbase$/, @ZeroDot)  > 0 )  { $version = '0.'. $version;}
+            if (grep (/^$distbase$/, @hyperestraier)  > 0 )  { $version = '1.0.0.'. $version;}
 
 print STDERR sprintf("%4d ", __LINE__ ), ' (4) ', $version, "\n" if $DEBUG_DISTBASE;
 #	print STDERR sprintf("%4d ", __LINE__ ), ' ', $_, "\n", $distbase, ' --> ', $version,"\n";
