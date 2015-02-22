@@ -6,7 +6,7 @@ use Getopt::Std;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-02-22 01:13" ; # written by emacs time-stamp
+$VERSION = "2015-02-22 01:24" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -344,10 +344,12 @@ my (@DOT845) = qw (IO-Prompt);
 # devel/p5-Devel-FindRef 	p5-Devel-FindRef 	1.422 	->	1.44
 my(@LeftJustify1_3) = qw(Devel-FindRef);
 
-# 0.603 -> 0.6.3 # VerSprintf($version, 0,1,  2,1, 3,2 );}
+# 0.603 -> 0.6.3     VerSprintf($version, 0,1,  2,1,  3,2 )
 my (@NetINET6Glue) = qw (Net-INET6Glue);
 
-# 
+# 1.000031 -> 1.0.31 VerSprintf($version, 0,1,  2,3,  5,3 )
+my (@TextMarkdown) = qw (Text-Markdown );
+
 # 0.002005 -> 0.2.5   www/p5-Reaction 	p5-Reaction
 my (@SPRINTF) = qw (Reaction);
 
@@ -821,6 +823,8 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (3) <', (caller 0)[3] ,'> ', $version
 	    if (grep (/^$distbase$/, @SPRINTF)  > 0 ) { $version = VerSprintf($version, 0,1,  2,3, 5,3 );}
 	    # p5-Net-INET6Glue 0.603 -> 0.6.2
 	    if (grep (/^$distbase$/, @NetINET6Glue)> 0 ) { $version = VerSprintf($version, 0,1,  2,1, 3,2 );}
+            # Text-Markdown 1.000031 -> 1.0.31
+	    if (grep (/^$distbase$/, @TextMarkdown)> 0 ) { $version = VerSprintf($version, 0,1,  2,3, 5,3 );}
 	    # devel/p5-Devel-FindRef 	p5-Devel-FindRef 	1.422 	->	1.44
 	    if (grep (/^$distbase$/, @LeftJustify1_3)  > 0 ) { $version = LeftJustify($version,1,3);} # count(1.3)
     	    if (grep (/^$distbase$/, @SingleDigit)  > 0 ) { $version = SingleDigit($version);}
