@@ -16,7 +16,10 @@
      
   - If no argument, take current directory as category/package
     (In that case, no html output will generated)
-  - If the (last) argument, say @ARGV has shape categery/package
+
+   * interactive option should use pwd while lookin for /usr/pkgsrc
+
+   * If the (last) argument, say @ARGV has shape categery/package
     take it as it is.
 
   - devel/RTFM
