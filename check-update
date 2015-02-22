@@ -6,7 +6,7 @@ use Getopt::Std;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-02-22 03:25" ; # written by emacs time-stamp
+$VERSION = "2015-02-22 05:02" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -632,20 +632,20 @@ sub ClassifyPackage(@) {
 	    my ($minor) = $3;
 	    if ($lang =~ /python/ ) { $lang = 'Python';}
 	    $FAMILY{$p} = '$version =~ s/.*'. $lang .'-('.$major.'\.'.$minor.'\.[0-9]+)\.t.*/$1/' ; 
-	print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1) family: ', $p, "\n" if $DEBUG_FAMILY;
+	print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1a) family: ', $p, "\n" if $DEBUG_FAMILY;
 	} elsif ($p =~ /(contao)([0-9])([0-9])/) {
 	    my ($lang)  = $1;
 	    my ($major) = $2;
 	    my ($minor) = $3;
 	    $FAMILY{$p} = '$version =~ s/.*'. $lang .'-('.$major.'_'.$minor.'_[0-9]+)\.html.*/$1/' ; 
-	print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1) family: ', $p, "\n" if $DEBUG_FAMILY;
+	print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1b) family: ', $p, "\n" if $DEBUG_FAMILY;
 	# gtksourceview
 	} elsif ($p =~ /(gtksourceview)([0-9]*)$/) {
 	    my ($pkg)   = $1;
 	    my ($major) = $2;
 	    if ($major eq '') { $major = 1;}
 	    $FAMILY{$p} = '$version =~ s/.*'. $pkg .'-('. $major .'\.[0-9.]+).*/$1/' ;
-	print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1) family: ', $p, "\n" if $DEBUG_FAMILY;
+	print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1c) family: ', $p, "\n" if $DEBUG_FAMILY;
 	# gnumeric
 	} elsif ($p =~ /(gnumeric)([0-9])([0-9])([0-9])$/) {
 	    my ($pkg)   = $1;
@@ -671,10 +671,12 @@ sub ClassifyPackage(@) {
 	    my ($pybody) = $1 ;
 	    my ($suffix) = $2;
 #	    my ($py) = $pybody;    $py =~ m|py|;
-	    my ($body) = $pybody;  $body =~ s|py-||;
-	    if ( $body && grep (/^$body[0-9]*([0-9])$/, @packages ) > 1 ) {  
+	    my ($body) = $pybody;  $body =~ s|py-||; $body =~ s|ruby-||;
+#	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (- ) family: ', $p, "\n" if $DEBUG_FAMILY;	    
+	    if ( $body && grep (/^(py-|ruby-)$body[0-9]*([0-9])$/, @packages ) > 1 ) {  
 		$FAMILY{$p} = '$version =~ s/.*'.$body.'[-]*('.$suffix.'[0-9_.]+).*/$1/' ;
-		print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1) family: ', $p, "\n" if $DEBUG_FAMILY;
+		print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1d) family: ', $p, ' -> ',
+		    $FAMILY{$p}, "\n" if $DEBUG_FAMILY;
 	    }
 #	        print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (2) family: ', $p, "\n" if $DEBUG_FAMILY;
 	}
@@ -2778,6 +2780,12 @@ print STDERR sprintf("%4d ", __LINE__ ),
     $PKGBASE	= GetVariableValue ($dir, $PackageName, 'PKGBASE');
 	# -----------------------------------------------------------------------
     if ($TEXLIVE) { $StatTEXLIVE++; next;} # skip texlive for the moment
+    if ( my ($p) = $FAMILY{$PackageName}  && $GEM_PACKAGE ) {
+
+printf STDERR  ColorString('red', 
+	sprintf("%20s %15s %4s Skipping, GEM_PACKAGE with FAMILY for now.\n",
+		$PKGBASE, '('.$DISTBASE.')', '('.  __LINE__ .')'));
+	next;} # test as %FAMILY and GEM_PACKGE to skip
     if ($GEM_PACKAGE) {
 	$DISTBASE = GetVariableValue ($dir, $PackageName, 'DISTNAME');
 	$DISTBASE =~ s/-[0-9.-]+//;
