@@ -6,7 +6,7 @@ use Getopt::Std;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-02-22 03:20" ; # written by emacs time-stamp
+$VERSION = "2015-02-22 03:25" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -213,6 +213,8 @@ my(%DISTBASE) = qw (
     fixesproto4 fixesproto4
     gr-fcdproplus gr-fcdproplus
     swi-prolog	pl
+    static-ast-ksh	ast-ksh
+    ast-ksh	ast-ksh
     );
    
 my(%DownLoadAlternative) = qw (
