@@ -6,7 +6,7 @@ use Getopt::Std;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-02-21 14:49" ; # written by emacs time-stamp
+$VERSION = "2015-02-22 00:58" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -310,8 +310,14 @@ my (@DOT32) = qw (ExtUtils-CBuilder dpbox);
 
 # audio/hydrogen 	hydrogen 	0.9.6.1 	->	0.9.61
 my (@DOT1111) = qw (hydrogen);
-#     devel/p5-Contextual-Return   0.004007 -> 0.004.007
-my (@DOT4) = qw (Class-Inner Contextual-Return Data-Section Class-Inner Return-Value Software-License Test-MinimumVersion  PPIx-Utilities Return-Value Mixin-ExtraFields MooX-Cmd hydrogen);
+
+#  0.004007 -> 0.004.007  devel/p5-Contextual-Return   
+my (@DOT4) = qw (
+    Class-Inner Contextual-Return Data-Section 
+    Return-Value Software-License Test-MinimumVersion  
+    PPIx-Utilities Return-Value Mixin-ExtraFields MooX-Cmd hydrogen
+    Pod-Eventual
+);
 
 # 20131217 -> 2013.12.17
 my (@DELDOT422) = qw (sqtop ast-ksh);
