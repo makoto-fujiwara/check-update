@@ -6,7 +6,7 @@ use Getopt::Std;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-02-22 01:24" ; # written by emacs time-stamp
+$VERSION = "2015-02-22 01:32" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -300,8 +300,26 @@ my (@DOT2) =  qw(pixmap HTTP-Lite XML-Elemental yencode xworm gambatte_src Class
 # IO-CaptureOutput
 # 	p5-sybperl 	2.16 	->	2.171	2.18
 #    dot is inserted after 3rd digit
-my (@DOT3) = qw (Data-AMF DateTime-Calendar-Mayan Template-Plugin-DateTime xsane IO-CaptureOutput sybperl gdal-lib SQL-Abstract-Limit CatalystX-CRUD-Model-RDBO BSD-Resource File-Temp FreezeThaw Module-CPANTS-Analyse util-linux ExtUtils-ModuleMaker SWF-File Role-Basic Net-DHCP);
-
+my (@DOT3) = qw (
+    BSD-Resource
+    CatalystX-CRUD-Model-RDBO
+    Data-AMF
+    DateTime-Calendar-Mayan
+    ExtUtils-ModuleMaker
+    File-Temp
+    FreezeThaw
+    IO-CaptureOutput
+    Module-CPANTS-Analyse
+    Net-DHCP
+    Role-Basic
+    SQL-Abstract-Limit
+    SWF-File
+    Template-Plugin-DateTime
+    gdal-lib
+    sybperl
+    util-linux
+    xsane
+    );
 
 # 633 -> 6.33.0 InsertDot
 # util-linux <- (libuuid)
@@ -336,6 +354,7 @@ my (@DELETE02) = qw(Class-C3-Componentised);
     
 # 1.001002 -> 1.1.2
 my (@DOT133) = qw (DBIx-Class-Cursor-Cached IO-Pipeline Mixin-ExtraFields Smart-Comments Parse-RecDescent);
+
 # gdal-lib-1111 -> 1.11.1
 my (@DOT121) = qw (gdal);
 
