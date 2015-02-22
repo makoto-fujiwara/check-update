@@ -6,7 +6,7 @@ use Getopt::Std;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-02-22 06:51" ; # written by emacs time-stamp
+$VERSION = "2015-02-22 11:05" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -2837,7 +2837,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	# -----------------------------------------------------------------------
     if ($TEXLIVE) { $StatTEXLIVE++; next;} # skip texlive for the moment
     # GEM_PACKAGE and %FAMILY
-    if ( my ($p) = $FAMILY{$PackageName}  && $GEM_PACKAGE ) {
+    if ( (my ($p) = $FAMILY{$PackageName} ) && $GEM_PACKAGE ) {
 	$DISTBASE = GetVariableValue ($dir, $PackageName, 'DISTNAME');
 	$available = GetGemFamilyVersion($PackageName, $gems_name);
 
