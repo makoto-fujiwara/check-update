@@ -83,7 +83,7 @@ closedir(DIR);
 
 open(HTML, ">$HTML") || print "Problem opening to write $HTML: $!\n";
 
-while ( $#DATE > 20) { pop @DATE ;}
+while ( $#DATE > 20) { shift @DATE ;}
 
 Header(*HTML);
 foreach my $date (sort @DATE) {
