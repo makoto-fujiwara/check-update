@@ -80,42 +80,46 @@ sub GetOneRecord($){
 	elsif ( $start )	 		{ $start .= $line ;          } # alread started
     }
     if (undef($line)) { $EOF++;}
-    my ($name, $version);
+# ignore parenthesis phrase  ....  <span class="pale_dns"> (503)</span> </td>
+
+    $start =~ s|<span class=\"[a-z_]+\">[ ]*\([^()]+\)</span>[ ]*<|<|g;
+#    my ($name, $version);
 #	print STDERR sprintf("%4d ", __LINE__), $start;
-    #                             1          2            3            4          5          6   
-    if ( $start =~ m|<tr.*["]*><td>(.*)</td><td>(.*)</td><td>(.*)</td><td>.*</td><td>.*</td><td>.*</td><td>.*</td><td>.*</td><td>.*</td></tr>| ) { 
-	if (0) {
-	print STDERR '1 ', $1, "\n";
-	print STDERR '2 ', $2, "\n";
-	print STDERR '3 ', $3, "\n";
-	print STDERR '4 ', $4, "\n";}
-	$name = $1;
-	$version = $3;
-	$name =~ s|<a href[^>]+>||;
-	$name =~ s|</a>||;
-    } else {
-	# usually header or etc.
-    }
-    if ($EOF) { return ($name, $version, '');  }
-    else      { return ($name, $version, $start); }
+#	                              1          2            3            4          5          6   
+#    if ( $start =~ m|<tr.*["]*><td>(.*)</td><td>(.*)</td><td>(.*)</td><td>.*</td><td>.*</td><td>.*</td><td>.*</td><td>.*</td><td>.*</td></tr>| ) { 
+#	if (0) {
+#	print STDERR '1 ', $1, "\n";
+#	print STDERR '2 ', $2, "\n";
+#	print STDERR '3 ', $3, "\n";
+#	print STDERR '4 ', $4, "\n";}
+#	$name = $1;
+#	$version = $3;
+#	$name =~ s|<a href[^>]+>||;
+#	$name =~ s|</a>||;
+#    } else {
+#	# usually header or etc.
+#    }
+    if ($EOF) { return '';  }
+    else      { return $start; }
 }
 # ------------------------------------------
-my (@Pointer) = ();
+#my (@Pointer) = ();
 my (@Lines) = ();
 
 #my ($limit);
 sub GetLines($){
-   my ($name) = shift;    
-   my ($version, $buffer);
-   $#Pointer = -1; # make it empty
+   my ($name) = shift;
+   my ($buffer);
+#  $#Pointer = -1; # make it empty
    $#Lines   = -1; # make it empty
 #   $limit = 10;
    print STDERR sprintf("%4d ", __LINE__), $name, "\n" if $DEBUG;
    open(NAME, $name) || print sprintf("%4d ", __LINE__), "Problem opening $name to read $! \n";
     do { 
-	($name, $version, $buffer) = (GetOneRecord(*NAME));
+#	($name, $version, $buffer) = (GetOneRecord(*NAME));
+			  $buffer  = (GetOneRecord(*NAME));
 #	print STDERR sprintf("%04d ", __LINE__), $buffer ,' ===',"\n"; 
-	push(@Pointer, [$name, $version, $buffer]); 
+#	push(@Pointer, [$name, $version, $buffer]); 
 	push(@Lines, $buffer);
 	}
    while $buffer  ; # && $limit--;
