@@ -6,7 +6,7 @@ use Getopt::Std;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-02-22 11:05" ; # written by emacs time-stamp
+$VERSION = "2015-02-27 15:26" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -143,7 +143,9 @@ my (@SkipTooOld)
 my (@SimplePattern)  = qw(gmpc 
 renpy crimson crack-attack hands flags autotrace simulavr hal 
 sign parchive cabextract celt auctex ntp mercury-srcdist Net-Libdnet
-IO-Socket-Multicast );
+IO-Socket-Multicast
+Net-IPv4Addr Net-IPv6Addr
+ );
 # Net-Libdnet is listed to avoid not to pick Net-Libdnet6-0.27 -as 6-0.27
 #my (@Debian) = qw(signing-party);
 
@@ -215,6 +217,8 @@ my(%DISTBASE) = qw (
     swi-prolog	pl
     static-ast-ksh	ast-ksh
     ast-ksh	ast-ksh
+    p5-Net-IPv4Addr Net-IPv4Addr
+    p5-Net-IPv6Addr Net-IPv6Addr
     );
    
 my(%DownLoadAlternative) = qw (
@@ -626,7 +630,7 @@ sub ClassifyPackage(@) {
 	if ( $p =~ /dri[23]proto/ ) { return;}
 
 	# gcc and lua special 
-	if ($p =~ /(gcc|lua|php|python)([0-9])([0-9])$/) {
+	if ($p =~ /(netatalk|gcc|lua|php|python)([0-9])([0-9])$/) {
 	    my ($lang)  = $1;
 	    my ($major) = $2;
 	    my ($minor) = $3;
