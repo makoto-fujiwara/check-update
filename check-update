@@ -6,7 +6,7 @@ use Getopt::Std;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-02-28 15:48" ; # written by emacs time-stamp
+$VERSION = "2015-02-28 15:59" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -1341,9 +1341,9 @@ sub GetGemFamilyVersion($$){		# <- Main
 	"\n"  if $DEBUG_RUBYGEM;
     my ($major, $minor);
     if (
-	( $dist_name =~ m|^ruby-([A-Za-z_]+)([0-9])([0-9])|)  ||
-	( $dist_name =~ m|^ruby-([A-Za-z_]+)([0-9])|       )  ||
-	( $dist_name =~ m|^ruby-([A-Za-z_]+)|              ) ) {
+	( $dist_name =~ m|^ruby-([A-Za-z_-]+)([0-9])([0-9])|)  ||
+	( $dist_name =~ m|^ruby-([A-Za-z_-]+)([0-9])|       )  ||
+	( $dist_name =~ m|^ruby-([A-Za-z_-]+)|              ) ) {
     $dist_name = $1;
     $major     = $2;
     $minor     = $3;}
