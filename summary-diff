@@ -83,6 +83,8 @@ sub GetOneRecord($){
 # ignore parenthesis phrase  ....  <span class="pale_dns"> (503)</span> </td>
 
     $start =~ s|<span class=\"[a-z_]+\">[ ]*\([^()]+\)</span>[ ]*<|<|g;
+    $start =~ s/(<a href="\".*\") class=\"(github|sf)\"/$1/g;
+
 #    my ($name, $version);
 #	print STDERR sprintf("%4d ", __LINE__), $start;
 #	                              1          2            3            4          5          6   

@@ -6,7 +6,7 @@ use Getopt::Std;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-02-27 15:32" ; # written by emacs time-stamp
+$VERSION = "2015-02-28 13:04" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -713,6 +713,8 @@ sub ColorString($$){
     return sprintf("%c[%dm%s%c[m", 0x1b, $COLOR{$color}, $string, 0x1b);
 }
 
+# 1. color tailing digit-including-leaf
+# 2. place separate href to leaf and rest of URL
 sub ColorUrlDigit($) {
     my($url) = shift;
     my($target);
@@ -721,15 +723,24 @@ sub ColorUrlDigit($) {
     $url =~ m|(.*)/(.*[v0-9.]+/$)|;
     my($higher) = $1;
     my($digit)  = $2;
+    my ($class_string) = '';
     # some strange case, $url does not include http:// line, in such case, just returun the original
     if (! ($url =~ m|^http.*://| ||
 	   $url =~ m|^ftp.*://|     )) {
 	$target = $url; }
+    # ------------------------------
+    # URL to hilight
     elsif ($higher && $digit )  {
     $target = sprintf ("<a href=\"%s/\">%s/</a><a class=\"rev\" href=\"%s\">%s</a>",
 		      $higher, $higher,
 		      $higher.'/'. $digit,  $digit);}
-    else { $target = sprintf ("<a href=\"%s\">%s</a>", $url, $url);}
+    # ------------------------------
+    # regular URL
+    else {
+	if    ( $url =~ /github.com/i )		{ $class_string = "class=\"github\""; }
+	elsif ( $url =~ /sourceforge.net/i )	{ $class_string = "class=\"sf\"";     }
+    }
+    $target = sprintf ("<a href=\"%s\" %s>%s</a>", $url, $class_string, $url);
     return $target;
 }
 sub CollectCandidate($){
@@ -2110,6 +2121,17 @@ sub PrintHeader($) {
     span.pale0_0    { color: \#e0e090;}
     td.update { background: \#d0c8c8;}
     td.grey   { background: \#c0c0c0;}
+
+    a.github:link	{ background-color: \#f0ff90; }
+    a.github:visited	{ background-color: \#f0ff90; }
+    a.github:hover	{ background-color: \#f0ff90; }
+    a.github:active	{ background-color: \#f0ff90; }
+
+    a.sf:link		{ background-color: \#c0e0e0; }
+    a.sf:visited	{ background-color: \#c0e0e0; }
+    a.sf:hover		{ background-color: \#c0e0e0; }
+    a.sf:active		{ background-color: \#c0e0e0; }
+
 </style>
 
 <body>
