@@ -6,7 +6,7 @@ use Getopt::Std;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-03-01 02:35" ; # written by emacs time-stamp
+$VERSION = "2015-03-01 06:54" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -738,6 +738,9 @@ sub ColorUrlDigit($) {
 	    $target = sprintf ("<a href=\"%s/\"%s>%s/</a><a class=\"rev\" href=\"%s\">%s</a>",
 		      $higher, $class_string, $higher,
 		      $higher.'/'. $digit,  $digit);}
+	else {
+	    $target = sprintf ("<a href=\"%s\"%s>%s</a>", $url, $class_string, $url);
+	}
     # ------------------------------
     }
     return $target;
