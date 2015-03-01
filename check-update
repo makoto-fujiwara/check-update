@@ -6,7 +6,7 @@ use Getopt::Std;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-03-01 06:54" ; # written by emacs time-stamp
+$VERSION = "2015-03-01 07:38" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -179,6 +179,7 @@ my (%SpecialPattern) = (
     'apache-ivy-bin',	'$line =~ s|.*/([0-9.]+)/.*|$1|;',
     'pl',		'$line =~ s/.*pl-([0-9.]+)\.tar\..*/$1/;',
     'Par',		'$line =~ s|.*Par([0-9]+)\.tar.*|$1|;',
+    'umefont_',		'$line =~ s|.*umefont_([0-9]+)\.tar.*|$1|;',
     );
 
 my(%SourceForgeAlternative) = qw (
@@ -387,14 +388,14 @@ my (@SPRINTF) = qw (Reaction);
 # devel/p5-enum 1.016 -> 1.016, 1.10 -> 1.100
 my (@V1000) = qw (enum);
 
-# p5-HTTP-Request-Form (HTTP-Request-Form) (1513 ) Now:  0.9.5.2 ->   0.952 Todo:       
+# p5-HTTP-Request-Form (HTTP-Request-Form) (1513 ) Now:  0.9.5.2 ->   0.952 Todo:
 my (@SingleDigit) = qw(HTTP-Request-Form);
 
 # archivers/hpack 79 -> 0.79
-my (@ZeroDot) = qw (hpack);
+my (@ZeroDot) = qw (hpack umefont_);
 
-# hyperestraier
-my (@hyperestraier) = qw (hyperestraier); 
+# hyperestraier Add 1.0.0
+my (@hyperestraier) = qw (hyperestraier);
 
 # Term-ReadLine-Perl5
 my (@DIGIT_IN_NAME) = qw(cal3d emacs-w3m x2x w3m nec2c xnec2c asn1c py34-unittest2py3k p5-GD-Graph3d popa3d tex-algorithm2e sqlalchemy-i18n hdf5-c++ );
