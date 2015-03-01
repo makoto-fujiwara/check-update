@@ -6,7 +6,7 @@ use Getopt::Std;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-03-01 08:00" ; # written by emacs time-stamp
+$VERSION = "2015-03-01 12:35" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -199,7 +199,8 @@ my(%SourceForgeAlternative) = qw (
     Cairo	http://sourceforge.net/projects/gtk2-perl/files/Cairo/1.105/
     Cairo-GObject http://sourceforge.net/projects/gtk2-perl/files/Cairo_GObject/
     Gnome2-Canvas http://sourceforge.net/projects/gtk2-perl/files/Gnome2_Canvas/1.002/
-    Glib	 http://sourceforge.net/projects/gtk2-perl/files/Glib/1.307/
+    Glib	http://sourceforge.net/projects/gtk2-perl/files/Glib/1.307/
+    FreeImage	http://sourceforge.net/projects/freeimage/files/Source%20Distribution/3.16.0/
 ); #'
 
 # PKGBASE to $DISTBASE association Special (ending digit is main customer)
@@ -303,7 +304,7 @@ my (@VER22) = qw(doc2html cfitsio lcc ctags elisau);	# doc2html
 
 #  Device-Gsm Device-Modem Device-SerialPort 
 #  0.46 -> 0.4.6
-my (@DOT2) =  qw(pixmap HTTP-Lite XML-Elemental yencode xworm gambatte_src Class-Std icecastq clex);
+my (@DOT2) =  qw(pixmap HTTP-Lite XML-Elemental yencode xworm gambatte_src Class-Std icecastq clex TiffIO);
 
 # 1.1103  -> 1.11.03
 # IO-CaptureOutput
@@ -367,7 +368,7 @@ my (@DELETE02) = qw(Class-C3-Componentised);
 my (@DOT133) = qw (DBIx-Class-Cursor-Cached IO-Pipeline Mixin-ExtraFields Smart-Comments Parse-RecDescent);
 
 # gdal-lib-1111 -> 1.11.1
-my (@DOT121) = qw (gdal);
+my (@DOT121) = qw (gdal FreeImage);
 
 my (@DOT845) = qw (IO-Prompt);
 
@@ -2499,8 +2500,8 @@ sub InsertDot121($){
     if (length($version) == 4) { 
 	$result = sprintf("%d.%2d.%d", 
 			  substr($version, 0, 1),
-			  substr($version, 2, 2),
-			  substr($version, 4, 1));
+			  substr($version, 1, 2),
+			  substr($version, 3, 1));
 print STDERR sprintf("%4d ", __LINE__ ), ' ', $result, "\n" if $DEBUG_DISTBASE;	
     }
     return $result;
