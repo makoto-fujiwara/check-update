@@ -6,7 +6,7 @@ use Getopt::Std;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-03-01 07:38" ; # written by emacs time-stamp
+$VERSION = "2015-03-01 07:40" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -299,7 +299,7 @@ my (@VER32) = qw(
 gigbase gku bunzip wxRemind qkc atasm bicom bww2tex cgic PDF par jpilot-syncmail asterisk-perl pyserial datlib dutil mdiff rbuild rinfo zident adodb lzma lzop upx piewm sawfish wmctrl wmakerconf mesch gigabase plnode uno Par);
 
 # 31 -> 3.1 # 3370 -> 3.370 devel/cfitsio
-my (@VER22) = qw(doc2html cfitsio lcc ctags);	# doc2html
+my (@VER22) = qw(doc2html cfitsio lcc ctags elisau);	# doc2html
 
 #  Device-Gsm Device-Modem Device-SerialPort 
 #  0.46 -> 0.4.6
