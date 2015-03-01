@@ -6,7 +6,7 @@ use Getopt::Std;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-03-01 07:40" ; # written by emacs time-stamp
+$VERSION = "2015-03-01 08:00" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -324,6 +324,7 @@ my (@DOT3) = qw (
     SQL-Abstract-Limit
     SWF-File
     Template-Plugin-DateTime
+    Time-Local
     XML-Clean
     gdal-lib
     sybperl
