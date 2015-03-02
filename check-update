@@ -6,7 +6,7 @@ use Getopt::Std;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-03-02 05:32" ; # written by emacs time-stamp
+$VERSION = "2015-03-02 05:38" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -180,6 +180,7 @@ my (%SpecialPattern) = (
     'pl',		'$line =~ s/.*pl-([0-9.]+)\.tar\..*/$1/;',
     'Par',		'$line =~ s|.*Par([0-9]+)\.tar.*|$1|;',
     'umefont_',		'$line =~ s|.*umefont_([0-9]+)\.tar.*|$1|;',
+    'makeself',		'$line =~ s|.*makeself-([0-9.]+)\.run.*|$1|;',
     );
 
 my(%SourceForgeAlternative) = qw (
@@ -250,6 +251,7 @@ my(%DownLoadAlternative) = qw (
     gmfsk	http://gmfsk.connect.fi/download.html
     dpbox	http://home.snafu.de/wahlm/dl8hbs/download.html
     lzma	http://www.7-zip.org/sdk.html
+    makeself	http://www.megastep.org/makeself/
     ); ##
 
 # for print/xpdf-arabic etc
