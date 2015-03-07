@@ -6,7 +6,7 @@ use Getopt::Std;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-03-07 05:36" ; # written by emacs time-stamp
+$VERSION = "2015-03-07 07:19" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -357,6 +357,7 @@ my (@DOT3) = qw (
     sybperl
     util-linux
     xsane
+    flow-tools
     );
 
 # 633 -> 6.33.0 InsertDot
