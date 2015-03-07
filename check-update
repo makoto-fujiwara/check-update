@@ -6,7 +6,7 @@ use Getopt::Std;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-03-07 00:19" ; # written by emacs time-stamp
+$VERSION = "2015-03-07 00:21" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -269,6 +269,7 @@ my(%DownLoadAlternative) = qw (
     geomyidae	http://git.r-36.net/geomyidae/
     apache-apollo-unix-distro
     		http://activemq.apache.org/apollo/download.html
+    BitTornado	http://www.bittornado.com/download.html
     ); ##
 
 # for print/xpdf-arabic etc
