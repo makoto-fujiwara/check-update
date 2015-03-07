@@ -6,7 +6,7 @@ use Getopt::Std;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-03-07 00:14" ; # written by emacs time-stamp
+$VERSION = "2015-03-07 00:19" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -185,6 +185,7 @@ my (%SpecialPattern) = (
     'archive',		'$line =~ s|.*archive-([0-9.]+)\.tar.*|$1|;',
     'SOGo',		'$line =~ s|.*SOGo-([0-9]\.[0-9.]+)\.tar.*|$1|;', # not to pick 2007.. version
     'electric',		'$line =~ s|.*electric-([0-9.]+)\.jar.*|$1|;',
+    'apache-apollo-unix-distro', '$line =~ s|.*apache-apollo-([0-9.]+)-unix-distro.tar.*|$1|;',
     );
 
 my(%SourceForgeAlternative) = qw (
@@ -266,6 +267,8 @@ my(%DownLoadAlternative) = qw (
     CGI-SpeedyCGI	http://daemoninc.com/SpeedyCGI/download.html
     djbdns	http://cr.yp.to/djbdns/install.html
     geomyidae	http://git.r-36.net/geomyidae/
+    apache-apollo-unix-distro
+    		http://activemq.apache.org/apollo/download.html
     ); ##
 
 # for print/xpdf-arabic etc
