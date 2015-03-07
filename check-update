@@ -6,7 +6,7 @@ use Getopt::Std;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-03-07 14:47" ; # written by emacs time-stamp
+$VERSION = "2015-03-07 15:08" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -1700,10 +1700,11 @@ sub GitHubIdiom($) {
 	while(<CURL>){
 #	    print STDERR sprintf("%4d ", __LINE__), '(',$directory,') (',$project.') ', $_ if $DEBUG_GITHUB;
 	    print STDERR sprintf("%4d ", __LINE__), $_ if $DEBUG_GITHUB;
-	    if ( m|$directory/$project/tree/([0-9_.]+)|)	{ $ver = $1;}
-	    if ( m|$directory/$project/tag/([0-9_.]+)|)		{ $ver = $1;}
-	    if ( m|$directory/$project/archive/([0-9_.]+)|)	{ $ver = $1;}
-	    if ( m|$directory/$project/archive/.*-([0-9_.]+)|)	{
+	    # should include . or _ after digit (ninja-build has -120715)
+	    if ( m|$directory/$project/tree/v*([0-9][._][0-9_.]+)|)	{ $ver = $1;}
+	    if ( m|$directory/$project/tag/v*([0-9][._][0-9_.]+)|)		{ $ver = $1;}
+	    if ( m|$directory/$project/archive/v*([0-9][._][0-9_.]+)|)	{ $ver = $1;}
+	    if ( m|$directory/$project/archive/.*-([0-9][._][0-9_.]+)|)	{
 		$ver = $1;
 		print STDERR sprintf("%04d <", __LINE__), (caller 0)[3], '>', $ver,"\n" if $DEBUG_GITHUB;
 		}
