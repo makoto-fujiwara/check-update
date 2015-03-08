@@ -6,7 +6,7 @@ use Getopt::Std;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-03-07 15:08" ; # written by emacs time-stamp
+$VERSION = "2015-03-08 02:53" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -2134,6 +2134,7 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (3) ', $distbase, ' --> ', $version,"
 	}
 
 	if ($version =~ m|[0-9.]+pre[0-9]| ) { next;}
+	if ($version =~ m|[0-9.]+beta| ) { next;}
 	if ($version eq '') { next;}
 	if (length($version) > $MAXSTRINGLEN ) { next;} # skip too long
 #  RCRCRC
