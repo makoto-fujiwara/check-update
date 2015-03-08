@@ -6,7 +6,7 @@ use Getopt::Std;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-03-08 07:02" ; # written by emacs time-stamp
+$VERSION = "2015-03-08 07:17" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -1983,10 +1983,12 @@ sub ParseDirectory($$){
 	# DBD-CSV-0.45.tgz
         # zorro-1.1p8.tar.gz -> 8
 	# Class-DBI-Pg-0.08.tar.gz
-
-	if ( /scapy4win_and_pack.zip/) { next;} # net/scapy exception
-	if ( /buildrump-1369495826.tar.bz2/) { next;} # ignore old stuff (misc/rump)
-#print STDERR sprintf("%4d ", __LINE__ ), ' ( ) ', $_,"\n" if $DEBUG_DISTBASE;
+	# ------------------------------------------------
+	# S K I P P I N G   P A R T I C U L A R    F I L E
+	# -----------------------------------------------
+	if ( /scapy4win_and_pack.zip/)		{ next;} # net/scapy exception
+	if ( /Pod-Simple-31337-0.02.tar.gz/)	{ next;} #
+	if ( /buildrump-1369495826.tar.bz2/)	{ next;} # ignore old stuff (misc/rump)
 	if ( $distbase eq 'libXaw' && /libXaw3d/ )	{ next;}
 
 # ----------  A L W A Y S   G O  T H R U   H E R E  --------------
@@ -2850,8 +2852,11 @@ foreach my $dir (@categories) {
     if ($PackageName =~ /^..$/ ) { next;}
     if ($PackageName =~ /^CVS$/ ) { next;}
     if ($PackageName =~ /^suse/i ) { next;}		# skip suse emulation
+# --------------------------------
+#   S K I P P I N G   S P E C I A L
+# --------------------------------
     if ($PackageName =~ /gst-plugins0.10/) { next;}     # skip old versions:
-#    if ($PackageName =~ /Makefile/ ) { next;}
+
     if ($selected ne '' && $selected ne $PackageName) { next;} # -s option 
     if ($skip_until_match) {
 	if ($PackageName =~ /$opts{'s'}/ ) { $skip_until_match = 0; }
