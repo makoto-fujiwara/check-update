@@ -6,7 +6,7 @@ use Getopt::Std;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-03-08 06:57" ; # written by emacs time-stamp
+$VERSION = "2015-03-08 07:02" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -449,7 +449,6 @@ sub CompareVersion($$);
 sub CountPerid($);
 sub DistbaseCacheUpdate($$$);
 sub DistbaseCacheQuery($$);
-sub ExpandURL($$);
 sub GetDistBase($$$$$);
 sub GetMasterSiteCandidate($$$);
 sub GetMasterSiteSub($$$$);
@@ -923,24 +922,6 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (4) ', $version, "\n" if $DEBUG_DISTB
     return $version;
 }
 
-sub ExpandURL($$) {		# <- Not used now (?)
-    my ($upper) = shift;
-    my ($leaf)  = shift;
-    my ($full);
-    my ($host)  = $upper;
-    $host =~ s|^(-http://[^/]*)/*|$1|;
-    $host =~  s|^(http://[^/]*)/*|$1|;
-    $host =~   s|^(ftp://[^/]*)/*|$1|;
-
-    if      ( $leaf =~ m|^http://| || $leaf =~ m|^ftp://|  ) {
-	$full = $leaf;
-    } elsif ( $leaf =~ m|^/|) {
-	$full = $host . $leaf;
-    } else {
-	$full = $upper . $leaf;
-    }
-    return $full;
-}
 # ----------------------------------------------------------------------
 # This routine to find the Base name of distribution file.
 # It will be used to separate the version portion from distribution file.
@@ -1045,31 +1026,7 @@ sub GetDistBaseSwap($$$){
 	if $DEBUG_DISTBASE;
     return $value;
 }
-#    $DISTBASE = GetDistBaseSwap($PKGNAME, $PKGBASE, $DISTBASE);
 
-
-# not used for now (?)
-sub GetDistBaseIOZone($$$$){
-
-#1036   (PKGVERSION_NOREV)  3.429
-#1036            (PKGBASE)  iozone
-#1036           (DISTNAME)  iozone3_429
-#             (PKGVERSION)     3.429
-    my ($pkgbase)	= shift;	# (static-)ast-ksh
-    my ($pkgname)	= shift;	# (static-)ast-ksh-201208012
-    my ($pkgversion)	= shift;	# 201210801
-    my ($distname)	= shift;	# ast-ksh-2012-08-01
-
-    my ($value)		= $distname;	# iozone3_429
-    $value		=~ s/$pkgbase//;# 3_429
-    $value		=~ s/_/./;	# 3.429
-    if ( $value eq $pkgversion)	{ 
-print STDERR sprintf("%4d ", __LINE__ ), "\n" if $DEBUG_DISTBASE;
-	$value = $pkgbase;
-	$SpecialPatternY = '$line =~ /.*$value([0-9_]+).*/';  }
-    else			{ $value = ''; }
-    return $value;
-}
 sub GetDistBasePwlib($$$$){
     my ($pkgbase)	= shift;	#
     my ($pkgname)	= shift;	#
