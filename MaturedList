@@ -2,6 +2,7 @@
 # the DISTNAME won't tell the PKGVERSION.
 # category/package_name format. (Category is really ignored).
 # 
+net/dnsdoctor
 textproc/hunspell
 textproc/hunspell-af_ZA
 textproc/hunspell-ar
