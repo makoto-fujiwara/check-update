@@ -6,7 +6,7 @@ use Getopt::Std;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-03-09 09:35" ; # written by emacs time-stamp
+$VERSION = "2015-03-09 10:14" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -144,7 +144,7 @@ my (@SimplePattern)  = qw(gmpc
 renpy crimson crack-attack hands flags autotrace simulavr hal 
 sign parchive cabextract celt auctex ntp mercury-srcdist Net-Libdnet
 IO-Socket-Multicast
-Net-IPv4Addr Net-IPv6Addr Net-XMPP lzo pen
+Net-IPv4Addr Net-IPv6Addr Net-XMPP lzo pen iperf
  );
 # Net-Libdnet is listed to avoid not to pick Net-Libdnet6-0.27 -as 6-0.27
 #my (@Debian) = qw(signing-party);
