@@ -6,7 +6,7 @@ use Getopt::Std;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-03-09 11:44" ; # written by emacs time-stamp
+$VERSION = "2015-03-09 11:50" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -279,6 +279,7 @@ my(%DownLoadAlternative) = qw (
     iana-etc	http://sethwklein.net/iana-etc
     lftp	http://lftp.yar.ru/get.html
     libdmapsharing https://git.gnome.org/browse/libdmapsharing
+    libdnet	http://code.google.com/p/libdnet/downloads/list
     ); ##
 
 # for print/xpdf-arabic etc
