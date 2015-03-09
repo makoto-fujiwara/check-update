@@ -6,7 +6,7 @@ use Getopt::Std;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-03-09 10:26" ; # written by emacs time-stamp
+$VERSION = "2015-03-09 11:44" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -278,6 +278,7 @@ my(%DownLoadAlternative) = qw (
     hping	http://www.hping.org/download.html
     iana-etc	http://sethwklein.net/iana-etc
     lftp	http://lftp.yar.ru/get.html
+    libdmapsharing https://git.gnome.org/browse/libdmapsharing
     ); ##
 
 # for print/xpdf-arabic etc
@@ -679,13 +680,22 @@ sub ClassifyPackage(@) {
 	    my ($minor) = $3;
 	    $FAMILY{$p} = '$version =~ s/.*'. $lang .'-('.$major.'_'.$minor.'_[0-9]+)\.html.*/$1/' ; 
 	print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1b) family: ', $p, "\n" if $DEBUG_FAMILY;
+	# libdmapsharing{,3}
+	}  elsif ($p =~ /(libdmapsharing)([0-9]*)/) {
+	    my ($pkg)  = $1;
+	    my ($major) = $2;  # {} -> 2.[0-8].[0-9]   {3} -> 2.9.[0-9]+
+	    if ($major eq '') {
+		$FAMILY{$p} = '$version =~ s/.*LIBDMAPSHARING_(2_[0-8_]+).*/$1/i'; ;  }
+	    else {
+		$FAMILY{$p} = '$version =~ s/.*LIBDMAPSHARING_(2_9_[0-9]+).*/$1/i';  }
+	print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1c) family: ', $p, "\n" if $DEBUG_FAMILY;
 	# gtksourceview
 	} elsif ($p =~ /(gtksourceview)([0-9]*)$/) {
 	    my ($pkg)   = $1;
 	    my ($major) = $2;
 	    if ($major eq '') { $major = 1;}
 	    $FAMILY{$p} = '$version =~ s/.*'. $pkg .'-('. $major .'\.[0-9.]+).*/$1/' ;
-	print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1c) family: ', $p, "\n" if $DEBUG_FAMILY;
+	print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1d) family: ', $p, "\n" if $DEBUG_FAMILY;
 	# gnumeric
 	} elsif ($p =~ /(gnumeric)([0-9])([0-9])([0-9])$/) {
 	    my ($pkg)   = $1;
@@ -3042,7 +3052,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
 
 	print STDERR sprintf("%4d ", __LINE__ ), 'MASTER_SITE ', $MASTER_SITE, ' DISTBASE ', $DISTBASE, "\n" if $DEBUG_DISTBASE;
 	print STDERR sprintf("%4d ", __LINE__ ),  $DownLoadAlternative{$DISTBASE}, "\n" if $DEBUG_DISTBASE;
-	if ($#candidate == -1  &&  $DownLoadAlternative{$DISTBASE}) {
+	if ( $DownLoadAlternative{$DISTBASE}) {
 	    $MASTER_SITE= $DownLoadAlternative{$DISTBASE};
 	    print STDERR sprintf("%4d ", __LINE__ ), 'MASTER_SITE ', $MASTER_SITE,"\n" if $DEBUG_DISTBASE;
 		($returnCode, @candidate) = ParseDirectory($MASTER_SITE, $DISTBASE);
