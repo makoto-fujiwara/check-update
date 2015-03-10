@@ -6,7 +6,7 @@ use Getopt::Std;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-03-10 12:28" ; # written by emacs time-stamp
+$VERSION = "2015-03-10 12:38" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -145,7 +145,7 @@ my (@SimplePattern)  = qw(gmpc
 renpy crimson crack-attack hands flags autotrace simulavr hal 
 sign parchive cabextract celt auctex ntp mercury-srcdist Net-Libdnet
 IO-Socket-Multicast
-Net-IPv4Addr Net-IPv6Addr Net-XMPP lzo pen iperf lftp
+Net-IPv4Addr Net-IPv6Addr Net-XMPP lzo pen iperf lftp Text-Diff
  );
 # Net-Libdnet is listed to avoid not to pick Net-Libdnet6-0.27 -as 6-0.27
 #my (@Debian) = qw(signing-party);
@@ -192,6 +192,7 @@ my (%SpecialPattern) = (
     'CRF++',		'$line =~ s|.*CRF.2B.2B-([0-9.]+)\.tar.*|$1|;', # .%2B.%2B
     'FlightCrew-Code',	'$line =~ s|.*FlightCrew-([0-9.]+)-Code\..*|$1|;',
     'icu4c',		'$line =~ s|.*icu4c-src-([0-9._]+).*|$1|;',
+#    'Text-Diff',	'$line =~ s|.*Text-Diff-([0-9._]+).*|$1|;',
     );
 
 my(%SourceForgeAlternative) = qw (
@@ -2025,7 +2026,7 @@ print STDERR sprintf("%4d ** ", __LINE__ ), '(', $distbase,') ', $FAMILY{$distba
 	    ($DEBUG_CURL_LISTING ||  $DEBUG_EVAL_PATTERN);	
 # ----------------------------------------------------------------
 	if ( grep (/$distbase/, @SimplePattern)) {
-	    $_ =~ /.*$distbase-([0-9.]+).*/;
+	    $_ =~ /.*$distbase-([0-9.]+[0-9]).*/;	# not to include last '.'
 	    $version = $1;
 	} elsif ( $SpecialPatternY ) {
 	    $version = $_;
