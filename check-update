@@ -6,7 +6,7 @@ use Getopt::Std;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-03-10 13:28" ; # written by emacs time-stamp
+$VERSION = "2015-03-10 13:29" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -400,6 +400,7 @@ my (@DOT4) = qw (
     Return-Value Software-License Test-MinimumVersion  
     PPIx-Utilities Return-Value Mixin-ExtraFields MooX-Cmd hydrogen
     Pod-Eventual
+    Dancer-Plugin-Auth-RBAC
 );
 
 # 20131217 -> 2013.12.17
