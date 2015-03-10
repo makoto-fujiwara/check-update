@@ -6,7 +6,7 @@ use Getopt::Std;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-03-09 11:50" ; # written by emacs time-stamp
+$VERSION = "2015-03-10 05:51" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -40,6 +40,7 @@ my ($DEBUG_CURL_LISTING);
 my ($DEBUG_DISTBASE);
 my ($DEBUG_DIVIDE_DEVEL) = 0;
 my ($DEBUG_EVAL_PATTERN);
+my ($DEBUG_EDITVersion);
 my ($DEBUG_FAMILY) = 0;
 my ($DEBUG_GITHUB);
 my ($DEBUG_GNOME);
@@ -229,6 +230,7 @@ my(%DISTBASE) = qw (
     ast-ksh	ast-ksh
     p5-Net-IPv4Addr Net-IPv4Addr
     p5-Net-IPv6Addr Net-IPv6Addr
+    p5-Mojo-IOLoop-ForkCall Mojo-IOLoop-ForkCall
     nulib2	nulib
     rar		rar
     rox-archive	archive
@@ -363,6 +365,7 @@ my (@DOT3) = qw (
     util-linux
     xsane
     flow-tools
+    Mojo-IOLoop-ForkCall
     );
 
 # 633 -> 6.33.0 InsertDot
@@ -897,13 +900,13 @@ sub EditVersion($$) {
     if ( ! ($version =~ /[0-9]/    ) ) { return -1;}
 #   if ( ! ($version =~ /$distbase.*[0-9]/) ) { return -1;} 
 
-print STDERR "\n", sprintf("%4d ", __LINE__ ), ' (2) ', $distbase, ' --> ', $version,"\n" if $DEBUG_DISTBASE;
+print STDERR "\n", sprintf("%4d ", __LINE__ ), ' (2) ', $distbase, ' --> ', $version,"\n" if $DEBUG_EDITVersion;
 
 	    if (grep (/^$distbase$/, @THREE) > 0 ) { $version = Three($version, 3);}
 	    if (grep (/^$distbase$/, @ZIP) > 0 )	{ $version = Zip($version, 3);}
 	    if (grep (/^$distbase$/, @VER32) > 0 ) { $version = Three($version, 2);}
 	    if (grep (/^$distbase$/, @VER22) > 0 ) { $version = Two($version);}
-print STDERR sprintf("%4d ", __LINE__ ), ' (3) <', (caller 0)[3] ,'> ', $version, ' --> '  if $DEBUG_DISTBASE;
+print STDERR sprintf("%4d ", __LINE__ ), ' (3) <', (caller 0)[3] ,'> ', $version, ' --> '  if $DEBUG_EDITVersion;
     	    if (grep (/^$distbase$/, @DOT2)  > 0 ) { $version = InsertDot($version, 2);}
        	    if (grep (/^$distbase$/, @DOT3)  > 0 ) { $version = InsertDot($version, 3);}
        	    if (grep (/^$distbase$/, @DOT32)  > 0 ) { $version = InsertDot2($version, 2,4);}
@@ -929,7 +932,7 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (3) <', (caller 0)[3] ,'> ', $version
             if (grep (/^$distbase$/, @ZeroDot)  > 0 )  { $version = '0.'. $version;}
             if (grep (/^$distbase$/, @hyperestraier)  > 0 )  { $version = '1.0.0.'. $version;}
     	    if (grep (/^$distbase$/, @ThreeSingle) > 0 ) { $version = ThreeSingle($version);}
-print STDERR sprintf("%4d ", __LINE__ ), ' (4) ', $version, "\n" if $DEBUG_DISTBASE;
+    print STDERR sprintf("%4d ", __LINE__ ), ' (4) ', $version, "\n" if $DEBUG_EDITVersion;
 #	print STDERR sprintf("%4d ", __LINE__ ), ' ', $_, "\n", $distbase, ' --> ', $version,"\n";
     return $version;
 }
@@ -1645,14 +1648,15 @@ sub GitHubChanges($$){
     close(CURL);
     return (200, $max_version);
 }
-sub GitHubIdiom($) {
+sub GitHubIdiom($$) {
 # ---------
 # MASTER_SITES:   -http://github.com/troglobit/inadyn/archive/1.96.2.zip
 # INFO_PAGE:      https://github.com/troglobit/inadyn/releases
 # Latest release: https://github.com/troglobit/inadyn/tree/1.99.13
 # ---------
 #  https://github.com/radare/acr/releases/tag/0.9.9
-    my($master_site) = shift;
+    my($master_site)	= shift;
+    my($DISTBASE)	= shift;
     my($ver);
     my($max_version) = '0.0';
     print STDERR sprintf("%04d <", __LINE__), (caller 0)[3], '>', $master_site, "\n" if $DEBUG_GITHUB;
@@ -1681,6 +1685,7 @@ sub GitHubIdiom($) {
 	    $ver =~ s|\.$||;
 	    $ver =~ s|_|.|g;
 #	    print STDERR sprintf("%04d <", __LINE__), (caller 0)[3], '>', $ver,"\n" if $DEBUG_GITHUB;
+	    $ver = EditVersion($DISTBASE, $ver);
 	    if (CompareVersion($ver, $max_version) > 0) { $max_version = $ver;}
 	}
 	close(CURL);
@@ -1852,6 +1857,7 @@ sub ParseDebug($){
    C  CurlCommand
    d  DistbasePattern
    e  EvalPattern
+   E  EditVersion
    g  Github
    G  Gnome
    h  HTTPHeader
@@ -1879,6 +1885,7 @@ sub ParseDebug($){
     $DEBUG_HTTP_HEADER		= $DEBUG{'h'} + $DEBUG{'a'} ;
     $DEBUG_CACHE		= $DEBUG{'c'} + $DEBUG{'a'} ;
     $DEBUG_CURL			= $DEBUG{'C'} + $DEBUG{'a'} ;
+    $DEBUG_EDITVersion		= $DEBUG{'E'} + $DEBUG{'a'} ;
     $DEBUG_FAMILY		= $DEBUG{'f'} + $DEBUG{'a'} ;
     $DEBUG_GNOME		= $DEBUG{'G'} + $DEBUG{'a'} ;
     $DEBUG_GITHUB		= $DEBUG{'g'} + $DEBUG{'a'} ;
@@ -2117,22 +2124,23 @@ print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '> (distbase) ', $dist
 	if ($version =~ /^[0-9_]+$/ ) { $version =~ s|_|.|g;} # contao 3_2_44 -> 3.2.44
 print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> (distbase) ', $distbase,' (version) ', $version, "\n" if ($DEBUG_DISTBASE || $DEBUG_EVAL_PATTERN);
 
+print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> distbase: ', $distbase,' (version) ', $version, "\n" if $DEBUG_EDITVersion;
+
 	if ($version eq '') { next;}
 	if ( ! ($version =~ /[0-9]/ )) { next; } # need at least one digit
-
 	# 552 -> 5.5.2, 2.1.3 -> 213 (nkf) etc
 	#	if ($version =~ /1-bit ui/) { next;} # security sign pecuriarity
 # the following line is harmfull if EditVersion is active 1.2907 > 1.29.07  
 #	push(@candidate, $version); # for the safefy, push before edit too
 	my($edit_version) = EditVersion($distbase, $version);
-print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> distbase: ', $distbase,' (version) ', $edit_version, "\n" if $DEBUG_DISTBASE;
+print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> distbase: ', $distbase,' (version) ', $edit_version, "\n" if $DEBUG_EDITVersion;
 #	if ($edit_version =~ /37/ ) {
 # print STDERR sprintf("%4d <", __LINE__), (caller 0)[3],'> (edit_version) ',$edit_version, "\n"; }
 	    push(@candidate, "$edit_version");
 #	    $count   =	CountPeriod($version);
 
-    } # end while
-print STDERR sprintf("%4d ", __LINE__ ), ' (distbase) ', $distbase,' (version) ', $version, "\n" if $DEBUG_DISTBASE;	
+    } # end while ($_ = shift @ThisCurl ) {
+print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[3], '> (distbase) ', $distbase,' (version) ', $version, "\n" if $DEBUG_DISTBASE;
     }
     my ($returnCode) = 0;
     print STDERR sprintf("%4d ", __LINE__ ), '==> curl_lines: ', $curl_lines, "\n" if $DEBUG_DISTBASE;
@@ -3019,8 +3027,8 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	}
 	print STDERR sprintf("%4d ", __LINE__ ), $#candidate, "\n" if $DEBUG_GITHUB;
 	if ($#candidate == -1  && $master_site =~ /github.com/ ) {
-	    ($returnCode, @candidate) =  GitHubIdiom($master_site);
-	    print STDERR sprintf("%4d ", __LINE__ ), 'idiom checked: ', $candidate[0], "\n" if $DEBUG_DISTBASE
+	    ($returnCode, @candidate) =  GitHubIdiom($master_site, $DISTBASE);
+	    print STDERR sprintf("%4d ", __LINE__ ), 'idiom checked: ', $candidate[0], "\n" if $DEBUG_DISTBASE;
 	}
 	print STDERR sprintf("%4d ", __LINE__ ), $#candidate, "\n" if $DEBUG_GITHUB;
 	if ($#candidate == -1  && $HOMEPAGE && $HOMEPAGE =~ /github.com/ ) {
