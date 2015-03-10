@@ -6,7 +6,7 @@ use Getopt::Std;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-03-10 13:17" ; # written by emacs time-stamp
+$VERSION = "2015-03-10 13:28" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -193,6 +193,7 @@ my (%SpecialPattern) = (
     'FlightCrew-Code',	'$line =~ s|.*FlightCrew-([0-9.]+)-Code\..*|$1|;',
     'icu4c',		'$line =~ s|.*icu4c-src-([0-9._]+).*|$1|;',
 #    'Text-Diff',	'$line =~ s|.*Text-Diff-([0-9._]+).*|$1|;',
+    'krb5',		'$line =~ s|.*krb5-([0-9.]+[0-9])-(signed)\..*|$1|;',
     );
 
 my(%SourceForgeAlternative) = qw (
@@ -245,6 +246,7 @@ my(%DISTBASE) = qw (
     xdg-utils	xdg-utils
     icu		icu4c
     p5-mecab	mecab
+    mit-krb5	krb5
     );
    
 my(%DownLoadAlternative) = qw (
@@ -292,6 +294,7 @@ my(%DownLoadAlternative) = qw (
     CRF++	http://code.google.com/p/crfpp/downloads/list
     FlightCrew	http://code.google.com/p/flightcrew/downloads/list
     highlight	http://www.andre-simon.de/zip/download.php
+    krb5	http://web.mit.edu/kerberos/dist
     ); ##
 
 # for print/xpdf-arabic etc
