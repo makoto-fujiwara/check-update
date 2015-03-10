@@ -6,7 +6,7 @@ use Getopt::Std;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-03-10 12:24" ; # written by emacs time-stamp
+$VERSION = "2015-03-10 12:28" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -191,6 +191,7 @@ my (%SpecialPattern) = (
     'flodo-v',		'$line =~ s|.*flodo-v([0-9.]+)\.tar.*|$1.0|;',
     'CRF++',		'$line =~ s|.*CRF.2B.2B-([0-9.]+)\.tar.*|$1|;', # .%2B.%2B
     'FlightCrew-Code',	'$line =~ s|.*FlightCrew-([0-9.]+)-Code\..*|$1|;',
+    'icu4c',		'$line =~ s|.*icu4c-src-([0-9._]+).*|$1|;',
     );
 
 my(%SourceForgeAlternative) = qw (
@@ -241,6 +242,7 @@ my(%DISTBASE) = qw (
     hping3	hping3
     flodo	flodo-v
     xdg-utils	xdg-utils
+    icu		icu4c
     );
    
 my(%DownLoadAlternative) = qw (
