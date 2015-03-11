@@ -6,7 +6,7 @@ use Getopt::Std;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-03-11 01:02" ; # written by emacs time-stamp
+$VERSION = "2015-03-11 01:11" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -196,6 +196,7 @@ my (%SpecialPattern) = (
 #    'Text-Diff',	'$line =~ s|.*Text-Diff-([0-9._]+).*|$1|;',
     'krb5',		'$line =~ s|.*krb5-([0-9.]+[0-9])-(signed)\..*|$1|;',
     'perl',		'$line =~ s|.*perl-([0-9]+\.[0-9]*[02468]\.[0-9]+)\.tar.*|$1|;',
+    'gnu-crypto-bin',	'$line =~ s|.*gnu-crypto-([0-9.]+)-bin\.tar.*|$1|;',
     );
 
 my(%SourceForgeAlternative) = qw (
@@ -2043,9 +2044,9 @@ sub ParseDirectory($$){
 	if ( $distbase eq 'libXaw' && /libXaw3d/ )	{ next;}
 
 # ----------  A L W A Y S   G O  T H R U   H E R E  --------------
-print STDERR sprintf("%4d ** ", __LINE__ ), '(', $distbase,') ', $SpecialPattern{$distbase},': ', $_,"\n" if 
+print STDERR sprintf("%4d ** ", __LINE__ ), '(', $distbase,') ', $SpecialPattern{$distbase},': ', $_,"\n" if
 	    ($DEBUG_CURL_LISTING ||  $DEBUG_EVAL_PATTERN);
-print STDERR sprintf("%4d ** ", __LINE__ ), '(', $distbase,') ', $FAMILY{$distbase},': ', $version,"\n" if 
+print STDERR sprintf("%4d ** ", __LINE__ ), '(', $distbase,') ', $FAMILY{$distbase},': ', $version,"\n" if
 	    ($DEBUG_CURL_LISTING ||  $DEBUG_EVAL_PATTERN);	
 # ----------------------------------------------------------------
 	if ( grep (/$distbase/, @SimplePattern)) {
@@ -2055,7 +2056,7 @@ print STDERR sprintf("%4d ** ", __LINE__ ), '(', $distbase,') ', $FAMILY{$distba
 	    $version = $_;
 print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', '(SpecialPatternY) ', $SpecialPatternY,"\n" if   ($DEBUG_CURL_LISTING ||  $DEBUG_EVAL_PATTERN);		
 	    eval $SpecialPatternY ;
-print STDERR sprintf("%4d ", __LINE__ ), '($version) ', $version, "\n" if   ($DEBUG_CURL_LISTING ||  $DEBUG_EVAL_PATTERN);		
+print STDERR sprintf("%4d ", __LINE__ ), '($version) ', $version, "\n" if   ($DEBUG_CURL_LISTING ||  $DEBUG_EVAL_PATTERN);
 	} elsif ( grep (/$distbase/, keys %SpecialPattern)) {
 	    print STDERR sprintf("%4d ", __LINE__ ), '(', $distbase,') ', $_,"\n" if $DEBUG_EVAL_PATTERN;
 	    #  E V A L U A T E SpecialPattern
