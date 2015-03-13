@@ -6,7 +6,7 @@ use Getopt::Std;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-03-10 13:43" ; # written by emacs time-stamp
+$VERSION = "2015-03-13 05:36" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -196,6 +196,7 @@ my (%SpecialPattern) = (
 #    'Text-Diff',	'$line =~ s|.*Text-Diff-([0-9._]+).*|$1|;',
     'krb5',		'$line =~ s|.*krb5-([0-9.]+[0-9])-(signed)\..*|$1|;',
     'perl',		'$line =~ s|.*perl-([0-9]+\.[0-9]*[02468]\.[0-9]+)\.tar.*|$1|;',
+    'apache-ant-bin',	'$line =~ s|.*apache-ant-([0-9.]+)-bin.*|$1|;',
     );
 
 my(%SourceForgeAlternative) = qw (
