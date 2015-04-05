@@ -1,4 +1,5 @@
 (TODO)
+  - Issue for */*-devel package. Some 53 are listed now
   - sentinel (watch timeout of curl process)
   - Taking care math/R-* package
   - README.md
@@ -11,16 +12,8 @@
   - If no argument, take current directory as category/package
     (In that case, no html output will generated)
 
-   * interactive option should use pwd while lookin for /usr/pkgsrc
-
    * If the (last) argument, say @ARGV has shape categery/package
     take it as it is.
-
-  - devel/RTFM
-   *
-   http://-> https:// location header can not be handled properly
-   devel/RTFM 	RTFM 	2.4.5 	->	0.0	2.4.5	pkgsrc-users	http://download.bestpractical.com/pub/rt/release/
-
 
     * decide the only one final status for each package (for (0.0) case)  and then collect the Stats
 
