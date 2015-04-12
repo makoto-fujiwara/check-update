@@ -40,20 +40,20 @@ README.md	      |   [Markdown](https://help.github.com/articles/markdown-basics/
 
 
 ## check-update
-# help
+### help
 >  check-update -h
 
 will tell you the other options.
 
-# single mode
+### single mode
 
 > cd /usr/pkgsrc/category/package; /PATH/TO/check-update
 
-# category mode
+### category mode
 
 > /PATH/TO/check-update -c category
 
-# whole tree
+### whole tree
 
 > /PATH/TO/check-update
 
