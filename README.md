@@ -13,8 +13,8 @@ README.md	      |   [Markdown](https://help.github.com/articles/markdown-basics/
 [check-update-sample.sh](check-update-sample.sh)| 0. Shell script to drive whole thing, intending to be crontab driven								 
 [Makefile]          (Makefile)           | 1. for example,  'make -j 24' for 16 thread machine (BSD makefile)
 [check-update](check-update)             | 2. Main Script to find a new version of each package  (perl script) 
-[merge-check-update](merge-check-update) | 3. Merge by-category results into 00_Whole.html  (perl script) 
-[summary-diff](summary-diff)             | 4. Generate diff to previous run
+[merge-check-update](merge-check-update) | 3. Merge by-category results into 00_whole.html  (perl script) 
+[summary-diff](summary-diff)             | 4. Generate diff to previous run (perl script)
 [collect-stats](collect-stats)	         | 5. Compile table from the directory into [00_Summary.html](http://www.ki.nu/~makoto/pkgsrc/check-update/00_Summary.html)  (perl script) 
 
 ### Prerequisite
@@ -40,18 +40,33 @@ README.md	      |   [Markdown](https://help.github.com/articles/markdown-basics/
 
 
 ## check-update
+# help
 >  check-update -h
 
 will tell you the other options.
 
->  check-update -u
+# single mode
+
+> cd /usr/pkgsrc/category/package; /PATH/TO/check-update
+
+# category mode
+
+> /PATH/TO/check-update -c category
+
+# whole tree
+
+> /PATH/TO/check-update
+
+(cvs update prior to run)
+
+> /PATH/TO/check-update -u
 
 is the most typical usage. Reading /usr/pkgsrc and by category
 it will 'cvs update', and generates the report as
 
 >  ~/public_html/pkgsrc/check-update/yyyy-dd-mm.html
 
-(eval `ssh-agent`; ssh-add ) may be recommended to get
+(eval `ssh-agent`; ssh-add ) may be helpful to get
 cvs udpate done smoothly).
 
 But it will take several tens of hours.
