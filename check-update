@@ -573,7 +573,7 @@ sub CheckRubyGems($){
     open(PKG_INFO, "pkg_info|") || print STDERR sprintf("%4d ", __LINE__), "Failed for pkg_info\n";
     while(<PKG_INFO>) {
 	if (/^(.*rubygems-.*[0-9.]+)/ )	{ $gems_package = $1; $no_rubygems = 0; }
-	if (/^ruby2*-[a-z]*/ )		{ $gems_name = 'gem'; $no_rubygems = 0; }  # hard code for ruby2.*
+	if (/^ruby2[0-9]*-[a-z]*/ )		{ $gems_name = 'gem'; $no_rubygems = 0; }  # hard code for ruby2.*
     }
     close(PKG_INFO);
     if ($no_rubygems) { die sprintf("%4d <", __LINE__), (caller 0)[3], "> *** Please install misc/rubygems or lang/ruby2*\n";}
