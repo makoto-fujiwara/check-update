@@ -6,7 +6,7 @@ use Getopt::Std;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-04-12 09:04" ; # written by emacs time-stamp
+$VERSION = "2015-04-14 02:25" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -576,7 +576,7 @@ sub CheckRubyGems($){
 	if (/^ruby2*-[a-z]*/ )		{ $gems_name = 'gem'; $no_rubygems = 0; }  # hard code for ruby2.*
     }
     close(PKG_INFO);
-    if ($no_rubygems) { die sprintf("%4d <", __LINE__), (caller 0)[3], "> *** Please install misc/rubygems\n";}
+    if ($no_rubygems) { die sprintf("%4d <", __LINE__), (caller 0)[3], "> *** Please install misc/rubygems or lang/ruby2*\n";}
     print STDERR  sprintf("%4d <", __LINE__), (caller 0)[3], '> gems_package ', $gems_package,"\n"
 	if $DEBUG_RUBYGEM;
     if ($gems_name eq '') {
