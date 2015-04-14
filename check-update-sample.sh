@@ -10,7 +10,7 @@ JOBS=36
 # Check if required packages installed
 FAIL=0
 echo ' *** (1) Checking packages required'
-for p in httping curl git-base p5-Net-DNS *rubygems mozilla-rootcerts; do
+for p in httping curl git-base p5-Net-DNS p5-Algorithm-Diff rubygems mozilla-rootcerts; do
    NOT_EXIST=0
    pkg_info -q -c $p  > /dev/null 2>&1
    RC=$?
