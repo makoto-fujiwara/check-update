@@ -1,6 +1,16 @@
 (TODO)
   - sourceforge: sometimes get and sometimes does not get (for example)
      libghttp             (=) (3167 ) Now:    1.0.9 ->   1.0.9 Todo:       not-to-list
+   (possibility ?)
+  ftp.gnome.org.          809     IN      CNAME   ftp.acc.umu.se.
+  ftp.acc.umu.se.         315     IN      A       130.239.18.163
+  ftp.acc.umu.se.         315     IN      A       130.239.18.165
+  ftp.acc.umu.se.         315     IN      A       130.239.18.173
+
+130.239.18.163  ftp.gnome.org (bad)
+130.239.18.165  ftp.gnome.org (good)
+130.239.18.173  ftp.gnome.org (bad)
+
   - Issue for */*-devel package. Some 53 are listed now
   - sentinel (watch timeout of curl process)
   - Taking care math/R-* package
