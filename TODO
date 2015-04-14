@@ -1,4 +1,6 @@
 (TODO)
+  - sourceforge: sometimes get and sometimes does not get (for example)
+     libghttp             (=) (3167 ) Now:    1.0.9 ->   1.0.9 Todo:       not-to-list
   - Issue for */*-devel package. Some 53 are listed now
   - sentinel (watch timeout of curl process)
   - Taking care math/R-* package
