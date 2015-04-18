@@ -35,7 +35,7 @@ fi
 
 echo ' *** (4) Applying mk/fetch/sites.mk patch'
 
-(cd /tmp/pkgsrc ; patch -s -p0 < ${SITE_PATCH} )
+(cd /tmp/pkgsrc ; patch -s -N -p0 < ${SITE_PATCH} )
 
 echo ' *** (5) Applying mk/fetch/sites.mk patch'
 

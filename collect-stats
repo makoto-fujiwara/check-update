@@ -54,7 +54,7 @@ HEAD
 my($DIR) = $ENV{'HOME'}.'/public_html/pkgsrc/check-update';
 my($URL) = 'http://www.ki.nu/~makoto/pkgsrc/check-update/';
 my($date);
-my(@DATE);
+my(@RAW, @DATE);
 
 # collect number
 my(%FOUND);
@@ -69,6 +69,7 @@ my($HTML) = $DIR.'/00_Summary.html';
 #   $HTML  = '/tmp/00_summary.html';
 my(%CATEGORY);
 
+# Get dir listing
 opendir(DIR, $DIR) || print "Problem opening directory: $DIR: $!\n";
 while( $_ = readdir(DIR) ) {
     if (/^\.$/) { next;}
@@ -76,14 +77,18 @@ while( $_ = readdir(DIR) ) {
     if (/(^2.*)/) {
 	$date = $1;
 	if (-d $DIR.'/'.$date) {
-	    push(@DATE, $date);}
+	    push(@RAW, $date);}
     }
 }
 closedir(DIR);
 
+    my (@DATE) = sort @RAW;
 open(HTML, ">$HTML") || print "Problem opening to write $HTML: $!\n";
 
+# Trim (truncate) to recent 20 dates
 while ( $#DATE > 20) { shift @DATE ;}
+#    print join "\n", @DATE;
+#exit;
 
 Header(*HTML);
 foreach my $date (sort @DATE) {
