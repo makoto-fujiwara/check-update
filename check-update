@@ -6,7 +6,7 @@ use Getopt::Std;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-04-18 12:02" ; # written by emacs time-stamp
+$VERSION = "2015-04-18 12:16" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -199,6 +199,8 @@ my (%SpecialPattern) = (
     'perl',		'$line =~ s|.*perl-([0-9]+\.[0-9]*[02468]\.[0-9]+)\.tar.*|$1|;',
     'gnu-crypto-bin',	'$line =~ s|.*gnu-crypto-([0-9.]+)-bin\.tar.*|$1|;',
     'apache-ant-bin',	'$line =~ s|.*apache-ant-([0-9.]+)-bin.*|$1|;',
+    'shinonome-src',	'$line =~ s|.*shinonome-([0-9.]+)-src.*|$1|;',
+    'IPAfont',		'$line =~ s|.*IPAfont([0-9.]+)\.zip.*|$1|;',
     );
 
 my(%SourceForgeAlternative) = qw (
@@ -300,6 +302,7 @@ my(%DownLoadAlternative) = qw (
     FlightCrew	http://code.google.com/p/flightcrew/downloads/list
     highlight	http://www.andre-simon.de/zip/download.php
     krb5	http://web.mit.edu/kerberos/dist
+    IPAfont	http://ipafont.ipa.go.jp/ipafont/download.html
     ); ##
 
 # for print/xpdf-arabic etc
