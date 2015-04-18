@@ -6,7 +6,7 @@ use Getopt::Std;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-04-18 00:47" ; # written by emacs time-stamp
+$VERSION = "2015-04-18 12:02" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -358,8 +358,8 @@ my (@VER22) = qw(doc2html cfitsio lcc ctags elisau html);	# doc2html
 
 #  Device-Gsm Device-Modem Device-SerialPort 
 #  0.46 -> 0.4.6
-my (@DOT2) =  qw(pixmap HTTP-Lite XML-Elemental yencode xworm gambatte_src Class-Std icecastq clex TiffIO );
-
+my (@DOT2) =  qw(pixmap HTTP-Lite XML-Elemental yencode xworm gambatte_src Class-Std icecastq clex TiffIO
+TakaoExFonts_ TakaoFonts_);
 # 1.1103  -> 1.11.03
 # IO-CaptureOutput
 # 	p5-sybperl 	2.16 	->	2.171	2.18
@@ -962,10 +962,10 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (3) <', (caller 0)[3] ,'> ', $version
 	    # devel/p5-Devel-FindRef 	p5-Devel-FindRef 	1.422 	->	1.44
 	    if (grep (/^$distbase$/, @LeftJustify1_3)  > 0 ) { $version = LeftJustify($version,1,3);} # count(1.3)
     	    if (grep (/^$distbase$/, @SingleDigit)  > 0 ) { $version = SingleDigit($version);}
-    	    if (grep (/^$distbase$/, @DELETE02)  > 0 ) { $version = Delete02($version);}
-            if (grep (/^$distbase$/, @ZeroDot)  > 0 )  { $version = '0.'. $version;}
-            if (grep (/^$distbase$/, @hyperestraier)  > 0 )  { $version = '1.0.0.'. $version;}
-    	    if (grep (/^$distbase$/, @ThreeSingle) > 0 ) { $version = ThreeSingle($version);}
+	    if (grep (/^$distbase$/, @DELETE02)	 > 0 ) { $version = Delete02($version);}
+	    if (grep (/^$distbase$/, @ZeroDot)	> 0 )  { $version = '0.'. $version;}
+	    if (grep (/^$distbase$/, @hyperestraier)  > 0 )  { $version = '1.0.0.'. $version;}
+	    if (grep (/^$distbase$/, @ThreeSingle) > 0 ) { $version = ThreeSingle($version);}
     print STDERR sprintf("%4d ", __LINE__ ), ' (4) ', $version, "\n" if $DEBUG_EDITVersion;
 #	print STDERR sprintf("%4d ", __LINE__ ), ' ', $_, "\n", $distbase, ' --> ', $version,"\n";
     return $version;
