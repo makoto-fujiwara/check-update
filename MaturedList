@@ -3,6 +3,7 @@
 # category/package_name format. (Category is really ignored).
 # 
 net/dnsdoctor
+sysutils/acpidump
 textproc/hunspell
 textproc/hunspell-af_ZA
 textproc/hunspell-ar
