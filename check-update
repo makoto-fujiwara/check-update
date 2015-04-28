@@ -6,7 +6,7 @@ use Getopt::Std;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-04-28 00:28" ; # written by emacs time-stamp
+$VERSION = "2015-04-28 01:53" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -1662,14 +1662,17 @@ sub GetWipInfo($){
 }
 # -------------------------------------------------------------
 # line 3009 ( or around )
-sub GitHubSpecial($$){
-    my ($distbase) = shift;
-    my ($master_site) = shift;
+sub GitHubSpecial($$$$){
+    my ($distbase)	= shift;
+    my ($master_site)	= shift;
         $master_site =~ s|archive/|releases|;
+    my ($dir)		= shift;
+    my ($PackageName)	= shift;
     my (@candidate); 
     my ($curl_lines) = 0;
 
-    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> ', $distbase, "\n" if $DEBUG_DISTBASE;
+    my ($GITHUB_PROJECT)	= GetVariableValue($dir, $PackageName, 'GITHUB_PROJECT');
+    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> ', $distbase, ' P(', $GITHUB_PROJECT, ")\n" if $DEBUG_DISTBASE || $DEBUG_GITHUB;
     #   https://github.com/jberger/Mojo-IOLoop-ForkCall/archive/
     #   https://github.com/jberger/Mojo-IOLoop-ForkCall/archive/0.16.tar.gz
     #   https://github.com/jberger/Mojo-IOLoop-ForkCall/release
@@ -1687,6 +1690,23 @@ sub GitHubSpecial($$){
 	    }
     }
     close(CURL);
+#  ------ Following is truely ad-hoc for misc/libcec, (github and libcec-2.2.0-repack) type
+    if ( $#candidate == -1 ) {
+	$curl_command  = "$curl_list_secure $master_site/$GITHUB_PROJECT";
+  print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> curl_command: ', $curl_command, "\n" if $DEBUG_GITHUB;
+    open(CURL,  "$curl_command|") ||     print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> Problem for curl', "$!\n";
+    while(<CURL>) {
+	print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> (',$distbase, ') ', $_ if $DEBUG_GITHUB;
+	$distbase =~ s/-[a-z]+//;
+	if (m|/$distbase-([0-9.]+)|) {
+	    my($cand) = $1;
+	    push(@candidate, $cand);
+	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> ', $cand, ' :: ', $_, "\n" if $DEBUG_GITHUB;
+	    }
+    }
+    close(CURL);
+    }
+# ------ End special
     return ( 200, @candidate)
 }
 # -------------------------------------------------------------
@@ -3138,9 +3158,9 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	    print STDERR sprintf("%4d ", __LINE__ ), 'MASTER_SITE ', $MASTER_SITE if $DEBUG_DISTBASE;
 	    ($returnCode, @candidate) = ParseDirectory(
 		"https://warehouse.python.org/project/".$DISTBASE, $DISTBASE);}
-
+	print STDERR sprintf("%4d ", __LINE__ ), 'MASTER_SITE ', $MASTER_SITE, ' DISTBASE ', $DISTBASE, ' cand (', $#candidate,")\n" if $DEBUG_GITHUB;
 	if ($#candidate  == -1 && ($MASTER_SITE =~ m|github.com/|) ) {
-	    ($returnCode, @candidate) = GitHubSpecial($DISTBASE, $MASTER_SITE);
+	    ($returnCode, @candidate) = GitHubSpecial($DISTBASE, $MASTER_SITE, $dir, $PackageName);
 	}
 
 	print STDERR sprintf("%4d ", __LINE__ ), 'MASTER_SITE ', $MASTER_SITE, ' DISTBASE ', $DISTBASE, "\n" if $DEBUG_DISTBASE;
