@@ -6,7 +6,7 @@ use Getopt::Std;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-04-28 00:21" ; # written by emacs time-stamp
+$VERSION = "2015-04-28 00:28" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -353,7 +353,7 @@ my (@THREE) = qw(gtkglarea falcons-eye quakedata abcde binkd bwwtex cryptopp dir
 # 600 -> 6.0  zip
 my (@ZIP) = qw (zip unzip fMSX);
 
-my (@Arabian) = qw(SGMLspm);
+my (@Arabian) = qw(SGMLSpm);
 # 100 -> 1.00 type
 my (@VER32) = qw(
 gigbase gku bunzip wxRemind qkc atasm bicom bww2tex cgic PDF par jpilot-syncmail asterisk-perl pyserial datlib dutil mdiff rbuild rinfo zident adodb lzma lzop upx piewm sawfish wmctrl wmakerconf mesch gigabase plnode uno Par);
@@ -941,39 +941,38 @@ sub EditVersion($$) {
 #   if ( ! ($version =~ /$distbase.*[0-9]/) ) { return -1;} 
 
 print STDERR "\n", sprintf("%4d ", __LINE__ ), ' (2) ', $distbase, ' --> ', $version,"\n" if $DEBUG_EDITVersion;
-
-	if (grep (/^$distbase$/, @THREE)	>= 0 ) { $version = Three($version, 3);}
-	if (grep (/^$distbase$/, @ZIP)		>= 0 )	{ $version = Zip($version, 3);}
-	if (grep (/^$distbase$/, @VER32)	>= 0 ) { $version = Three($version, 2);}
-	if (grep (/^$distbase$/, @VER22)	>= 0 ) { $version = Two($version);}
+	if (grep (/^$distbase$/, @THREE)	> 0 ) { $version = Three($version, 3);}
+	if (grep (/^$distbase$/, @ZIP)		> 0 )	{ $version = Zip($version, 3);}
+	if (grep (/^$distbase$/, @VER32)	> 0 ) { $version = Three($version, 2);}
+	if (grep (/^$distbase$/, @VER22)	> 0 ) { $version = Two($version);}
 print STDERR sprintf("%4d ", __LINE__ ), ' (3) <', (caller 0)[3] ,'> ', $version, ' --> '  if $DEBUG_EDITVersion;
-	if (grep (/^$distbase$/, @DOT2)		>= 0 ) { $version = InsertDot($version, 2);}
-	if (grep (/^$distbase$/, @DOT3)		>= 0 ) { $version = InsertDot($version, 3);}
-	if (grep (/^$distbase$/, @DOT32)	>= 0 ) { $version = InsertDot2($version, 2,4);}
-	if (grep (/^$distbase$/, @DOT133)	>= 0 ) { $version = InsertDot133($version);}
-	if (grep (/^$distbase$/, @DOT4)		>= 0 ) { $version = InsertDot($version, 4);}
-	if (grep (/^$distbase$/, @DOT121)	>= 0 ) { $version = InsertDot121($version);}
-	if (grep (/^$distbase$/, @DOT845)	>= 0 ) { $version = InsertDot845($version);}
-	if (grep (/^$distbase$/, @DELETEDOT)	>= 0 ) { $version = DeleteDot($version, 2);}
-	if (grep (/^$distbase$/, @ADDZERO)	>= 0 ) { $version = AddZero($version, 1);}
-	if (grep (/^$distbase$/, @ADDZERO2)	>= 0 ) { $version = AddZero($version, 2);}
-	if (grep (/^$distbase$/, @DELDOT422)	>= 0 ) { $version = DelDot422($version, 5, 8);}
+	if (grep (/^$distbase$/, @DOT2)		> 0 ) { $version = InsertDot($version, 2);}
+	if (grep (/^$distbase$/, @DOT3)		> 0 ) { $version = InsertDot($version, 3);}
+	if (grep (/^$distbase$/, @DOT32)	> 0 ) { $version = InsertDot2($version, 2,4);}
+	if (grep (/^$distbase$/, @DOT133)	> 0 ) { $version = InsertDot133($version);}
+	if (grep (/^$distbase$/, @DOT4)		> 0 ) { $version = InsertDot($version, 4);}
+	if (grep (/^$distbase$/, @DOT121)	> 0 ) { $version = InsertDot121($version);}
+	if (grep (/^$distbase$/, @DOT845)	> 0 ) { $version = InsertDot845($version);}
+	if (grep (/^$distbase$/, @DELETEDOT)	> 0 ) { $version = DeleteDot($version, 2);}
+	if (grep (/^$distbase$/, @ADDZERO)	> 0 ) { $version = AddZero($version, 1);}
+	if (grep (/^$distbase$/, @ADDZERO2)	> 0 ) { $version = AddZero($version, 2);}
+	if (grep (/^$distbase$/, @DELDOT422)	> 0 ) { $version = DelDot422($version, 5, 8);}
             # www/p5-Reaction 	p5-Reaction 	0.2.5 	->	0.002005
-	if (grep (/^$distbase$/, @SPRINTF)	>= 0 )	{ $version = VerSprintf($version, 0,1, '', 2,3, '', 5,3 );}
+	if (grep (/^$distbase$/, @SPRINTF)	> 0 )	{ $version = VerSprintf($version, 0,1, '', 2,3, '', 5,3 );}
 	    # p5-Net-INET6Glue 0.603 -> 0.6.2
-	if (grep (/^$distbase$/, @NetINET6Glue)	>= 0 ) { $version = VerSprintf($version, 0,1, '', 2,1, '', 3,2 );}
+	if (grep (/^$distbase$/, @NetINET6Glue)	> 0 ) { $version = VerSprintf($version, 0,1, '', 2,1, '', 3,2 );}
             # Text-Markdown 1.000031 -> 1.0.31
-	if (grep (/^$distbase$/, @TextMarkdown)	>= 0 ) { $version = VerSprintf($version, 0,1, '', 2,3, '', 5,3 );}
-	if (grep (/^$distbase$/, @bash)		>= 0 ) { $version = VerSprintf($version, 0,1, '', 2,2, '0', 4,2 );}
+	if (grep (/^$distbase$/, @TextMarkdown)	> 0 ) { $version = VerSprintf($version, 0,1, '', 2,3, '', 5,3 );}
+	if (grep (/^$distbase$/, @bash)		> 0 ) { $version = VerSprintf($version, 0,1, '', 2,2, '0', 4,2 );}
 	    # devel/p5-Devel-FindRef 	p5-Devel-FindRef 	1.422 	->	1.44
-	if (grep (/^$distbase$/, @LeftJustify1_3)>= 0 ) { $version = LeftJustify($version,1,3);} # count(1.3)
-	if (grep (/^$distbase$/, @SingleDigit)	>= 0 ) { $version = SingleDigit($version);}
-	if (grep (/^$distbase$/, @DELETE02)	>= 0 ) { $version = Delete02($version);}
-	if (grep (/^$distbase$/, @ZeroDot)	>= 0 ) { $version = '0.'. $version;}
-	if (grep (/^$distbase$/, @hyperestraier)>= 0 ) { $version = '1.0.0.'. $version;}
-	if (grep (/^$distbase$/, @ThreeSingle)	>= 0 ) { $version = ThreeSingle($version);}
-    #	if (grep (/^$distbase$/, @Arabian)	>= 0 ) { $version = TransArabian($version);}
-	if (grep (/^$distbase$/, @Arabian)	>= 0 ) { $version =~ s/ii/.2/; }
+	if (grep (/^$distbase$/, @LeftJustify1_3)> 0 ) { $version = LeftJustify($version,1,3);} # count(1.3)
+	if (grep (/^$distbase$/, @SingleDigit)	> 0 ) { $version = SingleDigit($version);}
+	if (grep (/^$distbase$/, @DELETE02)	> 0 ) { $version = Delete02($version);}
+	if (grep (/^$distbase$/, @ZeroDot)	> 0 ) { $version = '0.'. $version;}
+	if (grep (/^$distbase$/, @hyperestraier)> 0 ) { $version = '1.0.0.'. $version;}
+	if (grep (/^$distbase$/, @ThreeSingle)	> 0 ) { $version = ThreeSingle($version);}
+    #	if (grep (/^$distbase$/, @Arabian)	> 0 ) { $version = TransArabian($version);}
+	if (grep (/^$distbase$/, @Arabian)	> 0 ) { $version =~ s/ii/.2/; }
     print STDERR sprintf("%4d ", __LINE__ ), ' (4) ', $version, "\n" if $DEBUG_EDITVersion;
 #	print STDERR sprintf("%4d ", __LINE__ ), ' ', $_, "\n", $distbase, ' --> ', $version,"\n";
     return $version;
