@@ -6,7 +6,7 @@ use Getopt::Std;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-04-29 05:02" ; # written by emacs time-stamp
+$VERSION = "2015-04-29 06:01" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -689,7 +689,7 @@ my(%FAMILY);
 sub ClassifyPackage(@) {
     # classify packages into Normal or Family
     # Family means like 
-    #	x11/gtksourcereview[ 23]
+    #	x11/gtksourcereview[23]*
     #	databases/postgresql9[0123]-server
     #	py-ipython01[03]
     # Normal is others, even ending with digit(s)
@@ -697,7 +697,7 @@ sub ClassifyPackage(@) {
     foreach my $p (@packages) {
 	my ($with_digit)	= 0 ;
 	my ($family)	= 0 ;
-	if ( $p =~ /dri[23]proto/ ) { return;}
+	if ( $p =~ /dri[23]proto/ ) { return;} # exclude special (non family) case
 
 	# gcc and lua special 
 	if ($p =~ /(apache|netatalk|gcc|lua|php|python)([0-9])([0-9])$/) {
@@ -774,7 +774,6 @@ sub ClassifyPackage(@) {
 	    }
 #	        print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (2) family: ', $p, "\n" if $DEBUG_FAMILY;
 	}
-
 	# Sandwitched number
 	elsif ($p =~ /(.*)([0-9])(.*)/) { 
 	    my ($one, $two, $three) = ($1, $2, $3);
