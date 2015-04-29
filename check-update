@@ -6,7 +6,7 @@ use Getopt::Std;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-04-29 04:50" ; # written by emacs time-stamp
+$VERSION = "2015-04-29 05:02" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -2798,7 +2798,7 @@ print STDERR  $version,"\n" if $DEBUG_DISTBASE;
 }
 ## ----------------------------------------
 ##         M A I N   R o u t i n e    Main
-## ----------------------------------------
+#  ----------------------------------------
 #$SIG{'INT'} = 'SingintHandler';
 my ($PackageStart);	# For timing, not used for now
 my ($PackageEnd);
@@ -2896,8 +2896,9 @@ $pwd =~ chomp($pwd);
 
 open(SUMMARY, "> $summary_tmp") || print STDERR "Problem opening $summary for write: $!\n";
 PrintHeader($full_list);	# controlls style for highlighting
-
-
+# --------------------------------------------------------------
+##                   F O R E A C H   D I R
+# --------------------------------------------------------------
 foreach my $dir (@categories) {  # major loop to the line 3261 ... some 400 lines
     my ($console_color) = '';
 
@@ -2936,7 +2937,7 @@ foreach my $dir (@categories) {  # major loop to the line 3261 ... some 400 line
 
 #   -----------------------------
 ##    R E A D   D I R E C T O R Y
-#   -----------------------------    
+#   -----------------------------
     opendir(CATEGORIES, "$pwd/$dir") || 
 	print STDERR "problem opendir $pwd/$dir: $! \n",
 	__FILE__ , ' -> ', (caller 0)[3], ': ',  sprintf("%4d ", __LINE__ ),"\n" ;
@@ -3022,6 +3023,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
     #  ----------------------------------------------------------------------------
 
 	if ( grep (/$PackageName/, @SkipTooOld) > 0 ) { $SkipTooOld++; next; }
+	# ------------- P a c k a g e  n a m e ---------
 	# -------------------
 	## Read Makefile and get several VALUES
 
@@ -3283,6 +3285,9 @@ print STDERR sprintf("%4d ", __LINE__ ),
     # -----------------------------------------
     
 #} #end sub DoEachPackage
+# --------------------------------------------------------------
+##          E N D  F O R   F O R E A C H   D I R
+# --------------------------------------------------------------
   }   #     foreach my $dir (@categories) {
     Stats($start_time, $argv);
 close(SUMMARY);
