@@ -6,7 +6,7 @@ use Getopt::Std;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-04-29 01:23" ; # written by emacs time-stamp
+$VERSION = "2015-04-29 04:50" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -3017,7 +3017,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
 
     my ($Makefile) = $this_PackageDir.'/Makefile';
     if ( ! -f "$Makefile")        { print STDERR "Makefile does not exist or is not file\n"; next; }
-# ----------- I M P O R T A N T    S T A T I S T I S   V A L U E -------------
+	# ----------- I M P O R T A N T    S T A T I S T I S   V A L U E -------------
     $TotalChecked++;			# becoming serial so on (to count)
     #  ----------------------------------------------------------------------------
 
@@ -3178,9 +3178,9 @@ print STDERR sprintf("%4d ", __LINE__ ),
 print STDERR sprintf("%4d ", __LINE__ ), 
 ' (PKGBASE) ', $PKGBASE, ' --> http: ', $http_code, 'Now: ', $PKGVERSION, ' $available: ', $available,"\n" if $DEBUG_DISTBASE;        
 
-# --------------  # $GEM_PACKAGE else end
+	# --------------  # $GEM_PACKAGE else end
     } 
-# -------------------
+	# ------------------- back to top level of main
 print STDERR sprintf("%4d ", __LINE__ ), 
 ' (PKGBASE) ', $PKGBASE, ' --> http: ', $MasterSiteStat, 'Now: ', $PKGVERSION, ' $available: ', $available,"\n" if $DEBUG_DISTBASE;        
 
@@ -3194,9 +3194,9 @@ print STDERR sprintf("%4d ", __LINE__ ),
     $console_string .= 
     sprintf  ("%20s %15s %4s Now: %8s -> %7s Todo: %5s ", 
 	$PKGBASE_TO_SHOW, '('.$DISTBASE_TO_SHOW.')', '('.sprintf("%4d ", __LINE__ ).')', $PKGVERSION,  $available, $TODO{$PKGBASE});
-    # ------------------------------------------------------------
-    ##   F I N D    T H E    C O N D I T I O N    T O    L I S T
-    # ------------------------------------------------------------
+	# ------------------------------------------------------------
+	##   F I N D    T H E    C O N D I T I O N    T O    L I S T
+	# ------------------------------------------------------------
     print STDERR sprintf("%4d ", __LINE__ ). ' '. $DISTBASE. ' -> '. $available. "\n" if $DEBUG_CACHE;
     if    ( CompareVersion( $available, $PKGVERSION) >  0 )	{ $Found++; $console_color = 'black'; # for stats and just below
     } elsif ( $TODO{$PKGBASE} &&
@@ -3243,7 +3243,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
     elsif ($HomePageStat != 200 ) { $HomePageString =  "<span class=\"pale_dns\"> (". $HomePageStat.')</span> ';}
     my ($MasterSiteString);
     if ($MasterSiteStat != 200 && $available eq '0.0' ) { $MasterSiteString =  "<span class=\"pale_dns\">(". $MasterSiteStat.')</span> ';}
-    # -----------  E D I T         M A I N T A I N E R  -------
+	# -----------  E D I T         M A I N T A I N E R  -------
     $MAINTAINER =~ s/\@NetBSD.org//i;
     $MAINTAINER =  substr($MAINTAINER, 0, 13);  # pkgsrc-users@ 13 letters
 
