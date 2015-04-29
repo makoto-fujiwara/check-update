@@ -6,7 +6,7 @@ use Getopt::Std;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-04-29 01:14" ; # written by emacs time-stamp
+$VERSION = "2015-04-29 01:23" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -2975,16 +2975,15 @@ foreach my $dir (@categories) {  # major loop to the line 3261 ... some 400 line
     if ($PackageName =~ /^suse/i ) { next;}		# skip suse emulation
      # --------------------------------
      ##   S K I P P I N G   S P E C I A L
-#  --------------------------------
+     #  --------------------------------
     if ($PackageName =~ /gst-plugins0.10/) { next;}     # skip old versions:
-
     if ($selected ne '' && $selected ne $PackageName) { next;} # -s option 
     if ($skip_until_match) {
 	if ($PackageName =~ /$opts{'s'}/ ) { $skip_until_match = 0; }
 	else { next;}
     }
-     # -------------- 
-     ##   D I V I D E    D E V E L  Special -----------------------
+     # ------------------------------------------------------------------------
+     ##   D I V I D E    pkgsrc/devel  Special  (skip if matched)
      #  If category is devel, check if it is in the particular part of three parts.
      #  This is to speed up by parallel execution if make -j multiple requested 
      #  -------------------------------------------------------------------------
@@ -3006,31 +3005,29 @@ print STDERR sprintf("%4d ", __LINE__ ),
              ' PackageName ' , $PackageName,
 	    ' DIVIDE_DEVEL{$divide_devel} ', $DIVIDE_DEVEL{$divide_devel}, " :Processing..\n"
 	if $DEBUG_DIVIDE_DEVEL;
-     ## ------  E N D    D I V I D E    D E V E L  Special -----------------------
+     ## ------  E N D    D I V I D E    pkgsrc/devel  Special 
     my ($this_PackageDir) = $dir.'/'.$PackageName;
     my ($reverse)   = 0;	# for displaying flag
 
     $PackageStart = time();
-    my($thispwd) = `pwd`;
+    my($thispwd) = `pwd`;    # not really effectively used
     $thispwd =~ chomp($thispwd);
 #    print STDERR '   ***', __FILE__ , ' -> ', (caller 0)[3], ': ',  sprintf("%4d ", __LINE__ )," " ;
     if ( ! -d $this_PackageDir ) { print STDERR "Not directory: $thispwd -> $this_PackageDir\n"; next;}
 
     my ($Makefile) = $this_PackageDir.'/Makefile';
     if ( ! -f "$Makefile")        { print STDERR "Makefile does not exist or is not file\n"; next; }
-
-
-     # ----------- I M P O R T A N T    S T A T I S T I S   V A L U E -------------
+# ----------- I M P O R T A N T    S T A T I S T I S   V A L U E -------------
     $TotalChecked++;			# becoming serial so on (to count)
     #  ----------------------------------------------------------------------------
 
-    if ( grep (/$PackageName/, @SkipTooOld) > 0 ) { $SkipTooOld++; next;}
+	if ( grep (/$PackageName/, @SkipTooOld) > 0 ) { $SkipTooOld++; next; }
 	# -------------------
 	## Read Makefile and get several VALUES
 
-    ($MAINTAINER, $HOMEPAGE, $GEM_PACKAGE, $PEAR_PACKAGE, $HS_PACKAGE, $SFProject, $TEXLIVE, $EGG_PACKAGE)
+	($MAINTAINER, $HOMEPAGE, $GEM_PACKAGE, $PEAR_PACKAGE, $HS_PACKAGE, $SFProject, $TEXLIVE, $EGG_PACKAGE)
 	= ReadMakefile($dir, $PackageName);
-    $PKGVERSION		= GetVariableValue ($dir, $PackageName, 'PKGVERSION_NOREV');
+	$PKGVERSION		= GetVariableValue ($dir, $PackageName, 'PKGVERSION_NOREV');
 	my ($location); # destination to be directed
 	if              ( $HOMEPAGE eq '')	{ $HomePageStat = '';}
 	elsif (! CheckDNS($HOMEPAGE))		{ $HomePageStat = 'DNS';}
