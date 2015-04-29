@@ -6,7 +6,7 @@ use Getopt::Std;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-04-29 00:56" ; # written by emacs time-stamp
+$VERSION = "2015-04-29 01:14" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -2935,7 +2935,7 @@ foreach my $dir (@categories) {  # major loop to the line 3261 ... some 400 line
     if ($dir =~ /^doc$/ )	{ next;}  # doc is to be updated (if -u), so check later here
 
 #   -----------------------------
-#    R E A D   D I R E C T O R Y
+##    R E A D   D I R E C T O R Y
 #   -----------------------------    
     opendir(CATEGORIES, "$pwd/$dir") || 
 	print STDERR "problem opendir $pwd/$dir: $! \n",
@@ -2948,9 +2948,9 @@ foreach my $dir (@categories) {  # major loop to the line 3261 ... some 400 line
     # set regexp in %FAMILY
     ClassifyPackage(@PackageNames);
     
-    # ------------------------------------
-    #    F O R   E A C H  P A C K A G E     ( to line 3297, some 350 lines )
-    #  ------------------------------------
+# ------------------------------------
+##    F O R   E A C H  P A C K A G E     ( to line 3297, some 350 lines )
+#  ------------------------------------
     foreach my $PackageName (@PackageNames) { 
 	my ($candidate);
 	    $#candidate = -1;	# initialize as empty;
@@ -2973,9 +2973,9 @@ foreach my $dir (@categories) {  # major loop to the line 3261 ... some 400 line
     if ($PackageName =~ /^..$/ ) { next;}
     if ($PackageName =~ /^CVS$/ ) { next;}
     if ($PackageName =~ /^suse/i ) { next;}		# skip suse emulation
-# --------------------------------
-##   S K I P P I N G   S P E C I A L
-# --------------------------------
+     # --------------------------------
+     ##   S K I P P I N G   S P E C I A L
+#  --------------------------------
     if ($PackageName =~ /gst-plugins0.10/) { next;}     # skip old versions:
 
     if ($selected ne '' && $selected ne $PackageName) { next;} # -s option 
@@ -2983,10 +2983,11 @@ foreach my $dir (@categories) {  # major loop to the line 3261 ... some 400 line
 	if ($PackageName =~ /$opts{'s'}/ ) { $skip_until_match = 0; }
 	else { next;}
     }
-# -------------- D I V I D E    D E V E L  Special -----------------------
-#  If category is devel, check if it is in the particular part of three parts.
-#  This is to speed up by parallel execution if make -j multiple requested 
-# -------------------------------------------------------------------------
+     # -------------- 
+     ##   D I V I D E    D E V E L  Special -----------------------
+     #  If category is devel, check if it is in the particular part of three parts.
+     #  This is to speed up by parallel execution if make -j multiple requested 
+     #  -------------------------------------------------------------------------
 	my ($develPattern) = $DIVIDE_DEVEL{$divide_devel};
 	if ( $category eq 'devel'	&&
 	     $divide_devel  		&&  
@@ -3005,7 +3006,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
              ' PackageName ' , $PackageName,
 	    ' DIVIDE_DEVEL{$divide_devel} ', $DIVIDE_DEVEL{$divide_devel}, " :Processing..\n"
 	if $DEBUG_DIVIDE_DEVEL;
-# ------  E N D    D I V I D E    D E V E L  Special -----------------------
+     ## ------  E N D    D I V I D E    D E V E L  Special -----------------------
     my ($this_PackageDir) = $dir.'/'.$PackageName;
     my ($reverse)   = 0;	# for displaying flag
 
@@ -3019,13 +3020,13 @@ print STDERR sprintf("%4d ", __LINE__ ),
     if ( ! -f "$Makefile")        { print STDERR "Makefile does not exist or is not file\n"; next; }
 
 
-    # ----------- I M P O R T A N T    S T A T I S T I S   V A L U E -------------
+     # ----------- I M P O R T A N T    S T A T I S T I S   V A L U E -------------
     $TotalChecked++;			# becoming serial so on (to count)
-    # ----------------------------------------------------------------------------
+    #  ----------------------------------------------------------------------------
 
     if ( grep (/$PackageName/, @SkipTooOld) > 0 ) { $SkipTooOld++; next;}
-# -------------------
-## Read Makefile and get several VALUES
+	# -------------------
+	## Read Makefile and get several VALUES
 
     ($MAINTAINER, $HOMEPAGE, $GEM_PACKAGE, $PEAR_PACKAGE, $HS_PACKAGE, $SFProject, $TEXLIVE, $EGG_PACKAGE)
 	= ReadMakefile($dir, $PackageName);
@@ -3036,7 +3037,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	else {($HomePageStat, $location) = CheckHeader($HOMEPAGE); }
 	
     $PKGBASE	= GetVariableValue ($dir, $PackageName, 'PKGBASE');
-	# -----------------------------------------------------------------------
+	#  ----------------------------------------------------------------
     if ($TEXLIVE) { $StatTEXLIVE++; next;} # skip texlive for the moment
     # GEM_PACKAGE and %FAMILY
 	my ($p);
@@ -3051,9 +3052,9 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	$available = GetGemVersion($DISTBASE, $gems_name);
 	$http_code = 0;
 	print STDERR sprintf("%4d ", __LINE__ ), ' HOMEPAGE: ', $HOMEPAGE,"\n" if $DEBUG_RUBYGEM;
-# -----------------------------------------------------------------------
-    } else {	# not $GEM_PACKAGE to 3181 (some 130 lines)
-# -----------------------------------------------------------------------	
+        # ------------  not $GEM_PACKAGE to 3181 (some 130 lines)
+    } else {	
+#  -----------------------------------------------------------------------	
 	print STDERR sprintf("%4d ", __LINE__ ), '#candidate: ', $#candidate, ' DISTBASE: ', $DISTBASE,"\n" if $DEBUG_GNOME;
 
 	my($PKGNAME)	= $PKGBASE . '-'. $PKGVERSION;
@@ -3078,16 +3079,16 @@ print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> (DISTBASE) ', $D
 	    $SFProject = $1; }
 	# ----------------------------------------------------------------
 	##            S O U R C E F O R G E   S P E C I A L
-	# ----------------------------------------------------------------
+	#  ----------------------------------------------------------------
 	if ($SFProject && $SFProject != -1 ) {
 	    my($returnCode);
 	    ($URL, $returnCode, @candidate) = GetSFProjectCandidate($SFProject, $DISTBASE);
  print STDERR sprintf("%4d ", __LINE__ ),
 ' (PKGBASE) ', $PKGBASE, 'URL: ', $URL,"\n" if $DEBUG_SF;
 	# ---------------------------------------------------------------
-	##  N O T   S O U R C E F O R G E
+	##    N O T   S O U R C E F O R G E
 	} else {
-	# ---------------------------------------------------------------
+	#  ---------------------------------------------------------------
 	    if ($MASTER_SITE eq '') { 
 printf STDERR  ColorString('red', 
 	sprintf("%20s %15s %4s Skipping, MASTER_SITES is empty\n",
@@ -3180,8 +3181,8 @@ print STDERR sprintf("%4d ", __LINE__ ),
 print STDERR sprintf("%4d ", __LINE__ ), 
 ' (PKGBASE) ', $PKGBASE, ' --> http: ', $http_code, 'Now: ', $PKGVERSION, ' $available: ', $available,"\n" if $DEBUG_DISTBASE;        
 
-# -----------------------------------------------------------------------
-    } # $GEM_PACKAGE else
+# --------------  # $GEM_PACKAGE else end
+    } 
 # -------------------
 print STDERR sprintf("%4d ", __LINE__ ), 
 ' (PKGBASE) ', $PKGBASE, ' --> http: ', $MasterSiteStat, 'Now: ', $PKGVERSION, ' $available: ', $available,"\n" if $DEBUG_DISTBASE;        
@@ -3296,7 +3297,7 @@ exit;
 __END__
 ## Local Variables:
 ## mode: outline-minor
-## outline-regexp: "^[ 	]*sub\\s-+\\([-[:alnum:]+_:]+\\)\\|^\\(?:my\\|our\\)\\s-+\\([$@%][-[:alnum:]+_:]+\\)\\s-*=\\|^[ 	]*package\\s-+\\([-[:alnum:]+_:]+\\);\\|^=head[0-9][ 	]+\\(.*\\)\\|^=cut\\>\\|^[	 ]*\\#\\# \\|^[	 ]*\\#[ ]+-----------"
+## outline-regexp: "^[ 	]*sub\\s-+\\([-[:alnum:]+_:]+\\)\\|^\\(?:my\\|our\\)\\s-+\\([$@%][-[:alnum:]+_:]+\\)\\s-*=\\|^[ 	]*package\\s-+\\([-[:alnum:]+_:]+\\);\\|^=head[0-9][ 	]+\\(.*\\)\\|^=cut\\>\\|^[	 ]*\\#\\# \\|^[	 ]*\\# -----------"
 ## End:
 
 ; please note I have copy in ~/.emacs-sub/time-stamp-setup.el
