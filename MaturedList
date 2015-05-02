@@ -1,9 +1,12 @@
 # List of package names not to check, mainly matured, or 
 # the DISTNAME won't tell the PKGVERSION.
+# or legal issue
 # category/package_name format. (Category is really ignored).
 # 
 net/dnsdoctor
 sysutils/acpidump
+textproc/convertlit
+textproc/lit2epub
 textproc/hunspell
 textproc/hunspell-af_ZA
 textproc/hunspell-ar
