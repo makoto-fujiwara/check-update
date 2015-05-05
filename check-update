@@ -7,7 +7,7 @@ use v5.16;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-05-05 10:51" ; # written by emacs time-stamp
+$VERSION = "2015-05-05 14:14" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -52,6 +52,8 @@ my ($DEBUG_SF);
 my ($DEBUG_SPECIAL_PATTERN);
 my ($DEBUG_STATS);
 my ($DEBUG_VER_PATTERN) = 0;
+
+my ($SINGLE_PACKAGE) = 0;
 
 my(%LongName)  = (
    'a',  'enable_All',
@@ -2874,24 +2876,25 @@ if ($opts{'W'}) { $update_wip++};	# not implemented yet
 if (($category eq '' ) && ($selected =~ m|(.*)/(.*)| ) ||
     ( $ARGV[0] =~ m|(.*)/(.*)| ) ) {
     $category = $1; $selected = $2;
-    $skip_rubygems_check++;
-    $summary_tmp = '/dev/null';
+    $SINGLE_PACKAGE++;
 } elsif ( $category eq '' && $selected eq '' ){
     my ($pwd) = `pwd`;
     chomp($pwd);
     $pwd =~ m|([^/]+)/([^/]+)$|;
     $category = $1; $selected = $2;
-    $skip_rubygems_check++;
-    $summary_tmp = '/dev/null';
+    $SINGLE_PACKAGE++;
 
 	$pkgsrc = `pwd` ;
 	chomp($pkgsrc);
 	$pkgsrc =~ s|[^/]+/[^/]+/*$||;
-	print STDERR sprintf("%4d ", __LINE__), 'now pkgsrc ', $pkgsrc, "\n";
-
+#	print STDERR sprintf("%4d ", __LINE__), 'now pkgsrc ', $pkgsrc, "\n";
 }
+if ($SINGLE_PACKAGE) {
+   $skip_rubygems_check++;
+   $summary_tmp = '/dev/null';
+} else {
     print STDERR sprintf("%4d ", __LINE__), ' *** category (', $category, ') package (', $selected, ")\n";
-
+}
 my($gems_name);
 
 $gems_name = CheckRubyGems( $skip_rubygems_check );
@@ -2978,7 +2981,8 @@ foreach my $dir (@categories) {  # major loop to the line 3261 ... some 400 line
     my (@PackageNames) = readdir(CATEGORIES);
     closedir(CATEGORIES);
     
-    printf STDERR "%4d     ---  (%s) ---\n", sprintf("%4d ", __LINE__ ), $dir;
+
+    printf STDERR "%4d     ---  (%s) ---\n", sprintf("%4d ", __LINE__ ), $dir if ! $SINGLE_PACKAGE;
 
     # set regexp in %FAMILY
     ClassifyPackage(@PackageNames);
