@@ -3,10 +3,11 @@ use strict;
 #use warning;
 use Net::DNS;	# net/p5-Net-DNS
 use Getopt::Std;
+use v5.16;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-05-05 08:19" ; # written by emacs time-stamp
+$VERSION = "2015-05-05 08:57" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -51,26 +52,29 @@ my ($DEBUG_SPECIAL_PATTERN);
 my ($DEBUG_STATS);
 my ($DEBUG_VER_PATTERN) = 0;
 
-my(%LongName) = qw(
-   a  enable_All
-   c  Cache
-   C  CurlCommand
-   d  DistbasePattern
-   e  EvalPattern
-   E  EditVersion
-   f  FamilyClassify
-   g  Github
-   G  Gnome
-   h  HTTPHeader
-   l  CurlListing
-   n  CountNumber
-   p  SpecialPattern
-   r  RubyGems
-   s  SourceForge
-   S  Stats
-   x  CurlCache
+my(%LongName)  = (
+   'a',  'enable_All',
+   'c',  'Cache',
+   'C',  'Curl Command',
+   'd',  'Distbase Pattern',
+   'e',  'Eval Special Pattern',
+   'E',  'Edit Version',
+   'f',  'Family Classify',
+   'g',  'Github',
+   'G',  'Gnome',
+   'h',  'HTTP Header',
+   'l',  'Curl Listing',
+   'n',  'CountNumber (not implemented yet)',
+   'p',  'Special Pattern',
+   'r',  'RubyGems',
+   's',  'SourceForge',
+   'S',  'Stats number',
+   'x',  'Curl Cache',
 );
-
+#foreach my $l (keys %LongName) {
+#    print $l, " -> ", $LongName{$l},"\n";
+#}
+#exit;
 my ($curl_head)		= 'curl -k -I --location --insecure';
 my ($curl_head_secure)	= 'curl -k -I --location --insecure -s';
 my ($curl_list)		= 'curl -k -l --location --insecure ';
@@ -569,9 +573,8 @@ Where:
    -W : Check the version in wip (not implemented yet)
    -x : activate DEBUG_ITEMS (examples: -x dh, -x a, etc.) see below for letters
 HELP
-
-#   foreach my $L (sort {$a =~ y,A-Z,a-z,; $b =~ y,A-Z,a-z,; $a cmp $b;} keys %LongName) {
-    foreach my $L (sort keys %LongName) {
+# use v5.16 is for this fc (see perldoc -f fc)
+    foreach my $L (sort {fc($a) cmp fc($b)} keys %LongName) {
 	printf "       %s %s\n", $L, $LongName{$L};
     }
     print <<HELP2;
