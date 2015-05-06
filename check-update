@@ -7,7 +7,7 @@ use v5.16;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-05-06 13:25" ; # written by emacs time-stamp
+$VERSION = "2015-05-06 14:28" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -1906,6 +1906,48 @@ sub GnomeSpecial($$){
 	    push(@list, $ver);
 	    if (CompareVersion($ver, $candidate) > 0 ) { $candidate = $ver;}
 	}			   
+    }
+    close(CURL);
+    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '$lines: ', $lines, '  retry: ', $retry, "\n" if $DEBUG_GNOME;
+    }
+    while ($retry-- > 0 && $lines < $MIN_LINES );
+
+    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>',  $candidate,"\n" if $DEBUG_GNOME;
+
+    # And then find the file in the directory
+    my($site) = $GNOME_FTP_SITE . $PKGBASE .'/'. $candidate. '/';
+	$ver  = ParseDirectorySmall($site, $PKGBASE);
+
+    $returnCode = 0 ; $candidate[0] = $ver;
+    return ($returnCode, @candidate);
+}
+sub SFSubDirectory($$){
+    my($PKGBASE) = shift;
+    my($master_site)  = shift;
+    my($GNOME_FTP_SITE) = 'http://ftp.gnome.org/pub/GNOME/sources/';
+
+    my(@candidate);
+    my($candidate);
+
+    my(@list);
+    my($ver) = '0.0';
+
+    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> package_base (', $PKGBASE,")\n" if $DEBUG_GNOME;
+    my ($retry) = 3;
+    my ($lines) = 0;
+    do {
+    open(CURL, "$curl_list $GNOME_FTP_SITE/$PKGBASE/ 2>&1 |") ||
+	print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> Problem: ', "$!\n";
+    $lines = 0;
+    while(<CURL>) {
+	print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], $_ if $DEBUG_GNOME;
+	$lines++;
+	# find directory first,
+	if ( m|<a href=\"([0-9]\.[0-9]*[02468][.0-9]*)/| ) {
+	    $ver = $1;
+	    push(@list, $ver);
+	    if (CompareVersion($ver, $candidate) > 0 ) { $candidate = $ver;}
+	}
     }
     close(CURL);
     print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '$lines: ', $lines, '  retry: ', $retry, "\n" if $DEBUG_GNOME;
