@@ -7,7 +7,7 @@ use v5.16;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-05-05 14:14" ; # written by emacs time-stamp
+$VERSION = "2015-05-06 05:20" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -2475,7 +2475,10 @@ sub Stats($$){
     my($number) =  "%-21s %6d  %s\n";
     my($number2) = "%-41s %6d  %s\n";
     my($number3) = "%-41s %6d  %s\n";    
+    # 95 + 21 - 7(Matured)
+    my($number4) = "%-107s %6d  %s\n";
 
+    my($URLmatured) = '<a href="https://github.com/makoto-fujiwara/check-update/blob/master/MaturedList">Matured:</a>';
 # Be carefull to have each header has colon(:) for merge-process be done correctly
 
     print  SUMMARY '<pre>',"\n";
@@ -2496,7 +2499,8 @@ sub Stats($$){
     printf SUMMARY $number,  "Site not in DNS:",	$DNSProblem;
 
     printf SUMMARY $number,  'Name ends with digit:',	$SkippedEndingDigit,	'(The name ends with digits, may give false version)';
-    printf SUMMARY $number,  'Matured:',		$SkipTooOld,	'(No update expected)';
+    printf SUMMARY $number4,  $URLmatured,		$SkipTooOld,	'(No update expected)';
+
     printf SUMMARY $number,  'Texlive:',		$StatTEXLIVE,	'(Texlive is skipped for now)';
     printf SUMMARY $number,  'META_PACKAGE:',		$MetaPackage,	'(Other than meta-pkgs category)';
     printf SUMMARY $number,  'Confusing:',		$Reverse,	'<span class="reverse">(Found version wrong, hilighted, only for debug purpose)</span>';
