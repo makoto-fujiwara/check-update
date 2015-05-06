@@ -7,7 +7,7 @@ use v5.16;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-05-06 13:03" ; # written by emacs time-stamp
+$VERSION = "2015-05-06 13:25" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -52,6 +52,7 @@ my ($DEBUG_RUBYGEM);
 my ($DEBUG_SF);
 my ($DEBUG_SPECIAL_PATTERN);
 my ($DEBUG_STATS);
+my ($DEBUG_URL);
 my ($DEBUG_VER_PATTERN) = 0;
 
 my ($SINGLE_PACKAGE) = 0;
@@ -63,7 +64,7 @@ my(%LongName)  = (
    'd',  'Distbase Pattern',
    'e',  'Eval Special Pattern',
    'E',  'Edit Version',
-   'f',  'Family Classify',
+   'f',  'Classify (find family)',
    'g',  'Github',
    'G',  'Gnome',
    'h',  'HTTP Header',
@@ -73,6 +74,7 @@ my(%LongName)  = (
    'r',  'RubyGems',
    's',  'SourceForge',
    'S',  'Stats number',
+   'u',  'URL',
    'x',  'Curl Cache',
 );
 #foreach my $l (keys %LongName) {
@@ -2004,12 +2006,12 @@ sub ParseDebug($){
     my ($pattern) = shift;
     my %DEBUG;
 
-  $LongName{'f'} = 'Classify (find family)';
-	;
     if ( $pattern =~ /a/ ) { $pattern = 'acCdegfGhlnprsSx' }
     print STDERR sprintf("%4d ", __LINE__ ), ' DEBUG pattern (',  $pattern,  ')',"\n";
     foreach my $index (0 .. length($pattern) - 1 ){
 	my $char = substr($pattern, $index, 1);
+	if (grep (/$char/, 'acCdegfGhlnprsSux') < 1) {
+	    print STDERR  ' ** Debug char not defined, see with -h option.',"\n"; exit;}
 	$DEBUG{$char}++;
 	print STDERR  '   ',$char,'  ', $LongName{$char}, "\n";
 	}
@@ -2029,6 +2031,7 @@ sub ParseDebug($){
     $DEBUG_STATS		= $DEBUG{'S'} + $DEBUG{'a'} ;
     $DEBUG_RUBYGEM		= $DEBUG{'r'} + $DEBUG{'a'} ;
     $DEBUG_SPECIAL_PATTERN	= $DEBUG{'p'} + $DEBUG{'a'} ;
+    $DEBUG_URL			= $DEBUG{'u'} + $DEBUG{'a'} ;
     $DEBUG_CURL_CACHE		= $DEBUG{'x'} + $DEBUG{'a'} ;
     print STDERR "\n";
 }
@@ -2038,6 +2041,7 @@ sub ParseDirectorySmall($$){
     my ($master_site) = shift;
     my ($distbase)   = shift;
 
+    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> master_site: ', $master_site, "\n" if $DEBUG_URL;
 # http://ftp.gnome.org/pub/GNOME/sources/3.10/';
 #  pick following line
 #  anjuta-3.10.0.tar.xz
@@ -2084,6 +2088,7 @@ sub ParseDirectory($$){   # 2064  to  2285 lines (220 lines
 
     my (@candidate);
     my ($version);
+    print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[3], '> ', $master_site, "   \n" if  $DEBUG_URL ;
     if ($master_site eq '')	{ print STDERR sprintf("%4d ", __LINE__ ), ' $master_site is empty ',	 "\n"; return -1;}
     if ($master_site eq 'DNS')	{ print STDERR sprintf("%4d ", __LINE__ ), ' ',$distbase,' has DNS problem',"\n"; return -1;}
     if (0) {
@@ -2094,6 +2099,7 @@ sub ParseDirectory($$){   # 2064  to  2285 lines (220 lines
     }
     print STDERR sprintf("%4d ", __LINE__ ), ' ', $master_site, "   \n" if  $DEBUG_DISTBASE ;
     } # (0) disabled
+    print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[3], '> ', $master_site, "   \n" if  $DEBUG_URL ;
     my($curl_lines) = 0; # count how many lines came from curl -l
     my($repeat) = 3 ;
     my($sslv3) = '';
@@ -2792,7 +2798,7 @@ sub GetSFProjectCandidate($$) {
 		print STDERR sprintf("%4d ", __LINE__ ), ' SFProject: ',  $SFProject."\n" if $DEBUG_SF;
     $master_site = $SF_SITE. 'sourceforge/' . $SFProject . '/';
     my ($status, $location) = CheckHeader($master_site);
-       print STDERR sprintf("%4d ", __LINE__ ), ' (1) master_site(', $master_site, ') status('. $status.")\n"  if $DEBUG_SF;
+    print STDERR sprintf("%4d ", __LINE__ ), ' (1) master_site(', $master_site, ') status('. $status.")\n"  if $DEBUG_SF || $DEBUG_URL;
     if ($status == 200 ) {
 	($returnCode, @candidate) = ParseDirectory($master_site, $DISTBASE);
     } else {
