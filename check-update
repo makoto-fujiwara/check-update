@@ -7,7 +7,7 @@ use v5.16;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-05-06 05:50" ; # written by emacs time-stamp
+$VERSION = "2015-05-06 09:05" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -3219,7 +3219,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	    ($returnCode, @candidate) = ParseDirectory(
 		"https://warehouse.python.org/project/".$DISTBASE, $DISTBASE);}
 	print STDERR sprintf("%4d ", __LINE__ ), 'MASTER_SITE ', $MASTER_SITE, ' DISTBASE ', $DISTBASE, ' cand (', $#candidate,")\n" if $DEBUG_GITHUB;
-	if ($#candidate  == -1 && ($MASTER_SITE =~ m|github.com/|) ) {
+	if ($#candidate  < 1 && ($MASTER_SITE =~ m|github.com/|) ) {
 	    ($returnCode, @candidate) = GitHubSpecial($DISTBASE, $MASTER_SITE, $dir, $PackageName);
 	}
 
