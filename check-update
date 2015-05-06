@@ -7,11 +7,12 @@ use v5.16;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-05-06 09:05" ; # written by emacs time-stamp
+$VERSION = "2015-05-06 13:03" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
 my ($MIN_LINES) = 5;		# retry threshold less than this lines
+my ($SF_SITE) = 'http://downloads.sourceforge.net/';
 our(@ARGV);
 #   requirement:
 #       net/curl
@@ -2789,37 +2790,37 @@ sub GetSFProjectCandidate($$) {
     my ($returnCode);
 
 		print STDERR sprintf("%4d ", __LINE__ ), ' SFProject: ',  $SFProject."\n" if $DEBUG_SF;
-    $master_site = 'http://downloads.sourceforge.net/sourceforge/'. $SFProject.'/';
+    $master_site = $SF_SITE. 'sourceforge/' . $SFProject . '/';
     my ($status, $location) = CheckHeader($master_site);
        print STDERR sprintf("%4d ", __LINE__ ), ' (1) master_site(', $master_site, ') status('. $status.")\n"  if $DEBUG_SF;
     if ($status == 200 ) {
 	($returnCode, @candidate) = ParseDirectory($master_site, $DISTBASE);
     } else {
 	$MasterSiteStat = $status;
-	$master_site  =  'http://sourceforge.net/projects/'. $SFProject .'/files/' ;
+	$master_site  =  $SF_SITE . 'project/'. $SFProject .'/files/' ;
 		print STDERR sprintf("%4d ", __LINE__ ), ' (2) master_site(', $master_site, ') status('. $status.' SFProject: ', $SFProject, ' DISTBASE: ', $DISTBASE, "\n"  if $DEBUG_SF;
 	($returnCode, @candidate) = ParseDirectory($master_site, $DISTBASE); # x11/gtkglarea
 		print STDERR sprintf("%4d ", __LINE__ ), ' returns ', $returnCode,"\n"   if $DEBUG_SF;
     }
-    if ($#candidate  == -1 )  {   
-	$master_site  =  'http://sourceforge.net/projects/'. $SFProject .'/files/' ;
+    if ($#candidate  < 1 )  {   
+	$master_site  =  $SF_SITE . 'project/' . $SFProject .'/files/' ;
 		print STDERR sprintf("%4d ", __LINE__ ), ' (3) master_site(', $master_site, ') status('. $status.' SFProject: ', $SFProject, "\n"  if $DEBUG_SF;
 	($returnCode, @candidate) = ParseDirectory($master_site, $DISTBASE);
 		print STDERR sprintf("%4d ", __LINE__ ), ' returns ', $returnCode,"\n"   if $DEBUG_SF;
     }
-    if ($#candidate  == -1 )  {
-	$master_site = 'http://sourceforge.net/projects/' . $DISTBASE . '/files/';
+    if ($#candidate  < 1 )  {
+	$master_site = $SF_SITE . 'projects/' . $DISTBASE . '/files/';
 	print STDERR sprintf("%4d ", __LINE__ ), ' (4) master_site(', $master_site, ') status('. $status.") -> \n"  if $DEBUG_SF;
 	($returnCode, @candidate) = ParseDirectory($master_site, $DISTBASE);
 	print STDERR sprintf("%4d ", __LINE__ ), ' returns ', $returnCode,"\n"   if $DEBUG_SF;
     }
-    if ($#candidate  == -1 )  {
-	$master_site = 'http://sourceforge.net/projects/' . $DISTBASE . '/files/'. $DISTBASE .'/';
+    if ($#candidate  < 1 )  {
+	$master_site = $SF_SITE . 'projects/' . $DISTBASE . '/files/'. $DISTBASE .'/';
 	print STDERR sprintf("%4d ", __LINE__ ), ' (5) master_site(', $master_site, ') status('. $status.") -> \n"  if $DEBUG_SF;
 	($returnCode, @candidate) = ParseDirectory($master_site, $DISTBASE);
 	print STDERR sprintf("%4d ", __LINE__ ), ' returns ', $returnCode,"\n"   if $DEBUG_SF;
     }
-    if ($#candidate  == -1 && (my ($alternative) = $SourceForgeAlternative{$DISTBASE} ) ) {
+    if ($#candidate  < 1 && (my ($alternative) = $SourceForgeAlternative{$DISTBASE} ) ) {
 	foreach my $site (split ';', $alternative) {
 	    print STDERR sprintf("%4d ", __LINE__ ), ' (6) master_site(', $site, ') status('. $status.") -> \n"  if $DEBUG_SF;
 	($returnCode, @candidate) = ParseDirectory($site, $DISTBASE);
