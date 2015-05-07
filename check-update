@@ -7,12 +7,12 @@ use v5.16;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-05-06 14:28" ; # written by emacs time-stamp
+$VERSION = "2015-05-07 00:30" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
 my ($MIN_LINES) = 5;		# retry threshold less than this lines
-my ($SF_SITE) = 'http://downloads.sourceforge.net/';
+my ($SF_SITE) = 'http://sourceforge.net/';
 our(@ARGV);
 #   requirement:
 #       net/curl
@@ -1922,30 +1922,33 @@ sub GnomeSpecial($$){
     return ($returnCode, @candidate);
 }
 sub SFSubDirectory($$){
-    my($PKGBASE) = shift;
-    my($master_site)  = shift;
-    my($GNOME_FTP_SITE) = 'http://ftp.gnome.org/pub/GNOME/sources/';
+    my($PKGBASE) 	= shift;
+    my($master_site)	= shift;
+#    my($project)	= shift;
 
+    $master_site =~ s/downloads.//;
+    $master_site =~ s,$,/,;
     my(@candidate);
     my($candidate);
 
     my(@list);
     my($ver) = '0.0';
-
+    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> master_site (', $master_site,")\n" if $DEBUG_URL;
+    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> curl_list(', $curl_list, ")\n" if $DEBUG_URL;    
     print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> package_base (', $PKGBASE,")\n" if $DEBUG_GNOME;
     my ($retry) = 3;
     my ($lines) = 0;
     do {
-    open(CURL, "$curl_list $GNOME_FTP_SITE/$PKGBASE/ 2>&1 |") ||
+    open(CURL, "$curl_list $master_site |") ||
 	print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> Problem: ', "$!\n";
     $lines = 0;
     while(<CURL>) {
-	print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], $_ if $DEBUG_GNOME;
+#	print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], $_ if $DEBUG_GNOME;
 	$lines++;
 	# find directory first,
-	if ( m|<a href=\"([0-9]\.[0-9]*[02468][.0-9]*)/| ) {
+	if ( m|<a href=\"([0-9]\.[0-9]+[.0-9]*)/| ) {
 	    $ver = $1;
-	    push(@list, $ver);
+#	    push(@list, $ver);
 	    if (CompareVersion($ver, $candidate) > 0 ) { $candidate = $ver;}
 	}
     }
@@ -1957,7 +1960,7 @@ sub SFSubDirectory($$){
     print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>',  $candidate,"\n" if $DEBUG_GNOME;
 
     # And then find the file in the directory
-    my($site) = $GNOME_FTP_SITE . $PKGBASE .'/'. $candidate. '/';
+    my($site) = $master_site . $PKGBASE .'/'. $candidate. '/';
 	$ver  = ParseDirectorySmall($site, $PKGBASE);
 
     $returnCode = 0 ; $candidate[0] = $ver;
@@ -2098,7 +2101,7 @@ sub ParseDirectorySmall($$){
     $lines = 0;
     while(<CURL>){
 #       print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> ', $distbase, "\n" if $DEBUG_GNOME;
-	print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> ', $_, "\n" if $DEBUG_GNOME;
+#	print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> ', $_, "\n" if $DEBUG_GNOME;
 	$lines++;
 	if (m|$distbase|) {
 	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> ', $_ if $DEBUG_GNOME;
@@ -2876,7 +2879,9 @@ sub GetSFProjectCandidate($$) {
 	    $master_site = $site;
 	}
     }
-    
+     if ($#candidate  < 1 ) {
+  	($returnCode, @candidate) = SFSubDirectory($DISTBASE, $SF_SITE. 'projects/'. $SFProject. '/files/'. $PKGBASE);
+     }	
 # http://sourceforge.net/projects/mpg123/files
 
     #http://sourceforge.net/projects/ganglia/files/
