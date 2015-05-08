@@ -3,6 +3,7 @@
 # or legal issue
 # category/package_name format. (Category is really ignored).
 # 
+editors/xcoral
 net/dnsdoctor
 sysutils/acpidump
 textproc/convertlit

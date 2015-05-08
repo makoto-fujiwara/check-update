@@ -7,7 +7,7 @@ use v5.16;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-05-07 00:30" ; # written by emacs time-stamp
+$VERSION = "2015-05-08 07:14" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -1731,7 +1731,7 @@ sub GitHubSpecial($$$$){
     my ($curl_command) = "$curl_list_secure $master_site";
 
     print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> curl_command: ', $curl_command, "\n" if $DEBUG_GITHUB;
-    open(CURL,  "$curl_command|") ||     print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> Problem for curl', "$!\n";
+    open(CURL,  "$curl_command 2>&1|") ||     print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> Problem for curl', "$!\n";
     while(<CURL>) {
 	print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> ', $_ if $DEBUG_GITHUB;
 	if (m|/([0-9.]+)\.tar\.gz|) {
@@ -1745,7 +1745,7 @@ sub GitHubSpecial($$$$){
     if ( $#candidate == -1 ) {
 	$curl_command  = "$curl_list_secure $master_site/$GITHUB_PROJECT";
   print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> curl_command: ', $curl_command, "\n" if $DEBUG_GITHUB;
-    open(CURL,  "$curl_command|") ||     print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> Problem for curl', "$!\n";
+    open(CURL,  "$curl_command 2>&1|") ||     print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> Problem for curl', "$!\n";
     while(<CURL>) {
 	print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> (',$distbase, ') ', $_ if $DEBUG_GITHUB;
 	$distbase =~ s/-[a-z]+//;
@@ -1782,7 +1782,7 @@ sub GitHubChanges($$){
     $site =~ s|github.com|raw.githubusercontent.com|;
     $site .= 'master/Changes';
     print STDERR sprintf("%04d <", __LINE__), (caller 0)[3], '>',"\n" if $DEBUG_DISTBASE;
-    open(CURL, "$curl_list_secure $site|") || print STDERR sprintf("%4d ", __LINE__), "Problem opening $site :$! \n";
+    open(CURL, "$curl_list_secure $site 2>&1|") || print STDERR sprintf("%4d ", __LINE__), "Problem opening $site :$! \n";
     while(<CURL>) {
 	my ($ver);
 	if (/([0-9.]+)\s/ )  { $ver = $1;}
@@ -1811,7 +1811,7 @@ sub GitHubIdiom($$) {
 	my($site)	= $protocol.'://github.com/'.$directory.'/'.$project. '/releases';
 	print STDERR sprintf("%04d <", __LINE__), (caller 0)[3], '>',
 	    'site(', $site, ') project (', $project, ')',"\n" if $DEBUG_GITHUB;
-	open(CURL, "$curl_list_secure $site|") 
+	open(CURL, "$curl_list_secure $site 2>&1|") 
 	    || print STDERR sprintf("%4d ", __LINE__), "Problem opening $site :$! \n";
 	while(<CURL>){
 #	    print STDERR sprintf("%4d ", __LINE__), '(',$directory,') (',$project.') ', $_ if $DEBUG_GITHUB;
@@ -1915,53 +1915,60 @@ sub GnomeSpecial($$){
     print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>',  $candidate,"\n" if $DEBUG_GNOME;
 
     # And then find the file in the directory
-    my($site) = $GNOME_FTP_SITE . $PKGBASE .'/'. $candidate. '/';
+    my($site) = $GNOME_FTP_SITE . $PKGBASE .'/'. $candidate ;
 	$ver  = ParseDirectorySmall($site, $PKGBASE);
 
     $returnCode = 0 ; $candidate[0] = $ver;
     return ($returnCode, @candidate);
 }
 sub SFSubDirectory($$){
-    my($PKGBASE) 	= shift;
+    my($DISTBASE) 	= shift;
     my($master_site)	= shift;
 #    my($project)	= shift;
 
     $master_site =~ s/downloads.//;
-    $master_site =~ s,$,/,;
+
+    my ($master_site_upper) = $master_site;
+    $master_site_upper .= $DISTBASE;
+    $master_site_upper =~ s,$,/,;
+
     my(@candidate);
     my($candidate);
 
     my(@list);
     my($ver) = '0.0';
-    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> master_site (', $master_site,")\n" if $DEBUG_URL;
+    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> master_site_upper (', $master_site_upper,")\n" if $DEBUG_URL;
     print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> curl_list(', $curl_list, ")\n" if $DEBUG_URL;    
-    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> package_base (', $PKGBASE,")\n" if $DEBUG_GNOME;
+    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> package_base (', $PKGBASE,")\n" if $DEBUG_SF;
     my ($retry) = 3;
     my ($lines) = 0;
     do {
-    open(CURL, "$curl_list $master_site |") ||
+    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], $curl_list, ' ', $master_site_upper  if $DEBUG_URL;
+    open(CURL, "$curl_list $master_site_upper |") ||
 	print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> Problem: ', "$!\n";
     $lines = 0;
     while(<CURL>) {
-#	print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], $_ if $DEBUG_GNOME;
+#	print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], $_ if $DEBUG_SF;
 	$lines++;
 	# find directory first,
-	if ( m|<a href=\"([0-9]\.[0-9]+[.0-9]*)/| ) {
+#	print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], $_  if $DEBUG_SF;
+	if ( m|<tr title=\"([0-9.]+)\"| ) {
 	    $ver = $1;
+	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], $_ ,' ->', $ver, "\n" if $DEBUG_SF;
 #	    push(@list, $ver);
 	    if (CompareVersion($ver, $candidate) > 0 ) { $candidate = $ver;}
 	}
     }
     close(CURL);
-    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '$lines: ', $lines, '  retry: ', $retry, "\n" if $DEBUG_GNOME;
+    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '$lines: ', $lines, '  retry: ', $retry, "\n" if $DEBUG_SF;
     }
     while ($retry-- > 0 && $lines < $MIN_LINES );
 
-    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>',  $candidate,"\n" if $DEBUG_GNOME;
+    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>',  $candidate,"\n" if $DEBUG_SF;
 
     # And then find the file in the directory
-    my($site) = $master_site . $PKGBASE .'/'. $candidate. '/';
-	$ver  = ParseDirectorySmall($site, $PKGBASE);
+    my($site) = $master_site .  $DISTBASE .'/' . $candidate. '/' ;
+	$ver  = ParseDirectorySmall($site, $DISTBASE);
 
     $returnCode = 0 ; $candidate[0] = $ver;
     return ($returnCode, @candidate);
@@ -2008,7 +2015,7 @@ sub Http301core($$) {
     $site =~ s|-https:|https:|;
 print STDERR sprintf("%4d ", __LINE__ ).' '. $site.' <... retry: '. $retry. "  \n\n" if  $DEBUG_HTTP_HEADER;
     if ($site eq '') { print STDERR sprintf("%4d ", __LINE__ ), " \$site is empty\n"; return -1;}
-    open(URL, "$curl_head_secure $site|") || print STDERR sprintf("%4d ", __LINE__ ), " problem accessing $site:$!\n";
+    open(URL, "$curl_head_secure $site 2>&1|") || print STDERR sprintf("%4d ", __LINE__ ), " problem accessing $site:$!\n";
     while(<URL>){
 	chomp;
 	print STDERR sprintf("%4d ", __LINE__ ). ' '. $_."\n" if  $DEBUG_DISTBASE ;
@@ -2090,7 +2097,7 @@ sub ParseDirectorySmall($$){
 # http://ftp.gnome.org/pub/GNOME/sources/3.10/';
 #  pick following line
 #  anjuta-3.10.0.tar.xz
-       print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> master_site: ', $master_site, "\n" if $DEBUG_GNOME;
+       print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> master_site: ', $master_site, "\n" if $DEBUG_GNOME || $DEBUG_SF;
     my ($curl_command) = "$curl_list $master_site";
     my ($ver) = '0.0';
     my ($ver_max) = $ver;
@@ -2104,15 +2111,15 @@ sub ParseDirectorySmall($$){
 #	print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> ', $_, "\n" if $DEBUG_GNOME;
 	$lines++;
 	if (m|$distbase|) {
-	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> ', $_ if $DEBUG_GNOME;
+	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> ', $_ if $DEBUG_GNOME ||  $DEBUG_SF ;
 	}
 # if GNOME, pick only even (minor) number
 	if ( (    $master_site =~ /GNOME/i   &&  m|.*$distbase-([0-9]\.[0-9]*[02468]\.[0-9]+)\.tar.*|) ||
              ( ! ($master_site =~ /GNOME/i ) &&  m|.*$distbase-([0-9.]+)\.tar.*| ) )  {
 	    $ver = $1;
-	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> ', $_,"\n" if $DEBUG_GNOME;
+		print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> ', $ver, ' > ', $ver_max,"\n" if $DEBUG_GNOME || $DEBUG_SF ;
 	    if (CompareVersion($ver, $ver_max) > 0 ) {
-		print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> ', $ver, ' > ', $ver_max,"\n" if $DEBUG_GNOME;
+		print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> ', $ver, ' > ', $ver_max,"\n" if $DEBUG_GNOME || $DEBUG_SF ;
 		$ver_max = $ver;
 	    }
 	}
@@ -2121,7 +2128,7 @@ sub ParseDirectorySmall($$){
     }
     while ($retry-- > 0 && $lines < $MIN_LINES );
 
-    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> returning: ', $ver_max, "\n" if $DEBUG_GNOME;
+    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> returning: ', $ver_max, "\n" if $DEBUG_GNOME || $DEBUG_SF ;
     return $ver_max;
 }
 # ----------------------------------------------------
@@ -2169,7 +2176,7 @@ sub ParseDirectory($$){   # 2064  to  2285 lines (220 lines
 		' ==> Using @CurlCache',"\n" if $DEBUG_CURL_CACHE;
 	} else {
 	    $LastCurl = $curl_command;
-	    open(CURL, "$curl_command |") || print STDERR "Problem w3m: $!\n";	    
+	    open(CURL, "$curl_command 2>&1|") || print STDERR "Problem w3m: $!\n";	    
 	    @ThisCurl = <CURL>;
 	    close(CURL);
 	    if ($curl_command =~ m|$local_ports_string$|)  {
@@ -2880,13 +2887,14 @@ sub GetSFProjectCandidate($$) {
 	}
     }
      if ($#candidate  < 1 ) {
-  	($returnCode, @candidate) = SFSubDirectory($DISTBASE, $SF_SITE. 'projects/'. $SFProject. '/files/'. $PKGBASE);
+  	($returnCode, @candidate) = SFSubDirectory($DISTBASE, $SF_SITE. 'projects/'. $SFProject. '/files/');
+	print STDERR sprintf("%4d ", __LINE__ ), ' returns ', $returnCode , ' ncand: ', $#candidate, "\n"  if $DEBUG_SF;
      }	
 # http://sourceforge.net/projects/mpg123/files
 
     #http://sourceforge.net/projects/ganglia/files/
 
-    return ($master_site, @candidate);
+    return ($master_site, $returnCode, @candidate);
 }
 # check if URL valid.
 sub ValidateMasterSite($$) {
