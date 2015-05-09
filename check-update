@@ -7,7 +7,7 @@ use v5.16;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-05-09 01:54" ; # written by emacs time-stamp
+$VERSION = "2015-05-09 05:16" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -387,7 +387,10 @@ my (@ZIP) = qw (zip unzip fMSX);
 my (@Arabian) = qw(SGMLSpm);
 # 100 -> 1.00 type
 my (@VER32) = qw(
-gigbase gku bunzip wxRemind qkc atasm bicom bww2tex cgic PDF par jpilot-syncmail asterisk-perl pyserial datlib dutil mdiff rbuild rinfo zident adodb lzma lzop upx piewm sawfish wmctrl wmakerconf mesch gigabase plnode uno Par sgrep);
+gigbase gku bunzip wxRemind qkc atasm bicom bww2tex cgic 
+PDF par jpilot-syncmail asterisk-perl pyserial datlib dutil 
+mdiff rbuild rinfo zident adodb lzma lzop upx piewm sawfish 
+wmctrl wmakerconf mesch gigabase plnode uno Par sgrep acmesrc);
 
 # 31 -> 3.1 # 3370 -> 3.370 devel/cfitsio
 my (@VER22) = qw(doc2html cfitsio lcc ctags elisau html gbdfed);
