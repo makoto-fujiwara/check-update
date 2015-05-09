@@ -7,7 +7,7 @@ use v5.16;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-05-08 07:14" ; # written by emacs time-stamp
+$VERSION = "2015-05-09 01:54" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -83,8 +83,8 @@ my(%LongName)  = (
 #exit;
 my ($curl_head)		= 'curl -k -I --location --insecure';
 my ($curl_head_secure)	= 'curl -k -I --location --insecure -s';
-my ($curl_list)		= 'curl -k -l --location --insecure ';
-my ($curl_list_secure)	= 'curl -k -l --location --insecure -s';
+my ($curl_list)		= 'curl -k -l --location --insecure --user-agent FireFox';
+my ($curl_list_secure)	= 'curl -k -l --location --insecure --user-agent FireFox -s';
 
 #    $curl_head		= 'w3m -dump_head';
 #    $curl_head_secure	= 'w3m -dump_head';
@@ -334,6 +334,7 @@ my(%DownLoadAlternative) = qw (
     highlight	http://www.andre-simon.de/zip/download.php
     krb5	http://web.mit.edu/kerberos/dist
     IPAfont	http://ipafont.ipa.go.jp/ipafont/download.html
+    xscreensaver	http://www.jwz.org/xscreensaver/download.html
     ); ##
 
 # for print/xpdf-arabic etc
