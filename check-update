@@ -7,7 +7,7 @@ use v5.16;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-05-09 05:16" ; # written by emacs time-stamp
+$VERSION = "2015-05-09 05:29" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -1753,7 +1753,9 @@ sub GitHubSpecial($$$$){
     while(<CURL>) {
 	print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> (',$distbase, ') ', $_ if $DEBUG_GITHUB;
 	$distbase =~ s/-[a-z]+//;
-	if (m|/$distbase-([0-9.]+)|) {
+	if (m,/$distbase-([0-9.]+),	||
+	    m,data-name=\"([0-9.]+)\",	||
+	    0 ) {
 	    my($cand) = $1;
 	    push(@candidate, $cand);
 	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> ', $cand, ' :: ', $_, "\n" if $DEBUG_GITHUB;
