@@ -7,7 +7,7 @@ use v5.16;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-05-09 06:20" ; # written by emacs time-stamp
+$VERSION = "2015-05-09 06:46" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -40,6 +40,7 @@ my ($DEBUG_COUNT);
 my ($DEBUG_CURL);
 my ($DEBUG_CURL_CACHE);
 my ($DEBUG_CURL_LISTING);
+my ($DEBUG_DIGIT);
 my ($DEBUG_DISTBASE);
 my ($DEBUG_DIVIDE_DEVEL) = 0;
 my ($DEBUG_EVAL_PATTERN);
@@ -62,6 +63,7 @@ my(%LongName)  = (
    'c',  'Cache',
    'C',  'Curl Command',
    'd',  'Distbase Pattern',
+   'D',  'Master site ends with digit directory',
    'e',  'Eval Special Pattern',
    'E',  'Edit Version',
    'f',  'Classify (find family)',
@@ -1844,10 +1846,9 @@ sub GitHubIdiom($$) {
     }
 }
 #  --------------------------------------------------------------
-sub UpperDirectory($$){
+sub ParseUpperDirectory($$){
     my($PKGBASE) = shift;
-    my($master_site)  = shift;
-    my($upper);
+    my($upper)  = shift;
     my($leaf);
     my($returnCode) = 0;
 
@@ -1858,31 +1859,24 @@ sub UpperDirectory($$){
     my($ver) = '0.0';
 
     print STDERR sprintf("%4d <", __LINE__), (caller 0)[3],
-	'> master: ', $master_site,"\n"	if $DEBUG_GNOME;
-    if ($master_site  =~ m|(.*)/(.*[v0-9.]+/$)| ) {
-	$upper = $1; $leaf = $2;}
-
-    if ($upper eq '' || $leaf eq '' ) {
-	return ($returnCode, @candidate);}
-
-    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], 
-	'> upper: ', $upper, 'leaf: ', $leaf,"\n" if $DEBUG_GNOME;
+	'> upper: ', $upper,"\n"	if $DEBUG_DIGIT;
     open(CURL, "$curl_list $upper 2>&1 |") ||
       	print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> Problem: ', "$!\n";
     while(<CURL>) {
 	if ( m|<a href=\".*([0-9]\.[0-9]+)/| ||
 	     m|<a href=\".*([0-9]\.[0-9]+)\.tar\.| ) {
 	    $ver = $1;
+	    print $_;
 	    push(@list, $ver);
 	    if (CompareVersion($ver, $candidate) > 0 ) { $candidate = $ver;}
 	}			   
     }
     close(CURL);
-    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>',  $candidate,"\n" if $DEBUG_GNOME;
+    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>',  $candidate,"\n" if $DEBUG_DIGIT;
 
     my($site) = $upper.'/'. $candidate. '/';
 	$ver  = ParseDirectorySmall($site, $PKGBASE);
-
+    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>',  $ver,"\n" if $DEBUG_DIGIT;
     $returnCode = 0 ; $candidate[0] = $ver;
     return ($returnCode, @candidate);
 }
@@ -2066,11 +2060,11 @@ sub ParseDebug($){
     my ($pattern) = shift;
     my %DEBUG;
 
-    if ( $pattern =~ /a/ ) { $pattern = 'acCdegfGhlnprsSx' }
+    if ( $pattern =~ /a/ ) { $pattern = 'acCdDegfGhlnprsSx' }
     print STDERR sprintf("%4d ", __LINE__ ), ' DEBUG pattern (',  $pattern,  ')',"\n";
     foreach my $index (0 .. length($pattern) - 1 ){
 	my $char = substr($pattern, $index, 1);
-	if (grep (/$char/, 'acCdegfGhlnprsSux') < 1) {
+	if (grep (/$char/, 'acCdDegfGhlnprsSux') < 1) {
 	    print STDERR  ' ** Debug char not defined, see with -h option.',"\n"; exit;}
 	$DEBUG{$char}++;
 	print STDERR  '   ',$char,'  ', $LongName{$char}, "\n";
@@ -2082,6 +2076,7 @@ sub ParseDebug($){
     $DEBUG_HTTP_HEADER		= $DEBUG{'h'} + $DEBUG{'a'} ;
     $DEBUG_CACHE		= $DEBUG{'c'} + $DEBUG{'a'} ;
     $DEBUG_CURL			= $DEBUG{'C'} + $DEBUG{'a'} ;
+    $DEBUG_DIGIT		= $DEBUG{'D'} + $DEBUG{'a'} ; 
     $DEBUG_EDITVersion		= $DEBUG{'E'} + $DEBUG{'a'} ;
     $DEBUG_FAMILY		= $DEBUG{'f'} + $DEBUG{'a'} ;
     $DEBUG_GNOME		= $DEBUG{'G'} + $DEBUG{'a'} ;
@@ -2105,7 +2100,8 @@ sub ParseDirectorySmall($$){
 # http://ftp.gnome.org/pub/GNOME/sources/3.10/';
 #  pick following line
 #  anjuta-3.10.0.tar.xz
-       print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> master_site: ', $master_site, "\n" if $DEBUG_GNOME || $DEBUG_SF;
+       print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> master_site: ', $master_site, "\n"
+	   if $DEBUG_GNOME || $DEBUG_SF || $DEBUG_DIGIT ;
     my ($curl_command) = "$curl_list $master_site";
     my ($ver) = '0.0';
     my ($ver_max) = $ver;
@@ -2119,15 +2115,17 @@ sub ParseDirectorySmall($$){
 #	print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> ', $_, "\n" if $DEBUG_GNOME;
 	$lines++;
 	if (m|$distbase|) {
-	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> ', $_ if $DEBUG_GNOME ||  $DEBUG_SF ;
+	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> ', $_ if $DEBUG_GNOME ||  $DEBUG_SF  || $DEBUG_DIGIT;
 	}
 # if GNOME, pick only even (minor) number
 	if ( (    $master_site =~ /GNOME/i   &&  m|.*$distbase-([0-9]\.[0-9]*[02468]\.[0-9]+)\.tar.*|) ||
              ( ! ($master_site =~ /GNOME/i ) &&  m|.*$distbase-([0-9.]+)\.tar.*| ) )  {
 	    $ver = $1;
-		print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> ', $ver, ' > ', $ver_max,"\n" if $DEBUG_GNOME || $DEBUG_SF ;
+		print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> ', $ver, ' > ', $ver_max,"\n" 
+		    if $DEBUG_GNOME || $DEBUG_SF || $DEBUG_DIGIT ;
 	    if (CompareVersion($ver, $ver_max) > 0 ) {
-		print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> ', $ver, ' > ', $ver_max,"\n" if $DEBUG_GNOME || $DEBUG_SF ;
+		print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> ', $ver, ' > ', $ver_max,"\n" 
+		    if $DEBUG_GNOME || $DEBUG_SF || $DEBUG_DIGIT ;
 		$ver_max = $ver;
 	    }
 	}
@@ -2136,7 +2134,8 @@ sub ParseDirectorySmall($$){
     }
     while ($retry-- > 0 && $lines < $MIN_LINES );
 
-    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> returning: ', $ver_max, "\n" if $DEBUG_GNOME || $DEBUG_SF ;
+    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> returning: ', $ver_max, "\n"
+		    if $DEBUG_GNOME || $DEBUG_SF || $DEBUG_DIGIT ;
     return $ver_max;
 }
 #  ----------------------------------------------------
@@ -3251,6 +3250,11 @@ print STDERR sprintf("%4d ", __LINE__ ),
 
 	    print STDERR sprintf("%4d ", __LINE__ ), '#candidate: ', $#candidate, ' DISTBASE: ', $DISTBASE,"\n" if $DEBUG_GNOME;
 
+	if ($master_site =~ m|(.*)/[0-9._]+/*$|) {
+	    my ($upper) = $1;
+	    print STDERR sprintf("%4d ", __LINE__ ), 'MASTER_SITE with ending digit: ', $master_site,"\n" if $DEBUG_DIGIT;
+	    ($returnCode, @candidate) = ParseUpperDirectory($PackageName, $upper);
+	}
 	if ($#candidate == -1  && $master_site && $http_code ne 'DNS' ) {
 	    ($returnCode, @candidate) = ParseDirectory($master_site, $DISTBASE);
 	}
