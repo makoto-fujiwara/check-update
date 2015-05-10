@@ -7,7 +7,7 @@ use v5.16;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-05-09 06:46" ; # written by emacs time-stamp
+$VERSION = "2015-05-10 12:57" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -233,7 +233,8 @@ my (%SpecialPattern) = (
     'apache-ant-bin',	'$line =~ s|.*apache-ant-([0-9.]+)-bin.*|$1|;',
     'shinonome-src',	'$line =~ s|.*shinonome-([0-9.]+)-src.*|$1|;',
     'IPAfont',		'$line =~ s|.*IPAfont([0-9.]+)\.zip.*|$1|;',
-    'SGMLspm',		'$line =~ s|.SGMLspm-([0-9.iv]+)\..*|$1|;',
+    'SGMLspm',		'$line =~ s|.*SGMLspm-([0-9.iv]+)\..*|$1|;',
+    'easigit',		'$line =~ s|.*([0-9.]+)/eg.*|$1|;',
     );
 
 my(%SourceForgeAlternative) = qw (
@@ -339,6 +340,8 @@ my(%DownLoadAlternative) = qw (
     IPAfont	http://ipafont.ipa.go.jp/ipafont/download.html
     xscreensaver	http://www.jwz.org/xscreensaver/download.html
     ETL		http://sourceforge.net/projects/synfig/files/ETL/0.04.13/
+    distcc	http://code.google.com/p/distcc/downloads/list
+    cabocha	https://drive.google.com/folderview?id=0B4y35FiV1wh7cGRCUUJHVTNJRnM&usp=sharing#list
     ); ##
 
 # for print/xpdf-arabic etc
@@ -1863,10 +1866,10 @@ sub ParseUpperDirectory($$){
     open(CURL, "$curl_list $upper 2>&1 |") ||
       	print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> Problem: ', "$!\n";
     while(<CURL>) {
-	if ( m|<a href=\".*([0-9]\.[0-9]+)/| ||
-	     m|<a href=\".*([0-9]\.[0-9]+)\.tar\.| ) {
+	if ( m|<a href=\"(.*[0-9]\.[0-9]+)/| ||
+	     m|<a href=\"(.*[0-9]\.[0-9]+)\.tar\.| ) {
 	    $ver = $1;
-	    print $_;
+	    print $ver , ' <- ', $_ if $DEBUG_DIGIT;
 	    push(@list, $ver);
 	    if (CompareVersion($ver, $candidate) > 0 ) { $candidate = $ver;}
 	}			   
