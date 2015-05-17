@@ -7,7 +7,7 @@ use v5.16;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-05-12 23:40" ; # written by emacs time-stamp
+$VERSION = "2015-05-17 01:49" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -347,6 +347,8 @@ my(%DownLoadAlternative) = qw (
     cabocha	https://drive.google.com/folderview?id=0B4y35FiV1wh7cGRCUUJHVTNJRnM&usp=sharing#list
     CRF++	https://drive.google.com/folderview?id=0B4y35FiV1wh7fngteFhHQUN2Y1B5eUJBNHZUemJYQV9VWlBUb3JlX0xBdWVZTWtSbVBneU0&usp=drive_web#list
     GutenMark	http://www.sandroid.org/GutenMark/download.html
+    dbus-sharp	https://github.com/mono/dbus-sharp/downloads
+    dbus-sharp-glib	https://github.com/mono/dbus-sharp/downloads
     ); ##
 
 # for print/xpdf-arabic etc
@@ -2168,14 +2170,6 @@ sub ParseDirectory($$){   # 2064  to  2285 lines (220 lines
     print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[3], '> ', $master_site, "   \n" if  $DEBUG_URL ;
     if ($master_site eq '')	{ print STDERR sprintf("%4d ", __LINE__ ), ' $master_site is empty ',	 "\n"; return -1;}
     if ($master_site eq 'DNS')	{ print STDERR sprintf("%4d ", __LINE__ ), ' ',$distbase,' has DNS problem',"\n"; return -1;}
-    if (0) {
-    print STDERR sprintf("%4d ", __LINE__ ), ' ', $master_site, "   \n" if  $DEBUG_DISTBASE ;
-    if ($master_site =~ m|github\.com/| && $master_site =~ m|/v[0-9.]+| ) {
-	$master_site =~ s|/v[0-9.]+|/|;
-    print STDERR sprintf("%4d ", __LINE__ ), ' ', $master_site, "   \n" if  $DEBUG_DISTBASE ;
-    }
-    print STDERR sprintf("%4d ", __LINE__ ), ' ', $master_site, "   \n" if  $DEBUG_DISTBASE ;
-    } # (0) disabled
     print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[3], '> ', $master_site, "   \n" if  $DEBUG_URL ;
     my($curl_lines) = 0; # count how many lines came from curl -l
     my($repeat) = 3 ;
