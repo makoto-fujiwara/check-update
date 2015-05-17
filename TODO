@@ -1,4 +1,6 @@
 (TODO)
+  - sysutils/entr  no list by curl but list by wget (?)
+  
   - sourceforge: sometimes get and sometimes does not get (for example)
      libghttp             (=) (3167 ) Now:    1.0.9 ->   1.0.9 Todo:       not-to-list
    (possibility ?)
@@ -20,7 +22,8 @@
      * first trial
      * tuning
      * debugging
-     
+     * FAQ
+
   - If no argument, take current directory as category/package
     (In that case, no html output will generated)
 
