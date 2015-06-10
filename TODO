@@ -1,4 +1,8 @@
 (TODO)
+  - databases/postgresql-postgis stays intentionally v1. don't flag please
+  - devel/fann is actually up to date.  source tarball has a goofy name
+  - geography/proj is also up to date
+    (thanks gdt@)
   - sysutils/entr  no list by curl but list by wget (?)
   
   - sourceforge: sometimes get and sometimes does not get (for example)
@@ -15,6 +19,7 @@
 
   - Issue for */*-devel package. Some 53 are listed now
   - sentinel (watch timeout of curl process)
+    misc/py-stdnum
   - Taking care math/R-* package
   - README.md
      * Prerequisite
