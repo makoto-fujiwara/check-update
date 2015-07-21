@@ -1,4 +1,5 @@
 (TODO)
+  - editors/texmaker is upto date (as of 20150721)
   - editors/emacs* should be fixed (for several version variant)
   - databases/postgresql-postgis stays intentionally v1. don't flag please
   - devel/fann is actually up to date.  source tarball has a goofy name
