@@ -3,6 +3,13 @@
 # or legal issue
 # category/package_name format. (Category is really ignored).
 # 
+editors/emacs20
+editors/emacs21
+editors/emacs21-nox11
+editors/emacs22
+editors/emacs22-nox11
+editors/emacs23
+editors/emacs23-nox11
 editors/xcoral
 net/dnsdoctor
 sysutils/acpidump
