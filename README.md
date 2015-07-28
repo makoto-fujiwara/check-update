@@ -29,7 +29,7 @@ README.md	      |   [Markdown](https://help.github.com/articles/markdown-basics/
   - net/curl
   - devel/p5-Algorithm-Diff (for summary-diff)
   - lang/ruby
-  - rubygems (if ruby is old one, modern ruby already has 'gem')
+  - rubygems (only if ruby is old one, modern ruby already has 'gem')
   - security/mozilla-rootcerts OR security/p5-Mozilla-CA
   
 ### Setup
@@ -51,15 +51,15 @@ README.md	      |   [Markdown](https://help.github.com/articles/markdown-basics/
 
 will tell you the other options.
 
-### single mode
+### Single mode
 
 > cd /usr/pkgsrc/category/package; /PATH/TO/check-update
 
-### category mode
+### Category mode
 
 > /PATH/TO/check-update -c category
 
-### whole tree
+### Whole tree
 
 > /PATH/TO/check-update
 
@@ -82,3 +82,6 @@ Instead, make -j 12 may be good to finish in several hours
 >  check-update -x d -c category -P packagename
 
 is the way to debug particular package.
+
+### Crontab setup
+(T B written)
