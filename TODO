@@ -1,4 +1,5 @@
 (TODO)
+  - graphics/clutter is upto date (1.22.2) but unable to find the version
   - MaturedList path is not good for standalone execution
   - editors/texmaker is upto date (as of 20150721)
   - editors/emacs* should be fixed (for several version variant)
