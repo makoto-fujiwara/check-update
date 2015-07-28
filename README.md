@@ -5,7 +5,10 @@ tree. Reading [whole tree](http://cvsweb.netbsd.org/bsdweb.cgi/pkgsrc/)
 and generates the list of To-Be-Updated packges.
 
 [Presentation](http://www.ki.nu/~makoto/mef/20150313/)
-at NetBSD BoF (AsiaBSDCon 2015)
+at NetBSD BoF (AsiaBSDCon 2015 at Tokyo)
+
+[Presentation](http://www.ki.nu/~makoto/mef/20150711/)
+at NetBSD BoF (JNUG 17th Annual Meeting 2015 at Tokyo)
 
 ## Files
 
