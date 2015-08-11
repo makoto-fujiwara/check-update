@@ -1,4 +1,5 @@
 (TODO)
+  - (family) mail/cyrus-imapd{,23,24}  .. numbered are not obsolete, but new
   - graphics/clutter is upto date (1.22.2) but unable to find the version
   - MaturedList path is not good for standalone execution
   - editors/texmaker is upto date (as of 20150721)
