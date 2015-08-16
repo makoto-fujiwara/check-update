@@ -3,6 +3,7 @@
 # or legal issue
 # category/package_name format. (Category is really ignored).
 # 
+databases/rrdtool12
 editors/emacs20
 editors/emacs21
 editors/emacs21-nox11
