@@ -7,7 +7,7 @@ use v5.16;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-08-16 02:55" ; # written by emacs time-stamp
+$VERSION = "2015-08-17 13:12" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -364,7 +364,7 @@ my (%MonthToDigit) = qw (
     my ($PKGBASE, $PKGNAME, $DISTBASE, $MASTER_SITE, $META_PACKAGE);
     my (@MASTER_SITES);
     my ($available, $http_code);
-    my ($URL);
+    my ($URL);			# global variable
     my ($output_record);	# string to output HTML
     my ($PKGVERSION);
 
@@ -961,13 +961,13 @@ sub CountPeriod($){
 # -------------------------
 sub DistbaseCacheUpdate($$$) {
     my($distbase) = shift;
-    my($version)  = shift;
     my($master_site)  = shift;
+    my($version)  = shift;
    # push(@DISTBASE_CACHE, \[$distbase, $version, $timestamp, $refcount]);
     my ($refcount);
     my ($timestamp) = time();
     my ($ptr);
-    if ($ptr =  $DISTBASE_CACHE{$distbase.$master_site}) {	
+    if ($ptr =  $DISTBASE_CACHE{$distbase.$master_site}) {
 	$DISTBASE_CACHE{$distbase.$master_site} = [$version, $timestamp, $ptr->[2] ] ; 
 	print STDERR  sprintf("%4d ", __LINE__ ). ' (U) '. $version. ' '. $timestamp.  $ptr->[2]. " " if $DEBUG_CACHE;
     }
@@ -3181,7 +3181,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
     $TotalChecked++;			# becoming serial so on (to count)
     #  ----------------------------------------------------------------------------
 
-	if ( grep (/$PackageName/, @SkipTooOld) > 0 ) { $SkipTooOld++; next; }
+	if ( grep (/^$PackageName$/, @SkipTooOld) > 0 ) { $SkipTooOld++; next; }
 	# ------------- P a c k a g e  n a m e ---------
 	# -------------------
 	## Read Makefile and get several VALUES
@@ -3409,7 +3409,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
        my ($HomePageString); # This is used after $homepage to show status in HTML
     if    ($HomePageStat eq ''  ) { $HomePageString =  "<span class=\"grey\"> (empty)</span>";}
     elsif ($HomePageStat != 200 ) { $HomePageString =  "<span class=\"pale_dns\"> (". $HomePageStat.')</span> ';}
-    my ($MasterSiteString);
+    my ($MasterSiteString); # decorate if there is a problem on URL
     if ($MasterSiteStat != 200 && $available eq '0.0' ) { $MasterSiteString =  "<span class=\"pale_dns\">(". $MasterSiteStat.')</span> ';}
 	# -----------  E D I T         M A I N T A I N E R  -------
     $MAINTAINER =~ s/\@NetBSD.org//i;
