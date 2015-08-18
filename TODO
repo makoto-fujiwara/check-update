@@ -1,4 +1,5 @@
 (TODO)
+  - family issue on graphics/eog{,3}
   - diff links in devel? need to be adjusted
   - misc/goffice0{6,8} maybe on MaturedList (?)
   - URL shown on MASTER_SITES gets strange after databases/rrdtool (the same URL continues)
