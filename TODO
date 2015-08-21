@@ -2,8 +2,8 @@
   - diff links in devel? need to be adjusted
   - misc/goffice0{6,8} maybe on MaturedList (?)
   - URL shown on MASTER_SITES gets strange after databases/rrdtool (the same URL continues)
-  - (family) www/drupa{6,7}
-  - (family) graphics/eog{,3}
+  - (family) www/drupal{6,7}  drupal itself is empty, 6 is in production and 7 is new ?
+  - (family) graphics/eog{,3} eog = 2, eog3 is new
   - (family) mail/cyrus-imapd{,23,24}  .. numbered are not obsolete, but new
   - graphics/clutter is upto date (1.22.2) but unable to find the version
   - MaturedList path is not good for standalone execution
