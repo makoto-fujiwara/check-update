@@ -7,7 +7,7 @@ use v5.16;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-08-17 13:12" ; # written by emacs time-stamp
+$VERSION = "2015-08-21 03:19" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -2594,7 +2594,7 @@ sub Stats($$){
     print  SUMMARY '<pre>',"\n";
     print  SUMMARY '<a href="../00_Summary.html"> Summary </a> | <a href="./?C=M;O=D"> Upper directory</a>';
     if ( $category ) {
-    print  SUMMARY ' | <a href="./diff/', $category, '.html"> diff </a> '
+    print  SUMMARY ' | <a href="./diff/'. $category. $divide_devel . '.html"> diff </a> '
     }
     print  SUMMARY "\n";
     printf SUMMARY $string2,  'Script Time Stamp:', $VERSION;
