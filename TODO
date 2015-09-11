@@ -1,4 +1,6 @@
 (TODO)
+  - (99 or 90) may be development version and nice not to list gdt@
+  - (security/gsasl)  1.8.0   ->      1.8.02, is it relly latest ? gdt@
   - filesystems/fuse-ntfs-3g	fuse-ntfs-3g	2014.2.15 ->0.0	32015.3.14
   - diff links in devel? need to be adjusted
   - misc/goffice0{6,8} maybe on MaturedList (?)
@@ -6,7 +8,7 @@
   - (family) www/drupal{6,7}  drupal itself is empty, 6 is in production and 7 is new ?
   - (family) graphics/eog{,3} eog = 2, eog3 is new
   - (family) mail/cyrus-imapd{,23,24}  .. numbered are not obsolete, but new
-  - (family) security/libassuan{2,}
+  - (family) security/libassuan{2,} gdt@
   - graphics/clutter is upto date (1.22.2) but unable to find the version
   - MaturedList path is not good for standalone execution
   - editors/texmaker is upto date (as of 20150721)
