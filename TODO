@@ -9,6 +9,7 @@
   - (family) graphics/eog{,3} eog = 2, eog3 is new
   - (family) mail/cyrus-imapd{,23,24}  .. numbered are not obsolete, but new
   - (family) security/libassuan{2,} gdt@
+  - (family) TODO lists security/libassuan for 2.2.1 but it is NOT for libassuan (1.0.5)
   - graphics/clutter is upto date (1.22.2) but unable to find the version
   - MaturedList path is not good for standalone execution
   - editors/texmaker is upto date (as of 20150721)
