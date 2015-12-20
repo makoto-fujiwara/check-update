@@ -7,7 +7,7 @@ use v5.16;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-12-20 02:26" ; # written by emacs time-stamp
+$VERSION = "2015-12-20 02:33" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -3075,7 +3075,7 @@ PrintHeader($full_list);	# controlls style for highlighting
 # --------------------------------------------------------------
 ##                   F O R E A C H   D I R
 # --------------------------------------------------------------
-foreach my $dir (@categories) {  # major loop to the line 3261 ... some 400 lines
+foreach my $dir (@categories) {  # major loop to the line 3261 ... some 400 lines 	# MAJOR_FOREACH
     my ($console_color) = '';
 
     if ( ! -d $dir)		{ next;}
@@ -3129,7 +3129,7 @@ foreach my $dir (@categories) {  # major loop to the line 3261 ... some 400 line
 # ------------------------------------
 ##    F O R   E A C H  P A C K A G E     ( to line 3297, some 350 lines )
 #  ------------------------------------
-    foreach my $PackageName (@PackageNames) { 
+    foreach my $PackageName (@PackageNames) { 					# MAJOR_FOREACH
 	my ($candidate);
 	    $#candidate = -1;	# initialize as empty;
 	my ($console_string) = '';
@@ -3465,7 +3465,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
     print STDERR ColorString( $console_color, $console_string);
     my($Elapsed) = time() - $PackageStart;
     RecordMaxElapsed($Elapsed);
-    } #     foreach my $PackageName (@PackageNames) {
+    } #     foreach my $PackageName (@PackageNames) { 		# MAJOR_FOREACH
     # ------------------------------------------
     ##    E N D    F O R   E A C H  P A C K A G E 
     # -----------------------------------------
@@ -3474,7 +3474,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
 # --------------------------------------------------------------
 ##          E N D  F O R   F O R E A C H   D I R
 # --------------------------------------------------------------
-  }   #     foreach my $dir (@categories) {
+  }   #     foreach my $dir (@categories) {			# MAJOR_FOREACH
     Stats($start_time, $argv);
 close(SUMMARY);
 if ( $summary_tmp ne '/dev/null') {
@@ -3485,7 +3485,7 @@ exit;
 __END__
 ## Local Variables:
 ## mode: outline-minor
-## outline-regexp: "^[ 	]*sub\\s-+\\([-[:alnum:]+_:]+\\)\\|^\\(?:my\\|our\\)\\s-+\\([$@%][-[:alnum:]+_:]+\\)\\s-*=\\|^[ 	]*package\\s-+\\([-[:alnum:]+_:]+\\);\\|^=head[0-9][ 	]+\\(.*\\)\\|^=cut\\>\\|^[	 ]*\\#\\# \\|^[	 ]*\\# -----------\\|.*# MAJOR_IF_THEN_ELSE"
+## outline-regexp: "^[ 	]*sub\\s-+\\([-[:alnum:]+_:]+\\)\\|^\\(?:my\\|our\\)\\s-+\\([$@%][-[:alnum:]+_:]+\\)\\s-*=\\|^[ 	]*package\\s-+\\([-[:alnum:]+_:]+\\);\\|^=head[0-9][ 	]+\\(.*\\)\\|^=cut\\>\\|^[	 ]*\\#\\# \\|^[	 ]*\\# -----------\\|.*# MAJOR_IF_THEN_ELSE\\\|.*MAJOR_FOREACH"
 ## End:
 
 ; please note I have copy in ~/.emacs-sub/time-stamp-setup.el
