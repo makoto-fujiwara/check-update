@@ -7,7 +7,7 @@ use v5.16;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-12-28 15:33" ; # written by emacs time-stamp
+$VERSION = "2015-12-28 15:46" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -72,6 +72,7 @@ my(%LongName)  = (
    'G',  'Gnome',
    'h',  'HTTP Header',
    'l',  'Curl Listing',
+   'm',	 'MASTER_SITES_LISTING',
    'n',  'CountNumber (not implemented yet)',
    'p',  'Special Pattern',
    'r',  'RubyGems',
@@ -2114,13 +2115,14 @@ sub MasterSiteVersion($) {
 sub ParseDebug($){
     my ($pattern) = shift;
     my %DEBUG;
+    my $char_list = 'acCdDegfGhlmnprsSx';
 
-    if ( $pattern =~ /a/ ) { $pattern = 'acCdDegfGhlnprsSx' }
+    if ( $pattern =~ /a/ ) { $pattern = $char_list  }
     print STDERR sprintf("%4d ", __LINE__ ), ' DEBUG pattern (',  $pattern,  ')',"\n";
     foreach my $index (0 .. length($pattern) - 1 ){
 	my $char = substr($pattern, $index, 1);
-	if (grep (/$char/, 'acCdDegfGhlnprsSux') < 1) {
-	    print STDERR  ' ** Debug char not defined, see with -h option.',"\n"; exit;}
+	if (grep (/$char/, $char_list) < 1) {
+	    print STDERR  sprintf("%4d <", __LINE__), 'ParseDebug> ** Debug char not defined, see with -h option.',"\n"; exit;}
 	$DEBUG{$char}++;
 	print STDERR  '   ',$char,'  ', $LongName{$char}, "\n";
 	}
@@ -3277,9 +3279,13 @@ printf STDERR  ColorString('red',
 		$PKGBASE, '('.$DISTBASE.')', '('.  __LINE__ .')')
     	)
        ; $NoMasterSites++;   next;}
-
+	    
 # Get Max version available at MASTER_SITES
 
+print STDERR sprintf("%4d ", __LINE__ ), 
+		' URL: ', $URL,"\n",'      HOMEPAGE: ', $HOMEPAGE, "\n"
+		if $DEBUG_MASTER_SITES_LISTING;
+		
 	my($http_code, $master_site) = GetMasterSiteSub($PKGBASE, $DISTBASE, $URL, $HOMEPAGE);
 print STDERR sprintf("%4d ", __LINE__ ), 
 ' (PKGBASE) ', $PKGBASE, ' --> http: ', $http_code, ' Now: ', $PKGVERSION, ' $available: ', $available,"\n" if $DEBUG_DISTBASE;
