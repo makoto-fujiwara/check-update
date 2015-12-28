@@ -7,7 +7,7 @@ use v5.16;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-12-20 02:33" ; # written by emacs time-stamp
+$VERSION = "2015-12-28 15:28" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -49,6 +49,7 @@ my ($DEBUG_FAMILY) = 0;
 my ($DEBUG_GITHUB);
 my ($DEBUG_GNOME);
 my ($DEBUG_HTTP_HEADER);
+my ($DEBUG_MASTER_SITES_LISTING);
 my ($DEBUG_RUBYGEM);
 my ($DEBUG_SF);
 my ($DEBUG_SPECIAL_PATTERN);
@@ -1632,6 +1633,7 @@ sub PickFromCandidate(@) {
     return $max_version;
 }
 sub GetMasterSiteCandidate($$$) {
+#   get @MASTER_SITES from Makefile (etc)
     my($category) = shift;
     my($PackageName) = shift;
     my($DISTBASE) = shift;    
@@ -1647,6 +1649,7 @@ sub GetMasterSiteCandidate($$$) {
 }
 
 sub GetMasterSiteSub($$$$) {
+# Relatively long subroutine to get @CANDIDATE from following four variables.
     my ($PKGNAME)	= shift;
     my ($DISTBASE)	= shift;
     my ($master_site)	= shift;
@@ -2120,24 +2123,25 @@ sub ParseDebug($){
 	print STDERR  '   ',$char,'  ', $LongName{$char}, "\n";
 	}
 
-    $DEBUG_EVAL_PATTERN		= $DEBUG{'e'} + $DEBUG{'a'} ;
-    $DEBUG_CURL_LISTING		= $DEBUG{'l'} + $DEBUG{'a'} ;
-    $DEBUG_DISTBASE		= $DEBUG{'d'} + $DEBUG{'a'} ;
-    $DEBUG_HTTP_HEADER		= $DEBUG{'h'} + $DEBUG{'a'} ;
     $DEBUG_CACHE		= $DEBUG{'c'} + $DEBUG{'a'} ;
-    $DEBUG_CURL			= $DEBUG{'C'} + $DEBUG{'a'} ;
-    $DEBUG_DIGIT		= $DEBUG{'D'} + $DEBUG{'a'} ; 
-    $DEBUG_EDITVersion		= $DEBUG{'E'} + $DEBUG{'a'} ;
-    $DEBUG_FAMILY		= $DEBUG{'f'} + $DEBUG{'a'} ;
-    $DEBUG_GNOME		= $DEBUG{'G'} + $DEBUG{'a'} ;
-    $DEBUG_GITHUB		= $DEBUG{'g'} + $DEBUG{'a'} ;
     $DEBUG_COUNT		= $DEBUG{'n'} + $DEBUG{'a'} ;
-    $DEBUG_SF			= $DEBUG{'s'} + $DEBUG{'a'} ;
-    $DEBUG_STATS		= $DEBUG{'S'} + $DEBUG{'a'} ;
-    $DEBUG_RUBYGEM		= $DEBUG{'r'} + $DEBUG{'a'} ;
-    $DEBUG_SPECIAL_PATTERN	= $DEBUG{'p'} + $DEBUG{'a'} ;
-    $DEBUG_URL			= $DEBUG{'u'} + $DEBUG{'a'} ;
+    $DEBUG_CURL			= $DEBUG{'C'} + $DEBUG{'a'} ;
     $DEBUG_CURL_CACHE		= $DEBUG{'x'} + $DEBUG{'a'} ;
+    $DEBUG_CURL_LISTING		= $DEBUG{'l'} + $DEBUG{'a'} ;
+    $DEBUG_DIGIT		= $DEBUG{'D'} + $DEBUG{'a'} ; 
+    $DEBUG_DISTBASE		= $DEBUG{'d'} + $DEBUG{'a'} ;
+    $DEBUG_EDITVersion		= $DEBUG{'E'} + $DEBUG{'a'} ;
+    $DEBUG_EVAL_PATTERN		= $DEBUG{'e'} + $DEBUG{'a'} ;
+    $DEBUG_FAMILY		= $DEBUG{'f'} + $DEBUG{'a'} ;
+    $DEBUG_GITHUB		= $DEBUG{'g'} + $DEBUG{'a'} ;
+    $DEBUG_GNOME		= $DEBUG{'G'} + $DEBUG{'a'} ;
+    $DEBUG_HTTP_HEADER		= $DEBUG{'h'} + $DEBUG{'a'} ;
+    $DEBUG_MASTER_SITES_LISTING = $DEBUG{'m'} + $DEBUG{'a'} ;
+    $DEBUG_RUBYGEM		= $DEBUG{'r'} + $DEBUG{'a'} ;
+    $DEBUG_SF			= $DEBUG{'s'} + $DEBUG{'a'} ;
+    $DEBUG_SPECIAL_PATTERN	= $DEBUG{'p'} + $DEBUG{'a'} ;
+    $DEBUG_STATS		= $DEBUG{'S'} + $DEBUG{'a'} ;
+    $DEBUG_URL			= $DEBUG{'u'} + $DEBUG{'a'} ;
     print STDERR "\n";
 }
 #  ----------------------------------------------------
