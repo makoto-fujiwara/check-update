@@ -7,7 +7,7 @@ use v5.16;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-12-30 08:49" ; # written by emacs time-stamp
+$VERSION = "2015-12-30 09:09" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -2205,10 +2205,10 @@ sub ParseDirectory($$){   # 2200  to  2421 lines (220 lines
 
     my (@candidate);
     my ($version);
-    print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[3], '> ', $master_site, "   \n" if  $DEBUG_URL ;
+    print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[3], '> ', $master_site, "   \n" if  ($DEBUG_URL || $DEBUG_MASTER_SITES_LISTING);
     if ($master_site eq '')	{ print STDERR sprintf("%4d ", __LINE__ ), ' $master_site is empty ',	 "\n"; return -1;}
     if ($master_site eq 'DNS')	{ print STDERR sprintf("%4d ", __LINE__ ), ' ',$distbase,' has DNS problem',"\n"; return -1;}
-    print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[3], '> ', $master_site, "   \n" if  $DEBUG_URL ;
+    print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[3], '> ', $master_site, "   \n" if  ($DEBUG_URL || $DEBUG_MASTER_SITES_LISTING);
     my($curl_lines) = 0; # count how many lines came from curl -l
     my($repeat) = 3 ;
     my($sslv3) = '';
@@ -3291,7 +3291,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
 ' (PKGBASE) ', $PKGBASE, ' --> http: ', $http_code, ' Now: ', $PKGVERSION, ' $available: ', $available,"\n" if $DEBUG_DISTBASE;
 	    $returnCode = -1;
 
-	if ($HS_PACKAGE) {					# MAJOR_IF_THEN_ELSE
+	 if ($HS_PACKAGE) {					# MAJOR_IF_THEN_ELSE
 	$master_site = "http://hackage.haskell.org/package/". $DISTBASE;
 	print STDERR sprintf("%4d ", __LINE__ ), "HS_PACKGE: ", $MASTER_SITE ,"\n" if $DEBUG_DISTBASE;
 	}
@@ -3300,7 +3300,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	    $MasterSiteStat = 'DNS';
 	}
 	if ($#candidate == -1  && ($master_site =~ /gnome\.org/ ) ) {
-	   ($returnCode, @candidate) = GnomeSpecial($DISTBASE, $master_site);
+	    ($returnCode, @candidate) = GnomeSpecial($DISTBASE, $master_site);
 	}
 	    print STDERR sprintf("%4d ", __LINE__ ), '#candidate: ', $#candidate, ' DISTBASE: ', $DISTBASE, ' master_site ', $master_site, "\n" if $DEBUG_GNOME;
 
@@ -3313,20 +3313,23 @@ print STDERR sprintf("%4d ", __LINE__ ),
        
 	    print STDERR sprintf("%4d ", __LINE__ ), '#candidate: ', $#candidate, ' DISTBASE: ', $DISTBASE,"\n" if $DEBUG_GNOME;
 
-	if ($#candidate < 0  && $master_site =~ m|(.*)/[0-9._]+/*$|) {	# MAJOR_IF_THEN_ELSE
+	 if ($#candidate < 0  && $master_site =~ m|(.*)/[0-9._]+/*$|) {	# MAJOR_IF_THEN_ELSE
 	    my ($upper) = $1;
 	    print STDERR sprintf("%4d ", __LINE__ ), 'MASTER_SITE with ending digit: ', $master_site,"\n" if $DEBUG_DIGIT;
 	    ($returnCode, @candidate) = ParseUpperDirectory($PackageName, $upper);
-	}
-	print STDERR sprintf("%4d ", __LINE__ ), $#candidate, "\n" if $DEBUG_SF;
-	if ($#candidate < 0  && $master_site && $http_code ne 'DNS' ) {
+	 }								# MAJOR_IF_THEN_ELSE
+         # ------------------- back to upper level --
+	print STDERR sprintf("%4d ", __LINE__ ), 'candidate: ', $#candidate, 'http_code: ', $http_code, "\n" if ($DEBUG_SF || $DEBUG_MASTER_SITES_LISTING );
+	if ($#candidate < 1  && $master_site && $http_code ne 'DNS' ) {
+	    print STDERR sprintf("%4d ", __LINE__ ), $#candidate, "\n" if $DEBUG_MASTER_SITES_LISTING ;
 	    ($returnCode, @candidate) = ParseDirectory($master_site, $DISTBASE);
 	}
-
-        if ($#candidate < 0  && $HOMEPAGE) {
+	print STDERR sprintf("%4d ", __LINE__ ), $#candidate, "\n" if $DEBUG_MASTER_SITES_LISTING ;
+        if ($#candidate < 1  && $HOMEPAGE) {
 	    ($returnCode, @candidate) = ParseDirectory($HOMEPAGE, $DISTBASE);
 	    print STDERR sprintf("%4d ", __LINE__ ), $HOMEPAGE," checked.\n" if $DEBUG_DISTBASE;
 	}
+	print STDERR sprintf("%4d ", __LINE__ ), $#candidate, "\n" if $DEBUG_MASTER_SITES_LISTING ;
 	print STDERR sprintf("%4d ", __LINE__ ), $#candidate, "\n" if $DEBUG_SF;
 	print STDERR sprintf("%4d ", __LINE__ ), $#candidate, "\n" if $DEBUG_GITHUB;
 	if ($#candidate < 1  && $master_site =~ /github.com/ ) {
@@ -3341,7 +3344,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	    print STDERR sprintf("%4d ", __LINE__ ), $HOMEPAGE," checked.\n" if $DEBUG_DISTBASE
 	}
 
-	} # if ($SFProject) { -> else				# MAJOR_IF_THEN_ELSE
+	 } # if ($SFProject) { -> else				# MAJOR_IF_THEN_ELSE
 
  print STDERR sprintf("%4d ", __LINE__ ),
 	    '(DISTBASE) ', $DISTBASE, 
