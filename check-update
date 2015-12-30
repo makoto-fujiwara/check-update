@@ -7,7 +7,7 @@ use v5.16;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2015-12-28 15:46" ; # written by emacs time-stamp
+$VERSION = "2015-12-30 08:36" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -3380,7 +3380,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
 
 	# --------------  # $GEM_PACKAGE else end
     }								# MAJOR_IF_THEN_ELSE # $GEM_PACKAGE else end
-	# ------------------- back to top level of main
+    # ------------------- back to top level of main
 print STDERR sprintf("%4d ", __LINE__ ), 
 ' (PKGBASE) ', $PKGBASE, ' --> http: ', $MasterSiteStat, 'Now: ', $PKGVERSION, ' $available: ', $available,"\n" if $DEBUG_DISTBASE;        
 
@@ -3395,15 +3395,14 @@ print STDERR sprintf("%4d ", __LINE__ ),
     sprintf  ("%20s %15s %4s Now: %8s -> %7s Todo: %5s ", 
 	$PKGBASE_TO_SHOW, '('.$DISTBASE_TO_SHOW.')', '('.sprintf("%4d ", __LINE__ ).')', $PKGVERSION,  $available, $TODO{$PKGBASE});
 	# ------------------------------------------------------------
-	##   F I N D   T H E   C O N D I T I O N   T O   L I S T
+	##   F I N D   T H E   C O N D I T I O N   T O   L I S T (404/403/550/DNS)
 	# ------------------------------------------------------------
     print STDERR sprintf("%4d ", __LINE__ ). ' '. $DISTBASE. ' -> '. $available. "\n" if $DEBUG_CACHE;
-    if    ( CompareVersion( $available, $PKGVERSION) >  0 )	{ $Found++; $console_color = 'black'; # for stats and just below
+    if      ( CompareVersion( $available, $PKGVERSION) >  0 )		{ $Found++; $console_color = 'black'; # for stats and just below # MAJOR_IF_THEN_ELSE 
     } elsif ( $TODO{$PKGBASE} &&
 	      CompareVersion( $TODO{$PKGBASE}, $PKGVERSION) != 0 )	{ $TODO_LIST++; $to_list = 1; $console_color = 'green';
-    } elsif ( CompareVersion( $available, $PKGVERSION) == 0 )	{ $to_list = 0;	 $OK++; $console_color = 'blue'; # OK, disable to list
-    } elsif ( CompareVersion( EditVersion($DISTBASE, $available), $PKGVERSION) == 0 )
-    			{ $to_list = 0;	 $OK++; $console_color = 'blue'; # OK, disable to list
+    } elsif ( CompareVersion( $available, $PKGVERSION) == 0 )		{ $to_list = 0;	 $OK++; $console_color = 'blue'; # OK, disable to list
+    } elsif ( CompareVersion( EditVersion($DISTBASE, $available), $PKGVERSION) == 0 ) { $to_list = 0;	 $OK++; $console_color = 'blue'; # OK, disable to list
     } elsif ( $available eq '0.0' || $available eq '') {
 	$console_color = 'magenta';
 	if    ($MasterSiteStat == 404 )	{ $NotFound++; }
@@ -3414,7 +3413,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
 
 	else				{ $NotAvailable++ ; }
 	if ( $full_list == 0 ) { $to_list = 0; $NotListed++;} # Unable to find recent version
-    } elsif ( CompareVersion( $available, $PKGVERSION) < 0 )    { 
+    } elsif ( CompareVersion( $available, $PKGVERSION) < 0 )    	{
 	if ($include_reverse == 0 ) { $to_list = 0; }
 	$Reverse++; $reverse++; 
     } else {
@@ -3497,7 +3496,7 @@ exit;
 __END__
 ## Local Variables:
 ## mode: outline-minor
-## outline-regexp: "^[ 	]*sub\\s-+\\([-[:alnum:]+_:]+\\)\\|^\\(?:my\\|our\\)\\s-+\\([$@%][-[:alnum:]+_:]+\\)\\s-*=\\|^[ 	]*package\\s-+\\([-[:alnum:]+_:]+\\);\\|^=head[0-9][ 	]+\\(.*\\)\\|^=cut\\>\\|^[	 ]*\\#\\# \\|^[	 ]*\\# -----------\\|.*# MAJOR_IF_THEN_ELSE\\\|.*MAJOR_FOREACH"
+## outline-regexp: "^[ 	]*sub\\s-+\\([-[:alnum:]+_:]+\\)\\|^\\(?:my\\|our\\)\\s-+\\([$@%][-[:alnum:]+_:]+\\)\\s-*=\\|^[ 	]*package\\s-+\\([-[:alnum:]+_:]+\\);\\|^=head[0-9][ 	]+\\(.*\\)\\|^=cut\\>\\|^[	 ]*\\#\\# \\|^[	 ]*\\# -----------\\|.*# MAJOR_IF_THEN_ELSE\\\|.*MAJOR_FOREACH\\|.*compareVersion\("
 ## End:
 
 ; please note I have copy in ~/.emacs-sub/time-stamp-setup.el
