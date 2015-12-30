@@ -6,6 +6,7 @@
   - diff links in devel? need to be adjusted
   - misc/goffice0{6,8} maybe on MaturedList (?)
   - URL shown on MASTER_SITES gets strange after databases/rrdtool (the same URL continues)
+  - (family) www/librest and www/librest07
   - (family)
 	 www/webkit-gtk	        webkit-gtk	2.10.4	->	2.11.2
          www/webkit1-gtk	webkit-gtk	1.10.2	->	
