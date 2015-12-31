@@ -1,4 +1,8 @@
 (TODO)
+  -  recent commit 99fbf0b (2015/12/30) makes stats bad:
+          To be updated:  2349 -> 2206
+                     OK:  5520 -> 5544
+     Unable to find ver:   713 ->  865
   - (alpha)  audacious 3.7 is not release, but alpha or beta
   - (99 or 90) may be development version and nice not to list gdt@
   - (security/gsasl)  1.8.0   ->      1.8.02, is it relly latest ? gdt@
