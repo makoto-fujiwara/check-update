@@ -145,7 +145,7 @@ print HTML "<tr class=\"head\"><th>Date</th>";
 # ---------------------------------------------------------
 foreach my $date  (@DATE) {
     my ($short) =  $date; 
-        $short =~ s/^2015//;
+        $short =~ s/^201[0-9]//;
         $short =~ s/-[0-9]+$//;
     print HTML "<th><a href=\"./$date/00_Stats.html\">$short</a></th>";
 }
