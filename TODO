@@ -1,4 +1,6 @@
 (TODO)
+  - (benchmarks/bonnie)  1.03e -> 3e,  should be read updated
+  - (benchmakrs/netio)   132 -> 1.32
   -  recent commit 99fbf0b (2015/12/30) makes stats bad:
           To be updated:  2349 -> 2206
                      OK:  5520 -> 5544
