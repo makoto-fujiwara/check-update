@@ -7,7 +7,7 @@ use v5.16;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2016-01-25 23:34" ; # written by emacs time-stamp
+$VERSION = "2016-01-25 23:49" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -240,6 +240,8 @@ my (%SpecialPattern) = (
     'Text-Tabs+Wrap',	'$line =~ s|.*Text-Tabs.*-([0-9.]+).*|$1|;',
     'CRF++',		'$line =~ s|.*CRF\+\+-([0-9.]+[0-9]).*|$1|;',
     'eagle-lin32',	'$line =~ s|.*eagle-lin32-([0-9.]+)\.run.*|$1|;',
+    'bonnie.+',		'$line =~ s|.*bonnie\+\+-([0-9.a-z]+)\.tgz.*|$1|;',
+				     #bonnie++-1.03e.tgz
     );
 
 my(%SourceForgeAlternative) = qw (
@@ -1396,8 +1398,8 @@ print STDERR sprintf("%4d ", __LINE__ ), ' ', $dir, '/', $PackageName, '; DISTBA
     } else {
 
 #    print STDERR sprintf("%4d ", __LINE__ ), ' ', $DISTBASE, "\n";
-    # if - is included, strip - and after
-    # if _ is included, strip _ and afte
+    # if - is included, strip - and after S T R I P
+    # if _ is included, strip _ and after S T R I P
     $DISTBASE   =~ s/(tcp_wrappers.*)-ipv6/$1/;		# (security) tcp_wrappers_7.6-ipv6.4
     $DISTBASE   =~ s/([0-9]+)r([0-9]+)/$1.$2/;		# math/xgap xgap4r16
 #   $DISTBASE   =~ s/-rc[0-9]//;	# mail/mutt-kz-1.5.22-rc1
@@ -1436,7 +1438,7 @@ print STDERR sprintf("%4d ", __LINE__ ), ' ', $dir, '/', $PackageName, '; (DISTB
 		$DISTBASE =~ /cal3d/	||
 		0 ) {
 	#    elsif ( grep /^$DISTBASE$/, @DISTBASE_DIGIT  == 0) {
-    $DISTBASE   =~ s/(.*perl5).*/$1/;	# strip after perl5, p5-postgresql -> pgsql_perl(5)-1.9.0
+    $DISTBASE   =~ s/(.*perl5).*/$1/;	# strip after perl5, p5-postgresql -> pgsql_perl(5)-1.9.0 S T R I P
     $DISTBASE   =~ s/(.*hdf5).*/$1/;
     $DISTBASE   =~ s/(.*libosip2).*/$1/;
     $DISTBASE   =~ s/(.*xfwm4).*/$1/;
@@ -1483,7 +1485,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
 print STDERR sprintf("%4d ", __LINE__ ), '(DISTBODY) ', $DISTBODY,' (CAND) ', $VERSION_CANDIDATE,"\n" if $DEBUG_DISTBASE;
     }
 	#  ----------------------------------
-	#  3 - 6  Strip $PKGVERSION from $DISTNAME with simple rule
+	#  3 - 6  Strip $PKGVERSION from $DISTNAME with simple rule S T R I P
 	#  ----------------------------------
      else {
     $DISTBASE   =~ s/[-_]*[0-9._-]+$//;	
@@ -2331,7 +2333,7 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (2) ', $distbase, ' --> ', $version,"
 print STDERR sprintf("%4d ", __LINE__ ), ' (3) ', $distbase, ' --> ', $version,"\n" if $DEBUG_DISTBASE;
 		}
 	    } else {
-	    $version =~ s/-vax-//;	# compat30-extras-sparc-3.1.tar.bz2
+	    $version =~ s/-vax-//;	# compat30-extras-sparc-3.1.tar.bz2  S T R I P
 	    $version =~ s/-i386-//;	#
 	    $version =~ s/(\d+)B(\d+)/$1.$2/;  # erlang otp_src_R16B02 -> 16.02
 	    $version =~ s/_bin_win//; # shapelib129_bin_win.zip
@@ -3501,7 +3503,7 @@ exit;
 __END__
 ## Local Variables:
 ## mode: outline-minor
-## outline-regexp: "^[ 	]*sub\\s-+\\([-[:alnum:]+_:]+\\)\\|^\\(?:my\\|our\\)\\s-+\\([$@%][-[:alnum:]+_:]+\\)\\s-*=\\|^[ 	]*package\\s-+\\([-[:alnum:]+_:]+\\);\\|^=head[0-9][ 	]+\\(.*\\)\\|^=cut\\>\\|^[	 ]*\\#\\# \\|^[	 ]*\\# -----------\\|.*# MAJOR_IF_THEN_ELSE\\\|.*MAJOR_FOREACH\\|.*compareVersion\(\\|[^#].*@candidate"
+## outline-regexp: "^[ 	]*sub\\s-+\\([-[:alnum:]+_:]+\\)\\|^\\(?:my\\|our\\)\\s-+\\([$@%][-[:alnum:]+_:]+\\)\\s-*=\\|^[ 	]*package\\s-+\\([-[:alnum:]+_:]+\\);\\|^=head[0-9][ 	]+\\(.*\\)\\|^=cut\\>\\|^[	 ]*\\#\\# \\|^[	 ]*\\# -----------\\|.*# MAJOR_IF_THEN_ELSE\\\|.*MAJOR_FOREACH\\|.*compareVersion\(\\|[^#].*@candidate\||.*S T R I P"
 ## End:
 
 ; please note I have copy in ~/.emacs-sub/time-stamp-setup.el
