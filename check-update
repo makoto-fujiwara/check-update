@@ -266,6 +266,7 @@ my(%SourceForgeAlternative) = qw (
     FreeImage	http://sourceforge.net/projects/freeimage/files/Source%20Distribution/3.16.0/
     gsoap	http://sourceforge.net/projects/gsoap2/files/gSOAP/
     OdfConverter http://sourceforge.net/projects/odf-converter/files/ODF%20Add-in%20for%20Office/Release%204.0/
+    libhtmlobject-perl http://sourceforge.net/projects/htmlobject/files/htmlobject/
 ); #'
 
 # PKGBASE to $DISTBASE association Special (ending digit is main customer)
@@ -573,7 +574,7 @@ sub Usage($$) {
     print <<HELP;
 Check the version is current
 Synopsis:
-   check-update	[-D] [-f] [-h] [-r] [-R] [-t] [-u] [-v] [-V] [-w] [-W]
+   check-update	[-D] [-f] [-h] [-i] [-r] [-R] [-t] [-u] [-v] [-V] [-w] [-W]
 		[ -c category] 
 		[ -d directory-to-output ]
 		[ -p pkgsrc-directory ]	 
@@ -590,6 +591,7 @@ Where:
    -f : (full) output Recent-version-unavailable too.
         (default: output that part to different file)
    -h : (help) show this message (putting after options may show default value)
+   -i : inform to update info (maintainer, or id\@domain, not implemented yet)
    -P : check particular package
    -p : pkgsrc directory (default /usr/pkgsrc)
    -r : Include Reverse results in listing
