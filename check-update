@@ -7,7 +7,7 @@ use v5.16;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2016-01-25 23:53" ; # written by emacs time-stamp
+$VERSION = "2016-01-28 03:49" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -2311,17 +2311,18 @@ next;
 		$_ =~ /xmx-(.*)pl.*\.tar\.gz/;
 		$version = $1;
 print STDERR sprintf("%4d ", __LINE__ ), ' (01)', $distbase,' version-> ', $version,"\n" if $DEBUG_DISTBASE;
-	# avoid 2, www/p5-Catalyst-View-Mason2 will not picked for www/p5-Catalyst-View-Mason
+	# avoid 2, www/p5-Catalyst-View-Mason2 will not be picked for www/p5-Catalyst-View-Mason
 	} elsif ( /(.*\b)$distbase([013-9_.-][0-9a-z_.-]+)\.(gz|bz2|zip|xz|7z|tgz|tbz|tar|Z)/ ||
 		/(.*\b)$distbase-v([0-9.]+)-linux/ ||
 		/(.*\b)$distbase-([0-9.]+)\.python/ ||	# devel/pythontidy
 		/(.*\b)$distbase.v([0-9.]+)/ ||
 		0 ) {
-	    if ($1 =~ /-$/) { 
+	    my $pattern = $1;
+	    if ($pattern =~ /-$/) { 
 		print STDERR sprintf("%4d ", __LINE__ ), ' (-) ', $_,"\n" if $DEBUG_DISTBASE;
 		next;}  # Avoid to pick CGI-Cookie-XS-0.18.tar.gz for Cookie-XS
-	     $version =	$2;
-	    print STDERR sprintf("%4d ", __LINE__ ), ' (0) >', $1, '< ', $_,"\n" if ($DEBUG_DISTBASE||$DEBUG_EVAL_PATTERN);
+	    $version =	$2; $version =~ s/^[-]//;  # www-VRML-1.10.tar.gz -> -1.10 -> 1.10
+	    print STDERR sprintf("%4d ", __LINE__ ), ' (0) >', $pattern, '< ', $_,"\n" if ($DEBUG_DISTBASE||$DEBUG_EVAL_PATTERN);
 print STDERR sprintf("%4d ", __LINE__ ), ' (1) ', $distbase, ' --> ', $version,"\n" if $DEBUG_DISTBASE;
 	    #  -----------
 	    # xpdf-arabic etc special
@@ -2335,7 +2336,7 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (2) ', $distbase, ' --> ', $version,"
 		    $version =~  s/-([0-9]+)-[jfmasond][a-z][a-z]-([0-9]+)\.tar/$1$digit$2/;
 print STDERR sprintf("%4d ", __LINE__ ), ' (3) ', $distbase, ' --> ', $version,"\n" if $DEBUG_DISTBASE;
 		}
-	    } else {
+	    } else { # not xpdf
 	    $version =~ s/-vax-//;	# compat30-extras-sparc-3.1.tar.bz2  S T R I P
 	    $version =~ s/-i386-//;	#
 	    $version =~ s/(\d+)B(\d+)/$1.$2/;  # erlang otp_src_R16B02 -> 16.02
@@ -2418,10 +2419,11 @@ print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[3], '> (distbase) ', $distb
     print STDERR sprintf("%4d ", __LINE__ ), '==> curl_lines: ', $curl_lines, "\n" if $DEBUG_DISTBASE;
     if ($curl_lines == 0 ) { $returnCode = -1; };
 print STDERR sprintf("%4d ", __LINE__ ), ' (distbase) ', $distbase,' (version) ', $version, 
-' returnCode ', $returnCode, "\n" if $DEBUG_DISTBASE;
+' returnCode ', $returnCode, ' @candidate: ', $#candidate, "\n" if $DEBUG_DISTBASE;
 #      foreach my $c (@candidate) {
 #  	if (1 || $c =~ /4\.8\.3/) {
 #  print STDERR sprintf("%4d <", __LINE__), (caller 0)[3],'> (edit_version) ', $c, "\n"; }}
+    push(@candidate, "0.0");  # make always candidate 2 or more (?)
     ($returnCode, @candidate);
 }
 sub PkgVersion($) {
