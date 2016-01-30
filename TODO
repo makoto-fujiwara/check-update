@@ -1,4 +1,10 @@
 (TODO)
+  -  recent commit (of last line add (0.0) to @candidate) makes stats worse
+     https://github.com/makoto-fujiwara/check-update/commit/d0acbf881a8c3b3aa25f92ba73fba1b0d91fa94a
+                    2016/01/27   01/28
+          To be updated:  2146 -> 2044
+                     OK:  5385 -> 5246
+     Unable to find ver:   877 ->  906
   - (benchmarks/bonnie)  1.03e -> 3e,  should be read updated
   -  recent commit 99fbf0b (2015/12/30) makes stats bad:
           To be updated:  2349 -> 2206
