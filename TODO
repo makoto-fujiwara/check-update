@@ -1,4 +1,5 @@
 (TODO)
+  - (www/cherokee)  Home page shows 1.2.103, but not able to pick it up
   - (benchmarks/bonnie)  1.03e -> 3e,  should be read updated
   -  recent commit 99fbf0b (2015/12/30) makes stats bad:
           To be updated:  2349 -> 2206
@@ -13,6 +14,7 @@
   - URL shown on MASTER_SITES gets strange after databases/rrdtool (the same URL continues)
   - (family) www/librest and www/librest07
   - (family)
+         devel/rt{3,4}
 	 www/webkit-gtk	        webkit-gtk	2.10.4	->	2.11.2
          www/webkit1-gtk	webkit-gtk	1.10.2	->	
 	 www/webkit1-gtk3	webkit-gtk3	1.10.2	->	2.11.2		
