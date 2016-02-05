@@ -247,6 +247,7 @@ my (%SpecialPattern) = (
     'gsasl',		'$line =~ s|.*\bgsasl-([0-9.]+)\.tar.*|$1|;',
     'Apache-Gallery',	'$line =~ s|.*Apache-Gallery-([0-9.]+)-.*|$1|;',
     'bind',		'$line =~ s|.*bind-([0-9.Ppl]+).*|$1|;',
+    'wmii',		'$line =~ s|.*wmii-([0-9]\.[0-9]+)\.tar.*|$1|;',  # force having period in pattern
     );
 
 my(%SourceForgeAlternative) = qw (
