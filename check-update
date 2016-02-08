@@ -7,7 +7,7 @@ use v5.16;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2016-02-02 14:01" ; # written by emacs time-stamp
+$VERSION = "2016-02-08 03:26" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -248,6 +248,7 @@ my (%SpecialPattern) = (
     'Apache-Gallery',	'$line =~ s|.*Apache-Gallery-([0-9.]+)-.*|$1|;',
     'bind',		'$line =~ s|.*bind-([0-9.Ppl]+).*|$1|;',
     'wmii',		'$line =~ s|.*wmii-([0-9]\.[0-9]+)\.tar.*|$1|;',  # force having period in pattern
+    'multitail',	'$line =~ s|.* stable version .*>([0-9.]+)</A.*|$1|;', 
     );
 
 my(%SourceForgeAlternative) = qw (
