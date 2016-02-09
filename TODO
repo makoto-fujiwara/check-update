@@ -1,4 +1,5 @@
 (TODO)
+  -  Avoid to show 1.[odd number].x for sysutils/dbus. It is unstable branch
   -  recent commit (of last line add (0.0) to @candidate) makes stats worse
      https://github.com/makoto-fujiwara/check-update/commit/d0acbf881a8c3b3aa25f92ba73fba1b0d91fa94a
                     2016/01/27   01/28
