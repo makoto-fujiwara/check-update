@@ -231,6 +231,7 @@ my (%SpecialPattern) = (
 #    'Text-Diff',	'$line =~ s|.*Text-Diff-([0-9._]+).*|$1|;',
     'krb5',		'$line =~ s|.*krb5-([0-9.]+[0-9])-(signed)\..*|$1|;',
     'perl',		'$line =~ s|.*perl-([0-9]+\.[0-9]*[02468]\.[0-9]+)\.tar.*|$1|;',
+    'dbus',		'$line =~ s|.*dbus-([0-9]+\.[0-9]*[02468]\.[0-9]+)\.tar.*|$1|;',
     'gnu-crypto-bin',	'$line =~ s|.*gnu-crypto-([0-9.]+)-bin\.tar.*|$1|;',
     'apache-ant-bin',	'$line =~ s|.*apache-ant-([0-9.]+)-bin.*|$1|;',
     'shinonome-src',	'$line =~ s|.*shinonome-([0-9.]+)-src.*|$1|;',
