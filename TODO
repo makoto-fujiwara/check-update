@@ -1,5 +1,6 @@
 (TODO)
-  -  Avoid to show 1.[odd number].x for sysutils/dbus. It is unstable branch
+  -  databases/sqlite3 now shows 370 <- DISTBASE/family/special pattern complicated issue
+  -  (done) Avoid to show 1.[odd number].x for sysutils/dbus. It is unstable branch
   -  recent commit (of last line add (0.0) to @candidate) makes stats worse
      https://github.com/makoto-fujiwara/check-update/commit/d0acbf881a8c3b3aa25f92ba73fba1b0d91fa94a
                     2016/01/27   01/28
@@ -33,7 +34,7 @@
   - graphics/clutter is upto date (1.22.2) but unable to find the version
   - MaturedList path is not good for standalone execution
   - editors/texmaker is upto date (as of 20150721)
-  - editors/emacs* should be fixed (for several version variant)
+  - (family) editors/emacs* should be fixed (for several version variant)
   - databases/postgresql-postgis stays intentionally v1. don't flag please
   - devel/fann is actually up to date.  source tarball has a goofy name
   - geography/proj is also up to date
