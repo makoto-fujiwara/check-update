@@ -1796,8 +1796,12 @@ sub GitHubSpecial($$$$){
     #   https://github.com/jberger/Mojo-IOLoop-ForkCall/archive/0.16.tar.gz
     #   https://github.com/jberger/Mojo-IOLoop-ForkCall/release
     #   https://github.com/jberger/Mojo-IOLoop-ForkCall/releases
-    my ($curl_command) = "$curl_list_secure $master_site";
-
+ 
+ foreach  my $target  ("$master_site",
+		       "$master_site".'/'."$GITHUB_PROJECT",
+		       "$master_site".'/'."$distbase",
+		       "$master_site".'/'."$GITHUB_PROJECT".'/releases') {
+     my ($curl_command) = "$curl_list_secure $target";
     print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> curl_command: ', $curl_command, "\n" if $DEBUG_GITHUB;
     open(CURL,  "$curl_command 2>&1|") ||     print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> Problem for curl', "$!\n";
     while(<CURL>) {
@@ -1810,15 +1814,18 @@ sub GitHubSpecial($$$$){
     }
     close(CURL);
 #  ------ Following is truely ad-hoc for misc/libcec, (github and libcec-2.2.0-repack) type
-    if ( $#candidate == -1 ) {
-	$curl_command  = "$curl_list_secure $master_site/$GITHUB_PROJECT";
+#    if ( $#candidate == -1 ) {
+
+#	my($curl_command)  = $curl_list_secure.' '. $master_site.'/'.$GITHUB_PROJECT;
   print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> curl_command: ', $curl_command, "\n" if $DEBUG_GITHUB;
     open(CURL,  "$curl_command 2>&1|") ||     print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> Problem for curl', "$!\n";
     while(<CURL>) {
-	print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> (',$distbase, ') ', $_ if $DEBUG_GITHUB;
+	print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> (',$distbase, ' / ', $target.') ', $_ if $DEBUG_GITHUB;
 	$distbase =~ s/-[a-z]+//;
 	if (m,/$distbase-([0-9.]+),	||
 	    m,data-name=\"v*([0-9.]+)\",||
+	    m,release-([0-9.]+)\",	||   # sysutils/WCMcommander
+    	    m,releases/tag/([0-9.]+),	||   # sysutils/erlang-goldrush
 	    0 ) {
 	    my($cand) = $1;
 	    push(@candidate, $cand);
@@ -1826,7 +1833,7 @@ sub GitHubSpecial($$$$){
 	    }
     }
     close(CURL);
-    }
+    } # foreach 
 # ------ End special
     return ( 200, @candidate)
 }
