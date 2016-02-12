@@ -181,7 +181,9 @@ sign parchive cabextract celt auctex ntp mercury-srcdist Net-Libdnet
 IO-Socket-Multicast
 Net-IPv4Addr Net-IPv6Addr Net-XMPP lzo pen iperf lftp Text-Diff inform
 ocaml
-audacious audacious-plugins WWW-Shorten proj);
+audacious audacious-plugins WWW-Shorten proj
+hfsutils
+);
 
 # Net-Libdnet is listed to avoid not to pick Net-Libdnet6-0.27 -as 6-0.27
 #my (@Debian) = qw(signing-party);
