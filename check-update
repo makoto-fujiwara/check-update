@@ -370,6 +370,7 @@ my(%DownLoadAlternative) = qw (
     dbus-sharp	https://github.com/mono/dbus-sharp/downloads
     dbus-sharp-glib	https://github.com/mono/dbus-sharp/downloads
     eagle-lin32	http://www.cadsoft.de/download-eagle/
+    libol	https://my.balabit.com/downloads/libol/0.3
     ); ##
 
 # for print/xpdf-arabic etc
