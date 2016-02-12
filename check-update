@@ -182,7 +182,7 @@ IO-Socket-Multicast
 Net-IPv4Addr Net-IPv6Addr Net-XMPP lzo pen iperf lftp Text-Diff inform
 ocaml
 audacious audacious-plugins WWW-Shorten proj
-hfsutils
+hfsutils gamin
 );
 
 # Net-Libdnet is listed to avoid not to pick Net-Libdnet6-0.27 -as 6-0.27
