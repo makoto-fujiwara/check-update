@@ -1,0 +1,24 @@
+  - (family) www/librest and www/librest07
+  - (family)
+         devel/rt{3,4}
+	 www/webkit-gtk	        webkit-gtk	2.10.4	->	2.11.2
+         www/webkit1-gtk	webkit-gtk	1.10.2	->	
+	 www/webkit1-gtk3	webkit-gtk3	1.10.2	->	2.11.2		
+	 www/webkit24-gtk	webkit24-gtk	2.4.9	->	2.11.2
+	 www/webkit24-gtk3	webkit24-gtk3	2.4.9	->	2.11.2
+  - (family) www/drupal{6,7}  drupal itself is empty, 6 is in production and 7 is new ?
+  - (family) graphics/eog{,3} eog = 2, eog3 is new
+  - (family) mail/cyrus-imapd{,23,24}  .. numbered are not obsolete, but new
+  - (family) security/libassuan{2,} gdt@
+  - (family) TODO lists security/libassuan for 2.2.1 but it is NOT for libassuan (1.0.5)
+  - (family) editors/emacs* should be fixed (for several version variant)
+
+
+Two path strategy
+
+(1) Scan pkgsrc directory
+    if number is included in directory name (pkgname ?) collect them
+    separately
+(2) Scan again to collect real family name
+(3) Process family if included in collection
+
