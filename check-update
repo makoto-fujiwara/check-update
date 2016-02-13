@@ -7,7 +7,7 @@ use v5.16;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2016-02-11 14:50" ; # written by emacs time-stamp
+$VERSION = "2016-02-13 23:16" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -510,7 +510,10 @@ my (@DOT121) = qw (gdal FreeImage);
 my (@DOT845) = qw (IO-Prompt);
 
 # devel/p5-Devel-FindRef 	p5-Devel-FindRef 	1.422 	->	1.44
-my(@LeftJustify1_3) = qw(Devel-FindRef);
+my(@LeftJustify1_3) = qw(Devel-FindRef DateTime-Format-Mail);
+
+# time/p5-DateTime-Format-Mail   0.402 -> 0.4020
+my(@LeftJustify1_4) = qw(DateTime-Format-Mail);
 
 # 0.603 -> 0.6.3     VerSprintf($version, 0,1,  '', 2,1, '', 3,2 )
 my (@NetINET6Glue) = qw (Net-INET6Glue);
@@ -1059,6 +1062,8 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (3) <', (caller 0)[3] ,'> ', $version
 	if (grep (/^$distbase$/, @bash)		> 0 ) { $version = VerSprintf($version, 0,1, '', 2,2, '0', 4,2 );}
 	    # devel/p5-Devel-FindRef 	p5-Devel-FindRef 	1.422 	->	1.44
 	if (grep (/^$distbase$/, @LeftJustify1_3)> 0 ) { $version = LeftJustify($version,1,3);} # count(1.3)
+            # time/p5-DateTime-Format-Mail 0.401 -> 0.4010
+	if (grep (/^$distbase$/, @LeftJustify1_4)> 0 ) { $version = LeftJustify($version,1,4);} # count(1.4)
 	if (grep (/^$distbase$/, @SingleDigit)	> 0 ) { $version = SingleDigit($version);}
 	if (grep (/^$distbase$/, @DELETE02)	> 0 ) { $version = Delete02($version);}
 	if (grep (/^$distbase$/, @ZeroDot)	> 0 ) { $version = '0.'. $version;}
@@ -2140,7 +2145,7 @@ sub MasterSiteVersion($) {
 sub ParseDebug($){
     my ($pattern) = shift;
     my %DEBUG;
-    my $char_list = 'acCdDegfGhlmnprsSx';
+    my $char_list = 'acCdDEegfGhlmnprsSx';
 
     if ( $pattern =~ /a/ ) { $pattern = $char_list  }
     print STDERR sprintf("%4d ", __LINE__ ), ' DEBUG pattern (',  $pattern,  ')',"\n";
