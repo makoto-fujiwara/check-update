@@ -7,7 +7,7 @@ use v5.16;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2016-02-14 00:01" ; # written by emacs time-stamp
+$VERSION = "2016-02-14 02:14" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -1812,27 +1812,14 @@ sub GitHubSpecial($$$$){
 		       "$master_site"."$GITHUB_PROJECT".'/archive/',
 		       "$master_site"."$GITHUB_PROJECT".'/releases') {
      my ($curl_command) = "$curl_list_secure $target";
-    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> curl_command: ', $curl_command, "\n" if $DEBUG_GITHUB;
-    open(CURL,  "$curl_command 2>&1|") ||     print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> Problem for curl', "$!\n";
-    while(<CURL>) {
-	print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> ', $_ if $DEBUG_GITHUB;
-	if (m|/([0-9.]+)\.tar\.gz|) {
-	    my($cand) = $1;
-	    push(@candidate, $cand);
-	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> ', $cand, ' :: ', $_, "\n" if $DEBUG_GITHUB;
-	    }
-    }
-    close(CURL);
-#  ------ Following is truely ad-hoc for misc/libcec, (github and libcec-2.2.0-repack) type
-#    if ( $#candidate == -1 ) {
-
-#	my($curl_command)  = $curl_list_secure.' '. $master_site.'/'.$GITHUB_PROJECT;
-  print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> curl_command: ', $curl_command, "\n" if $DEBUG_GITHUB;
-    open(CURL,  "$curl_command 2>&1|") ||     print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> Problem for curl', "$!\n";
+        print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> curl_command: ', $curl_command, "\n" if $DEBUG_GITHUB;
+    open(CURL,  "$curl_command 2>&1|") ||
+	print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> Problem for curl', "$!\n";
     while(<CURL>) {
 	print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> (',$distbase, ' / ', $target.') ', $_ if $DEBUG_GITHUB;
 	$distbase =~ s/-[a-z]+//;
 	if (m,/$distbase-([0-9.]+),	||
+	    m|/([0-9.]+)\.tar\.gz|      ||
 	    m,data-name=\"v*([0-9.]+)\",||
 	    m,release-([0-9.]+)\",	||   # sysutils/WCMcommander
     	    m,releases/tag/([0-9.]+),	||   # sysutils/erlang-goldrush
