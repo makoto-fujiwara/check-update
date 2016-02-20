@@ -7,7 +7,7 @@ use v5.16;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2016-02-16 13:10" ; # written by emacs time-stamp
+$VERSION = "2016-02-20 12:49" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -255,6 +255,7 @@ my (%SpecialPattern) = (
     'xcdroast',		'$line =~ s|.*xcdroast/([0-9.a]+)lpha([0-9]+).*|$1$2|;', 
     'nut',		'$line =~ s|.*NUT ([0-9.]+) released.*|$1|;',
     'fldigi',		'$line =~ s|.*fldigi-([0-9]+\.[0-9]+\.[0-9]+)\.tar.*|$1|;',
+    'biblook',		'$line =~ s|.*Version ([0-9.]+),.*|$1|;',
     );
 
 my(%SourceForgeAlternative) = qw (
@@ -372,6 +373,8 @@ my(%DownLoadAlternative) = qw (
     dbus-sharp-glib	https://github.com/mono/dbus-sharp/downloads
     eagle-lin32	http://www.cadsoft.de/download-eagle/
     libol	https://my.balabit.com/downloads/libol/0.3
+    WordNet	http://wordnet.princeton.edu/wordnet/download/current-version/
+    aspell5-ga	http://borel.slu.edu/~kps/ispell/sios.html
     ); ##
 
 # for print/xpdf-arabic etc
