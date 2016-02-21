@@ -182,7 +182,7 @@ IO-Socket-Multicast
 Net-IPv4Addr Net-IPv6Addr Net-XMPP lzo pen iperf lftp Text-Diff inform
 ocaml
 audacious audacious-plugins WWW-Shorten proj
-hfsutils gamin
+hfsutils gamin Coin
 );
 
 # Net-Libdnet is listed to avoid not to pick Net-Libdnet6-0.27 -as 6-0.27
@@ -375,6 +375,8 @@ my(%DownLoadAlternative) = qw (
     libol	https://my.balabit.com/downloads/libol/0.3
     WordNet	http://wordnet.princeton.edu/wordnet/download/current-version/
     aspell5-ga	http://borel.slu.edu/~kps/ispell/sios.html
+    agg		http://www.antigrain.com/download/index.html
+
     ); ##
 
 # for print/xpdf-arabic etc
