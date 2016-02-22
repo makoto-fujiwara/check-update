@@ -1,4 +1,15 @@
 (TODO)
+  -  Develop branch not good to appear in the table (with odd number version)
+    perl
+    dbus
+    gnome stuff
+    gstreamer and gst-plugins* (part of gnome...)
+    fontconfig
+    lilypond
+    poppler* (gnome)
+    rdiff-backup
+    webkit (gnome)
+    (Thanks Thomas wiz@)
   -  biology/cdhit 4.6.4 -> 454 EDITversion does not give any effect (?)
   -  (done) Avoid to show 1.[odd number].x for sysutils/dbus. It is unstable branch
   -  recent commit (of last line add (0.0) to @candidate) makes stats worse
