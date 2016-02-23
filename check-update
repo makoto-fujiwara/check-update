@@ -7,7 +7,7 @@ use v5.16;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2016-02-23 12:37" ; # written by emacs time-stamp
+$VERSION = "2016-02-23 13:48" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -46,6 +46,7 @@ my ($DEBUG_DIVIDE_DEVEL) = 0;
 my ($DEBUG_EVAL_PATTERN);
 my ($DEBUG_EDITVersion);
 my ($DEBUG_FAMILY) = 0;
+my ($DEBUG_FALLBACK_SIMPLE) = 0;
 my ($DEBUG_GITHUB);
 my ($DEBUG_GNOME);
 my ($DEBUG_HTTP_HEADER);
@@ -68,6 +69,7 @@ my(%LongName)  = (
    'e',  'Eval Special Pattern',
    'E',  'Edit Version',
    'f',  'Classify (find family)',
+   'F',  'FallBack Simple Pattern',
    'g',  'Github',
    'G',  'Gnome',
    'h',  'HTTP Header',
@@ -574,7 +576,7 @@ sub Moved($);
 sub Http301core($$);
 sub MasterSiteType($);
 sub MasterSiteVersion($);
-sub ParseDirectory($$);
+sub ParseDirectory($$$);
 sub PkgVersion($);
 sub PrintHeader($);
 sub ReadMakefile($$);
@@ -2141,7 +2143,7 @@ sub MasterSiteVersion($) {
 sub ParseDebug($){
     my ($pattern) = shift;
     my %DEBUG;
-    my $char_list = 'acCdDEegfGhlmnprsSx';
+    my $char_list = 'acCdDEegFfGhlmnprsSx';
 
     if ( $pattern =~ /a/ ) { $pattern = $char_list  }
     print STDERR sprintf("%4d ", __LINE__ ), ' DEBUG pattern (',  $pattern,  ')',"\n";
@@ -2162,6 +2164,7 @@ sub ParseDebug($){
     $DEBUG_DISTBASE		= $DEBUG{'d'} + $DEBUG{'a'} ;
     $DEBUG_EDITVersion		= $DEBUG{'E'} + $DEBUG{'a'} ;
     $DEBUG_EVAL_PATTERN		= $DEBUG{'e'} + $DEBUG{'a'} ;
+    $DEBUG_FALLBACK_SIMPLE	= $DEBUG{'F'} + $DEBUG{'a'} ;
     $DEBUG_FAMILY		= $DEBUG{'f'} + $DEBUG{'a'} ;
     $DEBUG_GITHUB		= $DEBUG{'g'} + $DEBUG{'a'} ;
     $DEBUG_GNOME		= $DEBUG{'G'} + $DEBUG{'a'} ;
@@ -2317,7 +2320,7 @@ print STDERR sprintf("%4d ** ", __LINE__ ), '(', $distbase,') ', $FAMILY{$distba
 
 #  ----------------------------------------------------------------
 print STDERR sprintf("%4d ** ", __LINE__ ), '(', $distbase,') $_(', $_,')',"\n" if $DEBUG_EVAL_PATTERN ;
-	if ( grep (/$distbase/, @SimplePattern)) {
+	if ( grep (/$distbase/, @SimplePattern) || $SimpleFallBack ) {
 	    $_ =~ /.*$distbase-([0-9.]+[0-9]).*/;	# not to include last '.'
 	    $version = $1;
 	} elsif ( $SpecialPatternY ) {
@@ -3438,6 +3441,16 @@ print STDERR sprintf("%4d ", __LINE__ ),
     $console_string .= 
     sprintf  ("%20s %15s %4s Now: %8s -> %7s Todo: %5s ", 
 	$PKGBASE_TO_SHOW, '('.$DISTBASE_TO_SHOW.')', '('.sprintf("%4d ", __LINE__ ).')', $PKGVERSION,  $available, $TODO{$PKGBASE});
+print STDERR sprintf("%4d ", __LINE__ ), 
+    ' (SimpleFallBack) master_site(', $MASTER_SITE, ') returnCode('. $returnCode.") -> available(". $available.")\n"  if $DEBUG_FALLBACK_SIMPLE;
+	if ( $available eq '0.0' || $available eq '' || $returnCode == -1 ) {
+#	     CompareVersion(  $PKGVERSION, $available ) ) {
+	    ($returnCode, @candidate) =  ParseDirectory($MASTER_SITE, $DISTBASE, 1);
+	    $available = PickFromCandidate(@candidate);
+print STDERR sprintf("%4d ", __LINE__ ), 
+    ' (SimpleFallBack) master_site(', $MASTER_SITE, ') returnCode('. $returnCode.") -> available(". $available.")\n"  if $DEBUG_FALLBACK_SIMPLE;
+
+	}
 	# ------------------------------------------------------------
 	##   F I N D   T H E   C O N D I T I O N   T O   L I S T (404/403/550/DNS)
 	# ------------------------------------------------------------
@@ -3458,7 +3471,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	else				{ $NotAvailable++ ; }
 	if ( $full_list == 0 ) { $to_list = 0; $NotListed++;} # Unable to find recent version
     } elsif ( CompareVersion( $available, $PKGVERSION) < 0 )    	{
-	if ($include_reverse == 0 ) { $to_list = 0; }
+	if ($include_reverse == 0 ) { $to_list = 1; }
 	$Reverse++; $reverse++; 
     } else {
 	$NotListed++;
