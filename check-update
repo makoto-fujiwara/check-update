@@ -7,7 +7,7 @@ use v5.16;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2016-02-23 12:20" ; # written by emacs time-stamp
+$VERSION = "2016-02-23 12:37" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -2187,7 +2187,7 @@ sub ParseDebug($){
 sub ParseDirectorySmall($$$){
     my ($master_site) = shift;
     my ($distbase)   = shift;
-    my ($SimpleFallBack) = shift;  # special flag to ask search simple pattern only
+    my ($SimpleFallBack) = shift;  # NOT used special flag to ask search simple pattern only
 
     print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> master_site: ', $master_site, "\n" if $DEBUG_URL;
 # http://ftp.gnome.org/pub/GNOME/sources/3.10/';
@@ -2230,9 +2230,13 @@ sub ParseDirectorySmall($$$){
     return $ver_max;
 }
 #  ----------------------------------------------------
-sub ParseDirectory($$){   # 2200  to  2421 lines (220 lines
+# Called 11 times
+#   inside GetSFProjectCandidate( x 6)
+#   main                          x 5
+sub ParseDirectory($$$){   # 2200  to  2421 lines (220 lines
     my ($master_site) = shift;
     my ($distbase)   = shift;
+    my ($SimpleFallBack) = shift; 
 
     # returns ($returnCode, @candidate);
 
@@ -2953,36 +2957,36 @@ sub GetSFProjectCandidate($$) {
     my ($status, $location) = CheckHeader($master_site);
     print STDERR sprintf("%4d ", __LINE__ ), ' (1) master_site(', $master_site, ') status('. $status.")\n"  if $DEBUG_SF || $DEBUG_URL;
     if ($status == 200 ) {
-	($returnCode, @candidate) = ParseDirectory($master_site, $DISTBASE);
+	($returnCode, @candidate) = ParseDirectory($master_site, $DISTBASE, 0);
     } else {
 	$MasterSiteStat = $status;
 	$master_site  =  $SF_SITE . 'project/'. $SFProject .'/files/' ;
 		print STDERR sprintf("%4d ", __LINE__ ), ' (2) master_site(', $master_site, ') status('. $status.' SFProject: ', $SFProject, ' DISTBASE: ', $DISTBASE, "\n"  if $DEBUG_SF;
-	($returnCode, @candidate) = ParseDirectory($master_site, $DISTBASE); # x11/gtkglarea
+	($returnCode, @candidate) = ParseDirectory($master_site, $DISTBASE, 0); # x11/gtkglarea
 		print STDERR sprintf("%4d ", __LINE__ ), ' returns ', $returnCode,"\n"   if $DEBUG_SF;
     }
     if ($#candidate  < 1 )  {   
 	$master_site  =  $SF_SITE . 'project/' . $SFProject .'/files/' ;
 		print STDERR sprintf("%4d ", __LINE__ ), ' (3) master_site(', $master_site, ') status('. $status.' SFProject: ', $SFProject, "\n"  if $DEBUG_SF;
-	($returnCode, @candidate) = ParseDirectory($master_site, $DISTBASE);
+	($returnCode, @candidate) = ParseDirectory($master_site, $DISTBASE, 0);
 		print STDERR sprintf("%4d ", __LINE__ ), ' returns ', $returnCode,"\n"   if $DEBUG_SF;
     }
     if ($#candidate  < 1 )  {
 	$master_site = $SF_SITE . 'projects/' . $DISTBASE . '/files/';
 	print STDERR sprintf("%4d ", __LINE__ ), ' (4) master_site(', $master_site, ') status('. $status.") -> \n"  if $DEBUG_SF;
-	($returnCode, @candidate) = ParseDirectory($master_site, $DISTBASE);
+	($returnCode, @candidate) = ParseDirectory($master_site, $DISTBASE, 0);
 	print STDERR sprintf("%4d ", __LINE__ ), ' returns ', $returnCode,"\n"   if $DEBUG_SF;
     }
     if ($#candidate  < 1 )  {
 	$master_site = $SF_SITE . 'projects/' . $SFProject . '/files/'. $DISTBASE .'/';
 	print STDERR sprintf("%4d ", __LINE__ ), ' (5) master_site(', $master_site, ') status('. $status.") -> \n"  if $DEBUG_SF;
-	($returnCode, @candidate) = ParseDirectory($master_site, $DISTBASE);
+	($returnCode, @candidate) = ParseDirectory($master_site, $DISTBASE,0 );
 	print STDERR sprintf("%4d ", __LINE__ ), ' returns ', $returnCode,"\n"   if $DEBUG_SF;
     }
     if ($#candidate  < 1 && (my ($alternative) = $SourceForgeAlternative{$DISTBASE} ) ) {
 	foreach my $site (split ';', $alternative) {
 	    print STDERR sprintf("%4d ", __LINE__ ), ' (6) master_site(', $site, ') status('. $status.") -> \n"  if $DEBUG_SF;
-	($returnCode, @candidate) = ParseDirectory($site, $DISTBASE);
+	($returnCode, @candidate) = ParseDirectory($site, $DISTBASE, 0);
 	print STDERR sprintf("%4d ", __LINE__ ), ' returns ', $returnCode,"\n"   if $DEBUG_SF;	
 	    $master_site = $site;
 	}
@@ -3358,12 +3362,12 @@ print STDERR sprintf("%4d ", __LINE__ ),
 # 1 is good for www/librest07 but bad for many occasion:
 	if ($#candidate < 1  && $master_site && $http_code ne 'DNS' ) {
 	    print STDERR sprintf("%4d ", __LINE__ ), $#candidate, "\n" if $DEBUG_MASTER_SITES_LISTING ;
-	    ($returnCode, @candidate) = ParseDirectory($master_site, $DISTBASE);
+	    ($returnCode, @candidate) = ParseDirectory($master_site, $DISTBASE, 0);
 	}
 # 1 is good for www/librest07 but bad for many occasion:
 	print STDERR sprintf("%4d ", __LINE__ ), $#candidate, "\n" if $DEBUG_MASTER_SITES_LISTING ;
         if ($#candidate < 1  && $HOMEPAGE) {
-	    ($returnCode, @candidate) = ParseDirectory($HOMEPAGE, $DISTBASE);
+	    ($returnCode, @candidate) = ParseDirectory($HOMEPAGE, $DISTBASE, 0);
 	    print STDERR sprintf("%4d ", __LINE__ ), $HOMEPAGE," checked.\n" if $DEBUG_DISTBASE;
 	}
 	print STDERR sprintf("%4d ", __LINE__ ), $#candidate, "\n" if $DEBUG_MASTER_SITES_LISTING ;
@@ -3393,12 +3397,12 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	if ($#candidate == -1  &&  ( $MASTER_SITE  =~ m|http://pypi.python.org/| )) {
 	    print STDERR sprintf("%4d ", __LINE__ ), 'MASTER_SITE ', $MASTER_SITE if $DEBUG_DISTBASE;
 	    ($returnCode, @candidate) = ParseDirectory(
-		"https://pypi.python.org/pypi/".$DISTBASE, $DISTBASE);}
+		"https://pypi.python.org/pypi/".$DISTBASE, $DISTBASE, 0);}
 
 	if ($#candidate == -1  && $EGG_PACKAGE) {
 	    print STDERR sprintf("%4d ", __LINE__ ), 'MASTER_SITE ', $MASTER_SITE if $DEBUG_DISTBASE;
 	    ($returnCode, @candidate) = ParseDirectory(
-		"https://warehouse.python.org/project/".$DISTBASE, $DISTBASE);}
+		"https://warehouse.python.org/project/".$DISTBASE, $DISTBASE, 0);}
 	print STDERR sprintf("%4d ", __LINE__ ), 'MASTER_SITE ', $MASTER_SITE, ' DISTBASE ', $DISTBASE, ' cand (', $#candidate,")\n" if $DEBUG_GITHUB;
 	if ($#candidate  < 1 && ($MASTER_SITE =~ m|github.com/|) ) {
 	    # ------------------ GitHubSpecial (3352)
@@ -3410,7 +3414,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	if ( $DownLoadAlternative{$DISTBASE}) {			# MAJOR_IF_THEN_ELSE
 	    $MASTER_SITE= $DownLoadAlternative{$DISTBASE};
 	    print STDERR sprintf("%4d ", __LINE__ ), 'MASTER_SITE ', $MASTER_SITE,"\n" if $DEBUG_DISTBASE;
-		($returnCode, @candidate) = ParseDirectory($MASTER_SITE, $DISTBASE);
+		($returnCode, @candidate) = ParseDirectory($MASTER_SITE, $DISTBASE, 0);
 
 	}							# MAJOR_IF_THEN_ELSE  ----------------------
 	    push(@CANDIDATE, @candidate);
