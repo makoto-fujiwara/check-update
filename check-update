@@ -7,7 +7,7 @@ use v5.16;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2016-02-20 12:49" ; # written by emacs time-stamp
+$VERSION = "2016-02-23 12:20" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -1956,7 +1956,7 @@ sub ParseUpperDirectory($$){
     print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>',  $candidate,"\n" if $DEBUG_DIGIT;
 
     my($site) = $upper.'/'. $candidate. '/';
-    $ver  = ParseDirectorySmall($site, $PKGBASE);
+    $ver  = ParseDirectorySmall($site, $PKGBASE, 0);
     print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>',  $ver,"\n" if $DEBUG_SF;
     print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>',  $ver,"\n" if $DEBUG_DIGIT;
     $returnCode = 0 ; $candidate[0] = $ver;
@@ -2000,7 +2000,7 @@ sub GnomeSpecial($$){
 
     # And then find the file in the directory
     my($site) = $GNOME_FTP_SITE . $PKGBASE .'/'. $candidate ;
-	$ver  = ParseDirectorySmall($site, $PKGBASE);
+	$ver  = ParseDirectorySmall($site, $PKGBASE, 0);
     print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>',  $ver,"\n" if $DEBUG_SF;
     $returnCode = 0 ; $candidate[0] = $ver;
     return ($returnCode, @candidate);
@@ -2175,10 +2175,19 @@ sub ParseDebug($){
     print STDERR "\n";
 }
 #  ----------------------------------------------------
-# for GnomeSpecial
-sub ParseDirectorySmall($$){
+# Called three times:
+#   ParseUpper Directory
+#   GnomeSpecial
+#   SFSubDirectory($$){
+
+#	if ( grep (/$distbase/, @SimplePattern)) {
+#	    $_ =~ /.*$distbase-([0-9.]+[0-9]).*/;	# not to include last '.'
+#	    $version = $1;
+
+sub ParseDirectorySmall($$$){
     my ($master_site) = shift;
     my ($distbase)   = shift;
+    my ($SimpleFallBack) = shift;  # special flag to ask search simple pattern only
 
     print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> master_site: ', $master_site, "\n" if $DEBUG_URL;
 # http://ftp.gnome.org/pub/GNOME/sources/3.10/';
@@ -2195,8 +2204,6 @@ sub ParseDirectorySmall($$){
     open(CURL, "$curl_command 2>&1 |") || print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> Problem ', "$!\n";
     $lines = 0;
     while(<CURL>){
-#       print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> ', $distbase, "\n" if $DEBUG_GNOME;
-#	print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> ', $_, "\n" if $DEBUG_GNOME;
 	$lines++;
 	if (m|$distbase|) {
 	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> ', $_ if $DEBUG_GNOME ||  $DEBUG_SF  || $DEBUG_DIGIT;
