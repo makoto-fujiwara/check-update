@@ -7,7 +7,7 @@ use v5.16;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2016-02-23 13:48" ; # written by emacs time-stamp
+$VERSION = "2016-02-25 12:29" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -1874,51 +1874,6 @@ sub GitHubChanges($$){
     close(CURL);
     return (200, $max_version);
 }
-sub GitHubIdiom($$) {
-# ---------
-# MASTER_SITES:   -http://github.com/troglobit/inadyn/archive/1.96.2.zip
-# INFO_PAGE:      https://github.com/troglobit/inadyn/releases
-# Latest release: https://github.com/troglobit/inadyn/tree/1.99.13
-# ---------
-#  https://github.com/radare/acr/releases/tag/0.9.9
-    my($master_site)	= shift;
-    my($DISTBASE)	= shift;
-    my($ver);
-    my($max_version) = '0.0';
-    print STDERR sprintf("%04d <", __LINE__), (caller 0)[3], '>', $master_site, "\n" if $DEBUG_GITHUB;
-    if ( ($master_site =~ m|(http[s]*)://github.com/([^/]+)/([^/]+)/archive/[0-9.]+|) ||
-         ($master_site =~ m|(http[s]*)://github.com/([^/]+)/([^/]+)/|) ) {
-	my($protocol)	= $1;
-	my($directory)	= $2;
-	my($project)	= $3;;
-	my($site)	= $protocol.'://github.com/'.$directory.'/'.$project. '/releases';
-	print STDERR sprintf("%04d <", __LINE__), (caller 0)[3], '>',
-	    'site(', $site, ') project (', $project, ')',"\n" if $DEBUG_GITHUB;
-	open(CURL, "$curl_list_secure $site 2>&1|") 
-	    || print STDERR sprintf("%4d ", __LINE__), "Problem opening $site :$! \n";
-	while(<CURL>){
-#	    print STDERR sprintf("%4d ", __LINE__), '(',$directory,') (',$project.') ', $_ if $DEBUG_GITHUB;
-	    print STDERR sprintf("%4d ", __LINE__), $_ if $DEBUG_GITHUB;
-	    # should include . or _ after digit (ninja-build has -120715)
-	    if (    m|$directory/$project/tree/v*([0-9][._][0-9_.]+)|	||
-	    	     m|$directory/$project/tag/v*([0-9][._][0-9_.]+)|	||
-	    	 m|$directory/$project/archive/v*([0-9][._][0-9_.]+)|	||
-	    	m|$directory/$project/archive/.*-([0-9][._][0-9_.]+)|	||
-		 0 ) {
-		$ver = $1;
-		print STDERR sprintf("%04d <", __LINE__), (caller 0)[3], '>', $ver,"\n" if $DEBUG_GITHUB;
-		}
-	    elsif ( m|Release ([0-9_.]+)|)	{ $ver = $1;}
-	    $ver =~ s|\.$||;
-	    $ver =~ s|_|.|g;
-#	    print STDERR sprintf("%04d <", __LINE__), (caller 0)[3], '>', $ver,"\n" if $DEBUG_GITHUB;
-	    $ver = EditVersion($DISTBASE, $ver);
-	    if (CompareVersion($ver, $max_version) > 0) { $max_version = $ver;}
-	}
-	close(CURL);
-	return (200, $max_version);
-    }
-}
 #  --------------------------------------------------------------
 sub ParseUpperDirectory($$){
     my($PKGBASE) = shift;
@@ -3375,12 +3330,6 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	}
 	print STDERR sprintf("%4d ", __LINE__ ), $#candidate, "\n" if $DEBUG_MASTER_SITES_LISTING ;
 	print STDERR sprintf("%4d ", __LINE__ ), $#candidate, "\n" if $DEBUG_SF;
-	print STDERR sprintf("%4d ", __LINE__ ), $#candidate, "\n" if $DEBUG_GITHUB;
-	if ($#candidate < 1  && $master_site =~ /github.com/ ) {
-	    # ------------------ GitHubIdiom   (3321)
-	    ($returnCode, @candidate) =  GitHubIdiom($master_site, $DISTBASE);
-	    print STDERR sprintf("%4d ", __LINE__ ), 'idiom checked: ', $candidate[0], "\n" if $DEBUG_DISTBASE;
-	}
 	print STDERR sprintf("%4d ", __LINE__ ), $#candidate, "\n" if $DEBUG_GITHUB;
 	if ($#candidate == -1  && $HOMEPAGE && $HOMEPAGE =~ /github.com/ ) {
 	    # ------------------ GitHubChanges (3327)
