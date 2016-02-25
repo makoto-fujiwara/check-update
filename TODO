@@ -10,6 +10,7 @@
     rdiff-backup
     webkit (gnome)
     (Thanks Thomas wiz@)
+  -  security/libcryto  (avoid 2.1.0-rc1 ?)
   -  biology/cdhit 4.6.4 -> 454 EDITversion does not give any effect (?)
   -  (done) Avoid to show 1.[odd number].x for sysutils/dbus. It is unstable branch
   -  recent commit (of last line add (0.0) to @candidate) makes stats worse
