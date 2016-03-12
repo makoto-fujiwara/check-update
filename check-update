@@ -239,6 +239,7 @@ my (%SpecialPattern) = (
     'gst-plugins-ugly', '$line =~ s|.*gst-plugins-ugly-([0-9]+\.[0-9]*[02468]\.[0-9]+)\.tar.*|$1|;',
     'gst-plugins-base', '$line =~ s|.*gst-plugins-base-([0-9]+\.[0-9]*[02468]\.[0-9]+)\.tar.*|$1|;',
     'gst-plugins-bad',  '$line =~ s|.*gst-plugins-bad-([0-9]+\.[0-9]*[02468]\.[0-9]+)\.tar.*|$1|;',
+    'gst-plugins-good', '$line =~ s|.*gst-plugins-good-([0-9]+\.[0-9]*[02468]\.[0-9]+)\.tar.*|$1|;',
     'gnu-crypto-bin',	'$line =~ s|.*gnu-crypto-([0-9.]+)-bin\.tar.*|$1|;',
     'apache-ant-bin',	'$line =~ s|.*apache-ant-([0-9.]+)-bin.*|$1|;',
     'shinonome-src',	'$line =~ s|.*shinonome-([0-9.]+)-src.*|$1|;',
