@@ -7,7 +7,7 @@ use v5.16;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2016-03-26 13:10" ; # written by emacs time-stamp
+$VERSION = "2016-03-26 13:34" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -578,13 +578,11 @@ sub GetWipInfo($);
 sub GreyDigitIf00($$);
 sub Http301core($$);
 sub ParseDirectory($$$);
-sub PkgVersion($);
 sub PrintHeader($);
 sub ReadMakefile($$);
 sub ReadTodo($);
 sub RecordMaxElapsed($);
 sub Stats($$);
-sub ValidateMasterSite($$);
 
 ##    -------------------------
 ##    S U B R O U T I N E S
@@ -2401,9 +2399,6 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (distbase) ', $distbase,' (version) '
     push(@candidate, "0.0");  # make always candidate 2 or more (?)
     ($returnCode, @candidate);
 }
-sub PkgVersion($) {
-
-}
 sub PrintHeader($) {
     my ($full_list) = shift;
     my ($update);
@@ -2943,11 +2938,6 @@ sub GetSFProjectCandidate($$) {
     #http://sourceforge.net/projects/ganglia/files/
 
     return ($master_site, $returnCode, @candidate);
-}
-# check if URL valid.
-sub ValidateMasterSite($$) {
-    my ($dir)		= shift;
-    my ($PackageName)	= shift;
 }
 sub MonthToDigit ($){
     my ($version) = shift;
