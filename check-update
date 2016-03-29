@@ -7,7 +7,7 @@ use v5.16;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2016-03-26 13:34" ; # written by emacs time-stamp
+$VERSION = "2016-03-29 13:57" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -51,6 +51,7 @@ my ($DEBUG_GITHUB);
 my ($DEBUG_GNOME);
 my ($DEBUG_HTTP_HEADER);
 my ($DEBUG_MASTER_SITES_LISTING);
+my ($DEBUG_REDIRECT);
 my ($DEBUG_RUBYGEM);
 my ($DEBUG_SF);
 my ($DEBUG_SPECIAL_PATTERN);
@@ -78,6 +79,7 @@ my(%LongName)  = (
    'n',  'CountNumber (not implemented yet)',
    'p',  'Special Pattern',
    'r',  'RubyGems',
+   'R',  'Redirect',
    's',  'SourceForge',
    'S',  'Stats number',
    'u',  'URL',
@@ -2053,6 +2055,7 @@ print STDERR sprintf("%4d ", __LINE__ ).' '. $site.' <... retry: '. $retry. "  \
 	if (m|HTTP/1.1 (\d+) |) {$status = $1; next;}
 	if (($status == 301  || $status == 302 ) && /Location: (.*)/ ) {
 	    $location = $1;
+	    $location = stripLeaf($location);
 print STDERR sprintf("%4d ", __LINE__ ).' location: ', $location,"\n" if  $DEBUG_HTTP_HEADER;
 	}
     }
@@ -2081,7 +2084,7 @@ print STDERR sprintf("%4d ", __LINE__ ).' location: ', $location,"\n" if  $DEBUG
 sub ParseDebug($){
     my ($pattern) = shift;
     my %DEBUG;
-    my $char_list = 'acCdDEegFfGhlmnprsSx';
+    my $char_list = 'acCdDEegFfGhlmnprRsSx';
 
     if ( $pattern =~ /a/ ) { $pattern = $char_list  }
     print STDERR sprintf("%4d ", __LINE__ ), ' DEBUG pattern (',  $pattern,  ')',"\n";
@@ -2108,9 +2111,10 @@ sub ParseDebug($){
     $DEBUG_GNOME		= $DEBUG{'G'} + $DEBUG{'a'} ;
     $DEBUG_HTTP_HEADER		= $DEBUG{'h'} + $DEBUG{'a'} ;
     $DEBUG_MASTER_SITES_LISTING = $DEBUG{'m'} + $DEBUG{'a'} ;
-    $DEBUG_RUBYGEM		= $DEBUG{'r'} + $DEBUG{'a'} ;
-    $DEBUG_SF			= $DEBUG{'s'} + $DEBUG{'a'} ;
     $DEBUG_SPECIAL_PATTERN	= $DEBUG{'p'} + $DEBUG{'a'} ;
+    $DEBUG_RUBYGEM		= $DEBUG{'r'} + $DEBUG{'a'} ;
+    $DEBUG_REDIRECT		= $DEBUG{'R'} + $DEBUG{'a'} ;
+    $DEBUG_SF			= $DEBUG{'s'} + $DEBUG{'a'} ;
     $DEBUG_STATS		= $DEBUG{'S'} + $DEBUG{'a'} ;
     $DEBUG_URL			= $DEBUG{'u'} + $DEBUG{'a'} ;
     print STDERR "\n";
@@ -2498,6 +2502,25 @@ sub ReadTodo($){
 }	
 sub RecordMaxElapsed($){
     my($shift) = time; 
+}
+sub StripLeaf($) {
+    my($url) = shift;
+    my($return) = $url;
+    # strip the last part of URL if it includes file, not directory
+
+    # Requesting http://downloads.sourceforge.net/sourceforge/qore/qore-uuid-module-1.3.tar.bz2
+  # Redirected to http://downloads.sourceforge.net/project/qore/module-uuid/1.3/qore-uuid-module-1.3.tar.bz2
+  # Requesting http://downloads.sourceforge.net/project/qore/module-uuid/1.3/qore-uuid-module-1.3.tar.bz2
+  # Redirected to http://heanet.dl.sourceforge.net/project/qore/module-uuid/1.3/qore-uuid-module-1.3.tar.bz2
+  # Requesting http://heanet.dl.sourceforge.net/project/qore/module-uuid/1.3/qore-uuid-module-1.3.tar.bz2
+    my ($url) = shift;
+    print STDERR ' ', sprintf("%4d ", __LINE__ ), ' url(', $url, ') ->  ' if $DEBUG_REDIRECT;
+    if ($url =~ m,(.*)/.*\.tar\.(gz\|tgz\|bz2), ) {
+	$return = $1;
+    print STDERR ' ', sprintf("%4d ", __LINE__ ), $return  if $DEBUG_REDIRECT;
+    }
+    print STDERR ' ', sprintf("%4d ", __LINE__ ), "\n" if $DEBUG_REDIRECT;
+    return $return;
 }
 sub ShowVersion(){
     print '(',$my_name,') Version: ', $VERSION,"\n";
