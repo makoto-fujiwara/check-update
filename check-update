@@ -7,7 +7,7 @@ use v5.16;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2016-04-01 13:00" ; # written by emacs time-stamp
+$VERSION = "2016-04-03 13:56" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -186,7 +186,7 @@ IO-Socket-Multicast
 Net-IPv4Addr Net-IPv6Addr Net-XMPP lzo pen iperf lftp Text-Diff inform
 ocaml
 audacious audacious-plugins WWW-Shorten proj
-hfsutils gamin Coin klayout
+hfsutils gamin Coin klayout ffmpeg
 );
 
 # Net-Libdnet is listed to avoid not to pick Net-Libdnet6-0.27 -as 6-0.27
@@ -587,6 +587,7 @@ sub ReadTodo($);
 sub RecordMaxElapsed($);
 sub Stats($$);
 
+sub StripLeaf($);
 ##    -------------------------
 ##    S U B R O U T I N E S
 ##    -------------------------
@@ -2056,7 +2057,7 @@ print STDERR sprintf("%4d ", __LINE__ ).' '. $site.' <... retry: '. $retry. "  \
 	if (m|HTTP/1.1 (\d+) |) {$status = $1; next;}
 	if (($status == 301  || $status == 302 ) && /Location: (.*)/ ) {
 	    $location = $1;
-	    $location = stripLeaf($location);
+	    $location = StripLeaf($location);
 print STDERR sprintf("%4d ", __LINE__ ).' location: ', $location,"\n" if  $DEBUG_HTTP_HEADER;
 	}
     }
