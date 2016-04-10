@@ -7,7 +7,7 @@ use v5.16;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2016-04-10 09:27" ; # written by emacs time-stamp
+$VERSION = "2016-04-10 11:35" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -265,6 +265,8 @@ my (%SpecialPattern) = (
     'nut',		'$line =~ s|.*NUT ([0-9.]+) released.*|$1|;',
     'fldigi',		'$line =~ s|.*fldigi-([0-9]+\.[0-9]+\.[0-9]+)\.tar.*|$1|;',
     'biblook',		'$line =~ s|.*Version ([0-9.]+),.*|$1|;',
+    # 0.043_01 -> 0.043.01
+    'Exporter-Tiny',	'$line =~ s|.*Exporter-Tiny-([0-9.]+)([_.]*[0-9]*).*|$1$2|;',
     );
 
 my(%SourceForgeAlternative) = qw (
