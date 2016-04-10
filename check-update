@@ -7,7 +7,7 @@ use v5.16;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2016-04-10 11:35" ; # written by emacs time-stamp
+$VERSION = "2016-04-10 11:49" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -528,7 +528,7 @@ my (@DOT121) = qw (gdal FreeImage);
 my (@DOT845) = qw (IO-Prompt);
 
 # devel/p5-Devel-FindRef 	p5-Devel-FindRef 	1.422 	->	1.44
-my(@LeftJustify1_3) = qw(Devel-FindRef DateTime-Format-Mail);
+my(@LeftJustify1_3) = qw(Devel-FindRef DateTime-Format-Mail Class-MakeMethods);
 
 # time/p5-DateTime-Format-Mail   0.402 -> 0.4020
 my(@LeftJustify1_4) = qw(DateTime-Format-Mail);
