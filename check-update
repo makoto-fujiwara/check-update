@@ -7,7 +7,7 @@ use v5.16;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2016-04-13 01:56" ; # written by emacs time-stamp
+$VERSION = "2016-04-22 12:18" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -391,6 +391,7 @@ my(%DownLoadAlternative) = qw (
     agg		http://www.antigrain.com/download/index.html
     mechanize	http://wwwsearch.sourceforge.net/mechanize/download.html
     klayout	http://www.klayout.de/build.html
+    ming	https://sourceforge.net/projects/ming/files/Releases/
     ); ##
 
 # for print/xpdf-arabic etc
