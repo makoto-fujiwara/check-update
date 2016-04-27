@@ -7,7 +7,7 @@ use v5.16;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2016-04-27 04:00" ; # written by emacs time-stamp
+$VERSION = "2016-04-27 13:51" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -546,6 +546,9 @@ my (@TextMarkdown) = qw (Text-Markdown );
 # 4.3.30 -> 4.3.030  VerSprintf($version, 0, 1, '', 2,3,'0', 5,3 )
 my (@bash) = qw (bash);
 
+# 003_009_003 -> 3.9.3
+my (@uhd) = qw (uhd);
+
 # 0.002005 -> 0.2.5   www/p5-Reaction 	p5-Reaction
 my (@SPRINTF) = qw (Reaction);
 
@@ -1067,6 +1070,8 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (3) <', (caller 0)[3] ,'> ', $version
 	if (grep (/^$distbase$/, @NetINET6Glue)	> 0 ) { $version = VerSprintf($version, 0,1, '', 2,1, '', 3,2 );}
             # Text-Markdown 1.000031 -> 1.0.31
 	if (grep (/^$distbase$/, @TextMarkdown)	> 0 ) { $version = VerSprintf($version, 0,1, '', 2,3, '', 5,3 );}
+        # 003_009_002 -> 3.9.2
+	if (grep (/^$distbase$/, @uhd)		> 0 ) { $version = VerSprintf($version, 0,3, '', 4,3, '', 8,3);}
 	if (grep (/^$distbase$/, @bash)		> 0 ) { $version = VerSprintf($version, 0,1, '', 2,2, '0', 4,2 );}
 	    # devel/p5-Devel-FindRef 	p5-Devel-FindRef 	1.422 	->	1.44
 	if (grep (/^$distbase$/, @LeftJustify1_3)> 0 ) { $version = LeftJustify($version,1,3);} # count(1.3)
@@ -1827,13 +1832,15 @@ sub GitHubSpecial($$$$){
 	print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> (',$distbase, ' / ', $target.') ', $_ if $DEBUG_GITHUB;
 	$distbase =~ s/-[a-z]+//;
 	if (m,/$distbase-([0-9.]+),	||
+	    m,archive/release_([0-9_]+)\.,	||   # ham/uhd
 	    m|/([0-9.]+)\.tar\.gz|      ||
 	    m|([0-9.]+)\.zip|		||
 	    m,data-name=\"v*([0-9.]+)\",||
 	    m,release-([0-9.]+)\",	||   # sysutils/WCMcommander
-    	    m,releases/tag/([0-9.]+),	||   # sysutils/erlang-goldrush
+	    m,releases/tag/([0-9.]+),	||   # sysutils/erlang-goldrush
 	    0 ) {
 	    my($cand) = $1;
+	    $cand = EditVersion('uhd',$cand);
 	    push(@candidate, $cand);
 	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> ', $cand, ' :: ', $_, "\n" if $DEBUG_GITHUB;
 	    }
