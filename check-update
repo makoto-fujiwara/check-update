@@ -7,7 +7,7 @@ use v5.16;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2016-04-29 03:11" ; # written by emacs time-stamp
+$VERSION = "2016-04-29 07:21" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -680,12 +680,13 @@ sub CheckRubyGems($){
     # --------------  looking for old rubygems  or just gem ------------------
     open(PKG_INFO, "pkg_info|") || print STDERR sprintf("%4d ", __LINE__), "Failed for pkg_info\n";
     while(<PKG_INFO>) {
-	if (/^(.*rubygems-.*[0-9.]+)/ )	{ $gems_package = $1; $no_rubygems = 0; }
-	if (/^ruby2[0-9]*-[a-z]*/ )		{ $gems_name = 'gem'; $no_rubygems = 0; }  # hard code for ruby2.*
+	if (/^(.*rubygems-.*[0-9.]+)/ )	{ $gems_package = $1;   $no_rubygems = 0; last;}
+	if (/^ruby22-[a-z]*/ )		{ $gems_name = 'gem22'; $no_rubygems = 0; last;}  # hard code for ruby2.*
+	if (/^ruby2[0-9]*-[a-z]*/ )	{ $gems_name = 'gem';   $no_rubygems = 0; last;}  # hard code for ruby2.*
     }
     close(PKG_INFO);
     if ($no_rubygems) { die sprintf("%4d <", __LINE__), (caller 0)[3], "> *** Please install misc/rubygems or lang/ruby2*\n";}
-    print STDERR  sprintf("%4d <", __LINE__), (caller 0)[3], '> gems_package ', $gems_package,"\n"
+    print STDERR  sprintf("%4d <", __LINE__), (caller 0)[3], '> gems_package ', $gems_package,'gems_name: ', $gems_name, "\n"
 	if $DEBUG_RUBYGEM;
     if ($gems_name eq '') {
     open(PKG_INFO, "pkg_info -qL $gems_package |");
@@ -749,7 +750,7 @@ sub CheckHeader($) {
 	elsif ( /Connection refused/ ) { $status = 'Refused';} 	# # curl: (7) Failed to connect to www.opensync.org port 80: Connection refused
 	elsif ( /^HTTP\S+ (\d+) / ) {  # \S+ has '/1.1' or so
 	    print STDERR sprintf("%4d ", __LINE__ ), ' ', $URL, ' -> ', $_  if $DEBUG_HTTP_HEADER ;
-	    $status = $1;} 
+	    $status = $1; if ($status == 200) {$location ='';}}
 	elsif ( /^Location: (\*)/) {
 	    $location = $1;
 	}
@@ -1792,8 +1793,6 @@ sub GetWipInfo($){
     my ($pwd) = `pwd`;
     # collect PKGBASE -> PKGVERSION hash
 }
-#  -------------------------------------------------------------
-# line 3009 ( or around )
 sub GitHubSpecial($$$$){
     my ($distbase)	= shift;
     my ($master_site)	= shift;
@@ -2927,50 +2926,38 @@ sub GetSFProjectCandidate($$) {  # line 2922 to 2979
         $#candidate = -1;
     my ($master_site) = $SFProject;
     my ($returnCode);
-
+    my ($status, $location);
 		print STDERR sprintf("%4d ", __LINE__ ), ' SFProject: ',  $SFProject."\n" if $DEBUG_SF;
-    $master_site = $SF_SITE. 'sourceforge/' . $SFProject . '/';
-    my ($status, $location) = CheckHeader($master_site);
- 		print STDERR sprintf("%4d ", __LINE__ ), ' (1) master_site(', $master_site, ') status('. $status.")\n"  if $DEBUG_SF || $DEBUG_URL;
-    if ($status == 200 ) {
-	($returnCode, @candidate) = ParseDirectory($master_site, $DISTBASE, 0);
-    } else {
+#    $master_site = $SF_SITE. 'sourceforge/' . $SFProject . '/';
+# 		print STDERR sprintf("%4d ", __LINE__ ), ' (1) master_site(', $master_site, ') status('. $status.")\n"  if $DEBUG_SF || $DEBUG_URL;
+#    if ($status == 200 ) {
+#	($returnCode, @candidate) = ParseDirectory($master_site, $DISTBASE, 0);
+#    } else {
 	$MasterSiteStat = $status;
-	$master_site  =  $SF_SITE . 'project/'. $SFProject .'/files/' ;
-		print STDERR sprintf("%4d ", __LINE__ ), ' (2) master_site(', $master_site, ') status('. $status.' SFProject: ', $SFProject, ' DISTBASE: ', $DISTBASE, "\n"  if $DEBUG_SF;
-	($returnCode, @candidate) = ParseDirectory($master_site, $DISTBASE, 0); # x11/gtkglarea
-		print STDERR sprintf("%4d ", __LINE__ ), ' returns ', $returnCode,"\n"   if $DEBUG_SF;
-    }
-    if ($#candidate  < 1 )  {   
-	$master_site  =  $SF_SITE . 'project/' . $SFProject .'/files/' ;
-		print STDERR sprintf("%4d ", __LINE__ ), ' (3) master_site(', $master_site, ') status('. $status.' SFProject: ', $SFProject, "\n"  if $DEBUG_SF;
-	($returnCode, @candidate) = ParseDirectory($master_site, $DISTBASE, 0);
-		print STDERR sprintf("%4d ", __LINE__ ), ' returns ', $returnCode,"\n"   if $DEBUG_SF;
-    }
-    if ($#candidate  < 1 )  {
-	$master_site = $SF_SITE . 'projects/' . $DISTBASE . '/files/';
-		print STDERR sprintf("%4d ", __LINE__ ), ' (4) master_site(', $master_site, ') status('. $status.") -> \n"  if $DEBUG_SF;
-	($returnCode, @candidate) = ParseDirectory($master_site, $DISTBASE, 0);
-	print STDERR sprintf("%4d ", __LINE__ ), ' returns ', $returnCode,"\n"   if $DEBUG_SF;
-    }
-    if ($#candidate  < 1 )  {
-	$master_site = $SF_SITE . 'projects/' . $SFProject . '/files/'. $DISTBASE .'/';
-		print STDERR sprintf("%4d ", __LINE__ ), ' (5) master_site(', $master_site, ') status('. $status.") -> \n"  if $DEBUG_SF;
-	($returnCode, @candidate) = ParseDirectory($master_site, $DISTBASE,0 );
-	print STDERR sprintf("%4d ", __LINE__ ), ' returns ', $returnCode,"\n"   if $DEBUG_SF;
-    }
-    if ($#candidate  < 1 && (my ($alternative) = $SourceForgeAlternative{$DISTBASE} ) ) {
+	foreach my $site (
+				  'project/'.  $SFProject .'/files/' ,
+				  'projects/' .$DISTBASE  . '/files/',
+				  'projects/' .$SFProject . '/files/',
+				  'projects/' .$SFProject . '/files/'. $DISTBASE .'/') {
+    #      https://sourceforge.net/projects/sdlgfx/files/
+	    ($status, $location) = CheckHeader('http://download.sourceforge.net/'.$site);
+		 print STDERR sprintf("%4d ", __LINE__ ), ' (3) master_site(', $site, ') status('. $status.") -> \n"  if $DEBUG_SF;
+	    ($returnCode, @candidate) = ParseDirectory('http://sourceforge.net/sourceforge/'.$site, $DISTBASE, 0);
+		 print STDERR sprintf("%4d ", __LINE__ ), ' (4) master_site(', $site, ') status('. $status. ') '. 'candidate('.$#candidate.")-> \n"  if $DEBUG_SF;
+	    if ($#candidate > 0 ) { last;}
+		} # end foreach
+	if ($#candidate  < 0 && (my ($alternative) = $SourceForgeAlternative{$DISTBASE} ) ) {
 	foreach my $site (split ';', $alternative) {
 		print STDERR sprintf("%4d ", __LINE__ ), ' (6) master_site(', $site, ') status('. $status.") -> \n"  if $DEBUG_SF;
 	($returnCode, @candidate) = ParseDirectory($site, $DISTBASE, 0);
-	print STDERR sprintf("%4d ", __LINE__ ), ' returns ', $returnCode,"\n"   if $DEBUG_SF;	
+		print STDERR sprintf("%4d ", __LINE__ ), ' returns ', $returnCode,"\n"   if $DEBUG_SF;	
 	    $master_site = $site;
 	}
     }
-     if ($#candidate  < 1 ) {
+     if ($#candidate  < 0 ) {
   	($returnCode, @candidate) = SFSubDirectory($DISTBASE, $SF_SITE. 'projects/'. $SFProject. '/files/');
 	print STDERR sprintf("%4d ", __LINE__ ), ' returns ', $returnCode , ' ncand: ', $#candidate, "\n"  if $DEBUG_SF;
-     }	
+     } 
 # http://sourceforge.net/projects/mpg123/files
 
     #http://sourceforge.net/projects/ganglia/files/
