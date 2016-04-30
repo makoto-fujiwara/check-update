@@ -7,7 +7,7 @@ use v5.16;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2016-04-29 22:36" ; # written by emacs time-stamp
+$VERSION = "2016-04-30 02:28" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -2490,9 +2490,13 @@ sub ReadMakefile($$)  {		# <- Main
 	    if ( m|^.\s*include.*\.\./\.\./print/texlive/package\.mk|)	{ $texlive++;}
 
 	   #        MASTER_SITES=     ${MASTER_SITE_SOURCEFORGE:=modauthkerb/}
- 	    if ( m|^MASTER_SITES=\s+\$\{MASTER_SITE_SOURCEFORGE:=(.*)/|) { $SFProject = $1;}
+	    if ( m|^MASTER_SITES=\s+\$\{MASTER_SITE_SOURCEFORGE:=(.*)/|) { $SFProject = $1;}
 	}
 	close(MAKEFILE);
+	if ($SFProject eq '' ) {
+	    my ($site) = GetVariableValue($category, $directory, 'MASTER_SITE');
+# 	    if ( $site =~ m|.*:=(.*)/|) { $SFProject = $1;} 
+}
 	if ($MAINTAINER eq '' ) { $MAINTAINER = GetVariableValue($category, $directory, 'MAINTAINER');}
 	if ($HOMEPAGE eq '' || $HOMEPAGE =~ m|\$\{.*\}|)
 	  { $HOMEPAGE = GetVariableValue($category, $directory, 'HOMEPAGE');}
