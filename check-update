@@ -7,7 +7,7 @@ use v5.16;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2016-04-30 04:20" ; # written by emacs time-stamp
+$VERSION = "2016-04-30 08:28" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -270,6 +270,7 @@ my (%SpecialPattern) = (
     # 0.043_01 -> 0.043.01
     'Exporter-Tiny',	'$line =~ s|.*Exporter-Tiny-([0-9.]+)([_.]*[0-9]*).*|$1$2|;',
     'appdata_tools',	'$line =~ s|.*appdata_tools_([0-9_]+).*|$1|;',
+    'fann',		'$line =~ s|.*FANN-([0-9.]*)-Source.zip.*|$1|;',
     );
 
 my(%SourceForgeAlternative) = qw (
@@ -393,6 +394,7 @@ my(%DownLoadAlternative) = qw (
     mechanize	http://wwwsearch.sourceforge.net/mechanize/download.html
     klayout	http://www.klayout.de/build.html
     ming	https://sourceforge.net/projects/ming/files/Releases/
+    fann	http://leenissen.dk/fann/wp/download/
     ); ##
 
 # for print/xpdf-arabic etc
