@@ -7,7 +7,7 @@ use v5.16;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2016-04-30 09:20" ; # written by emacs time-stamp
+$VERSION = "2016-04-30 09:46" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -2947,11 +2947,12 @@ sub GetSFProjectCandidate($$) {  # line 2922 to 2979
 	    'http://download.sourceforge.net/project/'.  $SFProject . '/files/',
 	    'http://download.sourceforge.net/projects/' .$DISTBASE  . '/files/',
 	    'http://download.sourceforge.net/projects/' .$SFProject . '/files/',
+	            'https://sourceforge.net/projects/' .$DISTBASE   .'/files/' . $DISTBASE,
 	    ) {
 	    ($status, $location) = CheckHeader($site);
 		 print STDERR sprintf("%4d ", __LINE__ ), ' (Header)   master_site(', $site, ') status('. $status.") -> \n"  if $DEBUG_SF;
 	    ($returnCode, @candidate) = ParseDirectory($site, $DISTBASE, 0);
-		 print STDERR sprintf("%4d ", __LINE__ ), ' (ParseDir) master_site(', $site, ') status('. $status. ') '. 'candidate('.$#candidate.")-> \n"  if $DEBUG_SF;
+		 print STDERR sprintf("%4d ", __LINE__ ), ' (ParseDir) master_site(', $site, ') status('. $status. ') '. 'candidate('.$#candidate.') -> '. join (' ', @candidate), "\n"  if $DEBUG_SF;
 	    if ($#candidate > 0 ) { $master_site = $site ;last;}
 	}    # end foreach
 
