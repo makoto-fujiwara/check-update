@@ -7,7 +7,7 @@ use v5.16;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2016-05-01 06:23" ; # written by emacs time-stamp
+$VERSION = "2016-05-01 08:19" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -3004,16 +3004,16 @@ sub GetSFProjectCandidate($$$) {  # line 2922 to 2979
 
     my ($directory_candidate) = GetMasterSiteSubDirectory($master_site, $dist_name);
     push (@directory_candidate, $directory_candidate);
-#     @directory_candidate) =  (
-# 	    'http://download.sourceforge.net/projects/' .$SFProject . '/files/'. $subDirectory .'/',
-# 	            'https://sourceforge.net/projects/' .$SFProject . '/'      . $subDirectory .'/',
-# 	            'https://sourceforge.net/projects/' .$SFProject . '/files/',
-# 	            'https://sourceforge.net/projects/' .$SFProject . '/files/'. $subDirectory .'/',
-# 	    'http://download.sourceforge.net/project/'  .$SFProject . '/files/',
-# 	    'http://download.sourceforge.net/project/'  .$SFProject,
-# 	    'http://download.sourceforge.net/projects/' .$subDirectory  . '/files/',
-# 	'http://download.sourceforge.net/projects/' .$SFProject . '/files/',
-#     );
+    push (@directory_candidate,
+	    'http://download.sourceforge.net/projects/' .$SFProject . '/files/'. $subDirectory .'/',
+	            'https://sourceforge.net/projects/' .$SFProject . '/'      . $subDirectory .'/',
+	            'https://sourceforge.net/projects/' .$SFProject . '/files/',
+	            'https://sourceforge.net/projects/' .$SFProject . '/files/'. $subDirectory .'/',
+	    'http://download.sourceforge.net/project/'  .$SFProject . '/files/',
+	    'http://download.sourceforge.net/project/'  .$SFProject,
+	    'http://download.sourceforge.net/projects/' .$subDirectory  . '/files/',
+	'http://download.sourceforge.net/projects/' .$SFProject . '/files/',
+     );
 
     foreach my $site (
 	@directory_candidate) {
