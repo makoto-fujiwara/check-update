@@ -7,7 +7,7 @@ use v5.16;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2016-05-01 06:16" ; # written by emacs time-stamp
+$VERSION = "2016-05-01 06:23" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -3451,7 +3451,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
 #	if ($DISTBASE =~ /^pyobjc/ ) { ($MASTER_SITE, $line ) = pyObjcSpecial($DISTBASE);
 #	    print STDERR sprintf("%4d ", __LINE__ ), 'MASTER_SITE ', $MASTER_SITE,"\n" if $DEBUG_DISTBASE;
 #		($returnCode, @candidate) = ParseDirectory($MASTER_SITE, $DISTBASE, 0);
-	}
+#	}
 	if ( $DownLoadAlternative{$DISTBASE}) {			# MAJOR_IF_THEN_ELSE
 	    $MASTER_SITE= $DownLoadAlternative{$DISTBASE};
 	    print STDERR sprintf("%4d ", __LINE__ ), 'MASTER_SITE ', $MASTER_SITE,"\n" if $DEBUG_DISTBASE;
