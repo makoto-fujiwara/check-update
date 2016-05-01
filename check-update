@@ -7,7 +7,7 @@ use v5.16;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2016-05-01 08:19" ; # written by emacs time-stamp
+$VERSION = "2016-05-01 10:11" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -272,6 +272,7 @@ my (%SpecialPattern) = (
     'Exporter-Tiny',	'$line =~ s|.*Exporter-Tiny-([0-9.]+)([_.]*[0-9]*).*|$1$2|;',
     'appdata_tools',	'$line =~ s|.*appdata_tools_([0-9_]+).*|$1|;',
     'fann',		'$line =~ s|.*FANN-([0-9.]*)-Source.zip.*|$1|;',
+#   'hackrf',		'$line =~ s|^([0-9.]*)-.*|$1|;',
     );
 
 my(%SourceForgeAlternative) = qw (
@@ -1880,7 +1881,7 @@ sub GitHubSpecial($$$$){
 	    m,archive/release_([0-9_]+)\.,	||   # ham/uhd
 	    m,archive/([0-9.]+)\.tar,	||	     # devel/js_of_ocaml
 	    m|/([0-9.]+)\.tar\.gz|      ||
-	    m|([0-9.]+)\.zip|		||
+	    m|^([0-9.]+)\.zip|		||		# avoid jawbreaker-20121016 for hackrf
 	    m,data-name=\"v*([0-9.]+)\",||
 	    m,release-([0-9.]+)\",	||   # sysutils/WCMcommander
 	    m,releases/tag/([0-9.]+),	||   # sysutils/erlang-goldrush
