@@ -7,7 +7,7 @@ use v5.16;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2016-05-03 11:06" ; # written by emacs time-stamp
+$VERSION = "2016-05-03 11:22" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -274,7 +274,7 @@ my (%SpecialPattern) = (
     'fann',		'$line =~ s|.*FANN-([0-9.]*)-Source.zip.*|$1|;',
 #   'hackrf',		'$line =~ s|^([0-9.]*)-.*|$1|;',
 #   'mame',		'$line =~ s|.*mame([0-9.]*).*|$1|;',
-    'pyobjc-framework-WebKit', '$line =~ s|.*Version ([0-9]\.[0-9.]+).*|$1|;',
+#   'pyobjc-framework-WebKit', '$line =~ s|.*Version ([0-9]\.[0-9.]+).*|$1|;',
 
     );
 
@@ -2972,6 +2972,24 @@ sub Delete02($) {
     }
     return $result;
 }
+sub AddSpecialPattern(){
+## https://pythonhosted.org/pyobjc/core/changelog.html
+##  <h2>Version 3.2</h2>  
+    opendir(my $dh, $pkgsrc.'/devel') ||
+	printf STDERR sprintf("%4d ", __LINE__ ), "Problem on AddSpecialPattern(),\n";
+    while (readdir $dh ) {
+	chomp();
+#	printf STDERR sprintf("%4d ", __LINE__ ). ' -> '. $_."\n";
+	if ( /^py-(pyobjc-.*)/ ) {
+	    my ($distbase) = $1;
+#	    printf STDERR sprintf("%4d ", __LINE__ ). 'distbase: '. $distbase." ";
+	    $SpecialPattern{$distbase} = '$line =~ s|.*Version ([0-9]\.[0-9.]+).*|$1|;';
+	    $DownLoadAlternative{$distbase} = 'https://pythonhosted.org/pyobjc/core/changelog.html';
+	}
+    }
+    closedir($dh);
+#    printf STDERR sprintf("%4d ", __LINE__ ).   $DownLoadAlternative{'pyobjc-framework-WebKit'} ."\n";
+}
 sub SummaryName(){
     if (! $summary) {
 	if    ($DEBUG_DISTBASE)	{ $summary = '.debug.html';}
@@ -3144,24 +3162,6 @@ my(%DIVIDE_DEVEL) = ( 1, '[A-Za-o].*',
 		      2, 'p.*',
 		      3, '[q-z].*' );
 
-sub AddSpecialPattern(){
-## https://pythonhosted.org/pyobjc/core/changelog.html
-##  <h2>Version 3.2</h2>  
-    opendir(my $dh, $pkgsrc.'/devel') ||
-	printf STDERR sprintf("%4d ", __LINE__ ), "Problem on AddSpecialPattern(),\n";
-    while (readdir $dh ) {
-	chomp();
-#	printf STDERR sprintf("%4d ", __LINE__ ). ' -> '. $_."\n";
-	if ( /^py-(pyobjc-.*)/ ) {
-	    my ($distbase) = $1;
-#	    printf STDERR sprintf("%4d ", __LINE__ ). 'distbase: '. $distbase." ";
-	    $SpecialPattern{$distbase} = '$line =~ s|.*Version ([0-9]\.[0-9.]+).*|$1|;';
-	    $DownLoadAlternative{$distbase} = 'https://pythonhosted.org/pyobjc/core/changelog.html';
-	}
-    }
-    closedir($dh);
-    printf STDERR sprintf("%4d ", __LINE__ ).   $DownLoadAlternative{'pyobjc-framework-WebKit'} ."\n";
-}
 
 chdir $pkgsrc;
 AddSpecialPattern();
