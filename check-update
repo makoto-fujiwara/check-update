@@ -7,7 +7,7 @@ use v5.16;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2016-05-03 22:44" ; # written by emacs time-stamp
+$VERSION = "2016-05-03 22:54" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -189,7 +189,7 @@ IO-Socket-Multicast
 Net-IPv4Addr Net-IPv6Addr Net-XMPP lzo pen iperf lftp Text-Diff inform
 ocaml
 audacious audacious-plugins WWW-Shorten proj
-hfsutils gamin Coin klayout ffmpeg macholib modulegraph py2app
+hfsutils gamin Coin klayout ffmpeg macholib modulegraph py2app db
 );
 
 # Net-Libdnet is listed to avoid not to pick Net-Libdnet6-0.27 -as 6-0.27
@@ -408,6 +408,7 @@ my(%DownLoadAlternative) = qw (
     modulegraph	https://bitbucket.org/ronaldoussoren/modulegraph/downloads#tag
     py2app	https://bitbucket.org/ronaldoussoren/py2app/downloads#tag
     polib	https://bitbucket.org/izi/polib/downloads
+    db		http://www.oracle.com/technetwork/database/database-technologies/berkeleydb/downloads/index.html
     ); ##
 
 # for print/xpdf-arabic etc
@@ -3548,7 +3549,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
 print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], 'available: ', $available, ' returnCode: ', $returnCode,
 ' @candidate: ', join("\n", @candidate),"\n" if $DEBUG_CANDIDATE;
 
-	if ( $available eq '0.0' || $available eq '' || $returnCode == -1 ) {
+	if (( $available eq '0.0' || $available eq '' || $returnCode == -1 ) && $#candidate == -1 && ! $candidate[0] ne '0.0' ) {
 #	     CompareVersion(  $PKGVERSION, $available ) ) {
 	    ($returnCode, @candidate) =  ParseDirectory($MASTER_SITE, $DISTBASE, 1);
 	    $available = PickFromCandidate(@candidate);
