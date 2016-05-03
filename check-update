@@ -7,7 +7,7 @@ use v5.16;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2016-05-03 13:35" ; # written by emacs time-stamp
+$VERSION = "2016-05-03 13:39" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -187,7 +187,7 @@ IO-Socket-Multicast
 Net-IPv4Addr Net-IPv6Addr Net-XMPP lzo pen iperf lftp Text-Diff inform
 ocaml
 audacious audacious-plugins WWW-Shorten proj
-hfsutils gamin Coin klayout ffmpeg macholib modulegraph
+hfsutils gamin Coin klayout ffmpeg macholib modulegraph py2app
 );
 
 # Net-Libdnet is listed to avoid not to pick Net-Libdnet6-0.27 -as 6-0.27
@@ -395,7 +395,7 @@ my(%DownLoadAlternative) = qw (
     libol	https://my.balabit.com/downloads/libol/0.3
     WordNet	http://wordnet.princeton.edu/wordnet/download/current-version/
     aspell5-ga	http://borel.slu.edu/~kps/ispell/sios.html
-    agg		http://www.antigrain.com/download/index.html
+    agg		http://www.antigrain.com/https://bitbucket.org/izi/polib/downloadsdownload/index.html
     mechanize	http://wwwsearch.sourceforge.net/mechanize/download.html
     klayout	http://www.klayout.de/build.html
     ming	https://sourceforge.net/projects/ming/files/Releases/
@@ -403,6 +403,7 @@ my(%DownLoadAlternative) = qw (
     Mako	http://www.makotemplates.org/download.html
     macholib	https://bitbucket.org/ronaldoussoren/macholib/downloads#tag
     modulegraph	https://bitbucket.org/ronaldoussoren/modulegraph/downloads#tag
+    py2app	https://bitbucket.org/ronaldoussoren/py2app/downloads#tag
     polib	https://bitbucket.org/izi/polib/downloads
     ); ##
 
