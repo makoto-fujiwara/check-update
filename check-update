@@ -7,7 +7,7 @@ use v5.16;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2016-05-01 15:06" ; # written by emacs time-stamp
+$VERSION = "2016-05-03 08:37" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -274,6 +274,7 @@ my (%SpecialPattern) = (
     'fann',		'$line =~ s|.*FANN-([0-9.]*)-Source.zip.*|$1|;',
 #   'hackrf',		'$line =~ s|^([0-9.]*)-.*|$1|;',
 #   'mame',		'$line =~ s|.*mame([0-9.]*).*|$1|;',
+    'pyobjc-framework-WebKit', '$line =~ s|.*Version ([0-9]\.[0-9.]+).*|$1|;',
 
     );
 
@@ -424,9 +425,9 @@ my (%MonthToDigit) = qw (
 sub SpecialPattern($$){
     my($distbase) = shift;
     my($line) = shift;
-    print STDERR sprintf("%4d ", __LINE__ ), ' ', $line, ' Pattern ', $SpecialPattern{$distbase}, "\n" if $DEBUG_EVAL_PATTERN ;
+    print STDERR sprintf("%4d ", __LINE__ ), ' ', $line, ' --> Pattern ', $SpecialPattern{$distbase}, "\n" if $DEBUG_EVAL_PATTERN ;
     eval $SpecialPattern{$distbase} ;
-
+    print STDERR sprintf("%4d ", __LINE__ ), ' === >', ' (', $line,")\n" if $DEBUG_EVAL_PATTERN ;
     # not to return garbage
     if ( !($line =~ m|^[0-9._-]+$| ) ){  $line = '';}
     $line =~ y|_|.|;
@@ -2308,13 +2309,15 @@ sub ParseDirectory($$$){   # 2200  to  2421 lines (220 lines
         # http://www3.sympatico.ca/mt0000/bicom/bicom101.zip -> fails to matchp
 #	print STDERR sprintf("%4d ", __LINE__ ), ' ', $distbase, ' ', $_,"\n";
 
+print STDERR sprintf("%4d ** ", __LINE__ ). '('. $distbase.') '. $SpecialPattern{$distbase}.': '. $_. ' ---: '.
+	    grep (/$distbase/, keys %SpecialPattern)." :---\n";
         #  eaglecon-4.16r2.zip
 	# DBD-CSV-0.22.tar.gz 45 < 22
 	# DBD-CSV-0.44.tgz
 	# DBD-CSV-0.45.tgz
         # zorro-1.1p8.tar.gz -> 8
 	# Class-DBI-Pg-0.08.tar.gz
-	#  ------------------------------------------------
+	#  -----------------------------------------------
 	# S K I P P I N G   P A R T I C U L A R    F I L E (ignore)
 	#  -----------------------------------------------
 	if ( /scapy4win_and_pack.zip/)		{ next;} # net/scapy exception
@@ -3141,7 +3144,28 @@ if ( -f $MaturedList) {
 my(%DIVIDE_DEVEL) = ( 1, '[A-Za-o].*',
 		      2, 'p.*',
 		      3, '[q-z].*' );
+
+sub AddSpecialPattern(){
+## https://pythonhosted.org/pyobjc/core/changelog.html
+##  <h2>Version 3.2</h2>  
+    opendir(my $dh, $pkgsrc.'/devel') ||
+	printf STDERR sprintf("%4d ", __LINE__ ), "Problem on AddSpecialPattern(),\n";
+    while (readdir $dh ) {
+	chomp();
+#	printf STDERR sprintf("%4d ", __LINE__ ). ' -> '. $_."\n";
+	if ( /^py-(pyobjc-.*)/ ) {
+	    my ($distbase) = $1;
+#	    printf STDERR sprintf("%4d ", __LINE__ ). 'distbase: '. $distbase." ";
+	    $SpecialPattern{$distbase} = '$line =~ s|.*Version ([0-9]\.[0-9.]+).*|$1|;';
+	    $DownLoadAlternative{$distbase} = 'https://pythonhosted.org/pyobjc/core/changelog.html';
+	}
+    }
+    closedir($dh);
+    printf STDERR sprintf("%4d ", __LINE__ ).   $DownLoadAlternative{'pyobjc-framework-WebKit'} ."\n";
+}
+
 chdir $pkgsrc;
+AddSpecialPattern();
 
 if ( $summary_tmp ne '/dev/null') {
 print STDERR sprintf("%4d ", __LINE__ ), 'output directory is '. $output_directory ."\n";
