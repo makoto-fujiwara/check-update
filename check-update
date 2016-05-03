@@ -7,7 +7,7 @@ use v5.16;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2016-05-03 21:57" ; # written by emacs time-stamp
+$VERSION = "2016-05-03 22:11" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -37,6 +37,7 @@ my ($summary_tmp);
 my ($summary_leaf);	# only for stats output
 
 my ($DEBUG_CACHE);
+my ($DEBUG_CANDIDATE);
 my ($DEBUG_COUNT);
 my ($DEBUG_CURL);
 my ($DEBUG_CURL_CACHE);
@@ -85,6 +86,7 @@ my(%LongName)  = (
    'S',  'Stats number',
    'u',  'URL',
    'x',  'Curl Cache',
+   'X',	 'Explode candidate',
 );
 #foreach my $l (keys %LongName) {
 #    print $l, " -> ", $LongName{$l},"\n";
@@ -2175,7 +2177,7 @@ print STDERR sprintf("%4d ", __LINE__ ).' location: ', $location,"\n" if  $DEBUG
 sub ParseDebug($){
     my ($pattern) = shift;
     my %DEBUG;
-    my $char_list = 'acCdDEegFfGhlmnprRsSx';
+    my $char_list = 'acCdDEegFfGhlmnprRsSxX';
 
     if ( $pattern =~ /a/ ) { $pattern = $char_list  }
     print STDERR sprintf("%4d ", __LINE__ ), ' DEBUG pattern (',  $pattern,  ')',"\n";
@@ -2189,6 +2191,7 @@ sub ParseDebug($){
 
     $DEBUG_CACHE		= $DEBUG{'c'} + $DEBUG{'a'} ;
     $DEBUG_COUNT		= $DEBUG{'n'} + $DEBUG{'a'} ;
+    $DEBUG_CANDIDATE		= $DEBUG{'X'} + $DEBUG{'a'} ;
     $DEBUG_CURL			= $DEBUG{'C'} + $DEBUG{'a'} ;
     $DEBUG_CURL_CACHE		= $DEBUG{'x'} + $DEBUG{'a'} ;
     $DEBUG_CURL_LISTING		= $DEBUG{'l'} + $DEBUG{'a'} ;
@@ -2487,8 +2490,9 @@ print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[3], '> (distbase) ', $distb
     my ($returnCode) = 0;
     print STDERR sprintf("%4d ", __LINE__ ), '==> curl_lines: ', $curl_lines, "\n" if $DEBUG_DISTBASE;
     if ($curl_lines == 0 ) { $returnCode = -1; };
-print STDERR sprintf("%4d ", __LINE__ ), ' (distbase) ', $distbase,' (version) ', $version, 
-' returnCode ', $returnCode, ' @candidate: ', $#candidate, "\n" if $DEBUG_DISTBASE;
+
+print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '> (distbase) ', $distbase,' (version) ', $version, 
+' returnCode ', $returnCode, ' @candidate: ', join ("\n", @candidate), "\n" if $DEBUG_CANDIDATE;
 #      foreach my $c (@candidate) {
 #  	if (1 || $c =~ /4\.8\.3/) {
 #  print STDERR sprintf("%4d <", __LINE__), (caller 0)[3],'> (edit_version) ', $c, "\n"; }}
