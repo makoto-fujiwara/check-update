@@ -7,7 +7,7 @@ use v5.16;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2016-05-03 22:54" ; # written by emacs time-stamp
+$VERSION = "2016-05-04 11:44" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -36,6 +36,7 @@ my ($line); # SpecialPattern
 my ($summary_tmp);
 my ($summary_leaf);	# only for stats output
 
+my ($DEBUG_ALTERNATIVE);
 my ($DEBUG_CACHE);
 my ($DEBUG_CANDIDATE);
 my ($DEBUG_COUNT);
@@ -64,6 +65,7 @@ my ($DEBUG_VER_PATTERN) = 0;
 my ($SINGLE_PACKAGE) = 0;
 
 my(%LongName)  = (
+   'A',  'Alternative master site',
    'a',  'enable_All',
    'c',  'Cache',
    'C',  'Curl Command',
@@ -189,7 +191,7 @@ IO-Socket-Multicast
 Net-IPv4Addr Net-IPv6Addr Net-XMPP lzo pen iperf lftp Text-Diff inform
 ocaml
 audacious audacious-plugins WWW-Shorten proj
-hfsutils gamin Coin klayout ffmpeg macholib modulegraph py2app db
+hfsutils gamin Coin klayout ffmpeg macholib modulegraph py2app
 );
 
 # Net-Libdnet is listed to avoid not to pick Net-Libdnet6-0.27 -as 6-0.27
@@ -408,7 +410,7 @@ my(%DownLoadAlternative) = qw (
     modulegraph	https://bitbucket.org/ronaldoussoren/modulegraph/downloads#tag
     py2app	https://bitbucket.org/ronaldoussoren/py2app/downloads#tag
     polib	https://bitbucket.org/izi/polib/downloads
-    db		http://www.oracle.com/technetwork/database/database-technologies/berkeleydb/downloads/index.html
+    db		http://www.oracle.com/technetwork/jp/products/berkeleydb/downloads/index-090620-ja.html
     ); ##
 
 # for print/xpdf-arabic etc
@@ -758,7 +760,7 @@ sub CheckHeader($) {
     my($status) = 'none';
     my($location);
     $url =~ s|-https:|https:|;
-    print STDERR sprintf("%4d ", __LINE__ ), ' ', $url, ' -> ', $_  if $DEBUG_HTTP_HEADER ;
+    print STDERR sprintf("%4d ", __LINE__ ), ' <', (caller 0)[3], ':', (caller 0)[2], ': ', $url, ' -> ', $_, "\n" if $DEBUG_HTTP_HEADER ;
     if ($url eq '') { print STDERR sprintf("%4d ", __LINE__ ), " \$url is empty\n"; return -1;}
     
     open(CURL, "$curl_head $url 2>&1|") || print STDERR '*** ',sprintf("%4d ", __LINE__ ),' Problem on ', (caller 0)[3],"\n";
@@ -895,6 +897,13 @@ sub ClassifyPackage(@) {
 	print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1d) family: ', $p, ' -> ',
 	    $FAMILY{$p}, 
 	    "\n" if $DEBUG_FAMILY;
+
+	# (11) berkley-db
+	} elsif ($p =~ /^(db)([0-9])$/) {
+	    my ($lang)  = $1;
+	    my ($major) = $2;
+	    $FAMILY{$p} = '$version =~ s/.*'. $lang .'-('.$major.'\.[0-9.]+)\.tar\..*/$1/' ;
+	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1a) family: ', $p, "\n" if $DEBUG_FAMILY;
 
 	# normal numbering
 	} elsif ($p =~ /(.*)([0-9]+)$/) {
@@ -2178,7 +2187,7 @@ print STDERR sprintf("%4d ", __LINE__ ).' location: ', $location,"\n" if  $DEBUG
 sub ParseDebug($){
     my ($pattern) = shift;
     my %DEBUG;
-    my $char_list = 'acCdDEegFfGhlmnprRsSxX';
+    my $char_list = 'aAcCdDEegFfGhlmnprRsSxX';
 
     if ( $pattern =~ /a/ ) { $pattern = $char_list  }
     print STDERR sprintf("%4d ", __LINE__ ), ' DEBUG pattern (',  $pattern,  ')',"\n";
@@ -2190,6 +2199,7 @@ sub ParseDebug($){
 	print STDERR  '   ',$char,'  ', $LongName{$char}, "\n";
 	}
 
+    $DEBUG_ALTERNATIVE		= $DEBUG{'A'} + $DEBUG{'a'} ;
     $DEBUG_CACHE		= $DEBUG{'c'} + $DEBUG{'a'} ;
     $DEBUG_COUNT		= $DEBUG{'n'} + $DEBUG{'a'} ;
     $DEBUG_CANDIDATE		= $DEBUG{'X'} + $DEBUG{'a'} ;
@@ -3511,14 +3521,14 @@ print STDERR sprintf("%4d ", __LINE__ ),
 #	}
 
 	print STDERR sprintf("%4d ", __LINE__ ), 'MASTER_SITE ', $MASTER_SITE, ' DISTBASE ', $DISTBASE, "\n" if $DEBUG_DISTBASE;
-	print STDERR sprintf("%4d ", __LINE__ ),  $DownLoadAlternative{$DISTBASE}, "\n" if $DEBUG_DISTBASE;
+	print STDERR sprintf("%4d ", __LINE__ ),  $DownLoadAlternative{$DISTBASE}, "\n" if $DEBUG_ALTERNATIVE;
 #	if ($DISTBASE =~ /^pyobjc/ ) { ($MASTER_SITE, $line ) = pyObjcSpecial($DISTBASE);
 #	    print STDERR sprintf("%4d ", __LINE__ ), 'MASTER_SITE ', $MASTER_SITE,"\n" if $DEBUG_DISTBASE;
 #		($returnCode, @candidate) = ParseDirectory($MASTER_SITE, $DISTBASE, 0);
 #	}
 	if ( $DownLoadAlternative{$DISTBASE}) {			# MAJOR_IF_THEN_ELSE
 	    $MASTER_SITE= $DownLoadAlternative{$DISTBASE};
-	    print STDERR sprintf("%4d ", __LINE__ ), 'MASTER_SITE ', $MASTER_SITE,"\n" if $DEBUG_DISTBASE;
+	    print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[3], '> MASTER_SITE ', $MASTER_SITE,"\n" if $DEBUG_ALTERNATIVE;
 		($returnCode, @candidate) = ParseDirectory($MASTER_SITE, $DISTBASE, 0);
 
 	}							# MAJOR_IF_THEN_ELSE  ----------------------
