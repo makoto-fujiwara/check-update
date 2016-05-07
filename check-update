@@ -7,7 +7,7 @@ use v5.16;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2016-05-07 20:58" ; # written by emacs time-stamp
+$VERSION = "2016-05-07 21:02" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -3122,7 +3122,7 @@ sub GetSFProjectCandidate($$$) {  # line 2922 to 2979
 		my ($candidate) = GetSFProjectString($site, $DISTBASE);
 		if ( $candidate != '0.0') {push(@candidate, $candidate); last;} 
 		my ($dir) = VersionedDirectory($DISTBASE, $site);
-		if ($dir != -1) { next;}
+		if ($dir == -1) { next;}
 		print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ': dir(', $dir, ')',"\n" if $DEBUG_VERSION_DIR;
 		($returnCode, @candidate) = ParseDirectory($dir, $DISTBASE, 0);
 	 }
@@ -3192,7 +3192,7 @@ sub VersionedDirectory ($$){
 	    $ver = $1;
 	    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ver(', $ver,') <- ', $_ if $DEBUG_VERSION_DIR;
 	    if (CompareVersion($ver, $max_version) > 0) { $max_version = $ver;}
-	    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' max_ver(', $max_ver,') <- ', $_ if $DEBUG_VERSION_DIR;
+	    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' max_ver(', $max_version,') <- ', $_ if $DEBUG_VERSION_DIR;
 	}
     }
     close(W3M);
@@ -3215,8 +3215,8 @@ sub VersionedDirectory ($$){
 #   ##     if ($subdir =~ m|^http\.*:://| ) { return $subdir; }
 #   ##     if ($subdir =~ m|^/.*/| )        { return $host.$subdir; }
     #   ##     else                             { return $url.$subdir;}
-    my ($return) = $url.$name.$max_ver.'/';
-    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' return(', $return,') <- ', $_ if $DEBUG_VERSION_DIR;
+    my ($return) = $url.$name.$max_version.'/';
+    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' return(', $return,')',"\n" if $DEBUG_VERSION_DIR;
     return $return;
 }
 ## ----------------------------------------
