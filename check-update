@@ -7,7 +7,7 @@ use v5.16;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2016-05-04 15:52" ; # written by emacs time-stamp
+$VERSION = "2016-05-06 15:56" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -61,6 +61,7 @@ my ($DEBUG_SPECIAL_PATTERN);
 my ($DEBUG_STATS);
 my ($DEBUG_URL);
 my ($DEBUG_VER_PATTERN) = 0;
+my ($DEBUG_VERSION_DIR);
 
 my ($SINGLE_PACKAGE) = 0;
 
@@ -87,6 +88,7 @@ my(%LongName)  = (
    's',  'SourceForge',
    'S',  'Stats number',
    'u',  'URL',
+   'V',  'Versioned Sub Directory',
    'x',  'Curl Cache',
    'X',	 'Explode candidate',
 );
@@ -191,7 +193,8 @@ IO-Socket-Multicast
 Net-IPv4Addr Net-IPv6Addr Net-XMPP lzo pen iperf lftp Text-Diff inform
 ocaml
 audacious audacious-plugins WWW-Shorten proj
-hfsutils gamin Coin klayout ffmpeg macholib modulegraph py2app
+hfsutils gamin Coin klayout ffmpeg macholib modulegraph py2app db
+SOPE cmph
 );
 
 # Net-Libdnet is listed to avoid not to pick Net-Libdnet6-0.27 -as 6-0.27
@@ -772,7 +775,7 @@ sub CheckHeader($) {
 	}
 	elsif ( /Connection refused/ ) { $status = 'Refused';} 	# # curl: (7) Failed to connect to www.opensync.org port 80: Connection refused
 	elsif ( /^HTTP\S+ (\d+) / ) {  # \S+ has '/1.1' or so
-	    print STDERR sprintf("%4d ", __LINE__ ), ' ', $url, ' -> ', $_  if $DEBUG_HTTP_HEADER ;
+	    print STDERR sprintf("%4d ", __LINE__ ), ' ', $url, ' -> ', $_,"\n" if $DEBUG_HTTP_HEADER ;
 	    $status = $1; if ($status == 200) {$location ='';}}
 	elsif ( /^Location: (\*)/) {
 	    $location = $1;
@@ -1826,7 +1829,7 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (distname) ', $dist_name, ' --> url =
     my ($ok) = 0;
 print STDERR sprintf("%4d ", __LINE__ ), ' (url) ', $url,"\n" if $DEBUG_HTTP_HEADER;
 
-    open(CURL,"$curl_command -I --insecure --user-agent FireFox $url|") || print "problem on curl: $!\n";
+    open(CURL,"$curl_command -I --insecure --user-agent FireFox $url 2>&1|") || print "problem on curl: $!\n";
     while (<CURL>){
 	print STDERR sprintf("%4d ", __LINE__ ), ' (directory) ', $_ if ($DEBUG_HTTP_HEADER && $DEBUG_CURL_LISTING);
 	# HTTP/1.1 301 Moved Permanently
@@ -2083,7 +2086,7 @@ sub SFSubDirectory($$){
     my ($lines) = 0;
     do {
     print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], $curl_list, ' ', $master_site_upper  if $DEBUG_URL;
-    open(CURL, "$curl_list $master_site_upper |") ||
+    open(CURL, "$curl_list $master_site_upper 2>&1|") ||
 	print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> Problem: ', "$!\n";
     $lines = 0;
     while(<CURL>) {
@@ -2190,7 +2193,7 @@ print STDERR sprintf("%4d ", __LINE__ ).' location: ', $location,"\n" if  $DEBUG
 sub ParseDebug($){
     my ($pattern) = shift;
     my %DEBUG;
-    my $char_list = 'aAcCdDEegFfGhlmnprRsSxX';
+    my $char_list = 'aAcCdDEegFfGhlmnprRsSVxX';
 
     if ( $pattern =~ /a/ ) { $pattern = $char_list  }
     print STDERR sprintf("%4d ", __LINE__ ), ' DEBUG pattern (',  $pattern,  ')',"\n";
@@ -2225,6 +2228,7 @@ sub ParseDebug($){
     $DEBUG_SF			= $DEBUG{'s'} + $DEBUG{'a'} ;
     $DEBUG_STATS		= $DEBUG{'S'} + $DEBUG{'a'} ;
     $DEBUG_URL			= $DEBUG{'u'} + $DEBUG{'a'} ;
+    $DEBUG_VERSION_DIR		= $DEBUG{'V'} + $DEBUG{'a'} ;
     print STDERR "\n";
 }
 #  ----------------------------------------------------
@@ -2325,7 +2329,7 @@ sub ParseDirectory($$$){   # 2200  to  2421 lines (220 lines
 		' ==> Using @CurlCache',"\n" if $DEBUG_CURL_CACHE;
 	} else {
 	    $LastCurl = $curl_command;
-	    open(CURL, "$curl_command 2>&1|") || print STDERR "Problem w3m: $!\n";	    
+	    open(CURL, "$curl_command 2>&1|") || print STDERR "Problem curl: $!\n";
 	    @ThisCurl = <CURL>;
 	    close(CURL);
 	    if ($curl_command =~ m|$local_ports_string$|)  {
@@ -3099,14 +3103,22 @@ sub GetSFProjectCandidate($$$) {  # line 2922 to 2979
 	    $master_site = $site;
 	}
 	}
-     if ($#candidate  < 0 ) {
-  	($returnCode, @candidate) = SFSubDirectory($DISTBASE, $SF_SITE. 'projects/'. $SFProject. '/files/');
-	print STDERR sprintf("%4d ", __LINE__ ), ' returns ', $returnCode , ' ncand: ', $#candidate, "\n"  if $DEBUG_SF;
-     } 
+#     if ($#candidate  < 0 ) {
+#  	($returnCode, @candidate) = SFSubDirectory($DISTBASE, $SF_SITE. 'projects/'. $SFProject. '/files/');
+#	print STDERR sprintf("%4d ", __LINE__ ), ' returns ', $returnCode , ' ncand: ', $#candidate, "\n"  if $DEBUG_SF;
+#     }
+	 my ($dir) = ();
+	 foreach my $site (
+	     @directory_candidate) {
+	     $dir =  VersionedDirectory($DISTBASE, $site);
+	     if ($dir != -1) { last;}
+	 }
+	 print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ': dir(', $dir, ')',"\n" if $DEBUG_VERSION_DIR;
+	 ($returnCode, @candidate) = ParseDirectory($dir, $DISTBASE, 0);
 # http://sourceforge.net/projects/mpg123/files
 
     #http://sourceforge.net/projects/ganglia/files/
-
+ #   }
     return ($master_site, $returnCode, @candidate);
 }
 sub MonthToDigit ($){
@@ -3120,6 +3132,60 @@ print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[3], '> ', $version, ' --> '
     }
 print STDERR  $version,"\n" if $DEBUG_DISTBASE;
     return $version;
+}
+sub VersionedDirectory ($$){
+    # like SourceForge, there are directory that holds versioned
+    # sub directories. For example
+    # https://sourceforge.net/projects/aegis/files/aegis/
+    # (1) To check if it is a directory like this
+    # (2) Returns URL for the sub-direcory which holds latest version
+    my ($distbase) = shift;
+    my ($url) = shift;
+    if ( $url eq '') { return -1 ; }
+    my ($host);
+    if ($url =~ m|(http.*:://[^/]+)/| ) { $host = $1; }
+    my($ver) = '0.0';
+    my($max_version) = $ver;
+#    my (@candidate) = ();
+
+    # get the plain text format by w3m command,
+    # w3m -T TEXT  https://sourceforge.net/projects/aegis/files/aegis/ > /tmp/1.txt
+    # and searches for /^[ ]+[0-9.][ ]+$/ line to get version directory name.
+
+    my $w3m_command = 'w3m -T TEXT '. $url;
+    my ($name); # cmph- etc
+   print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' w3m_command(', $w3m_command,') <- ', $_ ,"\n" if $DEBUG_VERSION_DIR;
+    open(W3M, "$w3m_command |") || print STDERR 'problem'."\n";
+    while(<W3M>) {
+#	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ', $_;
+	if (/^[\t ]+($distbase{0,1}[-]*)([0-9.]+)[\t ]+/ ) {
+	    $name = $1;
+	    $ver = $2;
+	    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ver(', $ver,') <- ', $_ if $DEBUG_VERSION_DIR;
+	    if (CompareVersion($ver, $max_version) > 0) { $max_version = $ver;}
+	}
+    }
+    close(W3M);
+    if ($ver eq '0.0') {return -1;}
+#   ##    my ($subdir);
+#   ##    $w3m_command = 'w3m -dump_source '. $url;
+#    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ', $url,"\n";
+#   ## # getting HTML source again for the same directory to get href
+#   ##     open(HTML,"$w3m_command|")  || print STDERR 'problem'."\n";
+#   ##     while(<HTML>){
+#   ##  print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ', $_;
+#   ## 	if (m|href=\"(.*$ver.*/)\">$ver<|) {
+#   ## #	if (m|href=\"(.*$ver.*)|) {
+#   ## 	    $subdir = $1;
+#   ## 	    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ver(', $ver,') subdir(',$subdir,') <- ', $_;
+#   ##
+#   ## 	}
+#   ##     }
+#   ##     close(HTML);
+#   ##     if ($subdir =~ m|^http\.*:://| ) { return $subdir; }
+#   ##     if ($subdir =~ m|^/.*/| )        { return $host.$subdir; }
+#   ##     else                             { return $url.$subdir;}
+    return $url.$name.$ver.'/';
 }
 ## ----------------------------------------
 ##         M A I N   R o u t i n e    Main
