@@ -7,7 +7,7 @@ use v5.16;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2016-05-06 15:56" ; # written by emacs time-stamp
+$VERSION = "2016-05-07 20:52" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -3053,6 +3053,30 @@ sub SummaryName(){
 	$summary	= $output_directory .'/' . $summary;
     }
   }
+sub GetSFProjectString($$){
+    my($url)	  = shift;
+    my($distbase) = shift;
+    # Looking for the latest version? Download cmusphinx-ru-5.2.tar.gz (157.7 MB)
+    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2] , ' ', $url,"\n";
+    my $w3m_command = 'w3m -T TEXT '. $url;
+    my ($name); # cmph- etc
+    my ($ver) = '0.0';
+  print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' w3m_command(', $w3m_command,') <- ', "\n" if $DEBUG_VERSION_DIR;
+    open(W3M, "$w3m_command |") || print STDERR 'problem'."\n";
+    while(<W3M>) {
+#	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ', $_;
+	if (/Looking for the latest version/) {
+	    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' (', $distbase,') ',$_ ;
+	    if (/Download $distbase-([0-9.]+)\.t/ ) {
+	    $ver = $1;
+	    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ver(', $ver,') <- ',"\n";
+	    }
+#	    if (CompareVersion($ver, $max_version) > 0) { $max_version = $ver;}
+	}
+    }
+    close(W3M);
+    return ($ver);
+}
 sub GetSFProjectCandidate($$$) {  # line 2922 to 2979
     my ($SFProject) = shift;
     my ($DISTBASE) = shift;
@@ -3078,10 +3102,11 @@ sub GetSFProjectCandidate($$$) {  # line 2922 to 2979
 	            'https://sourceforge.net/projects/' .$SFProject . '/'      . $subDirectory .'/',
 	            'https://sourceforge.net/projects/' .$SFProject . '/files/',
 	            'https://sourceforge.net/projects/' .$SFProject . '/files/'. $subDirectory .'/',
+#                   'https://sourceforge.net/projects/cmusphinx/files/sphinxtrain/1.0.8/
 	    'http://download.sourceforge.net/project/'  .$SFProject . '/files/',
 	    'http://download.sourceforge.net/project/'  .$SFProject,
 	    'http://download.sourceforge.net/projects/' .$subDirectory  . '/files/',
-	'http://download.sourceforge.net/projects/' .$SFProject . '/files/',
+            'http://download.sourceforge.net/projects/' .$SFProject . '/files/',
      );
 
     foreach my $site (
@@ -3093,6 +3118,14 @@ sub GetSFProjectCandidate($$$) {  # line 2922 to 2979
 		 print STDERR sprintf("%4d ", __LINE__ ), ' (ParseDir) master_site(', $site, ') status('. $status. ') '. 'candidate('.$#candidate.') -> '. join (' ', @candidate), "\n"  if $DEBUG_SF;
 	    }
 	    if ($#candidate > 0 ) { $master_site = $site ;last;}
+	    if ($status == 200 ) {
+		my ($candidate) = GetSFProjectString($site, $DISTBASE);
+		if ( $candidate != '0.0') {push(@candidate, $candidate); last;} 
+		my ($dir) = VersionedDirectory($DISTBASE, $site);
+		if ($dir != -1) { next;}
+		print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ': dir(', $dir, ')',"\n" if $DEBUG_VERSION_DIR;
+		($returnCode, @candidate) = ParseDirectory($dir, $DISTBASE, 0);
+	 }
 	}    # end foreach
 
 	if ($#candidate  < 0 && (my ($alternative) = $SourceForgeAlternative{$DISTBASE} ) ) {
@@ -3107,18 +3140,14 @@ sub GetSFProjectCandidate($$$) {  # line 2922 to 2979
 #  	($returnCode, @candidate) = SFSubDirectory($DISTBASE, $SF_SITE. 'projects/'. $SFProject. '/files/');
 #	print STDERR sprintf("%4d ", __LINE__ ), ' returns ', $returnCode , ' ncand: ', $#candidate, "\n"  if $DEBUG_SF;
 #     }
-	 my ($dir) = ();
-	 foreach my $site (
-	     @directory_candidate) {
-	     $dir =  VersionedDirectory($DISTBASE, $site);
-	     if ($dir != -1) { last;}
-	 }
-	 print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ': dir(', $dir, ')',"\n" if $DEBUG_VERSION_DIR;
-	 ($returnCode, @candidate) = ParseDirectory($dir, $DISTBASE, 0);
-# http://sourceforge.net/projects/mpg123/files
-
-    #http://sourceforge.net/projects/ganglia/files/
- #   }
+# my ($dir) = ();
+# foreach my $site (
+#     @directory_candidate) {
+#     $dir =  VersionedDirectory($DISTBASE, $site);
+#     if ($dir != -1) { last;}
+# }
+# print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ': dir(', $dir, ')',"\n" if $DEBUG_VERSION_DIR;
+#	 ($returnCode, @candidate) = ParseDirectory($dir, $DISTBASE, 0);
     return ($master_site, $returnCode, @candidate);
 }
 sub MonthToDigit ($){
@@ -3154,13 +3183,13 @@ sub VersionedDirectory ($$){
 
     my $w3m_command = 'w3m -T TEXT '. $url;
     my ($name); # cmph- etc
-   print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' w3m_command(', $w3m_command,') <- ', $_ ,"\n" if $DEBUG_VERSION_DIR;
+    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' w3m_command(', $w3m_command,') <- ', $_ ,"\n" if $DEBUG_VERSION_DIR;
     open(W3M, "$w3m_command |") || print STDERR 'problem'."\n";
     while(<W3M>) {
-#	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ', $_;
-	if (/^[\t ]+($distbase{0,1}[-]*)([0-9.]+)[\t ]+/ ) {
-	    $name = $1;
-	    $ver = $2;
+#	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ', $_  if $DEBUG_VERSION_DIR;
+	if (                   /^[\t ]+([0-9.]+)[\t ]+/  ||
+    	     /^[\t ]+$distbase{0,1}[-]*([0-9.]+)[\t ]+/ ) {
+	    $ver = $1;
 	    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ver(', $ver,') <- ', $_ if $DEBUG_VERSION_DIR;
 	    if (CompareVersion($ver, $max_version) > 0) { $max_version = $ver;}
 	}
