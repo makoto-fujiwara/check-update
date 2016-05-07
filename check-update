@@ -7,7 +7,7 @@ use v5.16;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2016-05-07 20:52" ; # written by emacs time-stamp
+$VERSION = "2016-05-07 20:58" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -3192,10 +3192,11 @@ sub VersionedDirectory ($$){
 	    $ver = $1;
 	    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ver(', $ver,') <- ', $_ if $DEBUG_VERSION_DIR;
 	    if (CompareVersion($ver, $max_version) > 0) { $max_version = $ver;}
+	    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' max_ver(', $max_ver,') <- ', $_ if $DEBUG_VERSION_DIR;
 	}
     }
     close(W3M);
-    if ($ver eq '0.0') {return -1;}
+    if ($ver eq '0.0') { return -1;}
 #   ##    my ($subdir);
 #   ##    $w3m_command = 'w3m -dump_source '. $url;
 #    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ', $url,"\n";
@@ -3213,8 +3214,10 @@ sub VersionedDirectory ($$){
 #   ##     close(HTML);
 #   ##     if ($subdir =~ m|^http\.*:://| ) { return $subdir; }
 #   ##     if ($subdir =~ m|^/.*/| )        { return $host.$subdir; }
-#   ##     else                             { return $url.$subdir;}
-    return $url.$name.$ver.'/';
+    #   ##     else                             { return $url.$subdir;}
+    my ($return) = $url.$name.$max_ver.'/';
+    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' return(', $return,') <- ', $_ if $DEBUG_VERSION_DIR;
+    return $return;
 }
 ## ----------------------------------------
 ##         M A I N   R o u t i n e    Main
