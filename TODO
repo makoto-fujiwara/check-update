@@ -1,8 +1,10 @@
 (TODO)
+  - Introduce DISTPATTERN or DISTREGEXP (Regular Expression for DISTBASE + VERSION)
+  - Stablize gnome
   - If VERSION is written in Makefile.common, share it and skip the referer (py-objc-*)
   - Stablize sourceforge (and gnome)
   - Take care github stuff but no release, ex sysutils/rkflashtool
-  -  Develop branch not good to appear in the table (with odd number version)
+  - Develop branch not good to appear in the table (with odd number version or _xx for Perl module)
     perl
     dbus
     gnome stuff
