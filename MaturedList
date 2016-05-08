@@ -6,6 +6,7 @@
 databases/rrdtool12
 devel/p5-Term-ReadLine-Perl
 editors/emacs20
+editors/leim20
 editors/emacs21
 editors/emacs21-nox11
 editors/emacs22
