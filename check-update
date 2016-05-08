@@ -7,7 +7,7 @@ use v5.16;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2016-05-08 13:05" ; # written by emacs time-stamp
+$VERSION = "2016-05-08 14:26" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -2022,46 +2022,35 @@ sub ParseUpperDirectory($$){
 }
 #  --------------------------------------------------------------
 sub GnomeSpecial($$){
-    my($PKGBASE) = shift;
-    my($master_site)  = shift;
-    my($GNOME_FTP_SITE) = 'http://ftp.gnome.org/pub/GNOME/sources/';
+    my($distbase)	= shift;
+    my($master_site)	= shift;
+    my($status, $location);
+    my($returnCode, @candidate);
+    my(@master_site) = split ' ', GetVariableValue ('devel', 'accerciser', 'MASTER_SITE_GNOME');
+    my($dir);
 
-    my(@candidate);
-    my($candidate);
+    foreach my $master_site (@master_site) {
+	my ($url) = $master_site.'sources/'.$distbase. '/';
+	($status, $location) = CheckHeader($url);
+	print STDERR sprintf("%4d ", __LINE__ ), ' <', (caller 0)[3], ':', (caller 0)[2],
+	    ': url (', $url, ') status (', $status, ') location (', $location, ')', "\n" if $DEBUG_GNOME ;
+	print STDERR sprintf("%4d ", __LINE__ ), ' <', (caller 0)[3], ':', (caller 0)[2],
+	    ': *** status *** (', $status, ') location (', $location, ')', "\n" if $DEBUG_GNOME ;
+	if ($location ne ''){ $url = $location; }
 
-    my(@list);
-    my($ver) = '0.0';
-
-    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>:', (caller 0)[2],': package_base (', $PKGBASE,")\n" if $DEBUG_GNOME;
-    my ($retry) = 3;
-    my ($lines) = 0;
-    do {
-    open(CURL, "$curl_list $GNOME_FTP_SITE/$PKGBASE/ 2>&1 |") ||
-      	print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> Problem: ', "$!\n";
-    $lines = 0;
-    while(<CURL>) {
-      	print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], $_ if $DEBUG_GNOME;
-	$lines++;
-	# find directory first,
-	if ( m|<a href=\"([0-9]\.[0-9]*[02468][.0-9]*)/| ) {
-	    $ver = $1;
-	    push(@list, $ver);
-	    if (CompareVersion($ver, $candidate) > 0 ) { $candidate = $ver;}
-	}			   
+	if ($status == 200 ) {
+#	    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2],"\n";
+	    $dir = VersionedDirectory($distbase, $url);
+	    if ($dir == -1) { next;}
+	    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2],
+		': dir(', $dir, ')',"\n" if $DEBUG_GNOME;   ($returnCode, @candidate) = ParseDirectory($dir, $DISTBASE, 0);
+	    if ($returnCode == 200 ) {last;}
+	}
     }
-    close(CURL);
-    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '$lines: ', $lines, '  retry: ', $retry, "\n" if $DEBUG_GNOME;
-    }
-    while ($retry-- > 0 && $lines < $MIN_LINES );
-
-    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>',  $candidate,"\n" if $DEBUG_GNOME;
-
-    # And then find the file in the directory
-    my($site) = $GNOME_FTP_SITE . $PKGBASE .'/'. $candidate ;
-	$ver  = ParseDirectorySmall($site, $PKGBASE, 0);
-    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>',  $ver,"\n" if $DEBUG_SF;
-    $returnCode = 0 ; $candidate[0] = $ver;
-    return ($returnCode, @candidate);
+    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2],
+	': returnCode(', $returnCode, ') @candidate', join ("\n", @candidate), "\n" if $DEBUG_GNOME;
+    ($returnCode, @candidate) = ParseDirectory($dir, $DISTBASE, 0);
+    return($returnCode, @candidate);
 }
 sub SFSubDirectory($$){
     my($DISTBASE) 	= shift;
@@ -3174,9 +3163,10 @@ sub VersionedDirectory ($$){
     print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' w3m_command(', $w3m_command,') <- ', $_ ,"\n" if $DEBUG_VERSION_DIR;
     open(W3M, "$w3m_command |") || print STDERR 'problem'."\n";
     while(<W3M>) {
-#	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ', $_  if $DEBUG_VERSION_DIR;
+	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ', $_  if $DEBUG_VERSION_DIR;
 	if (                   /^([\t ]+)([0-9.]+)[\t ]+/  ||
-			       /^[\t ]+($distbase)*[-]*([0-9.]+)[\t ]+/ ) {
+			       /^[\t ]+($distbase)*[-]*([0-9.]+)[\t ]+/ ||
+			       m|.(DIR).\s+([0-9.]+)/| ) {
 	    $ver = $2;
 	    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ver(', $ver,') <- ', $_ if $DEBUG_VERSION_DIR;
 	    if (CompareVersion($ver, $max_version) > 0) { $max_version = $ver;}
