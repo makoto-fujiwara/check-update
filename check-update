@@ -7,7 +7,7 @@ use v5.16;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2016-05-07 21:07" ; # written by emacs time-stamp
+$VERSION = "2016-05-08 04:01" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -3187,9 +3187,9 @@ sub VersionedDirectory ($$){
     open(W3M, "$w3m_command |") || print STDERR 'problem'."\n";
     while(<W3M>) {
 #	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ', $_  if $DEBUG_VERSION_DIR;
-	if (                   /^[\t ]+([0-9.]+)[\t ]+/  ||
-    	     /^[\t ]+$distbase{0,1}[-]*([0-9.]+)[\t ]+/ ) {
-	    $ver = $1;
+	if (                   /^([\t ]+)([0-9.]+)[\t ]+/  ||
+			       /^[\t ]+($distbase)*[-]*([0-9.]+)[\t ]+/ ) {
+	    $ver = $2;
 	    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ver(', $ver,') <- ', $_ if $DEBUG_VERSION_DIR;
 	    if (CompareVersion($ver, $max_version) > 0) { $max_version = $ver;}
 	    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' max_ver(', $max_version,') <- ', $_ if $DEBUG_VERSION_DIR;
