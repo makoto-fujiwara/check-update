@@ -7,7 +7,7 @@ use v5.16;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2016-05-08 04:01" ; # written by emacs time-stamp
+$VERSION = "2016-05-08 13:05" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -2032,7 +2032,7 @@ sub GnomeSpecial($$){
     my(@list);
     my($ver) = '0.0';
 
-    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> package_base (', $PKGBASE,")\n" if $DEBUG_GNOME;
+    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>:', (caller 0)[2],': package_base (', $PKGBASE,")\n" if $DEBUG_GNOME;
     my ($retry) = 3;
     my ($lines) = 0;
     do {
@@ -3136,18 +3136,6 @@ sub GetSFProjectCandidate($$$) {  # line 2922 to 2979
 	    $master_site = $site;
 	}
 	}
-#     if ($#candidate  < 0 ) {
-#  	($returnCode, @candidate) = SFSubDirectory($DISTBASE, $SF_SITE. 'projects/'. $SFProject. '/files/');
-#	print STDERR sprintf("%4d ", __LINE__ ), ' returns ', $returnCode , ' ncand: ', $#candidate, "\n"  if $DEBUG_SF;
-#     }
-# my ($dir) = ();
-# foreach my $site (
-#     @directory_candidate) {
-#     $dir =  VersionedDirectory($DISTBASE, $site);
-#     if ($dir != -1) { last;}
-# }
-# print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ': dir(', $dir, ')',"\n" if $DEBUG_VERSION_DIR;
-#	 ($returnCode, @candidate) = ParseDirectory($dir, $DISTBASE, 0);
     return ($master_site, $returnCode, @candidate);
 }
 sub MonthToDigit ($){
@@ -3197,24 +3185,6 @@ sub VersionedDirectory ($$){
     }
     close(W3M);
     if ($ver eq '0.0') { return -1;}
-#   ##    my ($subdir);
-#   ##    $w3m_command = 'w3m -dump_source '. $url;
-#    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ', $url,"\n";
-#   ## # getting HTML source again for the same directory to get href
-#   ##     open(HTML,"$w3m_command|")  || print STDERR 'problem'."\n";
-#   ##     while(<HTML>){
-#   ##  print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ', $_;
-#   ## 	if (m|href=\"(.*$ver.*/)\">$ver<|) {
-#   ## #	if (m|href=\"(.*$ver.*)|) {
-#   ## 	    $subdir = $1;
-#   ## 	    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ver(', $ver,') subdir(',$subdir,') <- ', $_;
-#   ##
-#   ## 	}
-#   ##     }
-#   ##     close(HTML);
-#   ##     if ($subdir =~ m|^http\.*:://| ) { return $subdir; }
-#   ##     if ($subdir =~ m|^/.*/| )        { return $host.$subdir; }
-    #   ##     else                             { return $url.$subdir;}
     my ($return) = $url.$name.$max_version.'/';
     print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' return(', $return,')',"\n" if $DEBUG_VERSION_DIR;
     return $return;
