@@ -2,6 +2,7 @@
 
 # the order is important if you make -j 24 etc to speed up
 CATEGORIES?= \
+	sysutils \
 	net \
 	www \
 	x11 \
@@ -37,7 +38,6 @@ CATEGORIES?= \
 	print \
 	security \
 	shells \
-	sysutils \
 	textproc \
 	time \
 	wm \
