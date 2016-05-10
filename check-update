@@ -7,7 +7,7 @@ use v5.16;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2016-05-10 12:01" ; # written by emacs time-stamp
+$VERSION = "2016-05-10 12:30" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -284,6 +284,7 @@ my (%SpecialPattern) = (
 #   'pyobjc-framework-WebKit', '$line =~ s|.*Version ([0-9]\.[0-9.]+).*|$1|;',
     'Mako',		'$line =~ s|.*<p>Current version is <b>([0-9.]+)</b>|$1|;',
     'tnt',		'$line =~ s|.*tnt-[0-9]\.[0-9]+)\.tar*|$1|;',
+    'visualvm_',	'$line =~ s|.*visualvm_([0-9]+)-src\..*|$1|;',
     );
 
 my(%SourceForgeAlternative) = qw (
@@ -454,7 +455,7 @@ my (%DISTBASE_CACHE);   # push(@DISTBASE_CACHE, \[$distbase, $version, $timestam
 
 my (@DontSkipEndingDigit)  = qw (eric4 fltk2);
 # 100 -> 1.0.0 type
-my (@THREE) = qw(gtkglarea falcons-eye quakedata abcde binkd bwwtex cryptopp dirb sr-examples pscpug DatLib DatUtil ROMbuild xzip libdsk libgeotiff ploticus-examples shapelib proj vs mlvwm lwm biew proxytunnel);
+my (@THREE) = qw(gtkglarea falcons-eye quakedata abcde binkd bwwtex cryptopp dirb sr-examples pscpug DatLib DatUtil ROMbuild xzip libdsk libgeotiff ploticus-examples shapelib proj vs mlvwm lwm biew proxytunnel visualvm_);
                                                # vs <- lang/sr-exaples
 # 179w2 -> 1.7.9
 #my (@THREEW) = qw(john); see ThreeSingle
