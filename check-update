@@ -2298,7 +2298,7 @@ sub ParseDirectorySmall($$$){
 # Called 11 times
 #   inside GetSFProjectCandidate( x 6)
 #   main                          x 5
-sub ParseDirectory($$$){   # 2200  to  2421 lines (220 lines
+sub ParseDirectory($$$){   # 2276  to  2502 lines (230 lines
     my ($master_site) = shift;
     my ($distbase)   = shift;
     my ($SimpleFallBack) = shift; 
@@ -2504,8 +2504,7 @@ print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> distbase: ', $distbas
 #	push(@candidate, $version); # for the safefy, push before edit too
 	my($edit_version) = EditVersion($distbase, $version);
 print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> distbase: ', $distbase,' (version) ', $edit_version, "\n" if $DEBUG_EDITVersion;
-#	if ($edit_version =~ /37/ ) {
-# print STDERR sprintf("%4d <", __LINE__), (caller 0)[3],'> (edit_version) ',$edit_version, "\n"; }
+
 	    push(@candidate, "$edit_version");
 #	    $count   =	CountPeriod($version);
 
@@ -2524,7 +2523,7 @@ print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], '
 #  print STDERR sprintf("%4d <", __LINE__), (caller 0)[3],'> (edit_version) ', $c, "\n"; }}
     push(@candidate, "0.0");  # make always candidate 2 or more (?)
     ($returnCode, @candidate);
-}
+}  # end ParseDirectory
 sub PrintHeader($) {
     my ($full_list) = shift;
     my ($update);
