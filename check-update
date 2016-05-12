@@ -157,7 +157,7 @@ my ($update_wip) = 0;		# cvs update before execution
 my ($include_reverse) = 0;	# (r) whether includes confusing entry (default no)
 my ($skip_rubygems_check) = 0;  # (R) skip time consuming check (default -> always check)
 
-my ($output_leaf)	= 'pkgsrc/check-update';
+my ($output_leaf)	= 'pkgsrc/check-update/HEAD';
 my ($output_URL)	= 'http://www.ki.nu/~makoto/';
 my ($output_directory)	= $ENV{'HOME'}.'/public_html/'. $output_leaf;
 
