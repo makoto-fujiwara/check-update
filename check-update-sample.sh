@@ -25,6 +25,7 @@ if [ $FAIL = 1 ] ; then exit; fi
 echo ' *** (2) Updating from git repository'
 
 git pull
+git checkout release
 
 echo ' *** (3) Updating from cvs repository'
 if [ ! -d /tmp/pkgsrc ] ; then
