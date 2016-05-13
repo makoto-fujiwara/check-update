@@ -7,7 +7,7 @@ use v5.16;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2016-05-11 03:59" ; # written by emacs time-stamp
+$VERSION = "2016-05-13 14:08" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -913,12 +913,12 @@ sub ClassifyPackage(@) {
 	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1a) family: ', $p,"\n" if $DEBUG_FAMILY;
 
 	 # (12) rt{,3}
-	}  elsif ($p =~ /(rt)([0-9]*)/) {
-	    my ($pkg)  = $1;
-	    my ($major) = $2;
-	    $FAMILY{$p} = '$version =~ s/.*rt-('. $major.'\.[0-9.]+)\.tar\..*/$1/';
-	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1c) family: ', $p, "\n" if $DEBUG_FAMILY;
-	 # (13) libwnck{,3}
+# 	}  elsif ($p =~ /(rt)([0-9]*)/) {
+# 	    my ($pkg)  = $1;
+# 	    my ($major) = $2;
+# 	    $FAMILY{$p} = '$version =~ s/.*rt-('. $major.'\.[0-9.]+)\.tar\..*/$1/';
+# 	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1c) family: ', $p, "\n" if $DEBUG_FAMILY;
+# 	 # (13) libwnck{,3}
 	}  elsif ($p =~ /(libwnck)([0-9]*)/) {
 	    my ($pkg)  = $1;
 	    my ($major) = $2; 
@@ -1716,7 +1716,7 @@ sub PickFromCandidate(@) {
 	$ver =~ s/with-nspr//;	# 	nss-3.17.3-with-nspr-4.10.7.tar.gz
 	$ver =~ s/\.nspr.*//;	# 	nss-3.17.3-with-nspr-4.10.7.tar.gz
 	$ver =~ s/v([0-9.]*)/$1/; # p5-Test-Compile-v1.2.1
-	$ver =~ s/([0-9])esr/$1/; # FireFox and its family
+#	$ver =~ s/([0-9])esr/$1/; # FireFox and its family
 
 # following line is so harmfull ... potrace-1.1.linux-amd64.tar.gz -> 1.1.64 graphics/potrace
 	$ver =~ s/\.[a-z]{2,}//;	#
