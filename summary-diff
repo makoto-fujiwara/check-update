@@ -5,7 +5,7 @@ use Getopt::Std;
 require Algorithm::Diff;
 
 my($DEBUG) = 0;
-my($directory) = $ENV{'HOME'}. '/public_html/pkgsrc/check-update/';
+my($directory) = $ENV{'HOME'}. '/public_html/pkgsrc/check-update/HEAD/';
 ## ------------------------------------------
 ##             P R O T O T Y P E 
 ## ------------------------------------------
