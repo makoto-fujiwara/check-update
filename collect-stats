@@ -51,8 +51,8 @@ HEAD
 # ------------------------------------------------------------
 #                         M A I N
 # ------------------------------------------------------------
-my($DIR) = $ENV{'HOME'}.'/public_html/pkgsrc/check-update';
-my($URL) = 'http://www.ki.nu/~makoto/pkgsrc/check-update/';
+my($DIR) = $ENV{'HOME'}.'/public_html/pkgsrc/check-update/HEAD';
+my($URL) = 'http://www.ki.nu/~makoto/pkgsrc/check-update/HEAD';
 my($date);
 my(@RAW, @DATE);
 
