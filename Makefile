@@ -1,5 +1,15 @@
 .include "environment.mk"
 
+PKGSRC?=	/usr/pkgsrc
+DIRECTORY?=	${HOME}/public_html/pkgsrc/check-update/HEAD
+URL?=		http://www.ki.nu/~makoto/pkgsrc/check-update/
+
+GIT_WORK?=	/export/git-work/check-update
+CHECK_UPDATE?=	${GIT_WORK}/check-update
+MERGE?=		${GIT_WORK}/merge-check-update
+COLLECT_STATS?=	${GIT_WORK}/collect-stats -u ${URL} -d ${DIRECTORY}
+SUMMARY_DIFF?=	${GIT_WORK}/summary-diff  -u ${URL} -d ${DIRECTORY}
+
 # the order is important if you make -j 24 etc to speed up
 CATEGORIES?= \
 	sysutils \
@@ -43,15 +53,6 @@ CATEGORIES?= \
 	wm \
 
 DEVEL?= devel1 devel2 devel3
-
-PKGSRC?=	/usr/pkgsrc
-
-CHECK_UPDATE?=	/export/git-work/check-update/check-update
-MERGE?=		/export/git-work/check-update/merge-check-update
-COLLECT_STATS?=	/export/git-work/check-update/collect-stats
-SUMMARY_DIFF?=	/export/git-work/check-update/summary-diff
-
-DIRECTORY?=	${HOME}/public_html/pkgsrc/check-update/HEAD
 
 DATE_H!=	env TZ=UTC date +%Y%m%d-%H
 # To allow 'env DATE=20150101-12 make -j 16' for executing beyond date boundary

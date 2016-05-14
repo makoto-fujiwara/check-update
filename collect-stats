@@ -56,7 +56,7 @@ HEAD
 my($DIR);
 my($URL);
 my($date);
-my(@RAW, @DATE);
+my(@RAW);
 
 # collect number
 my(%FOUND);
