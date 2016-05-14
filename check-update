@@ -7,7 +7,7 @@ use v5.16;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2016-05-13 16:31" ; # written by emacs time-stamp
+$VERSION = "2016-05-14 22:50" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -345,6 +345,7 @@ my(%DISTBASE) = qw (
     mit-krb5	krb5
     eagle	eagle-lin32
     bind	bind
+    p7zip	p7zip
     );
    
 my(%DownLoadAlternative) = qw (

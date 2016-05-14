@@ -1,6 +1,8 @@
 #! /usr/pkg/bin/perl
 # The script to generating 00_Summary.html for whole statistics
 use strict;
+use Getopt::Std;
+
 my($DEBUG) = 0;
 
 sub Header($){
@@ -51,8 +53,8 @@ HEAD
 # ------------------------------------------------------------
 #                         M A I N
 # ------------------------------------------------------------
-my($DIR) = $ENV{'HOME'}.'/public_html/pkgsrc/check-update/HEAD';
-my($URL) = 'http://www.ki.nu/~makoto/pkgsrc/check-update/HEAD';
+my($DIR);
+my($URL);
 my($date);
 my(@RAW, @DATE);
 
@@ -68,6 +70,14 @@ my(%ForDiff);
 my($HTML) = $DIR.'/00_Summary.html';
 #   $HTML  = '/tmp/00_summary.html';
 my(%CATEGORY);
+
+our(%opts);
+getopts('d:u:', \%opts);
+if ($opts{'u'}) { $URL = $opts{'u'};}
+else            { $URL = 'http://www.ki.nu/~makoto/pkgsrc/check-update/';}
+
+if ($opts{'d'}) { $DIR = $opts{'d'};}
+else	 	{ $DIR = $ENV{'HOME'}.'/public_html/pkgsrc/check-update';}
 
 # Get dir listing
 opendir(DIR, $DIR) || print "Problem opening directory: $DIR: $!\n";
