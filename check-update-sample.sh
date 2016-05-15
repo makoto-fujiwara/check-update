@@ -25,7 +25,7 @@ if [ $FAIL = 1 ] ; then exit; fi
 echo ' *** (2) Updating from git repository'
 
 git pull
-HASH= `git log --format="%H" -1`
+HASH=`git log --format="%H" -1`
 export HASH
 
 echo ' *** (3) Updating from cvs repository'
