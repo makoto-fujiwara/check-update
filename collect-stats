@@ -67,8 +67,6 @@ my(%NA);	# Not Available
 my(@th);
 my(%ForMerge);
 my(%ForDiff);
-my($HTML) = $DIR.'/00_Summary.html';
-#   $HTML  = '/tmp/00_summary.html';
 my(%CATEGORY);
 
 our(%opts);
@@ -78,6 +76,9 @@ else            { $URL = 'http://www.ki.nu/~makoto/pkgsrc/check-update/';}
 
 if ($opts{'d'}) { $DIR = $opts{'d'};}
 else	 	{ $DIR = $ENV{'HOME'}.'/public_html/pkgsrc/check-update';}
+
+my($HTML) = $DIR.'/00_Summary.html';
+   $HTML  = '/tmp/00_summary.html';
 
 # Get dir listing
 opendir(DIR, $DIR) || print "Problem opening directory: $DIR: $!\n";
