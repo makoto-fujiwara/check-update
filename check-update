@@ -5,7 +5,7 @@ use Net::DNS;	# net/p5-Net-DNS
 use Getopt::Std;
 use v5.16;
 
-# prototype
+# prototype for subroutine called very early stage :-)
 sub GetSystemURL($);
 
 # For emacs setup, see the bottom of this file (or evaluate them)
@@ -98,10 +98,12 @@ my(%LongName)  = (
    'x',  'Curl Cache',
    'X',	 'Explode candidate',
 );
-#foreach my $l (keys %LongName) {
-#    print $l, " -> ", $LongName{$l},"\n";
-#}
-#exit;
+
+# Skip the guide saying "Looking for the latest version ?"
+my (%SkipLookingForGuide) = qw(
+    hamlib  1
+    );
+
 my ($curl_head)		= 'curl -k -I --location --insecure';
 my ($curl_head_secure)	= 'curl -k -I --location --insecure -s';
 my ($curl_list)		= 'curl -k -l --location --insecure --user-agent FireFox';
@@ -3093,7 +3095,7 @@ sub GetSFProjectString($$){
     open(W3M, "$w3m_command |") || print STDERR 'problem'."\n";
     while(<W3M>) {
 #	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ', $_;
-	if (/Looking for the latest version/) {
+	if (/Looking for the latest version/ &&  ! $SkipLookingForGuide{$distbase} ) {
 	    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' (', $distbase,') ',$_ if $DEBUG_VERSION_DIR;
 	    if (/Download $distbase-([0-9.]+)\.t/ ) {
 	    $ver = $1;
