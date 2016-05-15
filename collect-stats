@@ -78,7 +78,7 @@ if ($opts{'d'}) { $DIR = $opts{'d'};}
 else	 	{ $DIR = $ENV{'HOME'}.'/public_html/pkgsrc/check-update';}
 
 my($HTML) = $DIR.'/00_Summary.html';
-   $HTML  = '/tmp/00_summary.html';
+#  $HTML  = '/tmp/00_summary.html';
 
 # Get dir listing
 opendir(DIR, $DIR) || print "Problem opening directory: $DIR: $!\n";
