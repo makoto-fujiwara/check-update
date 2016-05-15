@@ -14,6 +14,7 @@ $VERSION = "2016-05-15 03:38" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 # issue before current directory is changed.
 my ($SystemURL) = GetSystemURL($VERSION);
+
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
 my ($MIN_LINES) = 5;		# retry threshold less than this lines
@@ -2781,7 +2782,7 @@ sub Stats($$){
     print  SUMMARY ' | <a href="./diff/'. $category. $divide_devel . '.html"> diff </a> '
     }
     print  SUMMARY "\n";
-    printf SUMMARY $string2,  'Script Time Stamp/hash:', $VERSION, '(', $SystemURL, ')';
+    printf SUMMARY $string2,  'Script Time Stamp:', $VERSION. ' (hash: '. $SystemURL. ')';
     printf SUMMARY $string2,  'Started:',           $started_string, 'UTC';
     printf SUMMARY $string2,  'Ended:',             $ended, 'UTC';    
     printf SUMMARY $string2,  'Elapsed:',  '           '.$exec_time; # column adjust (indent) to above
