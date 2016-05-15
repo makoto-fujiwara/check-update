@@ -3132,7 +3132,9 @@ sub GetSFProjectCandidate($$$) {  # line 2922 to 2979
 	            'https://sourceforge.net/projects/' .$SFProject . '/files/',
 	            'https://sourceforge.net/projects/' .$SFProject . '/files/'. $subDirectory .'/',
 	            'https://sourceforge.net/projects/' .$SFProject . '/files/'. $SFProject .'/',
+	            'https://sourceforge.net/projects/' .$SFProject . '/files/'. $DISTBASE .'/',
 #                   'https://sourceforge.net/projects/cmusphinx/files/sphinxtrain/1.0.8/
+#		     https://sourceforge.net/projects/libwpd/files/librevenge/librevenge-0.0.4/
 	    'http://download.sourceforge.net/project/'  .$SFProject . '/files/',
 	    'http://download.sourceforge.net/project/'  .$SFProject,
 	    'http://download.sourceforge.net/projects/' .$subDirectory  . '/files/',
@@ -3227,17 +3229,20 @@ sub VersionedDirectory ($$){
 
     my $w3m_command = 'w3m -T TEXT '. $url;
     my ($name); # cmph- etc
-    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' w3m_command(', $w3m_command,') <- ', $_ ,"\n" if $DEBUG_VERSION_DIR;
+    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' w3m_command(', $w3m_command,') <- ', $_ ,"\n" if $DEBUG_VERSION_DIR || $DEBUG_HTTP_HEADER;
     open(W3M, "$w3m_command |") || print STDERR 'problem'."\n";
     while(<W3M>) {
 	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ', $_  if $DEBUG_VERSION_DIR;
 	if (                   /^([\t ]+)([0-9.]+)[\t ]+/  ||
-			       /^[\t ]*($distbase)*[-]*([0-9.]+)[\t ]+/ ||
+			       /^[\t ]*($distbase*[-]*)([0-9.]+)[\t ]+/ ||
 			       m|.(DIR).\s+([0-9.]+)/| ) {
+	    $name = $1; # pick prefix
 	    $ver = $2;
 	    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ver(', $ver,') <- ', $_ if $DEBUG_VERSION_DIR;
 	    if (CompareVersion($ver, $max_version) > 0) { $max_version = $ver;}
 	    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' max_ver(', $max_version,') <- ', $_ if $DEBUG_VERSION_DIR;
+	    if ($name eq 'DIR')		{ $name ='';}  # discard if meaningless converters/librevenge
+	    if ($name =~ /[\t ]+/ )	{ $name ='';}
 	}
     }
     close(W3M);
