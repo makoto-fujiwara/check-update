@@ -7,7 +7,7 @@ use v5.16;
 
 # For emacs setup, see the bottom of this file (or evaluate them)
 my($VERSION);
-$VERSION = "2016-05-14 22:50" ; # written by emacs time-stamp
+$VERSION = "2016-05-15 02:02" ; # written by emacs time-stamp
 $VERSION .= ' UTC';
 my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
@@ -181,9 +181,11 @@ my ($start_time) = time();
 our(%opts);
 # ----------------------------------------
 #      N O   D E V E L O P M E N T 
-# ----------------------------------------
 my (@SkipTooOld) 
     = qw(xview-lib estic zenicb tex2rtf gkermit kermit gturing bridge-hands ccxstream weewm Cg-compiler p5-File-FlockDir autoconf213);
+
+# ----------------------------------------
+#      S i m p l e  P a t t e r n
 
 # Simple means $distbase-([0-9.]+)-(extran string not necessary)..
 my (@SimplePattern)  = qw(gmpc 
@@ -197,6 +199,10 @@ hfsutils gamin Coin klayout ffmpeg macholib modulegraph py2app db
 SOPE cmph zlib
 );
 
+# DISTBASE to pattern
+my (%SEARCH_STRINGS)  = (
+    'txt2man',		'$_ =~ m|$distbase-([0-9.]+).*|; $version = $1;', # no .tar.gz etc suffix
+    );
 # Net-Libdnet is listed to avoid not to pick Net-Libdnet6-0.27 -as 6-0.27
 #my (@Debian) = qw(signing-party);
 
@@ -418,6 +424,7 @@ my(%DownLoadAlternative) = qw (
     py2app	https://bitbucket.org/ronaldoussoren/py2app/downloads#tag
     polib	https://bitbucket.org/izi/polib/downloads
     db		http://www.oracle.com/technetwork/jp/products/berkeleydb/downloads/index-090620-ja.html
+    txt2man	http://mvertes.free.fr/txt2man/Changelog
     ); ##
 
 # for print/xpdf-arabic etc
@@ -2386,12 +2393,15 @@ print STDERR sprintf("%4d ** ", __LINE__ ), '(', $distbase,') ', $FAMILY{$distba
 
 #  ----------------------------------------------------------------
 print STDERR sprintf("%4d ** ", __LINE__ ), '(', $distbase,') $_(', $_,')',"\n" if $DEBUG_EVAL_PATTERN ;
-	if ( grep (/$distbase/, @SimplePattern) || $SimpleFallBack ) {
+	if ( my $pattern = $SEARCH_STRINGS{$distbase} ) {
+	    eval $pattern;
+print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> (', $distbase,') ', $_, '  pattern ( ', $pattern,') -> version(', $version, ")\n" if   ($DEBUG_CURL_LISTING ||  $DEBUG_EVAL_PATTERN || $DEBUG_EVAL_PATTERN );
+	} elsif ( grep (/$distbase/, @SimplePattern) || $SimpleFallBack ) {
 	    $_ =~ /.*$distbase-([0-9.]+[0-9]).*/;	# not to include last '.'
 	    $version = $1;
 	} elsif ( $SpecialPatternY ) {
 	    $version = $_;
-print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', '(SpecialPatternY) ', $SpecialPatternY,"\n" if   ($DEBUG_CURL_LISTING ||  $DEBUG_EVAL_PATTERN || $DEBUG_EVAL_PATTERN );		
+print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', '(SpecialPatternY) ', $SpecialPatternY,"\n" if   ($DEBUG_CURL_LISTING ||  $DEBUG_EVAL_PATTERN || $DEBUG_EVAL_PATTERN );
 	    eval $SpecialPatternY ;
 print STDERR sprintf("%4d ", __LINE__ ), '($version) ', $version, "\n" if   ($DEBUG_CURL_LISTING ||  $DEBUG_EVAL_PATTERN);
 	} elsif ( grep (/$distbase/, keys %SpecialPattern) ||
