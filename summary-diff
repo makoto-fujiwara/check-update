@@ -5,7 +5,7 @@ use Getopt::Std;
 require Algorithm::Diff;
 
 my($DEBUG) = 0;
-my($directory) = $ENV{'HOME'}. '/public_html/pkgsrc/check-update/HEAD/';
+
 ## ------------------------------------------
 ##             P R O T O T Y P E 
 ## ------------------------------------------
@@ -227,6 +227,19 @@ sub WriteDiff_old($$) {
 ## ------------------------------------------
 ##                 M A I N 
 ## ------------------------------------------
+
+my($URL, $DIR);
+
+our(%opts);
+getopts('d:u:', \%opts);
+if ($opts{'u'}) { $URL = $opts{'u'};}
+else            { $URL = 'http://www.ki.nu/~makoto/pkgsrc/check-update/';}
+
+if ($opts{'d'}) { $DIR = $opts{'d'};}
+else            { $DIR = $ENV{'HOME'}.'/public_html/pkgsrc/check-update';}
+
+my($directory) = $DIR;
+
 my($new, $before) = FindRecentTwo($directory);
 print STDERR sprintf("%4d ", __LINE__), 'before: ', $before,"\n" if $DEBUG;
 print STDERR sprintf("%4d ", __LINE__), 'new:    ', $new,"\n" if $DEBUG;
