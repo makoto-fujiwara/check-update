@@ -3236,7 +3236,7 @@ sub VersionedDirectory ($$){
     while(<W3M>) {
 	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ', $_  if $DEBUG_VERSION_DIR;
 	if (                   /^([\t ]+)([0-9.]+)[\t ]+/  ||
-			       /^[\t ]*($distbase*[-]*)([0-9.]+)[\t ]+/ ||
+			       /^[\t ]*($distbase[-]*)([0-9.]+)[\t ]+/ ||
 			       m|.(DIR).\s+([0-9.]+)/| ) {
 	    $name = $1; # pick prefix
 	    $ver = $2;
