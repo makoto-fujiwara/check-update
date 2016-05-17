@@ -15,21 +15,11 @@
     rdiff-backup
     webkit (gnome)
     (Thanks Thomas wiz@)
-  -  biology/cdhit 4.6.4 -> 454 EDITversion does not give any effect (?)
-  -  (done) Avoid to show 1.[odd number].x for sysutils/dbus. It is unstable branch
-  -  recent commit (of last line add (0.0) to @candidate) makes stats worse
-     https://github.com/makoto-fujiwara/check-update/commit/d0acbf881a8c3b3aa25f92ba73fba1b0d91fa94a
-                    2016/01/27   01/28
-          To be updated:  2146 -> 2044
-                     OK:  5385 -> 5246
-     Unable to find ver:   877 ->  906
-  -  recent commit 99fbf0b (2015/12/30) makes stats bad:
-          To be updated:  2349 -> 2206
-                     OK:  5520 -> 5544
-     Unable to find ver:   713 ->  865
-  - (www/opera) seems up to date, but not pick up it.
   - (alpha)  audacious 3.7 is not release, but alpha or beta
   - (99 or 90) may be development version and nice not to list gdt@
+  -  biology/cdhit 4.6.4 -> 454 EDITversion does not give any effect (?)
+  -  (done) Avoid to show 1.[odd number].x for sysutils/dbus. It is unstable branch
+  - (www/opera) seems up to date, but not pick up it.
   - filesystems/fuse-ntfs-3g	fuse-ntfs-3g	2014.2.15 ->0.0	32015.3.14
   - diff links in devel? need to be adjusted
   - misc/goffice0{6,8} maybe on MaturedList (?)
@@ -43,18 +33,6 @@
     (thanks gdt@)
   - sysutils/entr  no list by curl but list by wget (?)
   
-  - sourceforge: sometimes get and sometimes does not get (for example)
-     libghttp             (=) (3167 ) Now:    1.0.9 ->   1.0.9 Todo:       not-to-list
-   (possibility ?)
-  ftp.gnome.org.          809     IN      CNAME   ftp.acc.umu.se.
-  ftp.acc.umu.se.         315     IN      A       130.239.18.163
-  ftp.acc.umu.se.         315     IN      A       130.239.18.165
-  ftp.acc.umu.se.         315     IN      A       130.239.18.173
-
-130.239.18.163  ftp.gnome.org (bad)
-130.239.18.165  ftp.gnome.org (good)
-130.239.18.173  ftp.gnome.org (bad)
-
   - Issue for */*-devel package. Some 53 are listed now
   - sentinel (watch timeout of curl process)
     misc/py-stdnum
