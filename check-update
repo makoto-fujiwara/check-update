@@ -729,6 +729,7 @@ sub CheckRubyGems($){
     while(<PKG_INFO>) {
 	if (/^(.*rubygems-.*[0-9.]+)/ )	{ $gems_package = $1;   $no_rubygems = 0; last;}
 	if (/^ruby22-[a-z]*/ )		{ $gems_name = 'gem22'; $no_rubygems = 0; last;}  # hard code for ruby2.*
+	if (/^ruby23-[a-z]*/ )		{ $gems_name = 'gem23'; $no_rubygems = 0; last;}  # hard code for ruby2.*
 	if (/^ruby2[0-9]*-[a-z]*/ )	{ $gems_name = 'gem';   $no_rubygems = 0; last;}  # hard code for ruby2.*
     }
     close(PKG_INFO);
