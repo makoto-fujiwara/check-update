@@ -116,7 +116,7 @@ sub GetLines($){
    $#Lines   = -1; # make it empty
 #   $limit = 10;
    print STDERR sprintf("%4d ", __LINE__), $name, "\n" if $DEBUG;
-   open(NAME, $name) || print sprintf("%4d ", __LINE__), "Problem opening $name to read $! \n";
+   open(NAME, $name) || print sprintf("%4d ", __LINE__), '<', (caller 0)[2], '> :', (caller 0 )[3], ": Problem opening $name to read $! \n";
     do { 
 #	($name, $version, $buffer) = (GetOneRecord(*NAME));
 			  $buffer  = (GetOneRecord(*NAME));
