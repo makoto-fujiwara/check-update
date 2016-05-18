@@ -477,6 +477,8 @@ my (@DontSkipEndingDigit)  = qw (eric4 fltk2);
 # 100 -> 1.0.0 type
 my (@THREE) = qw(gtkglarea falcons-eye quakedata abcde binkd bwwtex cryptopp dirb sr-examples pscpug DatLib DatUtil ROMbuild xzip libdsk libgeotiff ploticus-examples shapelib proj vs mlvwm lwm biew proxytunnel visualvm_);
                                                # vs <- lang/sr-exaples
+my(@THREECDHIT) = qw (cdhit) ;
+
 # 179w2 -> 1.7.9
 #my (@THREEW) = qw(john); see ThreeSingle
 
@@ -1118,11 +1120,12 @@ sub DistbaseCacheQuery($$) {
 sub EditVersion($$) {
     my ($distbase) = shift;
     my ($version) = shift;
-    if ( ! ($version =~ /[0-9]/    ) ) { return -1;}
+    if ( ! ($version =~ /[0-9]/    ) ) { return -1;} # skip if digit is not included
 #   if ( ! ($version =~ /$distbase.*[0-9]/) ) { return -1;} 
 
-print STDERR "\n", sprintf("%4d ", __LINE__ ), ' (2) ', $distbase, ' --> ', $version,"\n" if $DEBUG_EDITVersion;
+print STDERR "\n", sprintf("%4d ", __LINE__ ), '<', (caller 0) [3],'>:', (caller 0)[2], ': ', $distbase, ' --> ', $version,"\n" if $DEBUG_EDITVersion;
 	if (grep (/^$distbase$/, @THREE)	> 0 ) { $version = Three($version, 3);}
+	if (grep (/^$distbase$/, @THREECDHIT)	> 0 ) { $version = Threecdhit($version);}
 	if (grep (/^$distbase$/, @ZIP)		> 0 )	{ $version = Zip($version, 3);}
 	if (grep (/^$distbase$/, @VER32)	> 0 ) { $version = Three($version, 2);}
 	if (grep (/^$distbase$/, @VER22)	> 0 ) { $version = Two($version);}
@@ -1946,12 +1949,14 @@ sub GitHubSpecial($$$$){
     #   https://github.com/jberger/Mojo-IOLoop-ForkCall/release
     #   https://github.com/jberger/Mojo-IOLoop-ForkCall/releases
 
- foreach  my $target  ("$master_site",
+ foreach  my $target  (
+		       "$master_site"."$GITHUB_PROJECT".'/releases',
+		       "$master_site",
 		       "$master_site"."$GITHUB_PROJECT",
 		       "$master_site"."$distbase",
 		       "$master_site"."$GITHUB_PROJECT".'/archive/',
 		       "$master_site"."$GITHUB_PROJECT".'/releases/tag',
-		       "$master_site"."$GITHUB_PROJECT".'/releases') {
+     ) {
      my ($curl_command) = "$curl_list_secure $target";
         print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> curl_command: ', $curl_command, "\n" if $DEBUG_GITHUB;
     open(CURL,  "$curl_command 2>&1|") ||
@@ -1969,11 +1974,12 @@ sub GitHubSpecial($$$$){
 	    m,data-name=\"v*([0-9.]+)\",||
 	    m,release-([0-9.]+)\",	||   # sysutils/WCMcommander
 	    m,releases/tag/([0-9.]+),	||   # sysutils/erlang-goldrush
+	    m,^V([0-9.]+),		||   # biology/cdhit
 	    0 ) {
 	    $cand = $1;
 	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> ', $cand, ' :: ', $_, "\n" if $DEBUG_GITHUB;
-	    if ($distbase eq 'uhd' ) {  $cand = EditVersion('uhd',$cand); }
-	    if ($distbase eq 'mame' ) {  $cand = EditVersion('mame',$cand); }
+	    if ($distbase eq 'uhd' || $distbase eq 'mame' || $distbase eq 'cdhit'
+		) {  $cand = EditVersion($distbase,$cand); }
 	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> ', $cand, ' :: ', $_, "\n" if $DEBUG_GITHUB;
 	    push(@candidate, $cand);
 	    }
@@ -2855,6 +2861,14 @@ sub Three($$) {
     if ($digit == 2 ) { return $a.'.'.$b.$c;}        
     else              { return $a.'.'.$b.'.'.$c;}
 
+}
+sub Threecdhit($) {
+    my($version) = shift;
+    my($a, $b, $c) = ( 0, 0, 0 );
+    $a = substr($version, 0, 1);
+    $b = substr($version, 1, 1);
+    $c = substr($version, 2, 1);
+    return $a.'.'.$b.'.'.$c;
 }
 sub Two($) {
     my($version) = shift;
