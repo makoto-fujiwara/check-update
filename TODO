@@ -1,4 +1,7 @@
 (TODO)
+  - Mailing to the MAINTAINER
+    Difference is firm (confidnet) and the rereiver wants, mail report
+    on every Friday or on the update (?)
   - Introduce DISTPATTERN or DISTREGEXP (Regular Expression for DISTBASE + VERSION)
   - Stablize gnome
   - If VERSION is written in Makefile.common, share it and skip the referer (py-objc-*)
