@@ -13,6 +13,7 @@ editors/emacs22
 editors/emacs22-nox11
 editors/emacs23
 editors/emacs23-nox11
+editors/mule
 editors/xcoral
 games/gnuchess4
 net/dnsdoctor
