@@ -1025,13 +1025,16 @@ sub ColorUrlDigit($) {
     return $target;
 }
 sub CompareVersion($$){
-    # return 1 if big, 0, if equal, -1 if small.
+    # return 1 if big, 0 if equal, -1 if small.
 
     my ($a) = shift;
     my ($b) = shift;
 
     $a =~ s/pre/\./;
     $b =~ s/pre/\./;
+
+#    if ($a == m|\.99\.| ||
+#        $b == m|\.99\.| ) { return 0 ;}
 
     # get the number of digit split by '.'
     my (@a) = split '\.', $a;
@@ -2534,7 +2537,7 @@ print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> distbase: ', $distbas
 #	push(@candidate, $version); # for the safefy, push before edit too
 	my($edit_version) = EditVersion($distbase, $version);
 print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> distbase: ', $distbase,' (version) ', $edit_version, "\n" if $DEBUG_EDITVersion;
-
+	if ( $edit_version =~ m|\.99\.| ) { next;}  ## .99. is generally developement vesrion, and to be excluded
 	    push(@candidate, "$edit_version");
 #	    $count   =	CountPeriod($version);
 
