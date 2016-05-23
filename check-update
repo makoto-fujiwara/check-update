@@ -101,7 +101,8 @@ my(%LongName)  = (
 
 # Skip the guide saying "Looking for the latest version ?"
 my (%SkipLookingForGuide) = qw(
-    hamlib  1
+    hamlibq	1
+    upx		1
     );
 
 my ($curl_head)		= 'curl -k -I --location --insecure';
@@ -3148,7 +3149,6 @@ sub GetSFProjectCandidate($$$) {  # line 2922 to 2979
     push (@directory_candidate, $directory_candidate);}
     push (@directory_candidate,
 	    'http://download.sourceforge.net/projects/' .$SFProject . '/files/'. $subDirectory .'/',
-	            'https://sourceforge.net/projects/' .$SFProject . '/'      . $subDirectory .'/',
 	            'https://sourceforge.net/projects/' .$SFProject . '/files/',
 	            'https://sourceforge.net/projects/' .$SFProject . '/files/'. $subDirectory .'/',
 	            'https://sourceforge.net/projects/' .$SFProject . '/files/'. $SFProject .'/',
@@ -3159,6 +3159,7 @@ sub GetSFProjectCandidate($$$) {  # line 2922 to 2979
 	    'http://download.sourceforge.net/project/'  .$SFProject,
 	    'http://download.sourceforge.net/projects/' .$subDirectory  . '/files/',
             'http://download.sourceforge.net/projects/' .$SFProject . '/files/',
+	            'https://sourceforge.net/projects/' .$SFProject . '/'      . $subDirectory .'/',
      );
     my ($iteration) = 0;
     foreach my $site (
@@ -3170,13 +3171,13 @@ sub GetSFProjectCandidate($$$) {  # line 2922 to 2979
 	    if ($status == 200 ) {
 	    ($returnCode, @candidate) = ParseDirectory($site, $DISTBASE, 0);
 		 print STDERR sprintf("%4d ", __LINE__ ), 
-		     ' (ParseDir) master_site(', $site, ') status('. $status. ') '. 'candidate('.$#candidate.') -> '. join (' ', @candidate), "\n"  if $DEBUG_SF;
+	     ' (ParseDir) master_site(', $site, ') status('. $status. ') '. 'candidate('.$#candidate.') -> '. join (' ', @candidate), "\n"  if $DEBUG_SF;
 	    }
 	    if ($#candidate > 0 ) { $master_site = $site ;last;}
 	my ($candidate);
 	    if ($status == 200 ) {
 		my ($candidate) = GetSFProjectString($site, $DISTBASE);
-		if ( $candidate != '0.0') {push(@candidate, $candidate); last;}
+		if ( $candidate != '0.0') {push(@candidate, $candidate); }# last;}
 		my ($dir) = VersionedDirectory($DISTBASE, $site);
 		if ($dir == -1) { next;}
 		print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ': dir (', $dir, ')',"\n" if $DEBUG_VERSION_DIR;
