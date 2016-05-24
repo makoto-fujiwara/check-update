@@ -5,7 +5,7 @@ use Net::DNS;	# net/p5-Net-DNS
 use Getopt::Std;
 use v5.16;
 
-# prototype
+# prototype for subroutine called very early stage :-)
 sub GetSystemURL($);
 
 # For emacs setup, see the bottom of this file (or evaluate them)
@@ -98,10 +98,13 @@ my(%LongName)  = (
    'x',  'Curl Cache',
    'X',	 'Explode candidate',
 );
-#foreach my $l (keys %LongName) {
-#    print $l, " -> ", $LongName{$l},"\n";
-#}
-#exit;
+
+# Skip the guide saying "Looking for the latest version ?"
+my (%SkipLookingForGuide) = qw(
+    hamlibq	1
+    upx		1
+    );
+
 my ($curl_head)		= 'curl -k -I --location --insecure';
 my ($curl_head_secure)	= 'curl -k -I --location --insecure -s';
 my ($curl_list)		= 'curl -k -l --location --insecure --user-agent FireFox';
@@ -202,7 +205,7 @@ Net-IPv4Addr Net-IPv6Addr Net-XMPP lzo pen iperf lftp Text-Diff inform
 ocaml
 audacious audacious-plugins WWW-Shorten proj
 hfsutils gamin Coin klayout ffmpeg macholib modulegraph py2app db
-SOPE cmph zlib
+SOPE cmph zlib Math-Pari
 );
 
 # DISTBASE to pattern
@@ -475,6 +478,8 @@ my (@DontSkipEndingDigit)  = qw (eric4 fltk2);
 # 100 -> 1.0.0 type
 my (@THREE) = qw(gtkglarea falcons-eye quakedata abcde binkd bwwtex cryptopp dirb sr-examples pscpug DatLib DatUtil ROMbuild xzip libdsk libgeotiff ploticus-examples shapelib proj vs mlvwm lwm biew proxytunnel visualvm_);
                                                # vs <- lang/sr-exaples
+my(@THREECDHIT) = qw (cdhit) ;
+
 # 179w2 -> 1.7.9
 #my (@THREEW) = qw(john); see ThreeSingle
 
@@ -547,6 +552,8 @@ my (@DOT4) = qw (
     Pod-Eventual
     Dancer-Plugin-Auth-RBAC
 );
+# 2.01080900 -> 2.010809.00
+my (@DOT7) = qw(Math-Pari);
 
 # 20131217 -> 2013.12.17
 my (@DELDOT422) = qw (sqtop ast-ksh);
@@ -727,6 +734,7 @@ sub CheckRubyGems($){
     while(<PKG_INFO>) {
 	if (/^(.*rubygems-.*[0-9.]+)/ )	{ $gems_package = $1;   $no_rubygems = 0; last;}
 	if (/^ruby22-[a-z]*/ )		{ $gems_name = 'gem22'; $no_rubygems = 0; last;}  # hard code for ruby2.*
+	if (/^ruby23-[a-z]*/ )		{ $gems_name = 'gem23'; $no_rubygems = 0; last;}  # hard code for ruby2.*
 	if (/^ruby2[0-9]*-[a-z]*/ )	{ $gems_name = 'gem';   $no_rubygems = 0; last;}  # hard code for ruby2.*
     }
     close(PKG_INFO);
@@ -1020,13 +1028,16 @@ sub ColorUrlDigit($) {
     return $target;
 }
 sub CompareVersion($$){
-    # return 1 if big, 0, if equal, -1 if small.
+    # return 1 if big, 0 if equal, -1 if small.
 
     my ($a) = shift;
     my ($b) = shift;
 
     $a =~ s/pre/\./;
     $b =~ s/pre/\./;
+
+#    if ($a == m|\.99\.| ||
+#        $b == m|\.99\.| ) { return 0 ;}
 
     # get the number of digit split by '.'
     my (@a) = split '\.', $a;
@@ -1115,11 +1126,12 @@ sub DistbaseCacheQuery($$) {
 sub EditVersion($$) {
     my ($distbase) = shift;
     my ($version) = shift;
-    if ( ! ($version =~ /[0-9]/    ) ) { return -1;}
+    if ( ! ($version =~ /[0-9]/    ) ) { return -1;} # skip if digit is not included
 #   if ( ! ($version =~ /$distbase.*[0-9]/) ) { return -1;} 
 
-print STDERR "\n", sprintf("%4d ", __LINE__ ), ' (2) ', $distbase, ' --> ', $version,"\n" if $DEBUG_EDITVersion;
+print STDERR "\n", sprintf("%4d ", __LINE__ ), '<', (caller 0) [3],'>:', (caller 0)[2], ': ', $distbase, ' --> ', $version,"\n" if $DEBUG_EDITVersion;
 	if (grep (/^$distbase$/, @THREE)	> 0 ) { $version = Three($version, 3);}
+	if (grep (/^$distbase$/, @THREECDHIT)	> 0 ) { $version = Threecdhit($version);}
 	if (grep (/^$distbase$/, @ZIP)		> 0 )	{ $version = Zip($version, 3);}
 	if (grep (/^$distbase$/, @VER32)	> 0 ) { $version = Three($version, 2);}
 	if (grep (/^$distbase$/, @VER22)	> 0 ) { $version = Two($version);}
@@ -1129,6 +1141,7 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (3) <', (caller 0)[3] ,'> ', $version
 	if (grep (/^$distbase$/, @DOT32)	> 0 ) { $version = InsertDot2($version, 2,4);}
 	if (grep (/^$distbase$/, @DOT133)	> 0 ) { $version = InsertDot133($version);}
 	if (grep (/^$distbase$/, @DOT4)		> 0 ) { $version = InsertDot($version, 4);}
+	if (grep (/^$distbase$/, @DOT7)		> 0 ) { $version = InsertDot($version, 7);}
 	if (grep (/^$distbase$/, @DOT121)	> 0 ) { $version = InsertDot121($version);}
 	if (grep (/^$distbase$/, @DOT845)	> 0 ) { $version = InsertDot845($version);}
 	if (grep (/^$distbase$/, @DELETEDOT)	> 0 ) { $version = DeleteDot($version, 2);}
@@ -1943,12 +1956,14 @@ sub GitHubSpecial($$$$){
     #   https://github.com/jberger/Mojo-IOLoop-ForkCall/release
     #   https://github.com/jberger/Mojo-IOLoop-ForkCall/releases
 
- foreach  my $target  ("$master_site",
+ foreach  my $target  (
+		       "$master_site"."$GITHUB_PROJECT".'/releases',
+		       "$master_site",
 		       "$master_site"."$GITHUB_PROJECT",
 		       "$master_site"."$distbase",
 		       "$master_site"."$GITHUB_PROJECT".'/archive/',
 		       "$master_site"."$GITHUB_PROJECT".'/releases/tag',
-		       "$master_site"."$GITHUB_PROJECT".'/releases') {
+     ) {
      my ($curl_command) = "$curl_list_secure $target";
         print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> curl_command: ', $curl_command, "\n" if $DEBUG_GITHUB;
     open(CURL,  "$curl_command 2>&1|") ||
@@ -1966,11 +1981,12 @@ sub GitHubSpecial($$$$){
 	    m,data-name=\"v*([0-9.]+)\",||
 	    m,release-([0-9.]+)\",	||   # sysutils/WCMcommander
 	    m,releases/tag/([0-9.]+),	||   # sysutils/erlang-goldrush
+	    m,^V([0-9.]+),		||   # biology/cdhit
 	    0 ) {
 	    $cand = $1;
 	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> ', $cand, ' :: ', $_, "\n" if $DEBUG_GITHUB;
-	    if ($distbase eq 'uhd' ) {  $cand = EditVersion('uhd',$cand); }
-	    if ($distbase eq 'mame' ) {  $cand = EditVersion('mame',$cand); }
+	    if ($distbase eq 'uhd' || $distbase eq 'mame' || $distbase eq 'cdhit'
+		) {  $cand = EditVersion($distbase,$cand); }
 	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> ', $cand, ' :: ', $_, "\n" if $DEBUG_GITHUB;
 	    push(@candidate, $cand);
 	    }
@@ -2525,7 +2541,7 @@ print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> distbase: ', $distbas
 #	push(@candidate, $version); # for the safefy, push before edit too
 	my($edit_version) = EditVersion($distbase, $version);
 print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> distbase: ', $distbase,' (version) ', $edit_version, "\n" if $DEBUG_EDITVersion;
-
+	if ( $edit_version =~ m|\.99\.| ) { next;}  ## .99. is generally developement vesrion, and to be excluded
 	    push(@candidate, "$edit_version");
 #	    $count   =	CountPeriod($version);
 
@@ -2853,6 +2869,14 @@ sub Three($$) {
     else              { return $a.'.'.$b.'.'.$c;}
 
 }
+sub Threecdhit($) {
+    my($version) = shift;
+    my($a, $b, $c) = ( 0, 0, 0 );
+    $a = substr($version, 0, 1);
+    $b = substr($version, 1, 1);
+    $c = substr($version, 2, 1);
+    return $a.'.'.$b.'.'.$c;
+}
 sub Two($) {
     my($version) = shift;
     my($a, $b) = (0, 0);
@@ -3093,7 +3117,7 @@ sub GetSFProjectString($$){
     open(W3M, "$w3m_command |") || print STDERR 'problem'."\n";
     while(<W3M>) {
 #	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ', $_;
-	if (/Looking for the latest version/) {
+	if (/Looking for the latest version/ &&  ! $SkipLookingForGuide{$distbase} ) {
 	    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' (', $distbase,') ',$_ if $DEBUG_VERSION_DIR;
 	    if (/Download $distbase-([0-9.]+)\.t/ ) {
 	    $ver = $1;
@@ -3128,7 +3152,6 @@ sub GetSFProjectCandidate($$$) {  # line 2922 to 2979
     push (@directory_candidate, $directory_candidate);}
     push (@directory_candidate,
 	    'http://download.sourceforge.net/projects/' .$SFProject . '/files/'. $subDirectory .'/',
-	            'https://sourceforge.net/projects/' .$SFProject . '/'      . $subDirectory .'/',
 	            'https://sourceforge.net/projects/' .$SFProject . '/files/',
 	            'https://sourceforge.net/projects/' .$SFProject . '/files/'. $subDirectory .'/',
 	            'https://sourceforge.net/projects/' .$SFProject . '/files/'. $SFProject .'/',
@@ -3139,6 +3162,7 @@ sub GetSFProjectCandidate($$$) {  # line 2922 to 2979
 	    'http://download.sourceforge.net/project/'  .$SFProject,
 	    'http://download.sourceforge.net/projects/' .$subDirectory  . '/files/',
             'http://download.sourceforge.net/projects/' .$SFProject . '/files/',
+	            'https://sourceforge.net/projects/' .$SFProject . '/'      . $subDirectory .'/',
      );
     my ($iteration) = 0;
     foreach my $site (
@@ -3150,13 +3174,13 @@ sub GetSFProjectCandidate($$$) {  # line 2922 to 2979
 	    if ($status == 200 ) {
 	    ($returnCode, @candidate) = ParseDirectory($site, $DISTBASE, 0);
 		 print STDERR sprintf("%4d ", __LINE__ ), 
-		     ' (ParseDir) master_site(', $site, ') status('. $status. ') '. 'candidate('.$#candidate.') -> '. join (' ', @candidate), "\n"  if $DEBUG_SF;
+	     ' (ParseDir) master_site(', $site, ') status('. $status. ') '. 'candidate('.$#candidate.') -> '. join (' ', @candidate), "\n"  if $DEBUG_SF;
 	    }
 	    if ($#candidate > 0 ) { $master_site = $site ;last;}
 	my ($candidate);
 	    if ($status == 200 ) {
 		my ($candidate) = GetSFProjectString($site, $DISTBASE);
-		if ( $candidate != '0.0') {push(@candidate, $candidate); last;}
+		if ( $candidate != '0.0') {push(@candidate, $candidate); }# last;}
 		my ($dir) = VersionedDirectory($DISTBASE, $site);
 		if ($dir == -1) { next;}
 		print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ': dir (', $dir, ')',"\n" if $DEBUG_VERSION_DIR;
