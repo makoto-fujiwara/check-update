@@ -205,7 +205,7 @@ Net-IPv4Addr Net-IPv6Addr Net-XMPP lzo pen iperf lftp Text-Diff inform
 ocaml
 audacious audacious-plugins WWW-Shorten proj
 hfsutils gamin Coin klayout ffmpeg macholib modulegraph py2app db
-SOPE cmph zlib
+SOPE cmph zlib Math-Pari
 );
 
 # DISTBASE to pattern
@@ -552,6 +552,8 @@ my (@DOT4) = qw (
     Pod-Eventual
     Dancer-Plugin-Auth-RBAC
 );
+# 2.01080900 -> 2.010809.00
+my (@DOT7) = qw(Math-Pari);
 
 # 20131217 -> 2013.12.17
 my (@DELDOT422) = qw (sqtop ast-ksh);
@@ -1139,6 +1141,7 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (3) <', (caller 0)[3] ,'> ', $version
 	if (grep (/^$distbase$/, @DOT32)	> 0 ) { $version = InsertDot2($version, 2,4);}
 	if (grep (/^$distbase$/, @DOT133)	> 0 ) { $version = InsertDot133($version);}
 	if (grep (/^$distbase$/, @DOT4)		> 0 ) { $version = InsertDot($version, 4);}
+	if (grep (/^$distbase$/, @DOT7)		> 0 ) { $version = InsertDot($version, 7);}
 	if (grep (/^$distbase$/, @DOT121)	> 0 ) { $version = InsertDot121($version);}
 	if (grep (/^$distbase$/, @DOT845)	> 0 ) { $version = InsertDot845($version);}
 	if (grep (/^$distbase$/, @DELETEDOT)	> 0 ) { $version = DeleteDot($version, 2);}
