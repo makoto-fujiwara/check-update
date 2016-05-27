@@ -362,6 +362,7 @@ my(%DISTBASE) = qw (
     eagle	eagle-lin32
     bind	bind
     p7zip	p7zip
+    boa-constructor	boa-constructor
     );
    
 my(%DownLoadAlternative) = qw (
