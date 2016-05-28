@@ -64,6 +64,7 @@ my ($DEBUG_REDIRECT);
 my ($DEBUG_RUBYGEM);
 my ($DEBUG_SF);
 my ($DEBUG_SPECIAL_PATTERN);
+my ($DEBUG_SIMPLE_PATTERN);
 my ($DEBUG_STATS);
 my ($DEBUG_URL);
 my ($DEBUG_VER_PATTERN) = 0;
@@ -89,6 +90,7 @@ my(%LongName)  = (
    'm',	 'MASTER_SITES_LISTING',
    'n',  'CountNumber (not implemented yet)',
    'p',  'Special Pattern',
+   'P',	 'Simple Pattern',
    'r',  'RubyGems',
    'R',  'Redirect',
    's',  'SourceForge',
@@ -205,7 +207,7 @@ Net-IPv4Addr Net-IPv6Addr Net-XMPP lzo pen iperf lftp Text-Diff inform
 ocaml
 audacious audacious-plugins WWW-Shorten proj
 hfsutils gamin Coin klayout ffmpeg macholib modulegraph py2app db
-SOPE cmph zlib Math-Pari Event
+SOPE cmph zlib Math-Pari Event clamav
 );
 
 # DISTBASE to pattern
@@ -439,6 +441,7 @@ my(%DownLoadAlternative) = qw (
     db		http://www.oracle.com/technetwork/jp/products/berkeleydb/downloads/index-090620-ja.html
     txt2man	http://mvertes.free.fr/txt2man/Changelog
     dotfile	http://www.blackie.dk/dotfile/index.html
+    clamav	http://www.clamav.net/downloads
     ); ##
 
 # for print/xpdf-arabic etc
@@ -2238,7 +2241,7 @@ print STDERR sprintf("%4d ", __LINE__ ).' location: ', $location,"\n" if  $DEBUG
 sub ParseDebug($){
     my ($pattern) = shift;
     my %DEBUG;
-    my $char_list = 'aAcCdDEegFfGhlmnprRsSVxX';
+    my $char_list = 'aAcCdDEegFfGhlmnpPrRsSVxX';
 
     if ( $pattern =~ /a/ ) { $pattern = $char_list  }
     print STDERR sprintf("%4d ", __LINE__ ), ' DEBUG pattern (',  $pattern,  ')',"\n";
@@ -2268,6 +2271,7 @@ sub ParseDebug($){
     $DEBUG_HTTP_HEADER		= $DEBUG{'h'} + $DEBUG{'a'} ;
     $DEBUG_MASTER_SITES_LISTING = $DEBUG{'m'} + $DEBUG{'a'} ;
     $DEBUG_SPECIAL_PATTERN	= $DEBUG{'p'} + $DEBUG{'a'} ;
+    $DEBUG_SIMPLE_PATTERN	= $DEBUG{'P'} + $DEBUG{'a'} ;
     $DEBUG_RUBYGEM		= $DEBUG{'r'} + $DEBUG{'a'} ;
     $DEBUG_REDIRECT		= $DEBUG{'R'} + $DEBUG{'a'} ;
     $DEBUG_SF			= $DEBUG{'s'} + $DEBUG{'a'} ;
@@ -2426,6 +2430,8 @@ print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> (', $distbase,')
 	} elsif ( grep (/$distbase/, @SimplePattern) || $SimpleFallBack ) {
 	    $_ =~ /.*$distbase-([0-9.]+[0-9]).*/;	# not to include last '.'
 	    $version = $1;
+print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', 'distbase (', $distbase, ') version (', $version, ') ',$_,"\n" if   ($DEBUG_SIMPLE_PATTERN );
+	    push(@candidate, $version);
 	} elsif ( $SpecialPatternY ) {
 	    $version = $_;
 print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', '(SpecialPatternY) ', $SpecialPatternY,"\n" if   ($DEBUG_CURL_LISTING ||  $DEBUG_EVAL_PATTERN || $DEBUG_EVAL_PATTERN );
@@ -2522,6 +2528,8 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (3) ', $distbase, ' --> ', $version,"
 	    }
 	} # line 2133, elsif (/(.*\b)$distbase([013-9_.-][0-9a-z_.-]+)\.(gz|bz2|zip|xz|7z|tgz|tbz|tar|Z)/ ||
 
+print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', 'distbase (', $distbase, ') version (', $version, ') ',$_,"\n" if   ($DEBUG_SIMPLE_PATTERN );
+
 	if ($version =~ m|[0-9.]+pre[0-9]| ) { next;}
 	if ($version =~ m|[0-9.]+beta| ) { next;}
 	if ($version eq '') { next;}
@@ -2537,6 +2545,7 @@ print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> (distbase) ', $distba
 
 print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> distbase: ', $distbase,' (version) ', $version, "\n" if $DEBUG_EDITVersion;
 
+print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', 'distbase (', $distbase, ') version (', $version, ') ',$_,"\n" if   ($DEBUG_SIMPLE_PATTERN );	
 	if ($version eq '') { next;}
 	if ( ! ($version =~ /[0-9]/ )) { next; } # need at least one digit
 	# 552 -> 5.5.2, 2.1.3 -> 213 (nkf) etc
