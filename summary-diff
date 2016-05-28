@@ -4,7 +4,7 @@ use 5.012; # so readdir assigns to $_ in a lone while test (See perldoc -f readd
 use Getopt::Std;
 require Algorithm::Diff;
 
-# example when you need manujally invocation
+# example when you need manually invocation
 # trailing slash after HEAD is important
 # h97@makoto 12:53:06/160519(..git-work/check-update)% (cd ~/public_html/pkgsrc/check-update/HEAD; perl /export/git-work/check-update/summary-diff -d ~/public_html/pkgsrc/check-update/HEAD/  -u  http://www.ki.nu/~makoto/pkgsrc/check-update/HEAD/ )
 
