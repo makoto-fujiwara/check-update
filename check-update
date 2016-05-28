@@ -225,10 +225,8 @@ my (%SpecialPattern) = (
 #   Next line is SimplePattern equivalent
 #   'crack-attack',	'$line =~ s/.*$distbase-([0-9.]+).*/$1/ ;',
     'amavisd',		'$line =~ s/.*$distbase-([0-9.]+\.[0-9]+\.[0-9]+)/$1/ ;',
-    
 #                                    '$distbase' here doesn't make it
 #                                     v
-    'signing-party',	'$line =~ s/.*signing-party_([0-9.]+)-.*/$1/ ;',
     'Cython',		'{$line =~ m|.*$distbase-([0-9]\.[0-9]+\.[0-9])|; $line = $1 ;}',
 #    'NovaWM', 	        '$line =~ s/.*$distbase-([0-9.]+).*/$1/ ;', #   -0.8.1_alpha.tar.bz2 (716.3 kB)
 #    'sign',		'$line =~ s/The latest version is ([0-9.]+),/$1/ ;', #  security/sign  1-bit ui</a><br --> 
@@ -264,6 +262,8 @@ my (%SpecialPattern) = (
     'Botan',		'$line =~ s|.*Botan-([0-9]+\.[0-9]*[02468]\.[0-9]+)\.t.*|$1|;',
     'dbus',		'$line =~ s|.*dbus-([0-9]+\.[0-9]*[02468]\.[0-9]+)\.tar.*|$1|;',
     'cairo',		'$line =~ s|.*cairo-([0-9]+\.[0-9]*[02468]\.[0-9]+)\.tar.*|$1|;',
+# caff
+    'signing-party',	'$line =~ s|.*signing-party_([0-9.]+)\.orig.*|$1|;',
     'gst-plugins-ugly', '$line =~ s|.*gst-plugins-ugly-([0-9]+\.[0-9]*[02468]\.[0-9]+)\.tar.*|$1|;',
     'gst-plugins-base', '$line =~ s|.*gst-plugins-base-([0-9]+\.[0-9]*[02468]\.[0-9]+)\.tar.*|$1|;',
     'gst-plugins-bad',  '$line =~ s|.*gst-plugins-bad-([0-9]+\.[0-9]*[02468]\.[0-9]+)\.tar.*|$1|;',
@@ -364,6 +364,7 @@ my(%DISTBASE) = qw (
     bind	bind
     p7zip	p7zip
     boa-constructor	boa-constructor
+    caff	signing-party
     );
    
 my(%DownLoadAlternative) = qw (
@@ -463,7 +464,7 @@ my (%MonthToDigit) = qw (
 sub SpecialPattern($$){
     my($distbase) = shift;
     my($line) = shift;
-    print STDERR sprintf("%4d ", __LINE__ ), ' ', $line, ' --> Pattern ', $SpecialPattern{$distbase}, "\n" if $DEBUG_EVAL_PATTERN ;
+    print STDERR sprintf("%4d ", __LINE__ ), ' ', $line, ' --> Pattern --> ', $SpecialPattern{$distbase}, "\n" if $DEBUG_EVAL_PATTERN ;
     eval $SpecialPattern{$distbase} ;
     print STDERR sprintf("%4d ", __LINE__ ), ' === >', ' (', $line,")\n" if $DEBUG_EVAL_PATTERN ;
     # not to return garbage
@@ -2435,6 +2436,7 @@ print STDERR sprintf("%4d ", __LINE__ ), '($version) ', $version, "\n" if   ($DE
 	    print STDERR sprintf("%4d ", __LINE__ ), '(', $distbase,') ', $_,"\n" if $DEBUG_EVAL_PATTERN;
 	    #  E V A L U A T E SpecialPattern
 	    $version = SpecialPattern($distbase, $_);
+	    print STDERR sprintf("%4d ", __LINE__ ), '(', $distbase,') ', $_,'--> ', $version,"\n" if $DEBUG_EVAL_PATTERN;
 	} elsif ( $distbase eq 'Unicode-Map' && 
 		$_ =~ /Unicode-Map8(.*)/ ) { 
 print STDERR sprintf("%4d ", __LINE__ ), ' (1a)', $distbase, ' --> ', $version,"\n" if $DEBUG_DISTBASE;
