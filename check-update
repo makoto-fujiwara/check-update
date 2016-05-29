@@ -306,6 +306,7 @@ my (%SpecialPattern) = (
     'visualvm_',	'$line =~ s|.*visualvm_([0-9]+)-src\..*|$1|;',
 # 	                              pixmap_0.4-11.tar.gz
 #    'pixmap',		'$line =~ s|.*pixmap_([0-9._]+)\.tar\..*|$1|; $line =~ s|_||;',
+    'aalib',		'$line =~ s|.*aalib-([0-9._rc]+)\.tar\..*|$1|; $line =~ s|rc|.0.|;',
     );
 
 my(%SourceForgeAlternative) = qw (
