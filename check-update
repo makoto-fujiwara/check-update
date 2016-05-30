@@ -199,6 +199,7 @@ my (@SkipTooOld)
 #      S i m p l e  P a t t e r n
 
 # Simple means $distbase-([0-9.]+)-(extran string not necessary)..
+my ($SimplePattern); # dynamically set to 1 if @SimplePattern equivalent
 my (@SimplePattern)  = qw(gmpc 
 renpy crimson crack-attack hands flags autotrace simulavr hal 
 sign parchive cabextract celt auctex ntp mercury-srcdist Net-Libdnet
@@ -207,7 +208,7 @@ Net-IPv4Addr Net-IPv6Addr Net-XMPP lzo pen iperf lftp Text-Diff inform
 ocaml
 audacious audacious-plugins WWW-Shorten proj
 hfsutils gamin Coin klayout ffmpeg macholib modulegraph py2app db
-SOPE cmph zlib Math-Pari Event clamav
+SOPE cmph zlib Math-Pari Event clamav lout
 );
 
 # DISTBASE to pattern
@@ -1210,13 +1211,13 @@ sub GetDistBaseAdjust($$$) {
 	return $distbase;
 }
 
-sub GetDistBaseSimple($$){
+sub GetDistBaseSimple($$){	# <- GetDistBase
     my ($pkgname)	= shift;
     my ($distname)	= shift;
 
     my (@partial) = split('-', $pkgname);
-    if ($#partial != 1 ) { return '';}
-    $pkgname =~ s|-$partial[1]||;
+    if ($#partial != 1 ) { return '';}	# only in case with two parts to go further
+    $pkgname =~ s|-$partial[1]||;	# Is it identical to = $partial[0] ?
     if ($distname =~ /$pkgname/ ) {
 	print STDERR sprintf("%4d ", __LINE__ ), '(distname) ', $distname,
 ' (pkgname) ', $pkgname, "\n" if $DEBUG_DISTBASE;
@@ -1437,8 +1438,12 @@ print STDERR sprintf("%4d ", __LINE__ ),
     if ($testA.'-'.$VERSION_CANDIDATE eq $PKGNAME ) {
 	print STDERR sprintf("%4d ", __LINE__ ), '(DISTBASE) ', $PKGBASE,"\n" if $DEBUG_DISTBASE;
 	return $PKGBASE;}
-
-    my ($thisreturn) =  GetDistBasePythonModule($PKGBASE, $PKGNAME, $DISTBASE);
+    my ($thisreturn) = GetDistBaseSimple($PKGNAME, $DISTBASE);
+    print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], '> ',"\n" if $DEBUG_DISTBASE;
+    if ($thisreturn) { 
+	print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], '> ',"SimplePattern\n" if $DEBUG_SIMPLE_PATTERN;
+	$SimplePattern = 1; return $thisreturn; }
+        $thisreturn =  GetDistBasePythonModule($PKGBASE, $PKGNAME, $DISTBASE);
     if ($thisreturn) { return $thisreturn; }
 print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], '> ',"\n" if $DEBUG_DISTBASE;
 
@@ -1487,8 +1492,7 @@ print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], '> ',"\n" if $DEBUG_
     #      0-2. if (-) is onlye one in PKGNAME, remove - and after
     #      if resultant string in DISTNAME, take it as DISTBASE
     #  --------------------------------------
-    $thisreturn = GetDistBaseSimple($PKGNAME, $DISTBASE);
-    if ($thisreturn) { return $thisreturn; }
+
 print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], '> ',"\n" if $DEBUG_DISTBASE;
 
     # (distname) ast-ksh-2012-08-01 -> (pkgname) ast-ksh-20120801
@@ -2428,7 +2432,7 @@ print STDERR sprintf("%4d ** ", __LINE__ ), '(', $distbase,') $_(', $_,')',"\n" 
 	if ( my $pattern = $SEARCH_STRINGS{$distbase} ) {
 	    eval $pattern;
 print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> (', $distbase,') ', $_, '  pattern ( ', $pattern,') -> version(', $version, ")\n" if   ($DEBUG_CURL_LISTING ||  $DEBUG_EVAL_PATTERN );
-	} elsif ( grep (/$distbase/, @SimplePattern) || $SimpleFallBack ) {
+	} elsif ( grep (/$distbase/, @SimplePattern) || $SimplePattern || $SimpleFallBack ) {
 	    $_ =~ /.*$distbase-([0-9.]+[0-9]).*/;	# not to include last '.'
 	    $version = $1;
 print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', 'distbase (', $distbase, ') version (', $version, ') ',$_,"\n" if   ($DEBUG_SIMPLE_PATTERN );
@@ -2529,7 +2533,7 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (3) ', $distbase, ' --> ', $version,"
 	    }
 	} # line 2133, elsif (/(.*\b)$distbase([013-9_.-][0-9a-z_.-]+)\.(gz|bz2|zip|xz|7z|tgz|tbz|tar|Z)/ ||
 
-print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', 'distbase (', $distbase, ') version (', $version, ') ',$_,"\n" if   ($DEBUG_SIMPLE_PATTERN );
+print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', 'distbase (', $distbase, ') version (', $version, ') ',$_,"\n" if $DEBUG_SIMPLE_PATTERN ;
 
 	if ($version =~ m|[0-9.]+pre[0-9]| ) { next;}
 	if ($version =~ m|[0-9.]+beta| ) { next;}
