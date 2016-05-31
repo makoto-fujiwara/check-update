@@ -268,6 +268,8 @@ my (%SpecialPattern) = (
     'gst-plugins-base', '$line =~ s|.*gst-plugins-base-([0-9]+\.[0-9]*[02468]\.[0-9]+)\.tar.*|$1|;',
     'gst-plugins-bad',  '$line =~ s|.*gst-plugins-bad-([0-9]+\.[0-9]*[02468]\.[0-9]+)\.tar.*|$1|;',
     'gst-plugins-good', '$line =~ s|.*gst-plugins-good-([0-9]+\.[0-9]*[02468]\.[0-9]+)\.tar.*|$1|;',
+# avoid to include underscore(_)
+    'Event-RPC',	'$line =~ s|.*Event-RPC-([0-9.]+)([0-9_]*)\.tar.*|$1|;',
 # following line doesn't work yet, github ignores this line ?
     'liferea',		'$line =~          s|.*liferea-([0-9]+\.[0-9]*[02468]\.[0-9]+)\.tar.*|$1|;',
     'gnu-crypto-bin',	'$line =~ s|.*gnu-crypto-([0-9.]+)-bin\.tar.*|$1|;',
