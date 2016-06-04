@@ -310,6 +310,8 @@ my (%SpecialPattern) = (
 # 	                              pixmap_0.4-11.tar.gz
 #    'pixmap',		'$line =~ s|.*pixmap_([0-9._]+)\.tar\..*|$1|; $line =~ s|_||;',
     'aalib',		'$line =~ s|.*aalib-([0-9._rc]+)\.tar\..*|$1|; $line =~ s|rc|.0.|;',
+# not to pick alpha version
+    'pdns',		'$line =~ s|.*pdns-([0-9.]+)\.tar\..*|$1|;',
     );
 
 my(%SourceForgeAlternative) = qw (
@@ -894,6 +896,17 @@ sub ClassifyPackage(@) {
 		$FAMILY{$p} = '$version =~ s/.*'.$pkg.'-(1\.[0-9.]+)\.tar.*/$1/';
 	    }
 	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1c) family: ', $p, "\n" if $DEBUG_FAMILY;
+#	# (4-2) gdb{,5,6}
+#	}  elsif ($p =~ /^(gdb)([0-9]*)$/) { # don't include cdb, gdbus-codegen
+#	    my ($pkg)  = $1;
+#	    my ($major) = $2;
+#	    if ($major ne '') {
+#		$FAMILY{$p} = '$version =~ s/.*'.$pkg.'-('.$major.'\.[0-9.]+)\.tar\..*/$1/;'; }
+#	    else {
+#		$FAMILY{$p} = '$version =~ s/.*'.$pkg.'-(7\.[0-9.]+)\.tar\..*/$1/;';
+#	    }
+#	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1c) family: ', $p,' -> ',
+#		$FAMILY{$p}, "\n" if $DEBUG_FAMILY;
 	# (5) libdmapsharing{,3}
 	}  elsif ($p =~ /(libdmapsharing)([0-9]*)/) {
 	    my ($pkg)  = $1;
