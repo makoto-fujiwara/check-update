@@ -3194,6 +3194,10 @@ sub GetSFProjectCandidate($$$) {  # line 2922 to 2979
             'http://download.sourceforge.net/projects/' .$SFProject . '/files/',
 	            'https://sourceforge.net/projects/' .$SFProject . '/'      . $subDirectory .'/',
      );
+#  qore-sqlite3-module -> files/module-sqlite3/
+    if ( $dist_name =~ /qore-sqlite3-module/ ) {
+	unshift(@directory_candidate, 'https://sourceforge.net/projects/qore/files/module-sqlite3/');
+    }
     my ($iteration) = 0;
     foreach my $site (
 	@directory_candidate) {
@@ -3215,7 +3219,7 @@ sub GetSFProjectCandidate($$$) {  # line 2922 to 2979
 		if ($dir == -1) { next;}
 		print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ': dir (', $dir, ')',"\n" if $DEBUG_VERSION_DIR;
 #		my (@can);
-		if ( $dir =~ m|\/[0-9.]+)$| ) { $dir =~s|$1||; }
+		if ( $dir =~ m|\/([0-9.]+)$| ) { $dir =~ s|$1||; }
 		($returnCode, @candidate) = ParseDirectory($dir, $DISTBASE, 0);
 #		push(@candidate, @can);  # not overwrite but add
 #		if ($returnCode == -1) {
@@ -3295,7 +3299,7 @@ sub VersionedDirectory ($$){
 	    $ver = $2;
 	    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ver(', $ver,') <- ', $_ if $DEBUG_VERSION_DIR;
 	    if (CompareVersion($ver, $max_version) > 0) { $max_version = $ver;}
-	    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' max_ver(', $max_version,') <- ', $_ if $DEBUG_VERSION_DIR;
+	    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' max_ver(', $max_version,') <- ', $_ if $DEBUG_VERSION_DIR || $DEBUG_URL;
 	    if ($name eq 'DIR')		{ $name ='';}  # discard if meaningless converters/librevenge
 	    if ($name =~ /[\t ]+/ )	{ $name ='';}
 	}
