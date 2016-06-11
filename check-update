@@ -2368,7 +2368,7 @@ sub ParseDirectory($$$){   # 2276  to  2502 lines (230 lines
     my ($version);
     if ($master_site eq '')	{ print STDERR sprintf("%4d ", __LINE__ ), ' $master_site is empty ',	 "\n"; return -1;}
     if ($master_site eq 'DNS')	{ print STDERR sprintf("%4d ", __LINE__ ), ' ',$distbase,' has DNS problem',"\n"; return -1;}
-    print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[3], '> ', $master_site, "   \n" if  ($DEBUG_URL || $DEBUG_MASTER_SITES_LISTING);
+    print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[3], '> :', (caller 0)[2], ': ', $master_site, "   \n" if  ($DEBUG_URL || $DEBUG_MASTER_SITES_LISTING);
     my($curl_lines) = 0; # count how many lines came from curl -l
     my($repeat) = 3 ;
     my($sslv3) = '';
@@ -3553,6 +3553,8 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	else {($HomePageStat, $location) = CheckHeader($HOMEPAGE); }
 	
     $PKGBASE	= GetVariableValue ($dir, $PackageName, 'PKGBASE');
+	@MASTER_SITES = ();	# empty out, ruby gems won't have this value assigned.
+	$URL = '';
 	#  ----------------------------------------------------------------
     if ($TEXLIVE) { $StatTEXLIVE++; next;} # skip texlive for the moment
     # GEM_PACKAGE and %FAMILY
