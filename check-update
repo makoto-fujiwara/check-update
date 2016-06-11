@@ -95,7 +95,7 @@ my(%LongName)  = (
    'R',  'Redirect',
    's',  'SourceForge',
    'S',  'Stats number',
-   'u',  'URL',
+   'U',  'URL',
    'V',  'Versioned Sub Directory',
    'x',  'Curl Cache',
    'X',	 'Explode candidate',
@@ -1788,6 +1788,7 @@ sub GetMasterSiteCandidate($$$) {
     my($DISTBASE) = shift;    
     my($pkgdir) = $category.'/'.$PackageName;
     my($MASTER_SITE) = GetVariableValue($category, $PackageName, 'MASTER_SITES');
+	    print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[3], '> :', (caller)[2], ': MASTER_SITE (', $MASTER_SITE, ")\n" if $DEBUG_URL;
     my (@MASTER_SITES) = split (' ', $MASTER_SITE);
 #    foreach my $site (@MASTER_SITES) {
 #	$site =~ s|old/$||;	# ham/xsane -> www.xsane.org/download/old/ (but it is fixed now).
@@ -2258,7 +2259,7 @@ print STDERR sprintf("%4d ", __LINE__ ).' location: ', $location,"\n" if  $DEBUG
 sub ParseDebug($){
     my ($pattern) = shift;
     my %DEBUG;
-    my $char_list = 'aAcCdDEegFfGhlmnpPrRsSVxX';
+    my $char_list = 'aAcCdDEegFfGhlmnpPrRsSUVxX';
 
     if ( $pattern =~ /a/ ) { $pattern = $char_list  }
     print STDERR sprintf("%4d ", __LINE__ ), ' DEBUG pattern (',  $pattern,  ')',"\n";
@@ -2293,7 +2294,7 @@ sub ParseDebug($){
     $DEBUG_REDIRECT		= $DEBUG{'R'} + $DEBUG{'a'} ;
     $DEBUG_SF			= $DEBUG{'s'} + $DEBUG{'a'} ;
     $DEBUG_STATS		= $DEBUG{'S'} + $DEBUG{'a'} ;
-    $DEBUG_URL			= $DEBUG{'u'} + $DEBUG{'a'} ;
+    $DEBUG_URL			= $DEBUG{'U'} + $DEBUG{'a'} ;
     $DEBUG_VERSION_DIR		= $DEBUG{'V'} + $DEBUG{'a'} ;
     print STDERR "\n";
 }
@@ -3578,13 +3579,18 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	$DISTBASE	= GetDistBase($dir, $PackageName, $PKGBASE, $PKGVERSION, $PKGNAME);
 print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> (DISTBASE) ', $DISTBASE, "\n" if $DEBUG_DISTBASE;
 	if ($DISTBASE =~ /.*-$/ ) { $DISTBASE =~ s/-$//;}  # aspell6-ca- -> aspell6-ca # 20150411
-	$META_PACKAGE	= GetVariableValue ($dir, $PackageName, 'META_PACKAGE');
-	if ($META_PACKAGE =~ /yes/i) { $MetaPackage++; next;}
+	    print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[2], '> (PackageName) ', $PackageName, ' URL(', join ("\n", @MASTER_SITES), ")\n" if $DEBUG_URL;
 
-	@MASTER_SITES	= GetMasterSiteCandidate($dir, $PackageName, $DISTBASE);
+	$META_PACKAGE	= GetVariableValue ($dir, $PackageName, 'META_PACKAGE');
+	    print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[2], '> (PackageName) ', $PackageName, ' URL(', join ("\n", @MASTER_SITES), ")\n" if $DEBUG_URL;
+
+	if ($META_PACKAGE =~ /yes/i) { $MetaPackage++; next;}
+	@MASTER_SITES	= GetMasterSiteCandidate($dir, $PackageName, $DISTBASE); # only invocation to
+	    print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[2], '> (PackageName) ', $PackageName, ' URL(', join ("\n", @MASTER_SITES), ")\n" if $DEBUG_URL;
 	$MASTER_SITE = $MASTER_SITES[0];  # XXXXXXXXXXXXXX
 
 	$URL =  $MASTER_SITE;
+	    print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[2], '> (PackageName) ', $PackageName, ' URL(', $URL, ")\n" if $DEBUG_URL;
 	$URL =~ s/ .*//;	# Pick the very first word
 	chomp($URL);
 	if ( my ($p) = $FAMILY{$PackageName} ) {
@@ -3600,6 +3606,7 @@ print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> (DISTBASE) ', $D
 	if ($SFProject && $SFProject != -1 ) {			# MAJOR_IF_THEN_ELSE (1)
 	    my($returnCode);
 	    ($URL, $returnCode, @candidate) = GetSFProjectCandidate($SFProject, $DISTBASE, $dist_name);
+	    print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[2], '> (PackageName) ', $PackageName, ' URL(', $URL, ")\n" if $DEBUG_URL;
 	    if ($returnCode == 0 ) { $returnCode = '200';}; # 0 is good news = 200
  print STDERR sprintf("%4d ", __LINE__ ),
 ' (PKGBASE) ', $PKGBASE, 'URL: ', $URL, ' returnCode (', $returnCode, ")\n" if $DEBUG_SF;
@@ -3779,7 +3786,9 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	print STDERR sprintf("%4d ", __LINE__ ). ' '. $DISTBASE. '  av('. $available. ') PKG(', $PKGVERSION,")\n" if $DEBUG_COUNT;
     }
     print STDERR sprintf("%4d ", __LINE__ ). ' '. $DISTBASE. ' -> '. $available. "\n" if $DEBUG_CACHE;
+	    print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[2], '> (PackageName) ', $PackageName, ' URL(', $URL, ")\n" if $DEBUG_URL;
     DistbaseCacheUpdate($DISTBASE, $URL, $available);
+	    print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[2], '> (PackageName) ', $PackageName, ' URL(', $URL, ")\n" if $DEBUG_URL;
 	# ------------------------------------
 	##  O U T P U T    H T M L    L I N E
 	# ------------------------------------
