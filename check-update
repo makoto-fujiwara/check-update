@@ -3215,6 +3215,7 @@ sub GetSFProjectCandidate($$$) {  # line 2922 to 2979
 		if ($dir == -1) { next;}
 		print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ': dir (', $dir, ')',"\n" if $DEBUG_VERSION_DIR;
 #		my (@can);
+		if ( $dir =~ m|\/[0-9.]+)$| ) { $dir =~s|$1||; }
 		($returnCode, @candidate) = ParseDirectory($dir, $DISTBASE, 0);
 #		push(@candidate, @can);  # not overwrite but add
 #		if ($returnCode == -1) {
