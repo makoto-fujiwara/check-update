@@ -2366,7 +2366,6 @@ sub ParseDirectory($$$){   # 2276  to  2502 lines (230 lines
 
     my (@candidate);
     my ($version);
-    print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[3], '> ', $master_site, "   \n" if  ($DEBUG_URL || $DEBUG_MASTER_SITES_LISTING);
     if ($master_site eq '')	{ print STDERR sprintf("%4d ", __LINE__ ), ' $master_site is empty ',	 "\n"; return -1;}
     if ($master_site eq 'DNS')	{ print STDERR sprintf("%4d ", __LINE__ ), ' ',$distbase,' has DNS problem',"\n"; return -1;}
     print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[3], '> ', $master_site, "   \n" if  ($DEBUG_URL || $DEBUG_MASTER_SITES_LISTING);
@@ -3573,18 +3572,21 @@ print STDERR sprintf("%4d ", __LINE__ ),
         # ------------  not $GEM_PACKAGE to 3181 (some 130 lines)
     } else {	# MAJOR_IF_THEN_ELSE
 #  -----------------------------------------------------------------------	
+	    print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[2], '> (PackageName) ', $PackageName, ' URL(', join ("\n", @MASTER_SITES), ")\n" if $DEBUG_URL;
+
 	print STDERR sprintf("%4d ", __LINE__ ), '#candidate: ', $#candidate, ' DISTBASE: ', $DISTBASE,"\n" if $DEBUG_GNOME;
 
 	my($PKGNAME)	= $PKGBASE . '-'. $PKGVERSION;
 	$DISTBASE	= GetDistBase($dir, $PackageName, $PKGBASE, $PKGVERSION, $PKGNAME);
 print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> (DISTBASE) ', $DISTBASE, "\n" if $DEBUG_DISTBASE;
 	if ($DISTBASE =~ /.*-$/ ) { $DISTBASE =~ s/-$//;}  # aspell6-ca- -> aspell6-ca # 20150411
-	    print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[2], '> (PackageName) ', $PackageName, ' URL(', join ("\n", @MASTER_SITES), ")\n" if $DEBUG_URL;
 
 	$META_PACKAGE	= GetVariableValue ($dir, $PackageName, 'META_PACKAGE');
 	    print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[2], '> (PackageName) ', $PackageName, ' URL(', join ("\n", @MASTER_SITES), ")\n" if $DEBUG_URL;
 
 	if ($META_PACKAGE =~ /yes/i) { $MetaPackage++; next;}
+	    print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[2], '> (PackageName) ', $PackageName, ' URL(', join ("\n", @MASTER_SITES), ")\n" if $DEBUG_URL;
+
 	@MASTER_SITES	= GetMasterSiteCandidate($dir, $PackageName, $DISTBASE); # only invocation to
 	    print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[2], '> (PackageName) ', $PackageName, ' URL(', join ("\n", @MASTER_SITES), ")\n" if $DEBUG_URL;
 	$MASTER_SITE = $MASTER_SITES[0];  # XXXXXXXXXXXXXX
