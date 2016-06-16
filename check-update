@@ -95,7 +95,7 @@ my(%LongName)  = (
    'R',  'Redirect',
    's',  'SourceForge',
    'S',  'Stats number',
-   'u',  'URL',
+   'U',  'URL',
    'V',  'Versioned Sub Directory',
    'x',  'Curl Cache',
    'X',	 'Explode candidate',
@@ -1788,6 +1788,7 @@ sub GetMasterSiteCandidate($$$) {
     my($DISTBASE) = shift;    
     my($pkgdir) = $category.'/'.$PackageName;
     my($MASTER_SITE) = GetVariableValue($category, $PackageName, 'MASTER_SITES');
+	    print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[3], '> :', (caller)[2], ': MASTER_SITE (', $MASTER_SITE, ")\n" if $DEBUG_URL;
     my (@MASTER_SITES) = split (' ', $MASTER_SITE);
 #    foreach my $site (@MASTER_SITES) {
 #	$site =~ s|old/$||;	# ham/xsane -> www.xsane.org/download/old/ (but it is fixed now).
@@ -2258,7 +2259,7 @@ print STDERR sprintf("%4d ", __LINE__ ).' location: ', $location,"\n" if  $DEBUG
 sub ParseDebug($){
     my ($pattern) = shift;
     my %DEBUG;
-    my $char_list = 'aAcCdDEegFfGhlmnpPrRsSVxX';
+    my $char_list = 'aAcCdDEegFfGhlmnpPrRsSUVxX';
 
     if ( $pattern =~ /a/ ) { $pattern = $char_list  }
     print STDERR sprintf("%4d ", __LINE__ ), ' DEBUG pattern (',  $pattern,  ')',"\n";
@@ -2293,7 +2294,7 @@ sub ParseDebug($){
     $DEBUG_REDIRECT		= $DEBUG{'R'} + $DEBUG{'a'} ;
     $DEBUG_SF			= $DEBUG{'s'} + $DEBUG{'a'} ;
     $DEBUG_STATS		= $DEBUG{'S'} + $DEBUG{'a'} ;
-    $DEBUG_URL			= $DEBUG{'u'} + $DEBUG{'a'} ;
+    $DEBUG_URL			= $DEBUG{'U'} + $DEBUG{'a'} ;
     $DEBUG_VERSION_DIR		= $DEBUG{'V'} + $DEBUG{'a'} ;
     print STDERR "\n";
 }
@@ -2365,10 +2366,9 @@ sub ParseDirectory($$$){   # 2276  to  2502 lines (230 lines
 
     my (@candidate);
     my ($version);
-    print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[3], '> ', $master_site, "   \n" if  ($DEBUG_URL || $DEBUG_MASTER_SITES_LISTING);
     if ($master_site eq '')	{ print STDERR sprintf("%4d ", __LINE__ ), ' $master_site is empty ',	 "\n"; return -1;}
     if ($master_site eq 'DNS')	{ print STDERR sprintf("%4d ", __LINE__ ), ' ',$distbase,' has DNS problem',"\n"; return -1;}
-    print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[3], '> ', $master_site, "   \n" if  ($DEBUG_URL || $DEBUG_MASTER_SITES_LISTING);
+    print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[3], '> :', (caller 0)[2], ': ', $master_site, "   \n" if  ($DEBUG_URL || $DEBUG_MASTER_SITES_LISTING);
     my($curl_lines) = 0; # count how many lines came from curl -l
     my($repeat) = 3 ;
     my($sslv3) = '';
@@ -3194,6 +3194,10 @@ sub GetSFProjectCandidate($$$) {  # line 2922 to 2979
             'http://download.sourceforge.net/projects/' .$SFProject . '/files/',
 	            'https://sourceforge.net/projects/' .$SFProject . '/'      . $subDirectory .'/',
      );
+#  qore-sqlite3-module -> files/module-sqlite3/
+    if ( $dist_name =~ /qore-sqlite3-module/ ) {
+	unshift(@directory_candidate, 'https://sourceforge.net/projects/qore/files/module-sqlite3/');
+    }
     my ($iteration) = 0;
     foreach my $site (
 	@directory_candidate) {
@@ -3215,6 +3219,7 @@ sub GetSFProjectCandidate($$$) {  # line 2922 to 2979
 		if ($dir == -1) { next;}
 		print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ': dir (', $dir, ')',"\n" if $DEBUG_VERSION_DIR;
 #		my (@can);
+		if ( $dir =~ m|\/([0-9.]+)$| ) { $dir =~ s|$1||; }
 		($returnCode, @candidate) = ParseDirectory($dir, $DISTBASE, 0);
 #		push(@candidate, @can);  # not overwrite but add
 #		if ($returnCode == -1) {
@@ -3294,7 +3299,7 @@ sub VersionedDirectory ($$){
 	    $ver = $2;
 	    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ver(', $ver,') <- ', $_ if $DEBUG_VERSION_DIR;
 	    if (CompareVersion($ver, $max_version) > 0) { $max_version = $ver;}
-	    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' max_ver(', $max_version,') <- ', $_ if $DEBUG_VERSION_DIR;
+	    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' max_ver(', $max_version,') <- ', $_ if $DEBUG_VERSION_DIR || $DEBUG_URL;
 	    if ($name eq 'DIR')		{ $name ='';}  # discard if meaningless converters/librevenge
 	    if ($name =~ /[\t ]+/ )	{ $name ='';}
 	}
@@ -3553,6 +3558,8 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	else {($HomePageStat, $location) = CheckHeader($HOMEPAGE); }
 	
     $PKGBASE	= GetVariableValue ($dir, $PackageName, 'PKGBASE');
+	@MASTER_SITES = ();	# empty out, ruby gems won't have this value assigned.
+	$URL = '';
 	#  ----------------------------------------------------------------
     if ($TEXLIVE) { $StatTEXLIVE++; next;} # skip texlive for the moment
     # GEM_PACKAGE and %FAMILY
@@ -3572,19 +3579,27 @@ print STDERR sprintf("%4d ", __LINE__ ),
         # ------------  not $GEM_PACKAGE to 3181 (some 130 lines)
     } else {	# MAJOR_IF_THEN_ELSE
 #  -----------------------------------------------------------------------	
+	    print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[2], '> (PackageName) ', $PackageName, ' URL(', join ("\n", @MASTER_SITES), ")\n" if $DEBUG_URL;
+
 	print STDERR sprintf("%4d ", __LINE__ ), '#candidate: ', $#candidate, ' DISTBASE: ', $DISTBASE,"\n" if $DEBUG_GNOME;
 
 	my($PKGNAME)	= $PKGBASE . '-'. $PKGVERSION;
 	$DISTBASE	= GetDistBase($dir, $PackageName, $PKGBASE, $PKGVERSION, $PKGNAME);
 print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> (DISTBASE) ', $DISTBASE, "\n" if $DEBUG_DISTBASE;
 	if ($DISTBASE =~ /.*-$/ ) { $DISTBASE =~ s/-$//;}  # aspell6-ca- -> aspell6-ca # 20150411
-	$META_PACKAGE	= GetVariableValue ($dir, $PackageName, 'META_PACKAGE');
-	if ($META_PACKAGE =~ /yes/i) { $MetaPackage++; next;}
 
-	@MASTER_SITES	= GetMasterSiteCandidate($dir, $PackageName, $DISTBASE);
+	$META_PACKAGE	= GetVariableValue ($dir, $PackageName, 'META_PACKAGE');
+	    print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[2], '> (PackageName) ', $PackageName, ' URL(', join ("\n", @MASTER_SITES), ")\n" if $DEBUG_URL;
+
+	if ($META_PACKAGE =~ /yes/i) { $MetaPackage++; next;}
+	    print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[2], '> (PackageName) ', $PackageName, ' URL(', join ("\n", @MASTER_SITES), ")\n" if $DEBUG_URL;
+
+	@MASTER_SITES	= GetMasterSiteCandidate($dir, $PackageName, $DISTBASE); # only invocation to
+	    print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[2], '> (PackageName) ', $PackageName, ' URL(', join ("\n", @MASTER_SITES), ")\n" if $DEBUG_URL;
 	$MASTER_SITE = $MASTER_SITES[0];  # XXXXXXXXXXXXXX
 
 	$URL =  $MASTER_SITE;
+	    print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[2], '> (PackageName) ', $PackageName, ' URL(', $URL, ")\n" if $DEBUG_URL;
 	$URL =~ s/ .*//;	# Pick the very first word
 	chomp($URL);
 	if ( my ($p) = $FAMILY{$PackageName} ) {
@@ -3600,6 +3615,7 @@ print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> (DISTBASE) ', $D
 	if ($SFProject && $SFProject != -1 ) {			# MAJOR_IF_THEN_ELSE (1)
 	    my($returnCode);
 	    ($URL, $returnCode, @candidate) = GetSFProjectCandidate($SFProject, $DISTBASE, $dist_name);
+	    print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[2], '> (PackageName) ', $PackageName, ' URL(', $URL, ")\n" if $DEBUG_URL;
 	    if ($returnCode == 0 ) { $returnCode = '200';}; # 0 is good news = 200
  print STDERR sprintf("%4d ", __LINE__ ),
 ' (PKGBASE) ', $PKGBASE, 'URL: ', $URL, ' returnCode (', $returnCode, ")\n" if $DEBUG_SF;
@@ -3779,7 +3795,9 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	print STDERR sprintf("%4d ", __LINE__ ). ' '. $DISTBASE. '  av('. $available. ') PKG(', $PKGVERSION,")\n" if $DEBUG_COUNT;
     }
     print STDERR sprintf("%4d ", __LINE__ ). ' '. $DISTBASE. ' -> '. $available. "\n" if $DEBUG_CACHE;
+	    print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[2], '> (PackageName) ', $PackageName, ' URL(', $URL, ")\n" if $DEBUG_URL;
     DistbaseCacheUpdate($DISTBASE, $URL, $available);
+	    print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[2], '> (PackageName) ', $PackageName, ' URL(', $URL, ")\n" if $DEBUG_URL;
 	# ------------------------------------
 	##  O U T P U T    H T M L    L I N E
 	# ------------------------------------
