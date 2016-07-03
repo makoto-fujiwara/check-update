@@ -4,6 +4,14 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 use Getopt::Std;
 use v5.16;
+# global variable
+
+# By some reason, to know master site directory listing is reliable
+my($Flag_dont_check_homepage) = 0;
+my(%Dont_check_homepage) = (
+    'ffmpeg', 1,
+    'ffplay', 1,
+    );
 
 # prototype for subroutine called very early stage :-)
 sub GetSystemURL($);
@@ -60,6 +68,7 @@ my ($DEBUG_GITHUB);
 my ($DEBUG_GNOME);
 my ($DEBUG_HTTP_HEADER);
 my ($DEBUG_MASTER_SITES_LISTING);
+my ($DEBUG_MASTER_SITE);  # $master_site get strange  with previous version #
 my ($DEBUG_REDIRECT);
 my ($DEBUG_RUBYGEM);
 my ($DEBUG_SF);
@@ -88,6 +97,7 @@ my(%LongName)  = (
    'h',  'HTTP Header',
    'l',  'Curl Listing',
    'm',	 'MASTER_SITES_LISTING',
+   'M',	 'MASTER_SITE',
    'n',  'CountNumber (not implemented yet)',
    'p',  'Special Pattern',
    'P',	 'Simple Pattern',
@@ -183,7 +193,7 @@ my ($merge_mode) = 0;
 my ($maintainer) = 0;		# output for the maintainer
 my ($divide_devel) = '';	# execute divided manner on devel category
 
-my (@CurlCache);		# keep the last time listing resuls;
+my (@CurlCache);		# keep the last time listing results;
 my (@LOCAL_PORTS);
 my ($local_ports_string) = 	'netbsd.org/pub/NetBSD/packages/distfiles/LOCAL_PORTS/';
 my ($LastCurl);			# The curl command when above cache stored
@@ -207,7 +217,7 @@ IO-Socket-Multicast
 Net-IPv4Addr Net-IPv6Addr Net-XMPP lzo pen iperf lftp Text-Diff inform
 ocaml
 audacious audacious-plugins WWW-Shorten proj
-hfsutils gamin Coin klayout ffmpeg macholib modulegraph py2app db
+hfsutils gamin Coin klayout macholib modulegraph py2app db
 SOPE cmph zlib Math-Pari Event clamav lout
 );
 
@@ -976,6 +986,16 @@ sub ClassifyPackage(@) {
 	    else {
 		$FAMILY{$p} = '$version =~ s/.*'.$pkg.'-('.$major.'.[0-9.]+)\.tar\..*/$1/'; ;  }
 	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1c) family: ', $p, "\n" if $DEBUG_FAMILY;
+# 	 # (14) ffmpeg, ffplay[1-3]
+	}  elsif ($p =~ /(ffmpeg)([0-9])$/  ||
+	          $p =~ /(ffplay)([0-9])$/
+	    ) {
+	    my ($pkg)  = $1;
+	    my ($major) = $2; 
+	    $FAMILY{$p} = '$version =~ s/('.$major.'.[0-9.]+)/$1/';
+#	    $FAMILY{$p} = '$version =~ s/.*'. $pkg. '-('.$major.'.[0-9.]+)\.tar\..*/$1/';	    
+	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1c) family: ', $p, ' -> ', $FAMILY{$p},
+"\n" if $DEBUG_FAMILY;
 	# normal numbering
 	} elsif ($p =~ /(.*)([0-9]+)$/) {
 	    my ($pybody) = $1 ;
@@ -1844,7 +1864,8 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (PKGNAME) ', $PKGNAME, ' --> master_s
 	($HomePageStat, $location) =  CheckHeader($home_page);
 print STDERR sprintf("%4d ", __LINE__ ), ' (PKGNAME) ', $PKGNAME, ' --> master_site = ', $home_page, ' status: ', $HomePageStat,"\n" if $DEBUG_DISTBASE;
 	if ($HomePageStat == 404 || $HomePageStat == 'DNS' ) { return ($HomePageStat, '0.0');}
-	$master_site = $home_page; # fall back to home_page
+	if ($Dont_check_homepage{$DISTBASE} != 1 ) {
+	$master_site = $home_page; }# fall back to home_page
 	}
     }
     if ($MasterSiteStat == 550 ) { 
@@ -1859,8 +1880,9 @@ print STDERR sprintf("%04d ", __LINE__ ), ' (PKGNAME) ', $PKGNAME, ' --> master_
 	($HomePageStat, $location) =  CheckHeader($home_page);
 print STDERR sprintf("%4d ", __LINE__ ), ' (PKGNAME) ', $PKGNAME, ' --> master_site = ', $master_site,"\n" if $DEBUG_HTTP_HEADER;
 	if ($HomePageStat == 404 ) { return (403, '0.0') ;}
+	if ($Dont_check_homepage{$DISTBASE} != 1 ) {	
 	$master_site = $home_page; # fall back to home_page
-	}
+	}}
     if ($MasterSiteStat == 301 || $MasterSiteStat == 302 ) {
 	my ($MorePageStat, $Morelocation) =  CheckHeader($location);
 print STDERR sprintf("%4d ", __LINE__ ), ' (PKGNAME) ', $PKGNAME, ' --> master_site = ', $master_site,"\n" if $DEBUG_HTTP_HEADER;
@@ -2259,7 +2281,7 @@ print STDERR sprintf("%4d ", __LINE__ ).' location: ', $location,"\n" if  $DEBUG
 sub ParseDebug($){
     my ($pattern) = shift;
     my %DEBUG;
-    my $char_list = 'aAcCdDEegFfGhlmnpPrRsSUVxX';
+    my $char_list = 'aAcCdDEegFfGhlmMnpPrRsSUVxX';
 
     if ( $pattern =~ /a/ ) { $pattern = $char_list  }
     print STDERR sprintf("%4d ", __LINE__ ), ' DEBUG pattern (',  $pattern,  ')',"\n";
@@ -2288,6 +2310,7 @@ sub ParseDebug($){
     $DEBUG_GNOME		= $DEBUG{'G'} + $DEBUG{'a'} ;
     $DEBUG_HTTP_HEADER		= $DEBUG{'h'} + $DEBUG{'a'} ;
     $DEBUG_MASTER_SITES_LISTING = $DEBUG{'m'} + $DEBUG{'a'} ;
+    $DEBUG_MASTER_SITE		= $DEBUG{'M'} + $DEBUG{'a'} ;	 
     $DEBUG_SPECIAL_PATTERN	= $DEBUG{'p'} + $DEBUG{'a'} ;
     $DEBUG_SIMPLE_PATTERN	= $DEBUG{'P'} + $DEBUG{'a'} ;
     $DEBUG_RUBYGEM		= $DEBUG{'r'} + $DEBUG{'a'} ;
@@ -2359,6 +2382,7 @@ sub ParseDirectorySmall($$$){
 #   main                          x 5
 sub ParseDirectory($$$){   # 2276  to  2502 lines (230 lines
     my ($master_site) = shift;
+	print STDERR sprintf("%4d ", __LINE__ ), 'master_site: ', $master_site, "\n" if $DEBUG_MASTER_SITE ;
     my ($distbase)   = shift;
     my ($SimpleFallBack) = shift; 
 
@@ -2374,11 +2398,17 @@ sub ParseDirectory($$$){   # 2276  to  2502 lines (230 lines
     my($sslv3) = '';
 #   if ($master_site =~  m|https://code.google.com|) { $sslv3 = '-3';}
     $distbase =~ s|\+|\.|;
-
+	print STDERR sprintf("%4d ", __LINE__ ), 'master_site: ', $master_site, "\n" if $DEBUG_MASTER_SITE ;
     while( $curl_lines == 0 && $repeat-- > 0 )  {
+	print STDERR sprintf("%4d ", __LINE__ ), 'master_site: ', $master_site, "\n" if $DEBUG_MASTER_SITE ;	
 	print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[3], 
 	    '> distbase (', $distbase, ') ', $master_site, "   \n" if $DEBUG_DISTBASE ;
 	if ($master_site eq '') { print STDERR sprintf("%4d ", __LINE__ ), " \$master_site is empty\n"; return -1;}
+	if ($master_site =~/^[0-9.]+$/ )
+	{ print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[3], '> :', (caller 0)[2], ': ', $master_site,  ' (', $master_site, ') is strange.',"\n";
+#	  $LastCurl = ''; # invalidate @CurlCache
+	  next;}
+	# $master_site sometimes holds version number only, strange
 	my ($curl_command) = "$curl_list_secure $sslv3 $master_site";
 	print STDERR sprintf("%4d ", __LINE__ ), $curl_command, "\n" if $DEBUG_CURL;
 
@@ -2433,17 +2463,24 @@ sub ParseDirectory($$$){   # 2276  to  2502 lines (230 lines
 	if ( $distbase eq 'libXaw' && /libXaw3d/ )	{ next;}
 	if ( /^[0-9]$/ ) { next;} # skip single digit by itself (devel/py-pyobjc-.*)  why ?
 # ----------  A L W A Y S   G O  T H R U   H E R E  --------------	# MAJOR_IF_THEN_ELSE
-print STDERR sprintf("%4d ** ", __LINE__ ), '(', $distbase,') ', $SpecialPattern{$distbase},': ', $_, ' ---: ',
+print STDERR sprintf("%4d ** ", __LINE__ ), (caller 0)[3], ' (', $distbase,') ', $SpecialPattern{$distbase},': ', $_, ' ---: ',
 	    grep (/$distbase/, keys %SpecialPattern)," :---\n" if
 	    ($DEBUG_CURL_LISTING ||  $DEBUG_EVAL_PATTERN || $DEBUG_MASTER_SITES_LISTING );
-print STDERR sprintf("%4d ** ", __LINE__ ), '(', $distbase,') ', $FAMILY{$distbase},': ', $version,"\n" if
-	    ($DEBUG_CURL_LISTING ||  $DEBUG_EVAL_PATTERN || $DEBUG_MASTER_SITES_LISTING );
+print STDERR sprintf("%4d ** ", __LINE__ ), (caller 0)[3], ' (', $distbase,') :', $FAMILY{$distbase},': ', $version,': ',"\n" if
+	    ($DEBUG_CURL_LISTING ||  $DEBUG_EVAL_PATTERN || $DEBUG_MASTER_SITES_LISTING || $DEBUG_FAMILY);
 
 #  ----------------------------------------------------------------
 print STDERR sprintf("%4d ** ", __LINE__ ), '(', $distbase,') $_(', $_,')',"\n" if $DEBUG_EVAL_PATTERN ;
-	if ( my $pattern = $SEARCH_STRINGS{$distbase} ) {
+	if (0) { # dummy for ease to swap sequence below
+	} elsif (my $pattern = $FAMILY{$distbase} ) {
+print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', 'distbase (', $distbase, ') version (', $version, ') ',$_,"\n" if   ($DEBUG_FAMILY);
+	    eval $pattern;
+print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', 'distbase (', $distbase, ') version (', $version, ') ',$_,"\n" if   ($DEBUG_FAMILY);
+	    push(@candidate, $version);
+	} elsif (my $pattern = $SEARCH_STRINGS{$distbase} ) {
 	    eval $pattern;
 print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> (', $distbase,') ', $_, '  pattern ( ', $pattern,') -> version(', $version, ")\n" if   ($DEBUG_CURL_LISTING ||  $DEBUG_EVAL_PATTERN );
+
 	} elsif ( grep (/$distbase/, @SimplePattern) || $SimplePattern || $SimpleFallBack ) {
 	    $_ =~ /.*$distbase-([0-9.]+[0-9]).*/;	# not to include last '.'
 	    $version = $1;
@@ -3606,6 +3643,7 @@ print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> (DISTBASE) ', $D
 	    print STDERR sprintf("%4d ", __LINE__ ), '(PackageName) ', $PackageName, ' (p) ', $p, "\n" if $DEBUG_FAMILY;
 	    $SpecialPatternY = $p ;
 	}
+
 	# ---------------------------------------------------------------
 	if ($MASTER_SITE =~ m|http://downloads.sourceforge.net/sourceforge/([^/]+)/| ) {
 	    $SFProject = $1; }
@@ -3629,23 +3667,25 @@ printf STDERR  ColorString('red',
 		$PKGBASE, '('.$DISTBASE.')', '('.  __LINE__ .')')
     	)
        ; $NoMasterSites++;   next;}
-	    
+
 # Get Max version available at MASTER_SITES
 
 print STDERR sprintf("%4d ", __LINE__ ), 
 		' URL: ', $URL,"\n",'      HOMEPAGE: ', $HOMEPAGE, "\n"
 		if $DEBUG_MASTER_SITES_LISTING;
-		
+#	print STDERR sprintf("%4d ", __LINE__ ), 'master_site: ', $master_site, "\n" if $DEBUG_MASTER_SITE ;
 	my($http_code, $master_site) = GetMasterSiteSub($PKGBASE, $DISTBASE, $URL, $HOMEPAGE);
 print STDERR sprintf("%4d ", __LINE__ ), 
 ' (PKGBASE) ', $PKGBASE, ' --> http: ', $http_code, ' Now: ', $PKGVERSION, ' $available: ', $available,"\n" if $DEBUG_DISTBASE;
 	    $returnCode = -1;
+	print STDERR sprintf("%4d ", __LINE__ ), 'master_site: ', $master_site, "\n" if $DEBUG_MASTER_SITE ;
 
 	 if ($HS_PACKAGE) {					# MAJOR_IF_THEN_ELSE
 	$master_site = "http://hackage.haskell.org/package/". $DISTBASE;
 	print STDERR sprintf("%4d ", __LINE__ ), "HS_PACKGE: ", $MASTER_SITE ,"\n" if $DEBUG_DISTBASE;
 	}
 
+	print STDERR sprintf("%4d ", __LINE__ ), 'master_site: ', $master_site, "\n" if $DEBUG_MASTER_SITE ;
 	if ($http_code eq 'DNS' ) {
 	    $MasterSiteStat = 'DNS';
 	}
@@ -3653,6 +3693,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	    ($returnCode, @candidate) = GnomeSpecial($DISTBASE, $master_site);
 	}
 	    print STDERR sprintf("%4d ", __LINE__ ), '#candidate: ', $#candidate, ' DISTBASE: ', $DISTBASE, ' master_site ', $master_site, "\n" if $DEBUG_GNOME;
+	print STDERR sprintf("%4d ", __LINE__ ), 'master_site: ', $master_site, "\n" if $DEBUG_MASTER_SITE ;
 
 #        if ($#candidate == -1 || $candidate[0] eq '0.0' ){
 #	    # good for RBtool
@@ -3660,9 +3701,9 @@ print STDERR sprintf("%4d ", __LINE__ ),
 #	} else {
 #		print STDERR sprintf("%4d ", __LINE__ ), 'candidate: ', $candidate[0], "\n" if $DEBUG_GNOME;
 #	}
-       
-	    print STDERR sprintf("%4d ", __LINE__ ), '#candidate: ', $#candidate, ' DISTBASE: ', $DISTBASE,"\n" if $DEBUG_GNOME;
+       	print STDERR sprintf("%4d ", __LINE__ ), 'master_site: ', $master_site, "\n" if $DEBUG_MASTER_SITE ;
 
+	    print STDERR sprintf("%4d ", __LINE__ ), '#candidate: ', $#candidate, ' DISTBASE: ', $DISTBASE,"\n" if $DEBUG_GNOME;
 	 if ($#candidate < 0  && $master_site =~ m|(.*)/[0-9._]+/*$|) {		# MAJOR_IF_THEN_ELSE MASTER_SITE with ending digit
 	    my ($upper) = $1;
 	    print STDERR sprintf("%4d ", __LINE__ ), 'MASTER_SITE with ending digit: ', $master_site,"\n" if $DEBUG_DIGIT;
@@ -3671,15 +3712,18 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	 # ------------------- back to upper level --
 	print STDERR sprintf("%4d ", __LINE__ ), 'candidate: ', $#candidate, ' http_code: ', $http_code, "\n" if ($DEBUG_SF || $DEBUG_MASTER_SITES_LISTING );
 # 1 is good for www/librest07 but bad for many occa,sion:
+	print STDERR sprintf("%4d ", __LINE__ ), 'master_site: ', $master_site, "\n" if $DEBUG_MASTER_SITE ;
 	 if ($#candidate < 1  && $master_site && $http_code ne 'DNS' ) {			# MAJOR_IF_THEN_ELSE
 	    print STDERR sprintf("%4d ", __LINE__ ), $#candidate, ' DNS ok, master_site (', $master_site,")\n" if $DEBUG_MASTER_SITES_LISTING ;
 	    ($returnCode, @candidate) = ParseDirectory($master_site, $DISTBASE, 0);
          }
 # 1 is good for www/librest07 but bad for many occasion:
 	print STDERR sprintf("%4d ", __LINE__ ), ' (HOMEPAGE) ', $#candidate, "\n" if $DEBUG_MASTER_SITES_LISTING ;
-	 if ($#candidate < 1  && $HOMEPAGE) {							# MAJOR_IF_THEN_ELSE
+	 if ($#candidate < 1  && $HOMEPAGE) {
+	if ($Dont_check_homepage{$DISTBASE} != 1 ) {							# MAJOR_IF_THEN_ELSE
 	    ($returnCode, @candidate) = ParseDirectory($HOMEPAGE, $DISTBASE, 0);
 	    print STDERR sprintf("%4d ", __LINE__ ), $HOMEPAGE," checked.\n" if $DEBUG_MASTER_SITES_LISTING
+	}
 	}
 	print STDERR sprintf("%4d ", __LINE__ ), ' HOMEPAGE (', $HOMEPAGE, ') ',$#candidate, "\n" if $DEBUG_MASTER_SITES_LISTING 
 	     || $DEBUG_SF || $DEBUG_GITHUB;
