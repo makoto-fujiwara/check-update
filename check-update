@@ -219,6 +219,7 @@ ocaml
 audacious audacious-plugins WWW-Shorten proj
 hfsutils gamin Coin klayout macholib modulegraph py2app db
 SOPE cmph zlib Math-Pari Event clamav lout
+aspell
 );
 
 # DISTBASE to pattern
