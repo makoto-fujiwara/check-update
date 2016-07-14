@@ -18,6 +18,7 @@ editors/xcoral
 games/gnuchess4
 net/dnsdoctor
 sysutils/acpidump
+textproc/biblook
 textproc/convertlit
 textproc/lit2epub
 textproc/hunspell
