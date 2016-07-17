@@ -2059,6 +2059,11 @@ sub GitHubSpecial($$$$){
     while(<CURL>) {
 	print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> (',$distbase, ' / ', $target.') ', $_,"\n" if $DEBUG_GITHUB;
 	$distbase =~ s/-[a-z]+//;
+	if       (m,$distbase-([0-9.]+)-pre.*,) { next;}
+	if (m,archive/release_([0-9_]+)-pre.*,) { next;}
+	if         (m,release-([0-9.]+)-pre.*,) { next;}
+	if    (m,releases/tag/([0-9.]+)-pre.*,) { next;}  # not to pick audio/ardour-5.0pre0
+
 	if (m,/$distbase-([0-9.]+),	||
 	    m,archive/release_([0-9_]+)\.,	||   # ham/uhd
 	    m,archive/([0-9.]+)\.tar,	||	     # devel/js_of_ocaml
