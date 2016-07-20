@@ -596,6 +596,7 @@ my (@DOT3) = qw (
     Mojo-IOLoop-ForkCall
     Text-Diff-Parser
     Log-Any
+    Text-Autoformat
     );
 
 # 633 -> 6.33.0 InsertDot
