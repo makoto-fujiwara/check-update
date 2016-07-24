@@ -12,6 +12,8 @@ my(%Dont_check_homepage) = (
     'ffmpeg', 1,
     'ffplay', 1,
     );
+my($SimpleFallBackYes) = 1; # define constant;
+my($SimpleFallBackNo ) = 0; # define constant;
 
 # prototype for subroutine called very early stage :-)
 sub GetSystemURL($);
@@ -2162,7 +2164,7 @@ sub ParseUpperDirectory($$){
     print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>',  $candidate,"\n" if $DEBUG_DIGIT;
 
     my($site) = $upper.'/'. $candidate. '/';
-    $ver  = ParseDirectorySmall($site, $PKGBASE, 0);
+    $ver  = ParseDirectorySmall($site, $PKGBASE, $SimpleFallBackNo);
     print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>',  $ver,"\n" if $DEBUG_SF;
     print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>',  $ver,"\n" if $DEBUG_DIGIT;
     $returnCode = 0 ; $candidate[0] = $ver;
@@ -2191,13 +2193,13 @@ sub GnomeSpecial($$){
 	    $dir = VersionedDirectory($distbase, $url);
 	    if ($dir == -1) { next;}
 	    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2],
-		': dir(', $dir, ')',"\n" if $DEBUG_GNOME;   ($returnCode, @candidate) = ParseDirectory($dir, $DISTBASE, 0);
+		': dir(', $dir, ')',"\n" if $DEBUG_GNOME;   ($returnCode, @candidate) = ParseDirectory($dir, $DISTBASE, $SimpleFallBackNo);
 	    if ($returnCode == 200 ) {last;}
 	}
     }
     print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2],
 	': returnCode(', $returnCode, ') @candidate', join ("\n", @candidate), "\n" if $DEBUG_GNOME;
-    ($returnCode, @candidate) = ParseDirectory($dir, $DISTBASE, 0);
+    ($returnCode, @candidate) = ParseDirectory($dir, $DISTBASE, $SimpleFallBackNo);
     return($returnCode, @candidate);
 }
 sub SFSubDirectory($$){
@@ -3292,7 +3294,7 @@ sub GetSFProjectCandidate($$$) {  # line 2922 to 2979
 	    ($status, $location) = CheckHeader($site);
 		 print STDERR sprintf("%4d ", __LINE__ ), '(',$iteration++,') ', $site, ') status('. $status.") -> \n"  if $DEBUG_HTTP_HEADER;
 	    if ($status == 200 ) {
-	    ($returnCode, @candidate) = ParseDirectory($site, $DISTBASE, 0);
+	    ($returnCode, @candidate) = ParseDirectory($site, $DISTBASE, $SimpleFallBackNo);
 		 print STDERR sprintf("%4d ", __LINE__ ), 
 	     ' (ParseDir) master_site(', $site, ') status('. $status. ') '. 'candidate('.$#candidate.') -> '. join (' ', @candidate), "\n"  if $DEBUG_SF;
 	    }
@@ -3306,7 +3308,7 @@ sub GetSFProjectCandidate($$$) {  # line 2922 to 2979
 		print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ': dir (', $dir, ')',"\n" if $DEBUG_VERSION_DIR;
 #		my (@can);
 		if ( $dir =~ m|\/([0-9.]+)$| ) { $dir =~ s|$1||; }
-		($returnCode, @candidate) = ParseDirectory($dir, $DISTBASE, 0);
+		($returnCode, @candidate) = ParseDirectory($dir, $DISTBASE, $SimpleFallBackNo);
 #		push(@candidate, @can);  # not overwrite but add
 #		if ($returnCode == -1) {
 #		    ($candidate) = GetSFProjectString($site, $DISTBASE);
@@ -3319,7 +3321,7 @@ sub GetSFProjectCandidate($$$) {  # line 2922 to 2979
 	if ($#candidate  < 0 && (my ($alternative) = $SourceForgeAlternative{$DISTBASE} ) ) {
 	foreach my $site (split ';', $alternative) {
 		print STDERR sprintf("%4d ", __LINE__ ), ' (Alterna.) master_site(', $site, ') status('. $status.") -> \n"  if $DEBUG_SF;
-	($returnCode, @candidate) = ParseDirectory($site, $DISTBASE, 0);
+	($returnCode, @candidate) = ParseDirectory($site, $DISTBASE, $SimpleFallBackNo);
 		print STDERR sprintf("%4d ", __LINE__ ), ' returns ', $returnCode,"\n"   if $DEBUG_SF;	
 	    $master_site = $site;
 	}
@@ -3764,13 +3766,13 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	print STDERR sprintf("%4d ", __LINE__ ), 'master_site: ', $master_site, "\n" if $DEBUG_MASTER_SITE ;
 	 if ($#candidate < 1  && $master_site && $http_code ne 'DNS' ) {			# MAJOR_IF_THEN_ELSE
 	    print STDERR sprintf("%4d ", __LINE__ ), $#candidate, ' DNS ok, master_site (', $master_site,")\n" if $DEBUG_MASTER_SITES_LISTING ;
-	    ($returnCode, @candidate) = ParseDirectory($master_site, $DISTBASE, 0);
+	    ($returnCode, @candidate) = ParseDirectory($master_site, $DISTBASE, $SimpleFallBackNo);
          }
 # 1 is good for www/librest07 but bad for many occasion:
 	print STDERR sprintf("%4d ", __LINE__ ), ' (HOMEPAGE) ', $#candidate, "\n" if $DEBUG_MASTER_SITES_LISTING ;
 	 if ($#candidate < 1  && $HOMEPAGE) {
 	if ($Dont_check_homepage{$DISTBASE} != 1 ) {							# MAJOR_IF_THEN_ELSE
-	    ($returnCode, @candidate) = ParseDirectory($HOMEPAGE, $DISTBASE, 0);
+	    ($returnCode, @candidate) = ParseDirectory($HOMEPAGE, $DISTBASE, $SimpleFallBackNo);
 	    print STDERR sprintf("%4d ", __LINE__ ), $HOMEPAGE," checked.\n" if $DEBUG_MASTER_SITES_LISTING
 	}
 	}
@@ -3794,12 +3796,12 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	if ($#candidate == -1  &&  ( $MASTER_SITE  =~ m|http://pypi.python.org/| )) {		# MAJOR_IF_THEN_ELSE
 	    print STDERR sprintf("%4d ", __LINE__ ), 'MASTER_SITE ', $MASTER_SITE if $DEBUG_DISTBASE;
 	    ($returnCode, @candidate) = ParseDirectory(
-		"https://pypi.python.org/pypi/".$DISTBASE, $DISTBASE, 0);}
+		"https://pypi.python.org/pypi/".$DISTBASE, $DISTBASE, $SimpleFallBackNo);}
 
 	if ($#candidate == -1  && $EGG_PACKAGE) {						# MAJOR_IF_THEN_ELSE
 	    print STDERR sprintf("%4d ", __LINE__ ), 'MASTER_SITE ', $MASTER_SITE if $DEBUG_DISTBASE;
 	    ($returnCode, @candidate) = ParseDirectory(
-		"https://warehouse.python.org/project/".$DISTBASE, $DISTBASE, 0);}
+		"https://warehouse.python.org/project/".$DISTBASE, $DISTBASE, $SimpleFallBackNo);}
 	print STDERR sprintf("%4d ", __LINE__ ), 'MASTER_SITE ', $MASTER_SITE, ' DISTBASE ', $DISTBASE, ' cand (', $#candidate,")\n" if $DEBUG_GITHUB;
 	if ($#candidate  < 1   && ($MASTER_SITE =~ m|github.com/|) ) {				# MAJOR_IF_THEN_ELSE
 	 # ------------------ GitHubSpecial (3352)
@@ -3824,7 +3826,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	if ( $DownLoadAlternative{$DISTBASE}) {			# MAJOR_IF_THEN_ELSE
 	    $MASTER_SITE= $DownLoadAlternative{$DISTBASE};
 	    print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[3], '> MASTER_SITE ', $MASTER_SITE,"\n" if $DEBUG_ALTERNATIVE;
-		($returnCode, @candidate) = ParseDirectory($MASTER_SITE, $DISTBASE, 0);
+		($returnCode, @candidate) = ParseDirectory($MASTER_SITE, $DISTBASE, $SimpleFallBackNo);
 
 	}							# MAJOR_IF_THEN_ELSE  ----------------------
 	    push(@CANDIDATE, @candidate);
@@ -3855,7 +3857,7 @@ print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], '
 ' @candidate: ', "\n------------------\n", join("\n", @candidate),"\n" if $DEBUG_CANDIDATE;
 
 	if (( $available eq '0.0' || $available eq '' || $returnCode == -1 ) && $#candidate == -1 && ! $candidate[0] ne '0.0' ) {
-	    ($returnCode, @candidate) =  ParseDirectory($MASTER_SITE, $DISTBASE, 1);
+	    ($returnCode, @candidate) =  ParseDirectory($MASTER_SITE, $DISTBASE, $SimpleFallBackYes);
 	    $available = PickFromCandidate(@candidate);
 print STDERR sprintf("%4d ", __LINE__ ), 
     ' (SimpleFallBack) master_site(', $MASTER_SITE, ') returnCode('. $returnCode.") -> available(". $available.")\n"  if $DEBUG_FALLBACK_SIMPLE;
