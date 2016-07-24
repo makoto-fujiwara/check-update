@@ -74,6 +74,7 @@ my ($DEBUG_MASTER_SITE);  # $master_site get strange  with previous version #
 my ($DEBUG_REDIRECT);
 my ($DEBUG_RUBYGEM);
 my ($DEBUG_SF);
+my ($DEBUG_SF_LOOKING_FOR);
 my ($DEBUG_SPECIAL_PATTERN);
 my ($DEBUG_SIMPLE_PATTERN);
 my ($DEBUG_STATS);
@@ -98,6 +99,7 @@ my(%LongName)  = (
    'G',  'Gnome',
    'h',  'HTTP Header',
    'l',  'Curl Listing',
+   'L',	 'Skipping - Looking for - message at soureforge',
    'm',	 'MASTER_SITES_LISTING',
    'M',	 'MASTER_SITE',
    'n',  'CountNumber (not implemented yet)',
@@ -366,6 +368,7 @@ my (%SpecialPattern) = (
     'aalib',		'$line =~ s|.*aalib-([0-9._rc]+)\.tar\..*|$1|; $line =~ s|rc|.0.|;',
 # not to pick alpha version
     'pdns',		'$line =~ s|.*pdns-([0-9.]+)\.tar\..*|$1|;',
+    'upx',		'$line =~ s|.*upx-([0-9.]+)-src\.tar\..*|$1|;',
     );
 
 my(%SourceForgeAlternative) = qw (
@@ -2332,7 +2335,7 @@ print STDERR sprintf("%4d ", __LINE__ ).' location: ', $location,"\n" if  $DEBUG
 sub ParseDebug($){
     my ($pattern) = shift;
     my %DEBUG;
-    my $char_list = 'aAcCdDEegFfGhlmMnpPrRsSUVxX';
+    my $char_list = 'aAcCdDEegFfGhlLmMnpPrRsSUVxX';
 
     if ( $pattern =~ /a/ ) { $pattern = $char_list  }
     print STDERR sprintf("%4d ", __LINE__ ), ' DEBUG pattern (',  $pattern,  ')',"\n";
@@ -2367,6 +2370,7 @@ sub ParseDebug($){
     $DEBUG_RUBYGEM		= $DEBUG{'r'} + $DEBUG{'a'} ;
     $DEBUG_REDIRECT		= $DEBUG{'R'} + $DEBUG{'a'} ;
     $DEBUG_SF			= $DEBUG{'s'} + $DEBUG{'a'} ;
+    $DEBUG_SF_LOOKING_FOR	= $DEBUG{'L'} + $DEBUG{'a'} ;
     $DEBUG_STATS		= $DEBUG{'S'} + $DEBUG{'a'} ;
     $DEBUG_URL			= $DEBUG{'U'} + $DEBUG{'a'} ;
     $DEBUG_VERSION_DIR		= $DEBUG{'V'} + $DEBUG{'a'} ;
@@ -2382,10 +2386,10 @@ sub ParseDebug($){
 #	    $_ =~ /.*$distbase-([0-9.]+[0-9]).*/;	# not to include last '.'
 #	    $version = $1;
 
-sub ParseDirectorySmall($$$){
+sub ParseDirectorySmall($$){
     my ($master_site) = shift;
     my ($distbase)   = shift;
-    my ($SimpleFallBack) = shift;  # NOT used special flag to ask search simple pattern only
+#   my ($SimpleFallBack) = shift;  # NOT used special flag to ask search simple pattern only
 
     print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> master_site: ', $master_site, "\n" if $DEBUG_URL;
 # http://ftp.gnome.org/pub/GNOME/sources/3.10/';
@@ -2519,7 +2523,10 @@ print STDERR sprintf("%4d ** ", __LINE__ ), (caller 0)[3], ' (', $distbase,') ',
 	    ($DEBUG_CURL_LISTING ||  $DEBUG_EVAL_PATTERN || $DEBUG_MASTER_SITES_LISTING );
 print STDERR sprintf("%4d ** ", __LINE__ ), (caller 0)[3], ' (', $distbase,') :', $FAMILY{$distbase},': ', $version,': ',"\n" if
 	    ($DEBUG_CURL_LISTING ||  $DEBUG_EVAL_PATTERN || $DEBUG_MASTER_SITES_LISTING || $DEBUG_FAMILY);
-
+print STDERR sprintf("%4d ** ", __LINE__ ), (caller 0)[3], ' (', $distbase,') :', $_ ,"\n" if $DEBUG_SF_LOOKING_FOR;
+	if ($master_site =~ m|sourceforge| && /<span>Download / )   { next;} # skip harmfull and obsolete catch
+	if ($master_site =~ m|sourceforge| && m|latest/download\?| ) { next;} # skip harmfull and obsolete catch	
+print STDERR sprintf("%4d ** ", __LINE__ ), (caller 0)[3], ' (', $distbase,') :', $_ ,"\n" if $DEBUG_SF_LOOKING_FOR;
 #  ----------------------------------------------------------------
 print STDERR sprintf("%4d ** ", __LINE__ ), '(', $distbase,') $_(', $_,')',"\n" if $DEBUG_EVAL_PATTERN ;
 	if (0) { # dummy for ease to swap sequence below
