@@ -480,7 +480,6 @@ my(%DownLoadAlternative) = qw (
     krb5	http://web.mit.edu/kerberos/dist
     IPAfont	http://ipafont.ipa.go.jp/ipafont/download.html
     xscreensaver	http://www.jwz.org/xscreensaver/download.html
-    ETL		http://sourceforge.net/projects/synfig/files/ETL/0.04.13/
     distcc	http://code.google.com/p/distcc/downloads/list
     cabocha	https://drive.google.com/folderview?id=0B4y35FiV1wh7cGRCUUJHVTNJRnM&usp=sharing#list
 #    CRF++	https://drive.google.com/folderview?id=0B4y35FiV1wh7fngteFhHQUN2Y1B5eUJBNHZUemJYQV9VWlBUb3JlX0xBdWVZTWtSbVBneU0&usp=drive_web#list
