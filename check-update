@@ -460,7 +460,6 @@ my(%DownLoadAlternative) = qw (
     lftp	http://lftp.yar.ru/get.html
     libdmapsharing https://git.gnome.org/browse/libdmapsharing
     libdnet	http://code.google.com/p/libdnet/downloads/list
-#    CRF++	http://code.google.com/p/crfpp/downloads/list
     FlightCrew	http://code.google.com/p/flightcrew/downloads/list
     highlight	http://www.andre-simon.de/zip/download.php
     krb5	http://web.mit.edu/kerberos/dist
@@ -468,7 +467,6 @@ my(%DownLoadAlternative) = qw (
     xscreensaver	http://www.jwz.org/xscreensaver/download.html
     distcc	http://code.google.com/p/distcc/downloads/list
     cabocha	https://drive.google.com/folderview?id=0B4y35FiV1wh7cGRCUUJHVTNJRnM&usp=sharing#list
-#    CRF++	https://drive.google.com/folderview?id=0B4y35FiV1wh7fngteFhHQUN2Y1B5eUJBNHZUemJYQV9VWlBUb3JlX0xBdWVZTWtSbVBneU0&usp=drive_web#list
     GutenMark	http://www.sandroid.org/GutenMark/download.html
     dbus-sharp	https://github.com/mono/dbus-sharp/downloads
     dbus-sharp-glib	https://github.com/mono/dbus-sharp/downloads
@@ -490,7 +488,6 @@ my(%DownLoadAlternative) = qw (
     txt2man	http://mvertes.free.fr/txt2man/Changelog
     dotfile	http://www.blackie.dk/dotfile/index.html
     clamav	http://www.clamav.net/downloads
-#    CRF++	http://taku910.github.io/crfpp/
     ); ##
 
 # for print/xpdf-arabic etc
