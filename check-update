@@ -372,24 +372,10 @@ my (%SpecialPattern) = (
     );
 
 my(%SourceForgeAlternative) = qw (
-    burn	http://sourceforge.net/projects/gsburn/files/burn/burn-0.4.1/ 
     acidrip	http://sourceforge.net/projects/acidrip/files/acidrip/0.14%20-%20Your%20two-wheeled%20knife/
     dirac	http://sourceforge.net/projects/dirac/files/dirac-codec/Dirac-1.0.2/
-    gxine	http://sourceforge.net/projects/xine/files/gxine/0.5.908/
-    libassetml	http://sourceforge.net/projects/ofset/files/libassetml/1.2.1/
-    xmltv	http://sourceforge.net/projects/xmltv/files/xmltv/0.5.66/
-    OroboROX	http://sourceforge.net/projects/rox/files/OroboROX/0.9.8/
-    pcmanfm	http://sourceforge.net/projects/pcmanfm/files/PCManFM%20%2B%20Libfm%20%28tarball%20release%29/PCManFM/
-    gtkglarea	http://sourceforge.net/projects/openev/files/gtkglarea/gtkglarea-1.2.3/
-    Glib-Object-Introspection	http://sourceforge.net/projects/gtk2-perl/files/Glib_Object_Introspection/
-    Gnome2	http://sourceforge.net/projects/gtk2-perl/files/Gnome2/1.045/
-    Gtk2-GladeXML	http://sourceforge.net/projects/gtk2-perl/files/Gtk2_GladeXML/1.007/
-    Gnome2-GConf	http://sourceforge.net/projects/gtk2-perl/files/Gnome2_GConf/1.044/
-    Cairo	http://sourceforge.net/projects/gtk2-perl/files/Cairo/1.105/
-    Cairo-GObject http://sourceforge.net/projects/gtk2-perl/files/Cairo_GObject/
-    Gnome2-Canvas http://sourceforge.net/projects/gtk2-perl/files/Gnome2_Canvas/1.002/
-    Glib	http://sourceforge.net/projects/gtk2-perl/files/Glib/1.307/
-    FreeImage	http://sourceforge.net/projects/freeimage/files/Source%20Distribution/3.16.0/
+    pcmanfm	https://sourceforge.net/projects/pcmanfm/files/PCManFM%20%2B%20Libfm%20%28tarball%20release%29/PCManFM/
+   FreeImage	http://sourceforge.net/projects/freeimage/files/Source%20Distribution/
     gsoap	http://sourceforge.net/projects/gsoap2/files/gSOAP/
     OdfConverter http://sourceforge.net/projects/odf-converter/files/ODF%20Add-in%20for%20Office/Release%204.0/
     libhtmlobject-perl http://sourceforge.net/projects/htmlobject/files/htmlobject/
