@@ -369,6 +369,7 @@ my (%SpecialPattern) = (
 # not to pick alpha version
     'pdns',		'$line =~ s|.*pdns-([0-9.]+)\.tar\..*|$1|;',
     'upx',		'$line =~ s|.*upx-([0-9.]+)-src\.tar\..*|$1|;',
+    'ragel',		'$line =~ s|.*ragel-([0-9]\.[0-9.]+[0-9]+)\.tar\..*|$1|;',
     );
 
 my(%SourceForgeAlternative) = qw (
