@@ -621,7 +621,7 @@ my (@DELETEDOT) = qw (nkf libssh zidrav4unix);
 # devel/p5-OOTools 	p5-OOTools 	2.30 	<-	2.3
 my (@ADDZERO) = qw(XML-AutoWriter Nmap-Parser xmahjongg Hash-Case Module-Starter OOTools Convert-UUlib JSON-XS IO-Util Module-Build Catalyst-Plugin-Authentication Curses-UI-POE);
 
-my (@ADDZERO2) = qw(Convert-BER Spreadsheet-ParseExcel Test-Reporter Sub-Uplevel Curses-UI-POE DateTime DateTime-Format-Builder DateTime-Format-Strptime 	CGI-FormBuilder DBIx-Abstract CPAN Devel-Symdump Test-Differences );
+my (@ADDZERO2) = qw(Convert-BER Spreadsheet-ParseExcel Test-Reporter Curses-UI-POE DateTime DateTime-Format-Builder DateTime-Format-Strptime 	CGI-FormBuilder DBIx-Abstract CPAN Devel-Symdump Test-Differences );
 # 1.001000 -> 1.0010 Class-C3-Componentised);
 
 my (@DELETE02) = qw(Class-C3-Componentised);
