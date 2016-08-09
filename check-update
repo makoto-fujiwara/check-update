@@ -1872,10 +1872,6 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (PKGNAME) ', $PKGNAME, ' --> DISTBASE
     my ($http_code) = 200;
     my ($location);
 
-    if (($version = DistbaseCacheQuery($DISTBASE, $master_site)) > 0 ){ 
-	print STDERR ' ', sprintf("%4d ", __LINE__ ), ' DISTBASE(', $DISTBASE, ') -> ', $version, ' ' if $DEBUG_CACHE;
-	return ($http_code, $version);}
-
     if ( ! CheckDNS($master_site) ) {
 	return ('DNS', '0.0');
     }
@@ -3718,12 +3714,22 @@ print STDERR sprintf("%4d ", __LINE__ ),
 		' URL: ', $URL,"\n",'      HOMEPAGE: ', $HOMEPAGE, "\n"
 		if $DEBUG_MASTER_SITES_LISTING;
 #	print STDERR sprintf("%4d ", __LINE__ ), 'master_site: ', $master_site, "\n" if $DEBUG_MASTER_SITE ;
-	my($http_code, $master_site) = GetMasterSiteSub($PKGBASE, $DISTBASE, $URL, $HOMEPAGE);
+
+	    my($http_code, $master_site) = ( -1, $URL);
+
+		my($version);
+    if (($version = DistbaseCacheQuery($DISTBASE, $master_site)) > 0 ){ 
+	print STDERR ' ', sprintf("%4d ", __LINE__ ), ' DISTBASE(', $DISTBASE, ') -> ', $version, ' ' if $DEBUG_CACHE;
+	$returnCode = 0;
+	@candidate = ($version);
+    }
+	    if ($#candidate == -1 ) {
+	  ($http_code, $master_site) = GetMasterSiteSub($PKGBASE, $DISTBASE, $URL, $HOMEPAGE);
 print STDERR sprintf("%4d ", __LINE__ ), 
 ' (PKGBASE) ', $PKGBASE, ' --> http: ', $http_code, ' Now: ', $PKGVERSION, ' $available: ', $available,"\n" if $DEBUG_DISTBASE;
 	    $returnCode = -1;
 	print STDERR sprintf("%4d ", __LINE__ ), 'master_site: ', $master_site, "\n" if $DEBUG_MASTER_SITE ;
-
+    }
 	 if ($HS_PACKAGE) {					# MAJOR_IF_THEN_ELSE
 	$master_site = "http://hackage.haskell.org/package/". $DISTBASE;
 	print STDERR sprintf("%4d ", __LINE__ ), "HS_PACKGE: ", $MASTER_SITE ,"\n" if $DEBUG_DISTBASE;
