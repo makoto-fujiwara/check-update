@@ -240,7 +240,6 @@ cmph
 crack-attack
 crimson
 db
-dcfldd
 docbook-xsl
 flags
 gamin
@@ -1488,6 +1487,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
     "       (PKGBASE)\t", $PKGBASE,      "\n",
     "       (DISTNAME)\t", $DISTBASE,      "\n",
     "       (PKGVERSION)\t", $PKGVERSION , "\n" if $DEBUG_DISTBASE;
+$SimplePattern = 1;
 	return $PKGBASE }
 
     # Get several value to do very simple logic for the very first 'if' line below.
