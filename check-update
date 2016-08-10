@@ -3568,10 +3568,10 @@ foreach my $dir (@categories) {  # major loop to the line 3261 ... some 400 line
 #sub 	DoEachPackage( ) {
 	$#CANDIDATE = -1;	# make it empty
 #    if ( ! -d $PackageName)	{ next;}
-    if ($PackageName =~ /^.$/ )	{ next;}
-    if ($PackageName =~ /^..$/ ) { next;}
-    if ($PackageName =~ /^CVS$/ ) { next;}
-    if ($PackageName =~ /^suse/i ) { next;}		# skip suse emulation
+    if ($PackageName =~ /^\.$/ )	{ next;}
+    if ($PackageName =~ /^\.\.$/ )	{ next;}
+    if ($PackageName =~ /^CVS$/ )	{ next;}
+    if ($PackageName =~ /^suse/i )	{ next;}	# skip suse emulation
      # --------------------------------
      ##   S K I P P I N G   S P E C I A L
      #  --------------------------------
