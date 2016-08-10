@@ -1489,7 +1489,9 @@ print STDERR sprintf("%4d ", __LINE__ ),
     "       (PKGBASE)\t", $PKGBASE,      "\n",
     "       (DISTNAME)\t", $DISTBASE,      "\n",
     "       (PKGVERSION)\t", $PKGVERSION , "\n" if $DEBUG_DISTBASE;
+if (! $SpecialPattern{$PKGBASE}) {
 $SimplePattern = 1;
+}
 	return $PKGBASE }
 
     # Get several value to do very simple logic for the very first 'if' line below.
@@ -3980,3 +3982,6 @@ __END__
 (setq time-stamp-start "$VERSION = \"") ;
 (setq time-stamp-end "\"") ;
 (setq time-stamp-line-limit "10") ; ; default is 8
+
+# debug format
+  print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ',
