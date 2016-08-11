@@ -491,6 +491,7 @@ my(%DownLoadAlternative) = qw (
     txt2man	http://mvertes.free.fr/txt2man/Changelog
     dotfile	http://www.blackie.dk/dotfile/index.html
     clamav	http://www.clamav.net/downloads
+    libssh	https://red.libssh.org/projects/libssh/files
     ); ##
 
 # for print/xpdf-arabic etc
