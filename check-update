@@ -382,6 +382,7 @@ my(%SourceForgeAlternative) = qw (
     gsoap	http://sourceforge.net/projects/gsoap2/files/gSOAP/
     OdfConverter http://sourceforge.net/projects/odf-converter/files/ODF%20Add-in%20for%20Office/Release%204.0/
     libhtmlobject-perl http://sourceforge.net/projects/htmlobject/files/htmlobject/
+    tk		https://sourceforge.net/projects/tcl/files/Tcl/
 ); #'
 
 # PKGBASE to $DISTBASE association Special (ending digit is main customer)
@@ -3300,16 +3301,9 @@ sub GetSFProjectCandidate($$$) {  # line 2922 to 2979
 		my ($dir) = VersionedDirectory($DISTBASE, $site);
 		if ($dir == -1) { next;}
 		print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ': dir (', $dir, ')',"\n" if $DEBUG_VERSION_DIR;
-#		my (@can);
 		if ( $dir =~ m|\/([0-9.]+)$| ) { $dir =~ s|$1||; }
 		($returnCode, @candidate) = ParseDirectory($dir, $DISTBASE, $SimpleFallBackNo);
-#		push(@candidate, @can);  # not overwrite but add
-#		if ($returnCode == -1) {
-#		    ($candidate) = GetSFProjectString($site, $DISTBASE);
-#		    if ( $candidate != '0.0') { push(@candidate, $candidate); last; }
-#		} else { last ;	}
 	    }
-#	return ($returnCode, @candidate);
 	}    # end foreach
 
 	if ($#candidate  < 0 && (my ($alternative) = $SourceForgeAlternative{$DISTBASE} ) ) {
