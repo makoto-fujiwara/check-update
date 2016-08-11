@@ -372,6 +372,7 @@ my (%SpecialPattern) = (
     'pdns',		'$line =~ s|.*pdns-([0-9.]+)\.tar\..*|$1|;',
     'upx',		'$line =~ s|.*upx-([0-9.]+)-src\.tar\..*|$1|;',
     'ragel',		'$line =~ s|.*ragel-([0-9]\.[0-9.]+[0-9]+)\.tar\..*|$1|;',
+    'tk',		'$line =~ s|.*tk([0-9]\.[0-9.]+)-src\.tar.*|$1|;',
     );
 
 my(%SourceForgeAlternative) = qw (
@@ -420,6 +421,7 @@ my(%DISTBASE) = qw (
     p7zip	p7zip
     boa-constructor	boa-constructor
     caff	signing-party
+    tk		tk
     );
    
 my(%DownLoadAlternative) = qw (
@@ -3280,6 +3282,11 @@ sub GetSFProjectCandidate($$$) {  # line 2922 to 2979
 #  qore-sqlite3-module -> files/module-sqlite3/
     if ( $dist_name =~ /qore-sqlite3-module/ ) {
 	unshift(@directory_candidate, 'https://sourceforge.net/projects/qore/files/module-sqlite3/');
+    }
+    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], 'DISTBASE: ', $DISTBASE, "\n" if $DEBUG_ALTERNATIVE;
+    if ( my $alternative = $SourceForgeAlternative{$DISTBASE}) {
+    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], 'alternative: ', $alternative, "\n" if $DEBUG_ALTERNATIVE;
+	unshift(@directory_candidate, $alternative);
     }
     my ($iteration) = 0;
     foreach my $site (
