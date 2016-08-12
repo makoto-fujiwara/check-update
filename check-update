@@ -350,6 +350,7 @@ my (%SpecialPattern) = (
     'Apache-Gallery',	'$line =~ s|.*Apache-Gallery-([0-9.]+)-.*|$1|;',
     'bind',		'$line =~ s|.*bind-([0-9.Ppl]+).*|$1|;',
     'wmii',		'$line =~ s|.*wmii-([0-9]\.[0-9]+)\.tar.*|$1|;',  # force having period in pattern
+    'xz',		'$line =~   s|.*xz-([0-9]\.[0-9.]+)\.tar.*|$1|;',	# force having period in pattern
     'multitail',	'$line =~ s|.* stable version .*>([0-9.]+)</A.*|$1|;', 
     'xcdroast',		'$line =~ s|.*xcdroast/([0-9.a]+)lpha([0-9]+).*|$1$2|;', 
     'nut',		'$line =~ s|.*NUT ([0-9.]+) released.*|$1|;',
@@ -372,7 +373,7 @@ my (%SpecialPattern) = (
     'pdns',		'$line =~ s|.*pdns-([0-9.]+)\.tar\..*|$1|;',
     'upx',		'$line =~ s|.*upx-([0-9.]+)-src\.tar\..*|$1|;',
     'ragel',		'$line =~ s|.*ragel-([0-9]\.[0-9.]+[0-9]+)\.tar\..*|$1|;',
-    'tk',		'$line =~ s|.*tk([0-9]\.[0-9.]+)-src\.tar.*|$1|;',
+    'tk',		'$line =~ s|.*tk([0-9]\.[0-9.]+)-src\.tar.*|$1|;',	# don't pick tk866-src.zip
     );
 
 my(%SourceForgeAlternative) = qw (
@@ -944,17 +945,18 @@ sub ClassifyPackage(@) {
 		$FAMILY{$p} = '$version =~ s/.*'.$pkg.'-(1\.[0-9.]+)\.tar.*/$1/';
 	    }
 	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1c) family: ', $p, "\n" if $DEBUG_FAMILY;
-#	# (4-2) gdb{,5,6}
-#	}  elsif ($p =~ /^(gdb)([0-9]*)$/) { # don't include cdb, gdbus-codegen
-#	    my ($pkg)  = $1;
-#	    my ($major) = $2;
-#	    if ($major ne '') {
-#		$FAMILY{$p} = '$version =~ s/.*'.$pkg.'-('.$major.'\.[0-9.]+)\.tar\..*/$1/;'; }
-#	    else {
-#		$FAMILY{$p} = '$version =~ s/.*'.$pkg.'-(7\.[0-9.]+)\.tar\..*/$1/;';
-#	    }
-#	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1c) family: ', $p,' -> ',
-#		$FAMILY{$p}, "\n" if $DEBUG_FAMILY;
+	# (4-2) tk{,85}
+	}  elsif ($p =~ /^(tk)([0-9]*)([0-9]*)$/) {
+	    my ($pkg)  = $1;
+	    my ($major) = $2;
+	    my ($minor) = $3;	    
+	    if ($major ne '') {
+		$FAMILY{$p} = '$version =~ s/.*' . $pkg . '-(' . $major . '\.' . $minor . '.)\.tar\..*/$1/;'; }
+	    else {
+		$FAMILY{$p} = '$version =~ s/.*'.$pkg.'-([0-9.]+)\.tar\..*/$1/;';
+	    }
+	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1c) family: ', $p,' -> ',
+		$FAMILY{$p}, "\n" if $DEBUG_FAMILY;
 	# (5) libdmapsharing{,3}
 	}  elsif ($p =~ /(libdmapsharing)([0-9]*)/) {
 	    my ($pkg)  = $1;
