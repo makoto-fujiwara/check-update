@@ -351,6 +351,7 @@ my (%SpecialPattern) = (
     'bind',		'$line =~ s|.*bind-([0-9.Ppl]+).*|$1|;',
     'wmii',		'$line =~ s|.*wmii-([0-9]\.[0-9]+)\.tar.*|$1|;',  # force having period in pattern
     'xz',		'$line =~   s|.*xz-([0-9]\.[0-9.]+)\.tar.*|$1|;',	# force having period in pattern
+#    'dact',		'$line =~ s|.*dact-([0-9]\.[0-9.]+)\.tar\.gz|$1|;',	# force having period in pattern
     'multitail',	'$line =~ s|.* stable version .*>([0-9.]+)</A.*|$1|;', 
     'xcdroast',		'$line =~ s|.*xcdroast/([0-9.a]+)lpha([0-9]+).*|$1$2|;', 
     'nut',		'$line =~ s|.*NUT ([0-9.]+) released.*|$1|;',
@@ -373,7 +374,7 @@ my (%SpecialPattern) = (
     'pdns',		'$line =~ s|.*pdns-([0-9.]+)\.tar\..*|$1|;',
     'upx',		'$line =~ s|.*upx-([0-9.]+)-src\.tar\..*|$1|;',
     'ragel',		'$line =~ s|.*ragel-([0-9]\.[0-9.]+[0-9]+)\.tar\..*|$1|;',
-    'tk',		'$line =~ s|.*tk([0-9]\.[0-9.]+)-src\.tar.*|$1|;',	# don't pick tk866-src.zip
+    'tk',		'$line =~ s|.*tk([0-9]\.[0-9.]+)-src\.tar\..*|$1|;',	# don't pick tk866-src.zip
     'lha',		'$line =~ s|.*lha-([0-9]).([0-9])([0-9])+([a-z]).*|$1$2$3.$4|; $line =~ y|a-i|1-9|;',
     );
    #http://prdownloads.sourceforge.jp/lha/11617/lha-1.14i-ac20040929.tar.gz
@@ -499,6 +500,7 @@ my(%DownLoadAlternative) = qw (
     clamav	http://www.clamav.net/downloads
     libssh	https://red.libssh.org/projects/libssh/files
     ); ##
+#    dact	http://www.rkeene.org/devel/dact/
 
 # for print/xpdf-arabic etc
 my (%MonthToDigit) = qw (
@@ -919,7 +921,7 @@ sub ClassifyPackage(@) {
 	my ($with_digit)	= 0 ;
 	my ($family)	= 0 ;
 	# (1) exclude similar but false first
-	if ( $p =~ /dri[23]proto/ ) { return;} # exclude special (non family) case
+	if ( $p =~ /dri[23]proto/ ) { next;  } # exclude special (non family) case
 
 	# (2) gcc and lua special, two digit in the package name end
 	if ($p =~ /(apache|netatalk|gcc|lua|php|python)([0-9])([0-9])$/) {
@@ -952,10 +954,12 @@ sub ClassifyPackage(@) {
 	    my ($pkg)  = $1;
 	    my ($major) = $2;
 	    my ($minor) = $3;	    
+	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1c) family: ', $p,' -> ',
+		"\n" if $DEBUG_FAMILY;
 	    if ($major ne '') {
-		$FAMILY{$p} = '$version =~ s/.*' . $pkg . '-(' . $major . '\.' . $minor . '.)\.tar\..*/$1/;'; }
+		$FAMILY{$p} = '$version =~ s/.*' . $pkg . '(' . $major . '\.' . $minor . '.)-src\.tar\..*/$1/;'; }
 	    else {
-		$FAMILY{$p} = '$version =~ s/.*'.$pkg.'-([0-9.]+)\.tar\..*/$1/;';
+		$FAMILY{$p} = '$version =~ s/.*'.$pkg.'([0-9.]+)-src\.tar\..*/$1/;';
 	    }
 	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1c) family: ', $p,' -> ',
 		$FAMILY{$p}, "\n" if $DEBUG_FAMILY;
@@ -3290,7 +3294,7 @@ sub GetSFProjectCandidate($$$) {  # line 2922 to 2979
     print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], 'DISTBASE: ', $DISTBASE, "\n" if $DEBUG_ALTERNATIVE;
     if ( my $alternative = $SourceForgeAlternative{$DISTBASE}) {
     print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], 'alternative: ', $alternative, "\n" if $DEBUG_ALTERNATIVE;
-	unshift(@directory_candidate, $alternative);
+    @directory_candidate =  ($alternative);
     }
     my ($iteration) = 0;
     foreach my $site (
@@ -3298,8 +3302,9 @@ sub GetSFProjectCandidate($$$) {  # line 2922 to 2979
 	if ($site eq '' ) {
 	    print STDERR sprintf("%4d ", __LINE__ ), ' <', (caller 0)[3], ">\t:", (caller 0)[2], ': ', $site, " \$site is empty\n"; next;}
 	    ($status, $location) = CheckHeader($site);
-		 print STDERR sprintf("%4d ", __LINE__ ), '(',$iteration++,') ', $site, ') status('. $status.") -> \n"  if $DEBUG_HTTP_HEADER;
+		 print STDERR sprintf("%4d ", __LINE__ ), '(',$iteration ,') ', $site, ') status('. $status.") -> \n"  if $DEBUG_HTTP_HEADER;
 	    if ($status == 200 ) {
+		 print STDERR sprintf("%4d ", __LINE__ ), '(',$iteration++,') ', $site, ') status('. $status.") -> \n"  if $DEBUG_HTTP_HEADER;
 	    ($returnCode, @candidate) = ParseDirectory($site, $DISTBASE, $SimpleFallBackNo);
 		 print STDERR sprintf("%4d ", __LINE__ ), 
 	     ' (ParseDir) master_site(', $site, ') status('. $status. ') '. 'candidate('.$#candidate.') -> '. join (' ', @candidate), "\n"  if $DEBUG_SF;
@@ -3310,6 +3315,7 @@ sub GetSFProjectCandidate($$$) {  # line 2922 to 2979
 		my ($candidate) = GetSFProjectString($site, $DISTBASE);
 		if ( $candidate != '0.0') {push(@candidate, $candidate); }# last;}
 		my ($dir) = VersionedDirectory($DISTBASE, $site);
+		print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ': dir (', $dir, ')',"\n" if $DEBUG_VERSION_DIR;
 		if ($dir == -1) { next;}
 		print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ': dir (', $dir, ')',"\n" if $DEBUG_VERSION_DIR;
 		if ( $dir =~ m|\/([0-9.]+)$| ) { $dir =~ s|$1||; }
@@ -3553,7 +3559,7 @@ foreach my $dir (@categories) {  # major loop to the line 3261 ... some 400 line
 
     # set regexp in %FAMILY
     ClassifyPackage(@PackageNames);
-
+#   print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> ', join ("\n", @PackageNames),"\n" if $DEBUG_FAMILY;
     print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1a) pattern: ', $SpecialPatternY,"\n" if $DEBUG_FAMILY;
 # ------------------------------------
 ##    F O R   E A C H  P A C K A G E     ( to line 3297, some 350 lines )
