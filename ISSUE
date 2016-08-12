@@ -1,33 +1,6 @@
 List of problems known, or to be solved
- - Alternate success 
-   * claws-mail
+- VersionDirectory and Family packages are not well organized
 
-CF-N9@makoto 22:18:12/160808(~)%
-  /export/git-work/check-update/check-update -p /export/CHROOT/usr/pkgsrc/ 
-3455  *** category (mail) package ()
-3478 output directory is /home/makoto/public_html/pkgsrc/check-update
-3479 output to /home/makoto/public_html/pkgsrc/check-update/.partial.html
-3546     ---  (mail) ---
-         bulk_mailer             (=) (3845 ) Now:     1.13 ->     0.0 Todo:       
-            clamsmtp             (=) (3845 ) Now:     1.10 ->    1.10 Todo:       not-to-list
-          claws-mail             (=) (3845 ) Now:   3.13.2 ->  3.14.0 Todo:       
-2449 <main::ParseDirectory> :3762: 3.14.0 (3.14.0) is strange.
-2449 <main::ParseDirectory> :3762: 3.14.0 (3.14.0) is strange.
-2449 <main::ParseDirectory> :3762: 3.14.0 (3.14.0) is strange.
-          =>-archive    (claws-mail) (3845 ) Now:   3.13.2 ->     0.0 Todo:       
-     =>-attachwarner    (claws-mail) (3845 ) Now:   3.13.2 ->  3.14.0 Todo:       
-2449 <main::ParseDirectory> :3762: 3.14.0 (3.14.0) is strange.
-2449 <main::ParseDirectory> :3762: 3.14.0 (3.14.0) is strange.
-2449 <main::ParseDirectory> :3762: 3.14.0 (3.14.0) is strange.
-      =>-att-remover    (claws-mail) (3845 ) Now:   3.13.2 ->     0.0 Todo:    
-                cone             (=) (3845 ) Now:     0.90 ->    0.92 Todo:  0.92 
-       =>-bogofilter    (claws-mail) (3845 ) Now:   3.13.2 ->  3.14.0 Todo:
-      claws-mail- =>    (cachesaver) (3845 ) Now:   0.10.9 ->  0.10.9 Todo:       not-to-list
-2449 <main::ParseDirectory> :3762: 3.14.0 (3.14.0) is strange.
-2449 <main::ParseDirectory> :3762: 3.14.0 (3.14.0) is strange.
-2449 <main::ParseDirectory> :3762: 3.14.0 (3.14.0) is strange.
-        =>-fetchinfo    (claws-mail) (3845 ) Now:   3.13.2 ->     0.0 Todo:
-	
 
 
 
