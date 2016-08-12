@@ -374,7 +374,9 @@ my (%SpecialPattern) = (
     'upx',		'$line =~ s|.*upx-([0-9.]+)-src\.tar\..*|$1|;',
     'ragel',		'$line =~ s|.*ragel-([0-9]\.[0-9.]+[0-9]+)\.tar\..*|$1|;',
     'tk',		'$line =~ s|.*tk([0-9]\.[0-9.]+)-src\.tar.*|$1|;',	# don't pick tk866-src.zip
+    'lha',		'$line =~ s|.*lha-([0-9]).([0-9])([0-9])+([a-z]).*|$1$2$3.$4|; $line =~ y|a-i|1-9|;',
     );
+   #http://prdownloads.sourceforge.jp/lha/11617/lha-1.14i-ac20040929.tar.gz
 
 my(%SourceForgeAlternative) = qw (
     acidrip	http://sourceforge.net/projects/acidrip/files/acidrip/0.14%20-%20Your%20two-wheeled%20knife/
