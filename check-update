@@ -269,6 +269,12 @@ renpy
 sign
 simulavr
 zlib
+cflib-CVS
+gemlib-CVS
+ldg-SVN
+mintbin-CVS
+mintlib-CVS
+pml-CVS
 );
 
 # DISTBASE to pattern
