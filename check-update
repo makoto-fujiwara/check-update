@@ -567,7 +567,7 @@ gigbase gku bunzip wxRemind qkc atasm bicom bww2tex cgic
 PDF par jpilot-syncmail asterisk-perl pyserial datlib dutil 
 mdiff rbuild rinfo zident adodb lzma lzop upx piewm sawfish 
 wmctrl wmakerconf mesch gigabase plnode uno Par sgrep acmesrc netio
-mame
+mame telepathy-mission-control
 );
 
 # 31 -> 3.1 # 3370 -> 3.370 devel/cfitsio
@@ -3303,19 +3303,17 @@ sub GetSFProjectCandidate($$$) {  # line 2922 to 2979
     if ($directory_candidate) {
     push (@directory_candidate, $directory_candidate);}
     push (@directory_candidate,
-	    'http://download.sourceforge.net/projects/' .$SFProject . '/files/'. $subDirectory .'/',
-	            'https://sourceforge.net/projects/' .$SFProject . '/files/',
-	            'https://sourceforge.net/projects/' .$SFProject . '/files/'. $subDirectory .'/',
-	            'https://sourceforge.net/projects/' .$SFProject . '/files/'. $SFProject .'/',
-	            'https://sourceforge.net/projects/' .$SFProject . '/files/'. $DISTBASE .'/',
-#                   'https://sourceforge.net/projects/cmusphinx/files/sphinxtrain/1.0.8/
-#		     https://sourceforge.net/projects/libwpd/files/librevenge/librevenge-0.0.4/
-	    'http://download.sourceforge.net/project/'  .$SFProject . '/files/',
-	    'http://download.sourceforge.net/project/'  .$SFProject,
-	    'http://download.sourceforge.net/projects/' .$subDirectory  . '/files/',
-            'http://download.sourceforge.net/projects/' .$SFProject . '/files/',
-	            'https://sourceforge.net/projects/' .$SFProject . '/'      . $subDirectory .'/',
-     );
+		'https://sourceforge.net/projects/' .$SFProject . '/files/',
+		'https://sourceforge.net/projects/' .$SFProject . '/files/'. $subDirectory .'/',
+		'https://sourceforge.net/projects/' .$SFProject . '/files/'. $SFProject .'/',
+		'https://sourceforge.net/projects/' .$SFProject . '/files/'. $DISTBASE .'/',
+	'http://download.sourceforge.net/project/'  .$SFProject . '/files/',
+	'http://download.sourceforge.net/project/'  .$SFProject,
+	'http://download.sourceforge.net/projects/' .$subDirectory	. '/files/',
+	'http://download.sourceforge.net/projects/' .$SFProject . '/files/',
+		'https://sourceforge.net/projects/' .$SFProject . '/'      . $subDirectory .'/',
+	'http://download.sourceforge.net/projects/' .$SFProject . '/files/'. $subDirectory .'/',
+	);
 #  qore-sqlite3-module -> files/module-sqlite3/
     if ( $dist_name =~ /qore-sqlite3-module/ ) {
 	unshift(@directory_candidate, 'https://sourceforge.net/projects/qore/files/module-sqlite3/');
@@ -3329,7 +3327,8 @@ sub GetSFProjectCandidate($$$) {  # line 2922 to 2979
     foreach my $site (
 	@directory_candidate) {
 	if ($site eq '' ) {
-	    print STDERR sprintf("%4d ", __LINE__ ), ' <', (caller 0)[3], ">\t:", (caller 0)[2], ': ', $site, " \$site is empty\n"; next;}
+	    print STDERR sprintf("%4d ", __LINE__ ), ' <', (caller 0)[3], ">\t:", (caller 0)[2], ': ', $site, " \$site is empty\n"; next;
+	}
 	    ($status, $location) = CheckHeader($site);
 		 print STDERR sprintf("%4d ", __LINE__ ), '(',$iteration ,') ', $site, ') status('. $status.") -> \n"  if $DEBUG_HTTP_HEADER;
 	    if ($status == 200 ) {
