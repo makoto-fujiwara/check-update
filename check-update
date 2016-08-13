@@ -3304,7 +3304,6 @@ sub GetSFProjectCandidate($$$) {  # line 2922 to 2979
     push (@directory_candidate, $directory_candidate);}
     push (@directory_candidate,
 		'https://sourceforge.net/projects/' .$SFProject . '/files/',
-		'https://sourceforge.net/projects/' .$SFProject . '/files/'. $subDirectory .'/',
 		'https://sourceforge.net/projects/' .$SFProject . '/files/'. $SFProject .'/',
 		'https://sourceforge.net/projects/' .$SFProject . '/files/'. $DISTBASE .'/',
 	'http://download.sourceforge.net/project/'  .$SFProject . '/files/',
@@ -3313,6 +3312,7 @@ sub GetSFProjectCandidate($$$) {  # line 2922 to 2979
 	'http://download.sourceforge.net/projects/' .$SFProject . '/files/',
 		'https://sourceforge.net/projects/' .$SFProject . '/'      . $subDirectory .'/',
 	'http://download.sourceforge.net/projects/' .$SFProject . '/files/'. $subDirectory .'/',
+		'https://sourceforge.net/projects/' .$SFProject . '/files/'. $subDirectory .'/',
 	);
 #  qore-sqlite3-module -> files/module-sqlite3/
     if ( $dist_name =~ /qore-sqlite3-module/ ) {
@@ -3329,15 +3329,15 @@ sub GetSFProjectCandidate($$$) {  # line 2922 to 2979
 	if ($site eq '' ) {
 	    print STDERR sprintf("%4d ", __LINE__ ), ' <', (caller 0)[3], ">\t:", (caller 0)[2], ': ', $site, " \$site is empty\n"; next;
 	}
-	    ($status, $location) = CheckHeader($site);
-		 print STDERR sprintf("%4d ", __LINE__ ), '(',$iteration ,') ', $site, ') status('. $status.") -> \n"  if $DEBUG_HTTP_HEADER;
-	    if ($status == 200 ) {
-		 print STDERR sprintf("%4d ", __LINE__ ), '(',$iteration++,') ', $site, ') status('. $status.") -> \n"  if $DEBUG_HTTP_HEADER;
+	($status, $location) = CheckHeader($site);
+	    print STDERR sprintf("%4d ", __LINE__ ), '(',$iteration  ,') ', $site, ') status('. $status.") -> \n"  if $DEBUG_HTTP_HEADER;
+	if ($status == 200 ) {
+	    print STDERR sprintf("%4d ", __LINE__ ), '(',$iteration++,') ', $site, ') status('. $status.") -> \n"  if $DEBUG_HTTP_HEADER;
 	    ($returnCode, @candidate) = ParseDirectory($site, $DISTBASE, $SimpleFallBackNo);
-		 print STDERR sprintf("%4d ", __LINE__ ), 
-	     ' (ParseDir) master_site(', $site, ') status('. $status. ') '. 'candidate('.$#candidate.') -> '. join (' ', @candidate), "\n"  if $DEBUG_SF;
-	    }
-	    if ($#candidate > 0 ) { $master_site = $site ;last;}
+	    print STDERR sprintf("%4d ", __LINE__ ), 
+		' (ParseDir) master_site(', $site, ') status('. $status. ') '. 'candidate('.$#candidate.') -> '. join (' ', @candidate), "\n"  if $DEBUG_SF;
+	}
+	if ($#candidate > 0 ) { $master_site = $site ;last;}
 	my ($candidate);
 	    if ($status == 200 ) {
 		my ($candidate) = GetSFProjectString($site, $DISTBASE);
