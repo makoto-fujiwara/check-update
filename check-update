@@ -2088,7 +2088,9 @@ sub GitHubSpecial($$$$){
 	if         (m,release-([0-9.]+)-pre.*,) { next;}
 	if    (m,releases/tag/([0-9.]+)-pre.*,) { next;}  # not to pick audio/ardour-5.0pre0
 
-	if (m,/$distbase-([0-9.]+),	||
+	if (
+	    m,data-name=\"(2[0-9]+-[01][0-9]-[0-9]+),	||   # devel/re2 2016-08-01
+	    m,/$distbase-([0-9.]+),	||
 	    m,archive/release_([0-9_]+)\.,	||   # ham/uhd
 	    m,archive/([0-9.]+)\.tar,	||	     # devel/js_of_ocaml
 	    m|/([0-9.]+)\.tar\.gz|      ||
@@ -2100,6 +2102,8 @@ sub GitHubSpecial($$$$){
 	    m,^V([0-9.]+),		||   # biology/cdhit
 	    0 ) {
 	    $cand = $1;
+	    $cand =~ s/(2[0-9]+)-([01][0-9])-([0-9]+)/$1$2$3/; # devel/re2 2016-08-01
+
 	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> ', $cand, ' :: ', $_, "\n" if $DEBUG_GITHUB;
 	    if ($distbase eq 'uhd' || $distbase eq 'mame' || $distbase eq 'cdhit'
 		) {  $cand = EditVersion($distbase,$cand); }
