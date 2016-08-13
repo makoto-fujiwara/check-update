@@ -71,6 +71,7 @@ my ($DEBUG_GNOME);
 my ($DEBUG_HTTP_HEADER);
 my ($DEBUG_MASTER_SITES_LISTING);
 my ($DEBUG_MASTER_SITE);  # $master_site get strange  with previous version #
+my ($DEBUG_PYPI);
 my ($DEBUG_REDIRECT);
 my ($DEBUG_RUBYGEM);
 my ($DEBUG_SF);
@@ -113,6 +114,7 @@ my(%LongName)  = (
    'V',  'Versioned Sub Directory',
    'x',  'Curl Cache',
    'X',	 'Explode candidate',
+   'y',	 'pypi special',
 );
 
 # Skip the guide saying "Looking for the latest version ?"
@@ -2024,6 +2026,21 @@ sub pypiSpecial($$$$){
         $master_site =~ s|archive/|releases|;
     my ($dir)		= shift;
     my ($PackageName)	= shift;
+
+    my $site = 'https://pypi.python.org/pypi/' . $DISTBASE;
+#    my $ver = ParseDirectorySmall( $site, $DISTBASE);
+
+  print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ',
+      'distbase: ', $DISTBASE, "\n"
+      if $DEBUG_PYPI || $DEBUG_HTTP_HEADER;
+    my $py_site = 'https://pypi.python.org/pypi/'. $distbase ;
+	    $dir = VersionedDirectory($DISTBASE, $py_site);
+	    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2],
+		': dir(', $dir, ')',"\n" if $DEBUG_PYPI; 
+	    if ($dir == -1) { next;}
+    ($returnCode, @candidate) = ParseDirectory($dir, $DISTBASE, $SimpleFallBackNo);
+	    if ($returnCode == 200 ) {last;}
+    return ($returnCode, @candidate);
 }
 sub GitHubSpecial($$$$){
     my ($distbase)	= shift;
@@ -2334,7 +2351,7 @@ print STDERR sprintf("%4d ", __LINE__ ).' location: ', $location,"\n" if  $DEBUG
 sub ParseDebug($){
     my ($pattern) = shift;
     my %DEBUG;
-    my $char_list = 'aAcCdDEegFfGhlLmMnpPrRsSUVxX';
+    my $char_list = 'aAcCdDEegFfGhlLmMnpPrRsSUVxXy';
 
     if ( $pattern =~ /a/ ) { $pattern = $char_list  }
     print STDERR sprintf("%4d ", __LINE__ ), ' DEBUG pattern (',  $pattern,  ')',"\n";
@@ -2364,10 +2381,11 @@ sub ParseDebug($){
     $DEBUG_HTTP_HEADER		= $DEBUG{'h'} + $DEBUG{'a'} ;
     $DEBUG_MASTER_SITES_LISTING = $DEBUG{'m'} + $DEBUG{'a'} ;
     $DEBUG_MASTER_SITE		= $DEBUG{'M'} + $DEBUG{'a'} ;	 
-    $DEBUG_SPECIAL_PATTERN	= $DEBUG{'p'} + $DEBUG{'a'} ;
-    $DEBUG_SIMPLE_PATTERN	= $DEBUG{'P'} + $DEBUG{'a'} ;
+    $DEBUG_PYPI			= $DEBUG{'y'} + $DEBUG{'a'} ;
     $DEBUG_RUBYGEM		= $DEBUG{'r'} + $DEBUG{'a'} ;
     $DEBUG_REDIRECT		= $DEBUG{'R'} + $DEBUG{'a'} ;
+    $DEBUG_SPECIAL_PATTERN	= $DEBUG{'p'} + $DEBUG{'a'} ;
+    $DEBUG_SIMPLE_PATTERN	= $DEBUG{'P'} + $DEBUG{'a'} ;
     $DEBUG_SF			= $DEBUG{'s'} + $DEBUG{'a'} ;
     $DEBUG_SF_LOOKING_FOR	= $DEBUG{'L'} + $DEBUG{'a'} ;
     $DEBUG_STATS		= $DEBUG{'S'} + $DEBUG{'a'} ;
@@ -3366,7 +3384,7 @@ sub VersionedDirectory ($$){
     # sub directories. For example
     # https://sourceforge.net/projects/aegis/files/aegis/
     # (1) To check if it is a directory like this
-    # (2) Returns URL for the sub-direcory which holds latest version
+    # (2) Returns URL for the sub-directory which holds latest version
     my ($distbase) = shift;
     my ($url) = shift;
     if ( $url eq '') { return -1 ; }
@@ -3388,6 +3406,8 @@ sub VersionedDirectory ($$){
 	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ', $_  if $DEBUG_VERSION_DIR;
 	if (                   /^([\t ]+)([0-9.]+)[\t ]+/  ||
 			       /^[\t ]*($distbase[-]*)([0-9.]+)[\t ]+/ ||
+			       /^[\t ]*($distbase[-]*)([0-9.]+)/ ||
+			       /^[\t ]*($distbase[-]*) ([0-9.]+)/ ||
 			       m|.(DIR).\s+([0-9.]+)/| ) {
 	    $name = $1; # pick prefix
 	    $ver = $2;
@@ -3400,7 +3420,12 @@ sub VersionedDirectory ($$){
     }
     close(W3M);
     if ($ver eq '0.0') { return -1;}
-    my ($return) = $url.$name.$max_version.'/';
+    my ($return);
+    if ($url =~ /pypi/ ) {
+	$return = $url.'/'.$max_version.'/';
+    } else {
+	$return = $url.$name.$max_version.'/';
+    }
     print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' return (', $return,')',"\n" if $DEBUG_VERSION_DIR;
     return $return;
 }
@@ -3828,10 +3853,11 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	    ($returnCode, @candidate) = GitHubSpecial($DISTBASE, $HOMEPAGE, $dir, $PackageName);
 	}
 	## http://pypi.python.org/pypi/zope.interface
-#	if ($#candidate  < 1 && ($HOMEPAGE =~ m|pypi.python.org/pypi|) ) {
-#	    # ------------------ on HOMEPAGE
-#	    ($returnCode, @candidate) = pypiSpecial($DISTBASE, $HOMEPAGE, $dir, $PackageName);
-#	}
+	if ($#candidate  < 1 && ($HOMEPAGE =~ m|pypi.python.org/pypi|) ) {
+	    # ------------------ on HOMEPAGE
+	    ($returnCode, @candidate) = pypiSpecial($DISTBASE, $HOMEPAGE, $dir, $PackageName);
+	}
+    print STDERR sprintf("%4d ", __LINE__ ), join "\n", @candidate, "\n" if $DEBUG_VERSION_DIR;
 
 	print STDERR sprintf("%4d ", __LINE__ ), 'MASTER_SITE ', $MASTER_SITE, ' DISTBASE ', $DISTBASE, "\n" if $DEBUG_DISTBASE;
 	print STDERR sprintf("%4d ", __LINE__ ),  $DownLoadAlternative{$DISTBASE}, "\n" if $DEBUG_ALTERNATIVE;
