@@ -499,6 +499,7 @@ my(%DownLoadAlternative) = qw (
     dotfile	http://www.blackie.dk/dotfile/index.html
     clamav	http://www.clamav.net/downloads
     libssh	https://red.libssh.org/projects/libssh/files
+    Renaissance	http://www.gnustep.it/Renaissance/Download.html
     ); ##
 #    dact	http://www.rkeene.org/devel/dact/
 
