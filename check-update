@@ -503,6 +503,7 @@ my(%DownLoadAlternative) = qw (
     py2app	https://bitbucket.org/ronaldoussoren/py2app/downloads#tag
     polib	https://bitbucket.org/izi/polib/downloads
     db		http://www.oracle.com/technetwork/jp/products/berkeleydb/downloads/index-090620-ja.html
+    db		http://www.oracle.com/technetwork/database/database-technologies/berkeleydb/downloads/index-082944.html
     txt2man	http://mvertes.free.fr/txt2man/Changelog
     dotfile	http://www.blackie.dk/dotfile/index.html
     clamav	http://www.clamav.net/downloads
@@ -718,7 +719,7 @@ sub GetTODOinfo($$);
 sub GetWipInfo($);
 sub GreyDigitIf00($$);
 sub Http301core($$);
-sub ParseDirectory($$$);
+sub ParseDirectory($$$$);
 sub PrintHeader($);
 sub ReadMakefile($$);
 sub ReadTodo($);
@@ -1025,9 +1026,12 @@ sub ClassifyPackage(@) {
 	} elsif ($p =~ /^(db)([0-9])$/) {
 	    my ($lang)  = $1;
 	    my ($major) = $2;
-	    $FAMILY{$p} = '$version =~ s/.*'. $lang .'-('.$major.'\.[0-9.]+)\.tar\..*/$1/' ;
-	    $FAMILY{$p} = '$version =~ s/.*'. $lang .'-('.$major.'[.][38]+[.][0-9]+)\.tar\..*/$1/' ;
-	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1a) family: ', $p,"\n" if $DEBUG_FAMILY;
+	    my ($pattern) = '$version =~ s/.*'. $lang .'-('.$major.'\.[0-9.]+)\.tar\..*/$1/' ;
+	    $FAMILY{$p} = $pattern;
+#	    $FAMILY{$p} = '$version =~ s/.*'. $lang .'-('.$major.'[.][38]+[.][0-9]+)\.tar\..*/$1/' ;
+#	    Berkeley DB 3.3.11 .tar.g
+#	    $FAMILY{'db'} = '$version =~ s/.*Berkeley DB (' .$major.'\.[0-9.]+) \.tar.*/$1/' ;
+	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1a) family: ', $p,' -> ', $pattern,"\n" if $DEBUG_FAMILY;
 
 	 # (12) rt{,3}
 # 	}  elsif ($p =~ /(rt)([0-9]*)/) {
@@ -2048,7 +2052,7 @@ sub pypiSpecial($$$$){
 	    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2],
 		': dir(', $dir, ')',"\n" if $DEBUG_PYPI; 
 	    if ($dir == -1) { next;}
-    ($returnCode, @candidate) = ParseDirectory($dir, $DISTBASE, $SimpleFallBackNo);
+    ($returnCode, @candidate) = ParseDirectory($dir, $DISTBASE, $SimpleFallBackNo, $PackageName);
 	    if ($returnCode == 200 ) {last;}
     return ($returnCode, @candidate);
 }
@@ -2204,9 +2208,10 @@ sub ParseUpperDirectory($$){
     return ($returnCode, @candidate);
 }
 #  --------------------------------------------------------------
-sub GnomeSpecial($$){
+sub GnomeSpecial($$$){
     my($distbase)	= shift;
     my($master_site)	= shift;
+    my($PackageName)	= shift;
     my($status, $location);
     my($returnCode, @candidate);
     my(@master_site) = split ' ', GetVariableValue ('devel', 'accerciser', 'MASTER_SITE_GNOME');
@@ -2226,13 +2231,14 @@ sub GnomeSpecial($$){
 	    $dir = VersionedDirectory($distbase, $url);
 	    if ($dir == -1) { next;}
 	    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2],
-		': dir(', $dir, ')',"\n" if $DEBUG_GNOME;   ($returnCode, @candidate) = ParseDirectory($dir, $DISTBASE, $SimpleFallBackNo);
+		': dir(', $dir, ')',"\n" if $DEBUG_GNOME;  
+	    ($returnCode, @candidate) = ParseDirectory($dir, $DISTBASE, $SimpleFallBackNo, $PackageName);
 	    if ($returnCode == 200 ) {last;}
 	}
     }
     print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2],
 	': returnCode(', $returnCode, ') @candidate', join ("\n", @candidate), "\n" if $DEBUG_GNOME;
-    ($returnCode, @candidate) = ParseDirectory($dir, $DISTBASE, $SimpleFallBackNo);
+    ($returnCode, @candidate) = ParseDirectory($dir, $DISTBASE, $SimpleFallBackNo, $PackageName);
     return($returnCode, @candidate);
 }
 sub SFSubDirectory($$){
@@ -2466,11 +2472,12 @@ sub ParseDirectorySmall($$){
 # Called 11 times
 #   inside GetSFProjectCandidate( x 6)
 #   main                          x 5
-sub ParseDirectory($$$){   # 2276  to  2502 lines (230 lines
+sub ParseDirectory($$$$){   # 2276  to  2502 lines (230 lines
     my ($master_site) = shift;
 	print STDERR sprintf("%4d ", __LINE__ ), 'master_site: ', $master_site, "\n" if $DEBUG_MASTER_SITE ;
     my ($distbase)   = shift;
-    my ($SimpleFallBack) = shift; 
+    my ($SimpleFallBack) = shift;
+    my ($PackageName) = shift; 
 
     # returns ($returnCode, @candidate);
 
@@ -2553,7 +2560,7 @@ print STDERR sprintf("%4d ** ", __LINE__ ), (caller 0)[3], ' (', $distbase,') ',
 	    grep (/$distbase/, keys %SpecialPattern)," :---\n" if
 	    ($DEBUG_CURL_LISTING ||  $DEBUG_EVAL_PATTERN || $DEBUG_MASTER_SITES_LISTING );
 print STDERR sprintf("%4d ** ", __LINE__ ), (caller 0)[3], ' (', $distbase,') :', $FAMILY{$distbase},': ', $version,': ',"\n" if
-	    ($DEBUG_CURL_LISTING ||  $DEBUG_EVAL_PATTERN || $DEBUG_MASTER_SITES_LISTING || $DEBUG_FAMILY);
+	    ($DEBUG_CURL_LISTING ||  $DEBUG_EVAL_PATTERN || $DEBUG_MASTER_SITES_LISTING );
 print STDERR sprintf("%4d ** ", __LINE__ ), (caller 0)[3], ' (', $distbase,') :', $_ ,"\n" if $DEBUG_SF_LOOKING_FOR;
 	if ($master_site =~ m|sourceforge| && /<span>Download / )   { next;} # skip harmfull and obsolete catch
 	if ($master_site =~ m|sourceforge| && m|latest/download\?| ) { next;} # skip harmfull and obsolete catch	
@@ -3285,10 +3292,11 @@ sub GetSFProjectString($$){
     close(W3M);
     return ($ver);
 }
-sub GetSFProjectCandidate($$$) {  # line 2922 to 2979
+sub GetSFProjectCandidate($$$$) {  # line 2922 to 2979
     my ($SFProject) = shift;
     my ($DISTBASE) = shift;
     my ($dist_name) = shift;
+    my ($PackageName) = shift;
     ###        return ($master_site, $returnCode, @candidate);
 
     my (@candidate);
@@ -3337,7 +3345,7 @@ sub GetSFProjectCandidate($$$) {  # line 2922 to 2979
 	    print STDERR sprintf("%4d ", __LINE__ ), '(',$iteration  ,') ', $site, ') status('. $status.") -> \n"  if $DEBUG_HTTP_HEADER;
 	if ($status == 200 ) {
 	    print STDERR sprintf("%4d ", __LINE__ ), '(',$iteration++,') ', $site, ') status('. $status.") -> \n"  if $DEBUG_HTTP_HEADER;
-	    ($returnCode, @candidate) = ParseDirectory($site, $DISTBASE, $SimpleFallBackNo);
+	    ($returnCode, @candidate) = ParseDirectory($site, $DISTBASE, $SimpleFallBackNo, $PackageName);
 	    print STDERR sprintf("%4d ", __LINE__ ), 
 		' (ParseDir) master_site(', $site, ') status('. $status. ') '. 'candidate('.$#candidate.') -> '. join (' ', @candidate), "\n"  if $DEBUG_SF;
 	}
@@ -3351,14 +3359,14 @@ sub GetSFProjectCandidate($$$) {  # line 2922 to 2979
 		if ($dir == -1) { next;}
 		print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ': dir (', $dir, ')',"\n" if $DEBUG_VERSION_DIR;
 		if ( $dir =~ m|\/([0-9.]+)$| ) { $dir =~ s|$1||; }
-		($returnCode, @candidate) = ParseDirectory($dir, $DISTBASE, $SimpleFallBackNo);
+		($returnCode, @candidate) = ParseDirectory($dir, $DISTBASE, $SimpleFallBackNo, $PackageName);
 	    }
 	}    # end foreach
 
 	if ($#candidate  < 0 && (my ($alternative) = $SourceForgeAlternative{$DISTBASE} ) ) {
 	foreach my $site (split ';', $alternative) {
 		print STDERR sprintf("%4d ", __LINE__ ), ' (Alterna.) master_site(', $site, ') status('. $status.") -> \n"  if $DEBUG_SF;
-	($returnCode, @candidate) = ParseDirectory($site, $DISTBASE, $SimpleFallBackNo);
+	($returnCode, @candidate) = ParseDirectory($site, $DISTBASE, $SimpleFallBackNo, $PackageName);
 		print STDERR sprintf("%4d ", __LINE__ ), ' returns ', $returnCode,"\n"   if $DEBUG_SF;	
 	    $master_site = $site;
 	}
@@ -3747,7 +3755,7 @@ print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> (DISTBASE) ', $D
 	#  ----------------------------------------------------------------
 	if ($SFProject && $SFProject != -1 ) {			# MAJOR_IF_THEN_ELSE (1)
 	    my($returnCode);
-	    ($URL, $returnCode, @candidate) = GetSFProjectCandidate($SFProject, $DISTBASE, $dist_name);
+	    ($URL, $returnCode, @candidate) = GetSFProjectCandidate($SFProject, $DISTBASE, $dist_name, $PackageName);
 	    print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[2], '> (PackageName) ', $PackageName, ' URL(', $URL, ")\n" if $DEBUG_URL;
 	    if ($returnCode == 0 ) { $returnCode = '200';}; # 0 is good news = 200
  print STDERR sprintf("%4d ", __LINE__ ),
@@ -3795,7 +3803,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	    $MasterSiteStat = 'DNS';
 	}
 	if ($#candidate == -1  && ($master_site =~ /gnome\.org/ ) ) {
-	    ($returnCode, @candidate) = GnomeSpecial($DISTBASE, $master_site);
+	    ($returnCode, @candidate) = GnomeSpecial($DISTBASE, $master_site, $PackageName);
 	}
 	    print STDERR sprintf("%4d ", __LINE__ ), '#candidate: ', $#candidate, ' DISTBASE: ', $DISTBASE, ' master_site ', $master_site, "\n" if $DEBUG_GNOME;
 	print STDERR sprintf("%4d ", __LINE__ ), 'master_site: ', $master_site, "\n" if $DEBUG_MASTER_SITE ;
@@ -3820,13 +3828,13 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	print STDERR sprintf("%4d ", __LINE__ ), 'master_site: ', $master_site, "\n" if $DEBUG_MASTER_SITE ;
 	 if ($#candidate < 1  && $master_site && $http_code ne 'DNS' ) {			# MAJOR_IF_THEN_ELSE
 	    print STDERR sprintf("%4d ", __LINE__ ), $#candidate, ' DNS ok, master_site (', $master_site,")\n" if $DEBUG_MASTER_SITES_LISTING ;
-	    ($returnCode, @candidate) = ParseDirectory($master_site, $DISTBASE, $SimpleFallBackNo);
+	    ($returnCode, @candidate) = ParseDirectory($master_site, $DISTBASE, $SimpleFallBackNo, $PackageName);
          }
 # 1 is good for www/librest07 but bad for many occasion:
 	print STDERR sprintf("%4d ", __LINE__ ), ' (HOMEPAGE) ', $#candidate, "\n" if $DEBUG_MASTER_SITES_LISTING ;
 	 if ($#candidate < 1  && $HOMEPAGE) {
 	if ($Dont_check_homepage{$DISTBASE} != 1 ) {							# MAJOR_IF_THEN_ELSE
-	    ($returnCode, @candidate) = ParseDirectory($HOMEPAGE, $DISTBASE, $SimpleFallBackNo);
+	    ($returnCode, @candidate) = ParseDirectory($HOMEPAGE, $DISTBASE, $SimpleFallBackNo, $PackageName);
 	    print STDERR sprintf("%4d ", __LINE__ ), $HOMEPAGE," checked.\n" if $DEBUG_MASTER_SITES_LISTING
 	}
 	}
@@ -3850,12 +3858,12 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	if ($#candidate == -1  &&  ( $MASTER_SITE  =~ m|http://pypi.python.org/| )) {		# MAJOR_IF_THEN_ELSE
 	    print STDERR sprintf("%4d ", __LINE__ ), 'MASTER_SITE ', $MASTER_SITE if $DEBUG_DISTBASE;
 	    ($returnCode, @candidate) = ParseDirectory(
-		"https://pypi.python.org/pypi/".$DISTBASE, $DISTBASE, $SimpleFallBackNo);}
+		"https://pypi.python.org/pypi/".$DISTBASE, $DISTBASE, $SimpleFallBackNo, $PackageName);}
 
 	if ($#candidate == -1  && $EGG_PACKAGE) {						# MAJOR_IF_THEN_ELSE
 	    print STDERR sprintf("%4d ", __LINE__ ), 'MASTER_SITE ', $MASTER_SITE if $DEBUG_DISTBASE;
 	    ($returnCode, @candidate) = ParseDirectory(
-		"https://warehouse.python.org/project/".$DISTBASE, $DISTBASE, $SimpleFallBackNo);}
+		"https://warehouse.python.org/project/".$DISTBASE, $DISTBASE, $SimpleFallBackNo, $PackageName);}
 	print STDERR sprintf("%4d ", __LINE__ ), 'MASTER_SITE ', $MASTER_SITE, ' DISTBASE ', $DISTBASE, ' cand (', $#candidate,")\n" if $DEBUG_GITHUB;
 	if ($#candidate  < 1   && ($MASTER_SITE =~ m|github.com/|) ) {				# MAJOR_IF_THEN_ELSE
 	 # ------------------ GitHubSpecial (3352)
@@ -3881,7 +3889,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	if ( $DownLoadAlternative{$DISTBASE}) {			# MAJOR_IF_THEN_ELSE
 	    $MASTER_SITE= $DownLoadAlternative{$DISTBASE};
 	    print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[3], '> MASTER_SITE ', $MASTER_SITE,"\n" if $DEBUG_ALTERNATIVE;
-		($returnCode, @candidate) = ParseDirectory($MASTER_SITE, $DISTBASE, $SimpleFallBackNo);
+		($returnCode, @candidate) = ParseDirectory($MASTER_SITE, $DISTBASE, $SimpleFallBackNo, $PackageName);
 
 	}							# MAJOR_IF_THEN_ELSE  ----------------------
 	    push(@CANDIDATE, @candidate);
@@ -3912,7 +3920,7 @@ print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], '
 ' @candidate: ', "\n------------------\n", join("\n", @candidate),"\n" if $DEBUG_CANDIDATE;
 
 	if (( $available eq '0.0' || $available eq '' || $returnCode == -1 ) && $#candidate == -1 && ! $candidate[0] ne '0.0' ) {
-	    ($returnCode, @candidate) =  ParseDirectory($MASTER_SITE, $DISTBASE, $SimpleFallBackYes);
+	    ($returnCode, @candidate) =  ParseDirectory($MASTER_SITE, $DISTBASE, $SimpleFallBackYes, $PackageName);
 	    $available = PickFromCandidate(@candidate);
 print STDERR sprintf("%4d ", __LINE__ ), 
     ' (SimpleFallBack) master_site(', $MASTER_SITE, ') returnCode('. $returnCode.") -> available(". $available.")\n"  if $DEBUG_FALLBACK_SIMPLE;
