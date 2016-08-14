@@ -560,6 +560,9 @@ my(@THREECDHIT) = qw (cdhit) ;
 # 600 -> 6.0  zip
 my (@ZIP) = qw (zip unzip fMSX);
 
+# qkcc100 -> qkc-1.0
+my (@qkcc) = qw (qkcc);
+
 my (@Arabian) = qw(SGMLSpm);
 # 100 -> 1.00 type
 my (@VER32) = qw(
@@ -1235,6 +1238,7 @@ print STDERR "\n", sprintf("%4d ", __LINE__ ), '<', (caller 0) [3],'>:', (caller
 	if (grep (/^$distbase$/, @VER22)	> 0 ) { $version = Two($version);}
 print STDERR sprintf("%4d ", __LINE__ ), ' (3) <', (caller 0)[3] ,'> ', $version, ' --> '  if $DEBUG_EDITVersion;
 	if (grep (/^$distbase$/, @DOT2)		> 0 ) { $version = InsertDot($version, 2);}
+	if (grep (/^$distbase$/, @qkcc)		> 0 ) { $version =~ s|([0-9])([0-9])([0-9])|$1.$2|; }
 	if (grep (/^$distbase$/, @DOT3)		> 0 ) { $version = InsertDot($version, 3);}
 	if (grep (/^$distbase$/, @DOT32)	> 0 ) { $version = InsertDot2($version, 2,4);}
 	if (grep (/^$distbase$/, @DOT133)	> 0 ) { $version = InsertDot133($version);}
