@@ -1023,26 +1023,27 @@ sub ClassifyPackage(@) {
 	# (11) berkley-db
 	} elsif ($p =~ /^(db)([0-9])$/) {
 	    my ($lang)  = $1;
-	    my ($major) = $2;
-	    my ($pattern) = '$version =~ s/.*'. $lang .'-('.$major.'\.[0-9.]+)\.tar\..*/$1/' ;
+	    my ($major) = $2; if ($major eq '') { $major = 2;}
+	    my ($pattern) = '$_ =~ m|.*'. $lang .'-('.$major.'\.[0-9.]+)\.tar\..*|; $version = $1;' ;
 	    $FAMILY{$p} = $pattern;
-#	    $FAMILY{$p} = '$version =~ s/.*'. $lang .'-('.$major.'[.][38]+[.][0-9]+)\.tar\..*/$1/' ;
-#	    Berkeley DB 3.3.11 .tar.g
-#	    $FAMILY{'db'} = '$version =~ s/.*Berkeley DB (' .$major.'\.[0-9.]+) \.tar.*/$1/' ;
 	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1a) family: ', $p,' -> ', $pattern,"\n" if $DEBUG_FAMILY;
-
-	 # (12) rt{,3}
-# 	}  elsif ($p =~ /(rt)([0-9]*)/) {
-# 	    my ($pkg)  = $1;
-# 	    my ($major) = $2;
-# 	    $FAMILY{$p} = '$version =~ s/.*rt-('. $major.'\.[0-9.]+)\.tar\..*/$1/';
-# 	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1c) family: ', $p, "\n" if $DEBUG_FAMILY;
-# 	 # (13) libwnck{,3}
+	    # (12) gdb{,3}
+	}  elsif ($p =~ /^(gdb)([0-9]*)$/) {
+	    my ($pkg)  = $1;
+	    my ($major) = $2;
+	    my ($pattern) ;
+	    if ($major eq '') {
+		$pattern  = '$_ =~ m|.*'. $pkg. '-(7\.[0-9.]+)\.tar\..*|; $version = $1';}
+	    else {
+		$pattern  = '$_ =~ m|.*'. $pkg. '-('. $major.'\.[0-9.]+)\.tar\..*|;$version = $1';}
+	    $FAMILY{$p} = $pattern;
+	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1b) family: ', $p, ' -> '. $pattern."\n" if $DEBUG_FAMILY;
+	 # (13) libwnck{,3}
 	}  elsif ($p =~ /(libwnck)([0-9]*)/) {
 	    my ($pkg)  = $1;
 	    my ($major) = $2; 
 	    if ($major eq '') {
-		$FAMILY{$p} = '$version =~ s/.*'.$pkg.'-(2\.[0-9.]+)\.tar\..*/$1/'; ;  }
+		$FAMILY{$p} = '$version = $_; $version =~ s/.*'.$pkg.'-(2\.[0-9.]+)\.tar\..*/$1/'; ;  }
 	    else {
 		$FAMILY{$p} = '$version =~ s/.*'.$pkg.'-('.$major.'.[0-9.]+)\.tar\..*/$1/'; ;  }
 	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1c) family: ', $p, "\n" if $DEBUG_FAMILY;
@@ -2567,9 +2568,9 @@ print STDERR sprintf("%4d ** ", __LINE__ ), (caller 0)[3], ' (', $distbase,') :'
 print STDERR sprintf("%4d ** ", __LINE__ ), '(', $distbase,') $_(', $_,')',"\n" if $DEBUG_EVAL_PATTERN ;
 	if (0) { # dummy for ease to swap sequence below
 	} elsif (my $pattern = $FAMILY{$PackageName} ) {
-print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', 'distbase (', $distbase, ') version (', $version, ') ',$_,"\n" if   ($DEBUG_FAMILY);
+print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', 'PackageName (', $PackageName, ') pattern (', $pattern, ') ',$_,"\n" if   ($DEBUG_FAMILY);
 	    eval $pattern;
-print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', 'distbase (', $distbase, ') version (', $version, ') ',$_,"\n" if   ($DEBUG_FAMILY);
+print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', 'PackageName (', $PackageName, ') version (', $version, ') ',$_,"\n" if   ($DEBUG_FAMILY);
 	    push(@candidate, $version);
 	} elsif (my $pattern = $SEARCH_STRINGS{$distbase} ) {
 	    eval $pattern;
