@@ -988,7 +988,7 @@ sub ClassifyPackage(@) {
 	    my ($pkg)   = $1;
 	    my ($major) = $2;
 	    if ($major eq '') { $major = 1;}
-	    $FAMILY{$p} = '$version = $_ ; $version =~ s/.*'. $pkg .'-('. $major .'\.[0-9.]+).*/$1/' ;
+	    $FAMILY{$p} = '$version = $_ ; $version =~ s/.*'. $pkg .'-('. $major .'\.[0-9.]+).*/$1/;' ;
 	print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1d) family: ', $p, "\n" if $DEBUG_FAMILY;
 	# (7) gnumeric
 	} elsif ($p =~ /(gnumeric)([0-9])([0-9])([0-9])$/ || $p =~ /(gnumeric)$/ ) {
@@ -1037,7 +1037,7 @@ sub ClassifyPackage(@) {
 	    if ($major eq '') {
 		$pattern  = '$_ =~ m|.*'. $pkg. '-(7\.[0-9.]+)\.tar\..*|; $version = $1';}
 	    else {
-		$pattern  = '$_ =~ m|.*'. $pkg. '-('. $major.'\.[0-9.]+)\.tar\..*|;$version = $1';}
+		$pattern  = '$_ =~ m|.*'. $pkg. '-('. $major.'\.[0-9.]+)\.tar\..*|; $version = $1; ';}
 	    $FAMILY{$p} = $pattern;
 	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1b) family: ', $p, ' -> '. $pattern."\n" if $DEBUG_FAMILY;
 	 # (13) libwnck{,3}
@@ -1045,7 +1045,7 @@ sub ClassifyPackage(@) {
 	    my ($pkg)  = $1;
 	    my ($major) = $2; 
 	    if ($major eq '') {
-		$FAMILY{$p} = '$version = $_; $version =~ s/.*'.$pkg.'-(2\.[0-9.]+)\.tar\..*/$1/'; ;  }
+		$FAMILY{$p} = '$version = $_; $version =~ s/.*'.$pkg.'-(2\.[0-9.]+)\.tar\..*/$1/;'; }
 	    else {
 		$FAMILY{$p} = '$version =~ s/.*'.$pkg.'-('.$major.'.[0-9.]+)\.tar\..*/$1/'; ;  }
 	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1c) family: ', $p, "\n" if $DEBUG_FAMILY;
