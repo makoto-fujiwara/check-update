@@ -941,23 +941,23 @@ sub ClassifyPackage(@) {
 	    my ($minor) = $3;
 	    if ($lang =~ /python/ ) { $lang = 'Python';}
     	    if ($lang =~ /apache/ ) { $lang = 'httpd';}
-	    $FAMILY{$p} = '$version =~ s/.*'. $lang .'-('.$major.'\.'.$minor.'\.[0-9]+)\.t.*/$1/' ; 
+	    $FAMILY{$p} = '$version = $_ ;$version =~ s/.*'. $lang .'-('.$major.'\.'.$minor.'\.[0-9]+)\.t.*/$1/' ; 
 	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1a) family: ', $p, "\n" if $DEBUG_FAMILY;
 	# (3) contao, name is special
 	} elsif ($p =~ /(contao)([0-9])([0-9])/) {
 	    my ($lang)  = $1;
 	    my ($major) = $2;
 	    my ($minor) = $3;
-	    $FAMILY{$p} = '$version =~ s/.*'. $lang .'-('.$major.'_'.$minor.'_[0-9]+)\.html.*/$1/' ; 
+	    $FAMILY{$p} = '$version = $_; $version =~ s/.*'. $lang .'-('.$major.'_'.$minor.'_[0-9]+)\.html.*/$1/' ; 
 	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1b) family: ', $p, "\n" if $DEBUG_FAMILY;
 	# (4) gnupg{,2}
 	}  elsif ($p =~ /(gnupg)([0-9]*)/) {
 	    my ($pkg)  = $1;
 	    my ($major) = $2;
 	    if ($major ne '') {
-		$FAMILY{$p} = '$version =~ s/.*'.$pkg.'-('.$major.'\.[0-9.]+)\.tar.*/$1/'; }
+		$FAMILY{$p} = '$version = $_ ; $version =~ s/.*'.$pkg.'-('.$major.'\.[0-9.]+)\.tar.*/$1/'; }
 	    else {
-		$FAMILY{$p} = '$version =~ s/.*'.$pkg.'-(1\.[0-9.]+)\.tar.*/$1/';
+		$FAMILY{$p} = '$version = $_ ; $version =~ s/.*'.$pkg.'-(1\.[0-9.]+)\.tar.*/$1/';
 	    }
 	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1c) family: ', $p, "\n" if $DEBUG_FAMILY;
 	# (4-2) tk{,85}
@@ -968,9 +968,9 @@ sub ClassifyPackage(@) {
 	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1c) family: ', $p,' -> ',
 		"\n" if $DEBUG_FAMILY;
 	    if ($major ne '') {
-		$FAMILY{$p} = '$version =~ s/.*' . $pkg . '(' . $major . '\.' . $minor . '.)-src\.tar\..*/$1/;'; }
+		$FAMILY{$p} = '$version = $_ ; $version =~ s/.*' . $pkg . '(' . $major . '\.' . $minor . '.)-src\.tar\..*/$1/;'; }
 	    else {
-		$FAMILY{$p} = '$version =~ s/.*'.$pkg.'([0-9.]+)-src\.tar\..*/$1/;';
+		$FAMILY{$p} = '$version = $_ ; $version =~ s/.*'.$pkg.'([0-9.]+)-src\.tar\..*/$1/;';
 	    }
 	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1c) family: ', $p,' -> ',
 		$FAMILY{$p}, "\n" if $DEBUG_FAMILY;
@@ -979,25 +979,27 @@ sub ClassifyPackage(@) {
 	    my ($pkg)  = $1;
 	    my ($major) = $2;  # {} -> 2.[0-8].[0-9]   {3} -> 2.9.[0-9]+
 	    if ($major eq '') {
-		$FAMILY{$p} = '$version =~ s/.*LIBDMAPSHARING_(2_[0-8_]+).*/$1/i'; ;  }
+		$FAMILY{$p} = '$version = $_ ; $version =~ s/.*LIBDMAPSHARING_(2_[0-8_]+).*/$1/i'; ;  }
 	    else {
-		$FAMILY{$p} = '$version =~ s/.*LIBDMAPSHARING_(2_9_[0-9]+).*/$1/i';  }
+		$FAMILY{$p} = '$version = $_ ; $version =~ s/.*LIBDMAPSHARING_(2_9_[0-9]+).*/$1/i';  }
 	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1c) family: ', $p, "\n" if $DEBUG_FAMILY;
 	# (6) gtksourceview
 	} elsif ($p =~ /(gtksourceview)([0-9]*)$/) {
 	    my ($pkg)   = $1;
 	    my ($major) = $2;
 	    if ($major eq '') { $major = 1;}
-	    $FAMILY{$p} = '$version =~ s/.*'. $pkg .'-('. $major .'\.[0-9.]+).*/$1/' ;
+	    $FAMILY{$p} = '$version = $_ ; $version =~ s/.*'. $pkg .'-('. $major .'\.[0-9.]+).*/$1/' ;
 	print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1d) family: ', $p, "\n" if $DEBUG_FAMILY;
 	# (7) gnumeric
-	} elsif ($p =~ /(gnumeric)([0-9])([0-9])([0-9])$/) {
+	} elsif ($p =~ /(gnumeric)([0-9])([0-9])([0-9])$/ || $p =~ /(gnumeric)$/ ) {
 	    my ($pkg)   = $1;
 	    my ($major) = $2;
 	    my ($minor) = $3;
 	    my ($micro) = $4;
-	    $FAMILY{$p} = '$version =~ s/.*'. $pkg .'-('. $major . '\.'. $minor. $micro. '\.[0-9]+).*/$1/' ;
-	print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (G) family: ', $p, "\n" if $DEBUG_FAMILY;
+	    if ($micro eq '' && $minor eq '' && $major eq '' ) {
+		$major = 1; $minor = '[0-9]';}
+	    $FAMILY{$p} = '$_ =~ m|'. $pkg .'-('. $major . '\.'. $minor. $micro. '\.[0-9]+)\.tar\.|; $version = $1;' ;
+	print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> ', $p, ' -> ', $FAMILY{$p}, "\n" if $DEBUG_FAMILY;
 	# (8) py26-html-docs
 	#     python-2.6.9-docs-html.tar.bz2
 	} elsif ($p =~ /py([0-9])([0-9])-html-docs$/) {
@@ -1009,13 +1011,13 @@ sub ClassifyPackage(@) {
 	    my ($distbase) = $1;
 	    my ($major) = $2;
 	    my ($minor) = $3;
-	    $FAMILY{$p} = '$version =~ s/.*$distbase-('.$major.'\.'.$minor.'\.[0-9]+).*/$1/' ;
+	    $FAMILY{$p} = '$version = $_ ; $version =~ s/.*$distbase-('.$major.'\.'.$minor.'\.[0-9]+).*/$1/' ;
         # (10) security/libassuan{,2}
 	} elsif ($p =~ /(libassuan)([2])*$/) {
 	    my ($distbase) = $1;
 	    my ($major) = $2;
 	    if ($major eq '') {  $major = 1 ;}
-	    $FAMILY{$p} = '$version =~ s/.*libassuan-('.$major.'[.][0-9][.][0-9])[.].*/$1/';
+	    $FAMILY{$p} = '$version = $_ ; $version =~ s/.*libassuan-('.$major.'[.][0-9][.][0-9])[.].*/$1/';
 	print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1d) family: ', $p, ' -> ',
 	    $FAMILY{$p}, 
 	    "\n" if $DEBUG_FAMILY;
@@ -1053,7 +1055,7 @@ sub ClassifyPackage(@) {
 	    ) {
 	    my ($pkg)  = $1;
 	    my ($major) = $2; 
-	    $FAMILY{$p} = '$version =~ s/('.$major.'.[0-9.]+)/$1/';
+	    $FAMILY{$p} = '$versino = $_ ; $version =~ s/('.$major.'.[0-9.]+)/$1/';
 #	    $FAMILY{$p} = '$version =~ s/.*'. $pkg. '-('.$major.'.[0-9.]+)\.tar\..*/$1/';	    
 	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1c) family: ', $p, ' -> ', $FAMILY{$p},
 "\n" if $DEBUG_FAMILY;
