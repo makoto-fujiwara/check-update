@@ -231,8 +231,6 @@ Text-Diff
 WWW-Shorten
 aspell
 auctex
-audacious
-audacious-plugins
 autotrace
 cabextract
 celt
@@ -294,6 +292,7 @@ my (%SpecialPattern) = (
 #   Next line is SimplePattern equivalent
 #   'crack-attack',	'$line =~ s/.*$distbase-([0-9.]+).*/$1/ ;',
     'amavisd',		'$line =~ s/.*$distbase-([0-9.]+\.[0-9]+\.[0-9]+)/$1/ ;',
+    'audacious',	'$line =~ s/.*$distbase-([0-9.]+)\.tar\.bz2.*/$1/ ;',
 #                                    '$distbase' here doesn't make it
 #                                     v
     'Cython',		'{$line =~ m|.*$distbase-([0-9]\.[0-9]+\.[0-9])|; $line = $1 ;}',
@@ -502,7 +501,6 @@ my(%DownLoadAlternative) = qw (
     modulegraph	https://bitbucket.org/ronaldoussoren/modulegraph/downloads#tag
     py2app	https://bitbucket.org/ronaldoussoren/py2app/downloads#tag
     polib	https://bitbucket.org/izi/polib/downloads
-    db		http://www.oracle.com/technetwork/jp/products/berkeleydb/downloads/index-090620-ja.html
     db		http://www.oracle.com/technetwork/database/database-technologies/berkeleydb/downloads/index-082944.html
     txt2man	http://mvertes.free.fr/txt2man/Changelog
     dotfile	http://www.blackie.dk/dotfile/index.html
@@ -2559,7 +2557,7 @@ sub ParseDirectory($$$$){   # 2276  to  2502 lines (230 lines
 print STDERR sprintf("%4d ** ", __LINE__ ), (caller 0)[3], ' (', $distbase,') ', $SpecialPattern{$distbase},': ', $_, ' ---: ',
 	    grep (/$distbase/, keys %SpecialPattern)," :---\n" if
 	    ($DEBUG_CURL_LISTING ||  $DEBUG_EVAL_PATTERN || $DEBUG_MASTER_SITES_LISTING );
-print STDERR sprintf("%4d ** ", __LINE__ ), (caller 0)[3], ' (', $distbase,') :', $FAMILY{$distbase},': ', $version,': ',"\n" if
+print STDERR sprintf("%4d ** ", __LINE__ ), (caller 0)[3], ' (', $distbase,') :', $FAMILY{$PackageName},': ', $version,': ',"\n" if
 	    ($DEBUG_CURL_LISTING ||  $DEBUG_EVAL_PATTERN || $DEBUG_MASTER_SITES_LISTING );
 print STDERR sprintf("%4d ** ", __LINE__ ), (caller 0)[3], ' (', $distbase,') :', $_ ,"\n" if $DEBUG_SF_LOOKING_FOR;
 	if ($master_site =~ m|sourceforge| && /<span>Download / )   { next;} # skip harmfull and obsolete catch
@@ -2568,7 +2566,7 @@ print STDERR sprintf("%4d ** ", __LINE__ ), (caller 0)[3], ' (', $distbase,') :'
 #  ----------------------------------------------------------------
 print STDERR sprintf("%4d ** ", __LINE__ ), '(', $distbase,') $_(', $_,')',"\n" if $DEBUG_EVAL_PATTERN ;
 	if (0) { # dummy for ease to swap sequence below
-	} elsif (my $pattern = $FAMILY{$distbase} ) {
+	} elsif (my $pattern = $FAMILY{$PackageName} ) {
 print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', 'distbase (', $distbase, ') version (', $version, ') ',$_,"\n" if   ($DEBUG_FAMILY);
 	    eval $pattern;
 print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', 'distbase (', $distbase, ') version (', $version, ') ',$_,"\n" if   ($DEBUG_FAMILY);
@@ -3817,11 +3815,13 @@ print STDERR sprintf("%4d ", __LINE__ ),
        	print STDERR sprintf("%4d ", __LINE__ ), 'master_site: ', $master_site, "\n" if $DEBUG_MASTER_SITE ;
 
 	    print STDERR sprintf("%4d ", __LINE__ ), '#candidate: ', $#candidate, ' DISTBASE: ', $DISTBASE,"\n" if $DEBUG_GNOME;
+if (0){
 	 if ($#candidate < 0  && $master_site =~ m|(.*)/[0-9._]+/*$|) {		# MAJOR_IF_THEN_ELSE MASTER_SITE with ending digit
 	    my ($upper) = $1;
 	    print STDERR sprintf("%4d ", __LINE__ ), 'MASTER_SITE with ending digit: ', $master_site,"\n" if $DEBUG_DIGIT;
 	    ($returnCode, @candidate) = ParseUpperDirectory($PackageName, $upper);
 	 }
+}
 	 # ------------------- back to upper level --
 	print STDERR sprintf("%4d ", __LINE__ ), 'candidate: ', $#candidate, ' http_code: ', $http_code, "\n" if ($DEBUG_SF || $DEBUG_MASTER_SITES_LISTING );
 # 1 is good for www/librest07 but bad for many occa,sion:
