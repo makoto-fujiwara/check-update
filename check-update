@@ -882,13 +882,13 @@ sub CheckHeader($) {
 	elsif ( /Connection refused/ ) { $status = 'Refused';} 	# # curl: (7) Failed to connect to www.opensync.org port 80: Connection refused
 	elsif ( /^HTTP\S+ (\d+) / ) {  # \S+ has '/1.1' or so
 	    print STDERR sprintf("%4d ", __LINE__ ), ' ', $url, ' -> ', $_,"\n" if $DEBUG_HTTP_HEADER ;
-	    $status = $1; if ($status == 200) {$location ='';}}
+	    $status = $1;  if ($status == 200) {$location = $url;}}
 	elsif ( /^Location: (\*)/) {
 	    $location = $1;
 	}
     }
     close(CURL);
-  print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ', '  *** returning: ', $status, " ***\n"  if $DEBUG_HTTP_HEADER ;
+  print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ', '  *** returning  ( ', $status, ', ', $location,") *** \n"  if $DEBUG_HTTP_HEADER ;
     return ($status, $location);
 }
 sub CheckDNS($) {
@@ -3347,7 +3347,7 @@ sub GetSFProjectCandidate($$$$) {  # line 2922 to 2979
 	($status, $location) = CheckHeader($site);
 	    print STDERR sprintf("%4d ", __LINE__ ), '(',$iteration  ,') ', $site, ') status('. $status.") -> \n"  if $DEBUG_HTTP_HEADER;
 	if ($status == 200 ) {
-	    print STDERR sprintf("%4d ", __LINE__ ), '(',$iteration++,') ', $site, ') status('. $status.") -> \n"  if $DEBUG_HTTP_HEADER;
+	    print STDERR sprintf("%4d ", __LINE__ ), '(',$iteration++,') ', $location, ') status('. $status.") -> \n"  if $DEBUG_HTTP_HEADER;
 	    ($returnCode, @candidate) = ParseDirectory($site, $DISTBASE, $SimpleFallBackNo, $PackageName);
 	    print STDERR sprintf("%4d ", __LINE__ ), 
 		' (ParseDir) master_site(', $site, ') status('. $status. ') '. 'candidate('.$#candidate.') -> '. join (' ', @candidate), "\n"  if $DEBUG_SF;
