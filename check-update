@@ -888,7 +888,7 @@ sub CheckHeader($) {
 	}
     }
     close(CURL);
-    print STDERR sprintf("%4d ", __LINE__ ), '  *** returning: ', $status, " ***\n"  if $DEBUG_HTTP_HEADER ;
+  print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ', '  *** returning: ', $status, " ***\n"  if $DEBUG_HTTP_HEADER ;
     return ($status, $location);
 }
 sub CheckDNS($) {
@@ -942,14 +942,14 @@ sub ClassifyPackage(@) {
 	    my ($minor) = $3;
 	    if ($lang =~ /python/ ) { $lang = 'Python';}
     	    if ($lang =~ /apache/ ) { $lang = 'httpd';}
-	    $FAMILY{$p} = '$version = $_ ;$version =~ s/.*'. $lang .'-('.$major.'\.'.$minor.'\.[0-9]+)\.t.*/$1/' ; 
+	    $FAMILY{$p} = '$_ =~ m|.*'. $lang .'-('.$major.'\.'.$minor.'\.[0-9]+)\.t.*|; $version = $1;' ; 
 	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1a) family: ', $p, "\n" if $DEBUG_FAMILY;
 	# (3) contao, name is special
 	} elsif ($p =~ /(contao)([0-9])([0-9])/) {
 	    my ($lang)  = $1;
 	    my ($major) = $2;
 	    my ($minor) = $3;
-	    $FAMILY{$p} = '$version = $_; $version =~ s/.*'. $lang .'-('.$major.'_'.$minor.'_[0-9]+)\.html.*/$1/' ; 
+	    $FAMILY{$p} = '$version = $_; $version =~ s/.*'. $lang .'-('.$major.'_'.$minor.'_[0-9]+)\.html.*/$1/;' ; 
 	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1b) family: ', $p, "\n" if $DEBUG_FAMILY;
 	# (4) gnupg{,2}
 	}  elsif ($p =~ /(gnupg)([0-9]*)/) {
@@ -980,7 +980,7 @@ sub ClassifyPackage(@) {
 	    my ($pkg)  = $1;
 	    my ($major) = $2;  # {} -> 2.[0-8].[0-9]   {3} -> 2.9.[0-9]+
 	    if ($major eq '') {
-		$FAMILY{$p} = '$version = $_ ; $version =~ s/.*LIBDMAPSHARING_(2_[0-8_]+).*/$1/i'; ;  }
+		$FAMILY{$p} = '$version = $_ ; $version =~ s/.*LIBDMAPSHARING_(2_[0-8_]+).*/$1/i'; }
 	    else {
 		$FAMILY{$p} = '$version = $_ ; $version =~ s/.*LIBDMAPSHARING_(2_9_[0-9]+).*/$1/i';  }
 	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1c) family: ', $p, "\n" if $DEBUG_FAMILY;
@@ -1996,19 +1996,19 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (url) ', $url,"\n" if $DEBUG_HTTP_HEA
 	print STDERR sprintf("%4d ", __LINE__ ), ' (directory) ', $_ if ($DEBUG_HTTP_HEADER && $DEBUG_CURL_LISTING);
 	# HTTP/1.1 301 Moved Permanently
 	if (m,HTTP/1.1 301 Moved Permanently,) { $ok = 1 ;
-print STDERR sprintf("%4d ", __LINE__ ), ' (directory) ', $_,"\n" if $DEBUG_HTTP_HEADER;
+print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ',' (directory) ', $_,"\n" if $DEBUG_HTTP_HEADER;
 	}
 	# Location: http://downloads.sourceforge.net/project/buzztard/buzz%20machine%20loader/bml-0.8.0.tar.gz
 	if ($ok && m,Location: (.*), ) {
 	    $directory = $1;
-print STDERR sprintf("%4d ", __LINE__ ), ' (directory) ', $_,"\n" if $DEBUG_HTTP_HEADER;
+print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' (directory) ', $_,"\n" if $DEBUG_HTTP_HEADER;
 	   $directory =~ s,http.*://,,;
 	};
     };
     close(CURL);
-print STDERR sprintf("%4d ", __LINE__ ), ' (directory) ', $directory,"\n" if $DEBUG_HTTP_HEADER;
+print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2],' (directory) ', $directory,"\n" if $DEBUG_HTTP_HEADER;
     $directory =~ s,(.*)/[^/]+$,$1/,;
-    print STDERR sprintf("%4d ", __LINE__ ), ' (directory) ', $directory,"\n" if $DEBUG_HTTP_HEADER;
+print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2],' (directory) ', $directory,"\n" if $DEBUG_HTTP_HEADER;
     return $directory;
 };
 sub GetVariableValue ($$$) {
@@ -3317,6 +3317,7 @@ sub GetSFProjectCandidate($$$$) {  # line 2922 to 2979
     if ($directory_candidate) {
     push (@directory_candidate, $directory_candidate);}
     push (@directory_candidate,
+#                https://sourceforge.net/projects/netatalk/files/netatalk/3.1.9/
 		'https://sourceforge.net/projects/' .$SFProject . '/files/',
 		'https://sourceforge.net/projects/' .$SFProject . '/files/'. $SFProject .'/',
 		'https://sourceforge.net/projects/' .$SFProject . '/files/'. $DISTBASE .'/',
@@ -4049,3 +4050,4 @@ __END__
 
 # debug format
   print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ',
+w
