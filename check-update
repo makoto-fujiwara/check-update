@@ -1056,9 +1056,17 @@ sub ClassifyPackage(@) {
 	    ) {
 	    my ($pkg)  = $1;
 	    my ($major) = $2; 
-	    $FAMILY{$p} = '$versino = $_ ; $version =~ s/('.$major.'.[0-9.]+)/$1/';
+	    $FAMILY{$p} = '$version = $_ ; $version =~ s/.*$pkg-('.$major.'.[0-9.]+).*/$1/';
 #	    $FAMILY{$p} = '$version =~ s/.*'. $pkg. '-('.$major.'.[0-9.]+)\.tar\..*/$1/';	    
-	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1c) family: ', $p, ' -> ', $FAMILY{$p},
+	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1h) family: ', $p, ' -> ', $FAMILY{$p},
+"\n" if $DEBUG_FAMILY;
+# 	 # (15) samba{,4}
+	}  elsif ($p =~ /^(samba)([0-9])$/ || $p =~ /^(samba)$/ ) {
+	    my ($pkg)  = $1;
+	    my ($major) = $2; 
+	    if ($major eq '' )  { $major = 3;}
+	    $FAMILY{$p} = '$version = $_ ; $version =~ s/.*samba-('.$major.'.[0-9.]+)\.tar\..*/$1/';
+	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1i) family: ', $p, ' -> ', $FAMILY{$p},
 "\n" if $DEBUG_FAMILY;
 	# normal numbering
 	} elsif ($p =~ /(.*)([0-9]+)$/) {
