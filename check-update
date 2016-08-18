@@ -2564,6 +2564,15 @@ sub ParseDirectory($$$$){   # 2276  to  2502 lines (230 lines
 	if ( /buildrump-1369495826.tar.bz2/)	{ next;} # ignore old stuff (misc/rump)
 	if ( /aspell6-ca-20[0-9][0-9]+/)	{ next;} # ignore aspell6-ca-20xx pattern
 	if ( $distbase eq 'libXaw' && /libXaw3d/ )	{ next;}
+
+	# ----- textproc/aspell special ----------
+	## print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' distbase(', $distbase, ')', $_, "\n";
+	if ($distbase  =~ /^aspell/ ) {	# convert - to .   example: 0.50-0.tar -> 0.50.0.tar
+	    $_ =~ s/-([0-9]+)\.t/.$1.t/g;
+	    ## print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' distbase(', $distbase, ')', $_, "\n";
+	}
+	# ---------------------------------------
+
 	if ( /^[0-9]$/ ) { next;} # skip single digit by itself (devel/py-pyobjc-.*)  why ?
 # ----------  A L W A Y S   G O  T H R U   H E R E  --------------	# MAJOR_IF_THEN_ELSE
 print STDERR sprintf("%4d ** ", __LINE__ ), (caller 0)[3], ' (', $distbase,') ', $SpecialPattern{$distbase},': ', $_, ' ---: ',
@@ -4058,4 +4067,4 @@ __END__
 
 # debug format
   print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ',
-w
+
