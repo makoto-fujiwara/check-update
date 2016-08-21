@@ -3287,7 +3287,7 @@ sub SummaryName(){
 	$summary	= $output_directory .'/' . $summary;
     }
   }
-sub GetSFProjectString($$){
+sub FindLookingForTheLatestVersion($$){
     my($url)	  = shift;
     my($distbase) = shift;
     # Looking for the latest version? Download cmusphinx-ru-5.2.tar.gz (157.7 MB)
@@ -3356,11 +3356,9 @@ sub GetSFProjectCandidate($$$$) {  # line 2922 to 2979
     @directory_candidate =  ($alternative);
     }
     my ($iteration) = 0;
-    foreach my $site (
-	@directory_candidate) {
-	if ($site eq '' ) {
-	    print STDERR sprintf("%4d ", __LINE__ ), ' <', (caller 0)[3], ">\t:", (caller 0)[2], ': ', $site, " \$site is empty\n"; next;
-	}
+    foreach my $site (@directory_candidate) {
+	if ($site eq '' ) { print STDERR sprintf("%4d ", __LINE__ ), ' <', (caller 0)[3], ">\t:", (caller 0)[2], ': ', $site, " \$site is empty\n";
+			    next;}
 	($status, $location) = CheckHeader($site);
 	    print STDERR sprintf("%4d ", __LINE__ ), '(',$iteration  ,') ', $site, ') status('. $status.") -> \n"  if $DEBUG_HTTP_HEADER;
 	if ($status == 200 ) {
@@ -3371,17 +3369,17 @@ sub GetSFProjectCandidate($$$$) {  # line 2922 to 2979
 	}
 #	if ($#candidate > 0 ) { $master_site = $site ;last;}
 	my ($candidate);
-	    if ($status == 200 ) {
-		my ($candidate) = GetSFProjectString($site, $DISTBASE);
-		if ( $candidate != '0.0') {push(@candidate, $candidate); }# last;}
-		my ($dir) = VersionedDirectory($DISTBASE, $site);
-		print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ': dir (', $dir, ')',"\n" if $DEBUG_VERSION_DIR;
-		if ($dir == -1) { next;}
-		print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ': dir (', $dir, ')',"\n" if $DEBUG_VERSION_DIR;
-		if ( $dir =~ m|\/([0-9.]+)$| ) { $dir =~ s|$1||; }
-		($returnCode, @candidate) = ParseDirectory($dir, $DISTBASE, $SimpleFallBackNo, $PackageName);
-	    }
-	}    # end foreach
+	if ($status == 200 ) {
+	    my ($candidate) = FindLookingForTheLatestVersion($site, $DISTBASE);
+	    if ( $candidate != '0.0') {push(@candidate, $candidate); }# last;}
+	    my ($dir) = VersionedDirectory($DISTBASE, $site);
+	    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ': dir (', $dir, ')',"\n" if $DEBUG_VERSION_DIR;
+	    if ($dir == -1) { next;}
+	    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ': dir (', $dir, ')',"\n" if $DEBUG_VERSION_DIR;
+	    if ( $dir =~ m|\/([0-9.]+)$| ) { $dir =~ s|$1||; }
+	    ($returnCode, @candidate) = ParseDirectory($dir, $DISTBASE, $SimpleFallBackNo, $PackageName);
+	}
+    }    # end foreach
 
 	if ($#candidate  < 0 && (my ($alternative) = $SourceForgeAlternative{$DISTBASE} ) ) {
 	foreach my $site (split ';', $alternative) {
