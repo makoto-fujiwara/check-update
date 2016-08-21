@@ -3356,29 +3356,37 @@ sub GetSFProjectCandidate($$$$) {  # line 2922 to 2979
     @directory_candidate =  ($alternative);
     }
     my ($iteration) = 0;
+    my (@candidate);
+    my (@candidateLocal);
     foreach my $site (@directory_candidate) {
+	my ($candidate);
 	if ($site eq '' ) { print STDERR sprintf("%4d ", __LINE__ ), ' <', (caller 0)[3], ">\t:", (caller 0)[2], ': ', $site, " \$site is empty\n";
 			    next;}
 	($status, $location) = CheckHeader($site);
-	    print STDERR sprintf("%4d ", __LINE__ ), '(',$iteration  ,') ', $site, ') status('. $status.") -> \n"  if $DEBUG_HTTP_HEADER;
-	if ($status == 200 ) {
-	    print STDERR sprintf("%4d ", __LINE__ ), '(',$iteration++,') ', $location, ') status('. $status.") -> \n"  if $DEBUG_HTTP_HEADER;
-	    ($returnCode, @candidate) = ParseDirectory($site, $DISTBASE, $SimpleFallBackNo, $PackageName);
-	    print STDERR sprintf("%4d ", __LINE__ ), 
-		' (ParseDir) master_site(', $site, ') status('. $status. ') '. 'candidate('.$#candidate.') -> '. join (' ', @candidate), "\n"  if $DEBUG_SF;
-	}
-#	if ($#candidate > 0 ) { $master_site = $site ;last;}
-	my ($candidate);
-	if ($status == 200 ) {
-	    my ($candidate) = FindLookingForTheLatestVersion($site, $DISTBASE);
-	    if ( $candidate != '0.0') {push(@candidate, $candidate); }# last;}
-	    my ($dir) = VersionedDirectory($DISTBASE, $site);
-	    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ': dir (', $dir, ')',"\n" if $DEBUG_VERSION_DIR;
-	    if ($dir == -1) { next;}
-	    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ': dir (', $dir, ')',"\n" if $DEBUG_VERSION_DIR;
-	    if ( $dir =~ m|\/([0-9.]+)$| ) { $dir =~ s|$1||; }
-	    ($returnCode, @candidate) = ParseDirectory($dir, $DISTBASE, $SimpleFallBackNo, $PackageName);
-	}
+	print STDERR sprintf("%4d ", __LINE__ ), '(',$iteration  ,') ', $site, ') status('. $status.") ncand (",$#candidate,') -> ',
+	PickFromCandidate(@candidate), "\n"  if $DEBUG_HTTP_HEADER;
+
+	if ($status != 200 ) { next; }
+	print STDERR sprintf("%4d ", __LINE__ ), '(',$iteration++,') ', $location, ') status('. $status.") -> \n"  if $DEBUG_HTTP_HEADER;
+# 1. Do the first level
+	($returnCode, @candidateLocal) = ParseDirectory($site, $DISTBASE, $SimpleFallBackNo, $PackageName);
+	push(@candidate,@candidateLocal);
+	print STDERR sprintf("%4d ", __LINE__ ), 
+	    ' (ParseDir) master_site(', $site, ') status('. $status. ') '. 'candidate('.$#candidate.') -> '. join (' ', @candidate), "\n"  if $DEBUG_SF;
+# 2. Add (push) Looking for the Latest Version info
+	my ($candidate) = FindLookingForTheLatestVersion($site, $DISTBASE);
+	if ( $candidate != '0.0') {push(@candidate, $candidate); }# last;}
+# 3. Try Versioned Directory
+	my ($dir) = VersionedDirectory($DISTBASE, $site);
+	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ': dir (', $dir, ')',"\n" if $DEBUG_VERSION_DIR;
+	if ($dir == -1) { next;}
+	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ': dir (', $dir, ')',"\n" if $DEBUG_VERSION_DIR;
+	if ( $dir =~ m|\/([0-9.]+)$| ) { $dir =~ s|$1||; }
+	my(@versionedCadidate);
+	my($returnCode, @versionedCandidate) = ParseDirectory($dir, $DISTBASE, $SimpleFallBackNo, $PackageName);
+	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' -> ',
+	    PickFromCandidate(@versionedCandidate), "\n" if $DEBUG_VERSION_DIR;
+	push(@candidate,@versionedCandidate);
     }    # end foreach
 
 	if ($#candidate  < 0 && (my ($alternative) = $SourceForgeAlternative{$DISTBASE} ) ) {
@@ -3389,6 +3397,7 @@ sub GetSFProjectCandidate($$$$) {  # line 2922 to 2979
 	    $master_site = $site;
 	}
 	}
+    print STDERR sprintf("%4d ", __LINE__ ), '(',$iteration  ,') ', $master_site, ') status('. $status.") ncand (",$#candidate,")\n"  if $DEBUG_HTTP_HEADER;
     return ($master_site, $returnCode, @candidate);
 }
 sub GetSystemURL ($){
