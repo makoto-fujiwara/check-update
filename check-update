@@ -3369,7 +3369,7 @@ sub GetSFProjectCandidate($$$$) {  # line 2922 to 2979
 	    print STDERR sprintf("%4d ", __LINE__ ), 
 		' (ParseDir) master_site(', $site, ') status('. $status. ') '. 'candidate('.$#candidate.') -> '. join (' ', @candidate), "\n"  if $DEBUG_SF;
 	}
-	if ($#candidate > 0 ) { $master_site = $site ;last;}
+#	if ($#candidate > 0 ) { $master_site = $site ;last;}
 	my ($candidate);
 	    if ($status == 200 ) {
 		my ($candidate) = GetSFProjectString($site, $DISTBASE);
@@ -3449,6 +3449,7 @@ sub VersionedDirectory ($$){
 			       /^[\t ]*($distbase[-]*)([0-9.]+)[\t ]+/ ||
 			       /^[\t ]*($distbase[-]*)([0-9.]+)/ ||
 			       /^[\t ]*($distbase[-]*) ([0-9.]+)/ ||
+			       /($distbase[-]*)([0-9.]+)\.tar.gz/ ||
 			       m|.(DIR).\s+([0-9.]+)/| ) {
 	    $name = $1; # pick prefix
 	    $ver = $2;
