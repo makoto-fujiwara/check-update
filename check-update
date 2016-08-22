@@ -1042,14 +1042,16 @@ sub ClassifyPackage(@) {
 	    $FAMILY{$p} = $pattern;
 	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1b) family: ', $p, ' -> '. $pattern."\n" if $DEBUG_FAMILY;
 	 # (13) libwnck{,3}
-	}  elsif ($p =~ /(libwnck)([0-9]*)/) {
+	}  elsif ($p =~ /^(libwnck)([0-9]+)$/ || $p =~ /^(libwnck)$/ ) {
 	    my ($pkg)  = $1;
 	    my ($major) = $2; 
+	    my ($pattern);
 	    if ($major eq '') {
-		$FAMILY{$p} = '$version = $_; $version =~ s/.*'.$pkg.'-(2\.[0-9.]+)\.tar\..*/$1/;'; }
+		$pattern = '$_ =~ m|.*'.$pkg.'-(2\.[0-9.]+)\.tar\..*|; $version = $1;';}
 	    else {
-		$FAMILY{$p} = '$version =~ s/.*'.$pkg.'-('.$major.'.[0-9.]+)\.tar\..*/$1/'; ;  }
-	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1c) family: ', $p, "\n" if $DEBUG_FAMILY;
+		$pattern = '$_ =~ m|.*'.$pkg.'-($major\.[0-9.]+)\.tar\..*|; $version = $1;';}
+	    $FAMILY{$p} = $pattern;
+	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1c) family: ', $p, ' -> ', $pattern,"\n" if $DEBUG_FAMILY;
 # 	 # (14) ffmpeg, ffplay[1-3]
 	}  elsif ($p =~ /(ffmpeg)([0-9])$/  ||
 	          $p =~ /(ffplay)([0-9])$/
@@ -3321,7 +3323,9 @@ sub GetSFProjectCandidate($$$$) {  # line 2922 to 2979
     my (@candidate);
         $#candidate = -1;  # make it empty
     my ($returnCode);
+    my (%SITE_CACHE) = ();
     my ($status, $location);
+
     my ($master_site) = $SF_SITE. $SFProject;
     $master_site =~ s,http://sourceforge,https://download.sourceforge,;
 
@@ -3367,6 +3371,11 @@ sub GetSFProjectCandidate($$$$) {  # line 2922 to 2979
 	PickFromCandidate(@candidate), "\n"  if $DEBUG_HTTP_HEADER;
 
 	if ($status != 200 ) { next; }
+	if ($SITE_CACHE{$site}) {
+	    print STDERR sprintf("%4d ", __LINE__ ), ' *** (',$iteration  ,') ', $site, ') status('. $status.") ncand (",$#candidate,') -> ',	    
+	    next;}
+	$SITE_CACHE{$site}++;  # mark as this site checked already
+
 	print STDERR sprintf("%4d ", __LINE__ ), '(',$iteration++,') ', $location, ') status('. $status.") -> \n"  if $DEBUG_HTTP_HEADER;
 # 1. Do the first level
 	($returnCode, @candidateLocal) = ParseDirectory($site, $DISTBASE, $SimpleFallBackNo, $PackageName);
@@ -3378,6 +3387,10 @@ sub GetSFProjectCandidate($$$$) {  # line 2922 to 2979
 	if ( $candidate != '0.0') {push(@candidate, $candidate); }# last;}
 # 3. Try Versioned Directory
 	my ($dir) = VersionedDirectory($DISTBASE, $site);
+	if ($SITE_CACHE{$dir}) {
+	    print STDERR sprintf("%4d ", __LINE__ ), ' *** (',$iteration  ,') ', $dir, ') status('. $status.") ncand (",$#candidate,') -> ',	    
+	    next;}
+	($SITE_CACHE{$dir})++;
 	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ': dir (', $dir, ')',"\n" if $DEBUG_VERSION_DIR;
 	if ($dir == -1) { next;}
 	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ': dir (', $dir, ')',"\n" if $DEBUG_VERSION_DIR;
