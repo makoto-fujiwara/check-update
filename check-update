@@ -1548,10 +1548,24 @@ print STDERR sprintf("%4d ", __LINE__ ),
     "       (PKGBASE)\t", $PKGBASE,      "\n",
     "       (DISTNAME)\t", $DISTBASE,      "\n",
     "       (PKGVERSION)\t", $PKGVERSION , "\n" if $DEBUG_DISTBASE;
-if (! $SpecialPattern{$PKGBASE}) {
-$SimplePattern = 1;
-}
-	return $PKGBASE }
+	if (! $SpecialPattern{$PKGBASE}) {
+	    $SimplePattern = 1;
+	}
+	return $PKGBASE ;}
+
+    if ($DISTBASE  =~ /([a-zA-Z-]+)-$PKGVERSION-([a-zA-Z]+)/) {
+	my ($former) = $1;
+	my ($latter) = $2;
+#	if (! $SpecialPattern{$PKGBASE}) {
+	    $SpecialPatternY = '$version =~ m|.*' . $former. '-([0-9.]+)-' . $latter . '.*|; $version = $1; ' ;
+#	}     mysql-connector-odbc-5.3.4-src.tar.gz
+	print STDERR sprintf("%4d ", __LINE__ ),
+	    "       (DISTNAME)\t", $DISTBASE,      "\n",
+	    "       (former)\t", $former,      "\n",
+	    "       (latter)\t", $latter,      "\n",	    
+	    "       (SpecialPatternY)\t", $SpecialPatternY,      "\n",
+	    "       (PKGVERSION)\t", $PKGVERSION , "\n" if ($DEBUG_DISTBASE || $DEBUG_SPECIAL_PATTERN);
+	return $PKGBASE ;}
 
     # Get several value to do very simple logic for the very first 'if' line below.
     my($PKGBODY) = $DISTBASE;	# For Substracting $PKGVERSION from $PKGNAME
@@ -2597,7 +2611,7 @@ sub ParseDirectory($$$$){   # 2276  to  2502 lines (230 lines
 # ----------  A L W A Y S   G O  T H R U   H E R E  --------------	# MAJOR_IF_THEN_ELSE
 print STDERR sprintf("%4d ** ", __LINE__ ), (caller 0)[3], ' (', $distbase,') ', $SpecialPattern{$distbase},': ', $_, ' ---: ',
 	    grep (/$distbase/, keys %SpecialPattern)," :---\n" if
-	    ($DEBUG_CURL_LISTING ||  $DEBUG_EVAL_PATTERN || $DEBUG_MASTER_SITES_LISTING );
+	    ($DEBUG_CURL_LISTING || $DEBUG_MASTER_SITES_LISTING );
 print STDERR sprintf("%4d ** ", __LINE__ ), (caller 0)[3], ' (', $distbase,') :', $FAMILY{$PackageName},': ', $version,': ',"\n" if
 	    ($DEBUG_CURL_LISTING ||  $DEBUG_EVAL_PATTERN || $DEBUG_MASTER_SITES_LISTING );
 print STDERR sprintf("%4d ** ", __LINE__ ), (caller 0)[3], ' (', $distbase,') :', $_ ,"\n" if $DEBUG_SF_LOOKING_FOR;
@@ -2606,6 +2620,7 @@ print STDERR sprintf("%4d ** ", __LINE__ ), (caller 0)[3], ' (', $distbase,') :'
 print STDERR sprintf("%4d ** ", __LINE__ ), (caller 0)[3], ' (', $distbase,') :', $_ ,"\n" if $DEBUG_SF_LOOKING_FOR;
 #  ----------------------------------------------------------------
 print STDERR sprintf("%4d ** ", __LINE__ ), '(', $distbase,') $_(', $_,')',"\n" if $DEBUG_EVAL_PATTERN ;
+print STDERR sprintf("%4d ** ", __LINE__ ), '$SpecialPatternY: ', $SpecialPatternY,"\n" if $DEBUG_SPECIAL_PATTERN && $SpecialPatternY ;
 	if (0) { # dummy for ease to swap sequence below
 	} elsif (my $pattern = $FAMILY{$PackageName} ) {
 print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', 'PackageName (', $PackageName, ') pattern (', $pattern, ') ',$_,"\n" if   ($DEBUG_FAMILY);
@@ -2614,7 +2629,7 @@ print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', 'PackageName 
 	    push(@candidate, $version);
 	} elsif (my $pattern = $SEARCH_STRINGS{$distbase} ) {
 	    eval $pattern;
-print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> (', $distbase,') ', $_, '  pattern ( ', $pattern,') -> version(', $version, ")\n" if   ($DEBUG_CURL_LISTING ||  $DEBUG_EVAL_PATTERN );
+print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> (', $distbase,') ', $_, '  pattern ( ', $pattern,') -> version(', $version, ")\n" if  ($DEBUG_CURL_LISTING ||  $DEBUG_EVAL_PATTERN || $DEBUG_SPECIAL_PATTERN);
 
 	} elsif ( grep (/$distbase/, @SimplePattern) || $SimplePattern || $SimpleFallBack ) {
 	    $_ =~ /.*$distbase-([0-9.]+[0-9]).*/;	# not to include last '.'
@@ -2623,7 +2638,7 @@ print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', 'distbase (',
 #	    push(@candidate, $version);
 	} elsif ( $SpecialPatternY ) {
 	    $version = $_;
-print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', '(SpecialPatternY) ', $SpecialPatternY,"\n" if   ($DEBUG_CURL_LISTING ||  $DEBUG_EVAL_PATTERN || $DEBUG_EVAL_PATTERN );
+print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', '(SpecialPatternY) ', $SpecialPatternY,"\n" if   ($DEBUG_CURL_LISTING ||  $DEBUG_EVAL_PATTERN || $DEBUG_SPECIAL_PATTERN);
 	    eval $SpecialPatternY ;
 print STDERR sprintf("%4d ", __LINE__ ), '($version) ', $version, "\n" if   ($DEBUG_CURL_LISTING ||  $DEBUG_EVAL_PATTERN);
 	} elsif ( grep (/$distbase/, keys %SpecialPattern) ||
@@ -2631,7 +2646,7 @@ print STDERR sprintf("%4d ", __LINE__ ), '($version) ', $version, "\n" if   ($DE
 	    print STDERR sprintf("%4d ", __LINE__ ), '(', $distbase,') ', $_,"\n" if $DEBUG_EVAL_PATTERN;
 	    #  E V A L U A T E SpecialPattern
 	    $version = SpecialPattern($distbase, $_);
-	    print STDERR sprintf("%4d ", __LINE__ ), '(', $distbase,') ', $_,'--> ', $version,"\n" if $DEBUG_EVAL_PATTERN;
+	    print STDERR sprintf("%4d ", __LINE__ ), '(', $distbase,') ', $_,'--> ', $version,"\n" if $DEBUG_EVAL_PATTERN  || $DEBUG_SPECIAL_PATTERN ;
 	} elsif ( $distbase eq 'Unicode-Map' && 
 		$_ =~ /Unicode-Map8(.*)/ ) { 
 print STDERR sprintf("%4d ", __LINE__ ), ' (1a)', $distbase, ' --> ', $version,"\n" if $DEBUG_DISTBASE;
