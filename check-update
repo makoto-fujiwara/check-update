@@ -1074,6 +1074,20 @@ sub ClassifyPackage(@) {
 	    $FAMILY{$p} = '$version = $_ ; $version =~ s/.*samba-('.$major.'.[0-9.]+)\.tar\..*/$1/';
 	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1i) family: ', $p, ' -> ', $FAMILY{$p},
 "\n" if $DEBUG_FAMILY;
+# 	 # (16) jdbc-mysql
+	}  elsif ($p =~ /^(jdbc-mysql)(\d)(\d*)/ ){
+	    my ($pkg)  = 'mysql-connector-java';
+	    my ($major) = $2;
+    	    my ($minor) = $3; 
+	    my ($pattern);
+	    if ($minor) {
+		$pattern = '$version = $_ ; $version =~ s/.*'. $pkg.'-('.$major.'\.'.$minor .'\.[0-9.]+)\.z.*/$1/';
+	    } else {
+		$pattern = '$version = $_ ; $version =~ s/.*'. $pkg.'-('.$major.'.[0-9.]+)\.z.*/$1/';		
+	    }
+	    $FAMILY{$p} = $pattern;
+	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1i) family: ', $p, ' -> ', $FAMILY{$p},
+"\n" if $DEBUG_FAMILY;
 	# normal numbering
 	} elsif ($p =~ /(.*)([0-9]+)$/) {
 	    my ($pybody) = $1 ;
