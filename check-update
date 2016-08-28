@@ -3818,7 +3818,8 @@ print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> (DISTBASE) ', $D
 	chomp($URL);
 	if ( my ($p) = $FAMILY{$PackageName} ) {
 	    print STDERR sprintf("%4d ", __LINE__ ), '(PackageName) ', $PackageName, ' (p) ', $p, "\n" if $DEBUG_FAMILY;
-	    $SpecialPatternY = $p ;
+	    if ( ! $SpecialPatternY ) {
+		$SpecialPatternY = $p ; }
 	}
 
 	# ---------------------------------------------------------------
