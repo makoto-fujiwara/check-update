@@ -1447,7 +1447,7 @@ sub GetDistBasePwlib($$$$){
     my ($value)		= $distname;	# pwlib-v1_8_3-src
     $value		=~ s/-v[0-9_]+-src//;# pwlib(-v1_8_3-src)
 print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[3], '> distbase: ', $value, "\n" if $DEBUG_DISTBASE;
-    $SpecialPatternY = '$line =~ /.*$value-v([0-9_]+)-src.*/$1/';  
+    $SpecialPatternY = '$line =~ s/.*$value-v([0-9_]+)-src.*/$1/';
     return $value;
 }
 sub GetDistBaseNoHyphen($$$$){
