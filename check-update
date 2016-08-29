@@ -440,6 +440,7 @@ my(%DISTBASE) = qw (
     );
    
 my(%DownLoadAlternative) = qw (
+    Ngraph	http://www2e.biglobe.ne.jp/~isizaka/download.htm
     openbox	http://openbox.org/wiki/Openbox:Download
     oroborus	http://ftp.debian.org/debian/pool/main/o/oroborus/
     3proxy	http://3proxy.ru/download/
