@@ -1088,6 +1088,13 @@ sub ClassifyPackage(@) {
 	    $FAMILY{$p} = $pattern;
 	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1i) family: ', $p, ' -> ', $FAMILY{$p},
 "\n" if $DEBUG_FAMILY;
+# 	 # (17) ImageMagick
+	}  elsif ($p =~ /^(ImageMagick)(\d*)/ ){
+	    my ($pkg)  =  $1;
+	    my ($major) = $2;
+	    $FAMILY{$p} = '$version = $_ ; $version =~ s/.*'. $pkg.'-('.$major.'[0-9.-]+)\.tar.*/$1/; $version =~ s/-/./;';		
+	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1i) family: ', $p, ' -> ', $FAMILY{$p},
+"\n" if $DEBUG_FAMILY;
 	# normal numbering
 	} elsif ($p =~ /(.*)([0-9]+)$/) {
 	    my ($pybody) = $1 ;
