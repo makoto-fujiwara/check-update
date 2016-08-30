@@ -3,6 +3,16 @@
 # or legal issue
 # category/package_name format. (Category is really ignored).
 # 
+audio/akode
+audio/akode-plugins-alsa
+audio/akode-plugins-jack
+audio/akode-plugins-mpc
+audio/akode-plugins-mpeg
+audio/akode-plugins-oss
+audio/akode-plugins-pulseaudio
+audio/akode-plugins-resampler
+audio/akode-plugins-sun
+audio/akode-plugins-xiph  
 databases/rrdtool12
 devel/p5-Term-ReadLine-Perl
 editors/emacs20
