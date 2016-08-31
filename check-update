@@ -1599,7 +1599,8 @@ print STDERR sprintf("%4d ", __LINE__ ),
     "     (PKGVERSION)\t", $PKGVERSION , "\n" 
 	    if ($DEBUG_DISTBASE || $DEBUG_SPECIAL_PATTERN || $DEBUG_DISTBASE_EXTRACT);
 
-    if ($DISTBASE  =~ /([a-zA-Z-]+)-$PKGVERSION-([a-zA-Z]+)/) {
+    if ($DISTBASE  =~      /([a-zA-Z-]+)-$PKGVERSION-([a-zA-Z]+)/ ||
+        $DISTBASE  =~ /([a-zA-Z]+[0-9]+)-$PKGVERSION-([a-zA-Z]+)/) {	
 	my ($former) = $1;
 	my ($latter) = $2;
 #	if (! $SpecialPattern{$PKGBASE}) {
