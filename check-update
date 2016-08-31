@@ -600,7 +600,10 @@ my (@VER22) = qw(doc2html cfitsio lcc ctags elisau html gbdfed);
 #  Device-Gsm Device-Modem Device-SerialPort 
 #  0.46 -> 0.4.6
 my (@DOT2) =  qw(HTTP-Lite XML-Elemental yencode xworm gambatte_src Class-Std icecastq clex TiffIO
-TakaoExFonts_ TakaoFonts_ XML-Catalog Linux-Inotify2);
+TakaoExFonts_ TakaoFonts_ XML-Catalog Linux-Inotify2
+pixmap
+gnuchess
+);
 # 1.1103  -> 1.11.03
 # IO-CaptureOutput
 # 	p5-sybperl 	2.16 	->	2.171	2.18
