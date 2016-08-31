@@ -388,7 +388,7 @@ my (%SpecialPattern) = (
     'tk',		'$line =~ s|.*tk([0-9]\.[0-9.]+)-src\.tar\..*|$1|;',	# don't pick tk866-src.zip
     'lha',		'$line =~ s|.*lha-([0-9]).([0-9])([0-9])+([a-z]).*|$1$2$3.$4|; $line =~ y|a-i|1-9|;',
     'nagi_src',		'$line =~ s|.*nagi_src_-_([0-9]+)-([0-9]+)-([0-9]+)\.tar.*|$1$2$3|;',
-    'aKode',		'$line =~ s|.*aKode ([0-9.]*) Release.*|$1|;',
+    'mp3asm',		'$line =~ s|.*mp3asm-([0-9.-]+)\.tar\..*|$1|; $line =~ s/-/\./;',
     );
    #http://prdownloads.sourceforge.jp/lha/11617/lha-1.14i-ac20040929.tar.gz
  ##              nagi (=_src_-_2002-11-14) (3853 ) Now: 20021114 ->     0.0 Todo:       
@@ -406,16 +406,7 @@ my(%SourceForgeAlternative) = qw (
 
 # PKGBASE to $DISTBASE association Special (ending digit is main customer)
 my(%DISTBASE) = qw (
-    akode aKode
-    akode-plugins-alsa aKode
-    akode-plugins-jack aKode
-    akode-plugins-mpc aKode
-    akode-plugins-mpeg aKode
-    akode-plugins-oss aKode
-    akode-plugins-pulseaudio aKode
-    akode-plugins-resampler aKode
-    akode-plugins-sun aKode
-    akode-plugins-xiph aKode
+    mp3asm	mp3asm
     basic256	basic256
     nhc98	nhc98src
     ntfsprogs	ntfs-3g_ntfsprogs
