@@ -27,6 +27,7 @@ editors/mule
 editors/xcoral
 games/gnuchess4
 net/dnsdoctor
+net/sharity-light
 sysutils/acpidump
 textproc/biblook
 textproc/convertlit
