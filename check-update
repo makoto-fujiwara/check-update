@@ -254,6 +254,7 @@ html2wml
 inform
 iperf
 klayout
+lame
 lftp
 lout
 lzo
@@ -2561,9 +2562,10 @@ sub ParseDirectorySmall($$){
 # Called 11 times
 #   inside GetSFProjectCandidate( x 6)
 #   main                          x 5
-sub ParseDirectory($$$$){   # 2276  to  2502 lines (230 lines
+sub ParseDirectory($$$$){   # 2564  to 2825 lines (260 lines
     my ($master_site) = shift;
-	print STDERR sprintf("%4d ", __LINE__ ), 'master_site: ', $master_site, "\n" if $DEBUG_MASTER_SITE ;
+  print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ',
+						 'master_site: ', $master_site, "\n" if $DEBUG_MASTER_SITE || $DEBUG_VERSION_DIR ;
     my ($distbase)   = shift;
     my ($SimpleFallBack) = shift;
     my ($PackageName) = shift; 
@@ -2656,7 +2658,11 @@ sub ParseDirectory($$$$){   # 2276  to  2502 lines (230 lines
 # ----------  A L W A Y S   G O  T H R U   H E R E  --------------	# MAJOR_IF_THEN_ELSE
 print STDERR sprintf("%4d ** ", __LINE__ ), (caller 0)[3], ' (', $distbase,') ', $SpecialPattern{$distbase},': ', $_, ' ---: ',
 	    grep (/$distbase/, keys %SpecialPattern)," :---\n" if
-	    ($DEBUG_CURL_LISTING || $DEBUG_MASTER_SITES_LISTING );
+	    ($DEBUG_CURL_LISTING || $DEBUG_MASTER_SITES_LISTING);
+#	if ( ! /$distbase/ ) { next;}
+print STDERR sprintf("%4d ** ", __LINE__ ), (caller 0)[3], ' (', $distbase,') ', $SpecialPattern{$distbase},': ', $_, ' ---: ',
+	    grep (/$distbase/, keys %SpecialPattern)," :---\n" if
+	    ($DEBUG_CURL_LISTING || $DEBUG_MASTER_SITES_LISTING ) ;
 print STDERR sprintf("%4d ** ", __LINE__ ), (caller 0)[3], ' (', $distbase,') :', $FAMILY{$PackageName},': ', $version,': ',"\n" if
 	    ($DEBUG_CURL_LISTING ||  $DEBUG_EVAL_PATTERN || $DEBUG_MASTER_SITES_LISTING );
 print STDERR sprintf("%4d ** ", __LINE__ ), (caller 0)[3], ' (', $distbase,') :', $_ ,"\n" if $DEBUG_SF_LOOKING_FOR;
@@ -2713,7 +2719,8 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (01)', $distbase,' version-> ', $vers
 		0 ) {
 	    my $pattern = $1;
 	    if ($pattern =~ /-$/) { 
-		print STDERR sprintf("%4d ", __LINE__ ), ' (-) ', $_,"\n" if $DEBUG_DISTBASE;
+  print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ',
+							 ' (-) ', $_,"\n" if $DEBUG_DISTBASE || $DEBUG_VERSION_DIR ;
 		next;}  # Avoid to pick CGI-Cookie-XS-0.18.tar.gz for Cookie-XS
 	    $version =	$2; $version =~ s/^[-]//;  # www-VRML-1.10.tar.gz -> -1.10 -> 1.10
 	    print STDERR sprintf("%4d ", __LINE__ ), ' (0) >', $pattern, '< ', $_,"\n" if ($DEBUG_DISTBASE||$DEBUG_EVAL_PATTERN);
@@ -2816,7 +2823,7 @@ print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[3], '> (distbase) ', $distb
     if ($curl_lines == 0 ) { $returnCode = -1; };
 
 print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ': (distbase) ', $distbase,' (version) ', $version, 
-' returnCode ', $returnCode, ' @candidate: ', "\n------------------\n",join ("\n", @candidate), "\n" if $DEBUG_CANDIDATE;
+' returnCode ', $returnCode, ' @candidate: ', "\n------------------\n",join ("\n". __LINE__.' ', @candidate), "\n" if $DEBUG_CANDIDATE || $DEBUG_VERSION_DIR ;
 #      foreach my $c (@candidate) {
 #  	if (1 || $c =~ /4\.8\.3/) {
 #  print STDERR sprintf("%4d <", __LINE__), (caller 0)[3],'> (edit_version) ', $c, "\n"; }}
@@ -3473,6 +3480,7 @@ sub GetSFProjectCandidate($$$$) {  # line 2922 to 2979
 	if ($dir == -1) { next;}
 	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ': dir (', $dir, ')',"\n" if $DEBUG_VERSION_DIR;
 	if ( $dir =~ m|\/([0-9.]+)$| ) { $dir =~ s|$1||; }
+	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ': dir (', $dir, ')',"\n" if $DEBUG_VERSION_DIR;
 	my(@versionedCadidate);
 	my($returnCode, @versionedCandidate) = ParseDirectory($dir, $DISTBASE, $SimpleFallBackNo, $PackageName);
 	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' -> ',
@@ -3519,7 +3527,7 @@ print STDERR  $version,"\n" if $DEBUG_DISTBASE;
     return $version;
 }
 sub VersionedDirectory ($$){
-    # like SourceForge, there are directory that holds versioned
+    # like SourceForge, there are directories that holds versioned
     # sub directories. For example
     # https://sourceforge.net/projects/aegis/files/aegis/
     # (1) To check if it is a directory like this
@@ -4179,4 +4187,3 @@ __END__
 
 # debug format
   print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ',
-
