@@ -452,6 +452,7 @@ my(%DISTBASE) = qw (
     );
    
 my(%DownLoadAlternative) = qw (
+    john	http://www.openwall.com/john/
     aKode	https://www.linux-apps.com/p/1126584/
     agg		http://www.antigrain.com/download/index.html
     Ngraph	http://www2e.biglobe.ne.jp/~isizaka/download.htm
@@ -669,7 +670,7 @@ my (@ADDZERO2) = qw(Convert-BER Spreadsheet-ParseExcel Test-Reporter Curses-UI-P
 my (@DELETE02) = qw(Class-C3-Componentised);
 
 # 325 -> 3.2.5
-my (@ThreeSingle) = qw(nulib john);
+my (@ThreeSingle) = qw(nulib);
 
 # 1.001002 -> 1.1.2
 my (@DOT133) = qw (DBIx-Class-Cursor-Cached IO-Pipeline Smart-Comments Parse-RecDescent);
