@@ -528,6 +528,7 @@ my(%DownLoadAlternative) = qw (
     libssh	https://red.libssh.org/projects/libssh/files
     Renaissance	http://www.gnustep.it/Renaissance/Download.html
     pingus	http://pingus.seul.org/download.html
+    poppler	https://poppler.freedesktop.org/releases.html
     ); ##
 #    dact	http://www.rkeene.org/devel/dact/
 
@@ -1114,19 +1115,27 @@ sub ClassifyPackage(@) {
 	    $FAMILY{$p} = '$version = $_ ; $version =~ s/.*'. $pkg.'-('.$major.'[0-9.-]+)\.tar.*/$1/; $version =~ s/-/./;';		
 	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1i) family: ', $p, ' -> ', $FAMILY{$p},
 "\n" if $DEBUG_FAMILY;
-# 	 # (17) gnupg
+# 	 # (18) gnupg
 	}  elsif ($p =~ /^(gnupg)$/ ) {
 	    $FAMILY{$p} = '$version = $_ ; $version =~ s/.*gnupg-(1\.[0-9.]+)\.tar\..*/$1/';	    
 	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1i) family: ', $p, ' -> ', $FAMILY{$p},
 "\n" if $DEBUG_FAMILY;
-# 	 # (18) gnupg
+# 	 # (19) gnupg
 	}  elsif ($p =~ /^(gnupg2)$/ ) {
 	    $FAMILY{$p} = '$version = $_ ; $version =~ s/.*gnupg-(2\.0\.[0-9.]+)\.tar\..*/$1/';	    
 	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1i) family: ', $p, ' -> ', $FAMILY{$p},
 "\n" if $DEBUG_FAMILY;
-# 	 # (19) gnupg
+# 	 # (20) gnupg
 	}  elsif ($p =~ /^(gnupg21)$/ ) {
 	    $FAMILY{$p} = '$version = $_ ; $version =~ s/.*gnupg-(2\.1\.[0-9.]+)\.tar\..*/$1/';	    
+	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1i) family: ', $p, ' -> ', $FAMILY{$p},
+"\n" if $DEBUG_FAMILY;
+	 # (21)
+	}  elsif ($p =~ /^(poppler)0(\d+)(-qt3)/ || $p =~ /^(poppler)0(\d+)/ ){
+	    my ($pkg)  =  $1;
+	    my ($minor) = $2;
+	    my ($suffix) = $3;
+	    $FAMILY{$p} = 'm|.*'. $pkg.'-(0.'.$minor.'\.[0-9.-]+)'.$suffix.'\.tar\..*|; $version = $1;';
 	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1i) family: ', $p, ' -> ', $FAMILY{$p},
 "\n" if $DEBUG_FAMILY;
 	# normal numbering
