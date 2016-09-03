@@ -1499,8 +1499,9 @@ sub GetDistBasePwlib($$$$){
     
     my ($value)		= $distname;	# pwlib-v1_8_3-src
     $value		=~ s/-v[0-9_]+-src//;# pwlib(-v1_8_3-src)
-print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[3], '> distbase: ', $value, "\n" if $DEBUG_DISTBASE;
-    $SpecialPatternY = '$line =~ s/.*$value-v([0-9_]+)-src.*/$1/';
+print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ',
+    '> distbase: ', $value, "\n" if ($DEBUG_DISTBASE || $DEBUG_SPECIAL_PATTERN ) ;    
+    $SpecialPatternY = '$line =~ s/.*'.$value.'-v([0-9_]+)-src.*/$1/';
     return $value;
 }
 sub GetDistBaseNoHyphen($$$$){
@@ -1586,7 +1587,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
     #  --------------------------------------
     #      0. If  very simple patterns
     #  --------------------------------------
-    # kde4-i10n-.. special 
+    # GetDistBase (1) kde4-i10n-.. special 
     if ($PKGBASE =~ /kde4-(l10n-..)/) {
 	return "kde-$1"}
 
@@ -1594,7 +1595,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
      'BASE: ', $PKGBASE .'-'. $PKGVERSION, ' DISTNAME: ', $DISTBASE, "\n" if $DEBUG_DISTBASE;
 
     $SimplePattern = 0; # initialize to none
-
+    # GetDistBase (2) --------------------------------------
     if ($PKGBASE .'-'. $PKGVERSION eq $DISTBASE ) {
  print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], "\n",
     "       (PKGNAME)\t", $PKGNAME,        "\n",
@@ -1611,7 +1612,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
     "       (DISTNAME)\t", $DISTBASE,      "\n",
     "     (PKGVERSION)\t", $PKGVERSION , "\n" 
 	    if ($DEBUG_DISTBASE || $DEBUG_SPECIAL_PATTERN || $DEBUG_DISTBASE_EXTRACT);
-
+    # GetDistBase (3) ------------------------------------------
     if ($DISTBASE  =~      /([a-zA-Z-]+)-$PKGVERSION-([a-zA-Z]+)/ ||
         $DISTBASE  =~ /([a-zA-Z]+[0-9]+)-$PKGVERSION-([a-zA-Z]+)/ ||
         $DISTBASE  =~ /([a-zA-Z]+[0-9]+)-[0-9]+-([a-zA-Z]+)/       ) { # games/nethack-lib
@@ -1628,7 +1629,29 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	    "     (PKGVERSION)\t", $PKGVERSION , "\n" 
 	    if ($DEBUG_DISTBASE || $DEBUG_SPECIAL_PATTERN || $DEBUG_DISTBASE_EXTRACT);
 	return $PKGBASE ;}
+    # GetDistBase (4) ------------------------------------------
+    my($concatVersion) = '';
+    if ($DISTBASE  =~      /([a-zA-Z-]+)-([0-9.]+)-p([0-9])/    # devel/automake14 automake-1.4-p6    
+	) {
+	my($pkgname) = $1;
+	my($major) =   $2;
+	my($minor) =   $3;	
+	$concatVersion = $major . '.' . $minor;
+	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], 
+	    ' ---- $concatVersion ('. $concatVersion. ') $PKGVERSION ('. $PKGVERSION ,
+	    ")\n"
+	        if ($DEBUG_DISTBASE || $DEBUG_SPECIAL_PATTERN || $DEBUG_DISTBASE_EXTRACT);
 
+	if ($PKGVERSION eq $concatVersion ) { # automake-1.4-p6 -> 1.4.6
+	$SpecialPatternY = ' m|.*' . $pkgname. '-([0-9.]+-p[0-9]+)\.tar\..*|; $version = $1; $version =~ s/-p/./; ' ;
+  print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2],  ' ------------------',"\n",
+	    "       (DISTNAME)\t", $DISTBASE,      "\n",
+	    "(SpecialPatternY)\t", $SpecialPatternY,      "\n",
+	    "     (PKGVERSION)\t", $PKGVERSION , "\n" 
+	    if ($DEBUG_DISTBASE || $DEBUG_SPECIAL_PATTERN || $DEBUG_DISTBASE_EXTRACT);
+	return $PKGBASE ;}
+    }
+    # GetDistBase (5) -------------------------------------------------------
     # Get several value to do very simple logic for the very first 'if' line below.
     my($PKGBODY) = $DISTBASE;	# For Substracting $PKGVERSION from $PKGNAME
     				# This variable appears only these several lines, to pickup $VERSION_CANDIDATE
@@ -1644,6 +1667,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
     ' (VERSION_CANDIDATE) ', $VERSION_CANDIDATE,
     ' (PKGNAME) ', $PKGNAME,
     ' (PKGBASE) ', $PKGBASE,   "\n" if $DEBUG_DISTBASE;    
+    # GetDistBase (6) -------------------------------------------------------
     if ($testA.'-'.$VERSION_CANDIDATE eq $PKGNAME ) {
 	print STDERR sprintf("%4d ", __LINE__ ), '(DISTBASE) ', $PKGBASE,"\n" if $DEBUG_DISTBASE;
 	return $PKGBASE;}
@@ -1659,6 +1683,7 @@ print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], '> ',"\n" if $DEBUG_
     #   (DISTNAME)       libarchive-3.1.2
     #   (PKGVERSION)     3.1.2
     #  --------------------------------------
+    # GetDistBase (6) -------------------------------------------------------
         $thisreturn =	GetDistBaseSwap($PKGNAME, $PKGBASE, $DISTBASE);
     if ($thisreturn) { return $thisreturn }
 
