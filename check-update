@@ -1612,14 +1612,18 @@ print STDERR sprintf("%4d ", __LINE__ ),
     "       (DISTNAME)\t", $DISTBASE,      "\n",
     "     (PKGVERSION)\t", $PKGVERSION , "\n" 
 	    if ($DEBUG_DISTBASE || $DEBUG_SPECIAL_PATTERN || $DEBUG_DISTBASE_EXTRACT);
+   
     # GetDistBase (3) ------------------------------------------
-    if ($DISTBASE  =~      /([a-zA-Z-]+)-$PKGVERSION-([a-zA-Z]+)/ ||
-        $DISTBASE  =~ /([a-zA-Z]+[0-9]+)-$PKGVERSION-([a-zA-Z]+)/ ||
-        $DISTBASE  =~ /([a-zA-Z]+[0-9]+)-[0-9]+-([a-zA-Z]+)/       ) { # games/nethack-lib
+    if ($DISTBASE  =~      /([a-zA-Z-]+)([-])$PKGVERSION([-])([a-zA-Z]+)/ ||
+        $DISTBASE  =~ /([a-zA-Z]+[0-9]+)([-])$PKGVERSION([-])([a-zA-Z]+)/ ||
+        $DISTBASE  =~      /([a-zA-Z-]+)([_])$PKGVERSION([.])([a-zA-Z]+)/ ||   #    py27-pslib (python-pslib_0.2.0.orig)
+        $DISTBASE  =~ /([a-zA-Z]+[0-9]+)([-])[0-9]+([-])([a-zA-Z]+)/       ) { # games/nethack-lib
 	my ($former) = $1;
-	my ($latter) = $2;
+	my ($dlm1)   = $2;
+	my ($dlm2)   = $3;	    
+	my ($latter) = $4;
 #	if (! $SpecialPattern{$PKGBASE}) {
-	    $SpecialPatternY = '$version =~ m|.*' . $former. '-([0-9.]+)-' . $latter . '.*|; $version = $1; ' ;
+	    $SpecialPatternY = 'm|.*' . $former. $dlm1 .'([0-9.]+)'.$dlm2 . $latter . '.*|; $version = $1; ' ;
 #	}     mysql-connector-odbc-5.3.4-src.tar.gz
   print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2],  ' ------------------',"\n",
 	    "       (DISTNAME)\t", $DISTBASE,      "\n",
@@ -3461,6 +3465,7 @@ sub GetSFProjectCandidate($$$$) {  # line 2922 to 2979
     print STDERR sprintf("%4d ", __LINE__ ), ' SFProject: ',  $SFProject."\n" if $DEBUG_SF;
     my ($subDirectory) = $DISTBASE;
     $subDirectory =~ s/-/_/g;
+    $subDirectory =~ s/py[0-9]+_/python-/g;    # print/py-pslib -> python-pslib
     my (@directory_candidate);
 
     my ($directory_candidate) = GetMasterSiteSubDirectory($master_site, $dist_name);
