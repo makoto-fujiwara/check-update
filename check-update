@@ -220,6 +220,7 @@ my (@SkipTooOld)
 # Simple means $distbase-([0-9.]+)-(extran string not necessary)..
 my ($SimplePattern); # dynamically set to 1 if @SimplePattern equivalent
 my (@SimplePattern)  = qw(
+Regina-REXX
 CRF++
 Coin
 Event
@@ -312,7 +313,6 @@ my (%SpecialPattern) = (
     'IPC-Run',		'$line =~ s/.*IPC-Run-([0-9.]+)\.tar.gz/$1/;',
     'Term-ReadLine-Perl','$line =~ s/.*Term-ReadLine-Perl5-([0-9.]+)\.tar.gz/$1/;',#
     'acmesrc',		'$line =~ s/.*acme([0-9.]+)src\.tar\.gz.*/$1/;',
-    'openscad',		'$line =~ s/.*openscad-([0-9.]+)\.src\.tar\.gz.*/$1/;',
     'gr-fcdproplus',	'$line =~ s/.*gr-fcdproplus_([0-9.]+)\.orig\.tar.*/$1/;',
     'apache-ivy-bin',	'$line =~ s|.*/([0-9.]+)/.*|$1|;',
     'pl',		'$line =~ s/.*pl-([0-9.]+)\.tar\..*/$1/;',
@@ -392,6 +392,7 @@ my (%SpecialPattern) = (
     'mp3asm',		'$line =~ s|.*mp3asm-([0-9.-]+)\.tar\..*|$1|; $line =~ s/-/\./;',
     'Level',		'$line =~ s|.*Level9_([0-9.]+)_Source.*|$1|;',
     'psjoin',		'$line =~ s|.*\# version ([0-9.]+), .*|$1|;',
+    'openscad',		'$line =~ s|.*openscad-([0-9.-]+)\.src\..*|$1|; $line =~ s/-/p/;',
     );
    #http://prdownloads.sourceforge.jp/lha/11617/lha-1.14i-ac20040929.tar.gz
  ##              nagi (=_src_-_2002-11-14) (3853 ) Now: 20021114 ->     0.0 Todo:       
@@ -409,6 +410,8 @@ my(%SourceForgeAlternative) = qw (
 
 # PKGBASE to $DISTBASE association Special (ending digit is main customer)
 my(%DISTBASE) = qw (
+    rexx-regina Regina-REXX
+    openscad	openscad
     nethack-lib nethack
     nethack-qt nethack
     nethack-tty nethack
@@ -477,7 +480,6 @@ my(%DownLoadAlternative) = qw (
     pcre++	http://www.daemon.de/PcreDownload
     boolean	http://boolean.klaasholwerda.nl/download/download.html
     dinotrace	http://www.veripool.org/projects/dinotrace/wiki/Installing
-    openscad	http://files.openscad.org/
     qcad	http://www.qcad.org/archives/qcad/
     frozen-bubble	http://www.frozen-bubble.org/downloads/
     gmfsk	http://gmfsk.connect.fi/download.html
