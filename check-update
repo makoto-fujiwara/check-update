@@ -1140,6 +1140,15 @@ sub ClassifyPackage(@) {
 	    $FAMILY{$p} = 'm|.*'. $pkg.'-(0.'.$minor.'\.[0-9.-]+)'.$suffix.'\.tar\..*|; $version = $1;';
 	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1i) family: ', $p, ' -> ', $FAMILY{$p},
 "\n" if $DEBUG_FAMILY;
+	    # (22) ruby-{18,21,22,23}-base
+	}  elsif ($p =~ /^(ruby)(\d)(\d)-base$/) {
+	    my ($pkg)  = $1;
+	    my ($major) = $2;
+    	    my ($minor) = $3;
+	    my ($pattern) ;
+	    $pattern  = '$_ =~ m|.*'. $pkg. '-('. $major.'.'.$minor.'.[0-9]*)\.tar\..*|; $version = $1; ';
+	    $FAMILY{$p} = $pattern;
+	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1b) family: ', $p, ' -> '. $pattern."\n" if $DEBUG_FAMILY;
 	# normal numbering
 	} elsif ($p =~ /(.*)([0-9]+)$/) {
 	    my ($pybody) = $1 ;
@@ -1605,7 +1614,29 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	if (! $SpecialPattern{$PKGBASE}) {
 	    $SimplePattern = 1;
 	}
-	return $PKGBASE ;}
+	return $PKGBASE ;
+    }
+    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2],"\n",
+    "       (PKGBASE)\t", $PKGBASE,      "\n",
+    "       (PKGVERSION)\t", $PKGVERSION , "\n",
+    "       (DISTNAME)\t", $DISTBASE,      "\n"
+	if ($DEBUG_DISTBASE || $DEBUG_DISTBASE_EXTRACT) ;
+# delimiter is perid(.)  rtf2LaTeX.1.5
+    if ($PKGBASE .'.'. $PKGVERSION =~ /$DISTBASE/i ) {
+ my($distbase) = $DISTBASE ;
+ $distbase =~ s/\.$PKGVERSION//;
+	if (! $SpecialPattern{$PKGBASE}) {
+	    $SpecialPatternY = 'm|.*' . $distbase.'.([0-9.]+)\.tar\..*|; $version = $1;' ; 
+	}
+ print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], "\n",
+    "       (PKGNAME)\t", $PKGNAME,        "\n",
+    "       (PKGBASE)\t", $PKGBASE,      "\n",
+    "       (DISTNAME)\t", $DISTBASE,      "\n",
+    "       (PKGVERSION)\t", $PKGVERSION , "\n",
+    "       (SpecialPatternY)\t", $SpecialPatternY , "\n"
+	    if ($DEBUG_DISTBASE || $DEBUG_DISTBASE_EXTRACT);
+	return $distbase ;
+    }
 # set    $SpecialPatternY  by looking at DISTBASE and PKGVERSION relation
   print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ------------------',"\n",
     "    (PackageName)\t", $PackageName,"\n",
@@ -2066,7 +2097,7 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (PKGNAME) ', $PKGNAME, ' --> master_s
 	if ($Dont_check_homepage{$DISTBASE} != 1 ) {
 	$master_site = $home_page; }# fall back to home_page
 	}
-    }
+    } ##     if ($MasterSiteStat == 404 ) { 
     if ($MasterSiteStat == 550 ) { 
 	($HomePageStat, $location) =  CheckHeader($home_page);
 print STDERR sprintf("%04d ", __LINE__ ), ' (PKGNAME) ', $PKGNAME, ' --> master_site = ', $master_site,"\n" if $DEBUG_DISTBASE;
