@@ -1041,7 +1041,7 @@ sub ClassifyPackage(@) {
 	    my ($distbase) = $1;
 	    my ($major) = $2;
 	    my ($minor) = $3;
-	    $FAMILY{$p} = '$version = $_ ; $version =~ s/.*$distbase-('.$major.'\.'.$minor.'\.[0-9]+).*/$1/' ;
+	    $FAMILY{$p} = '$version = $_ ; $version =~ s/.*' .$distbase.'-('.$major.'\.'.$minor.'\.[0-9]+).*/$1/' ;
         # (10) security/libassuan{,2}
 	} elsif ($p =~ /(libassuan)([2])*$/) {
 	    my ($distbase) = $1;
@@ -1150,6 +1150,15 @@ sub ClassifyPackage(@) {
     	    my ($minor) = $3;
 	    my ($pattern) ;
 	    $pattern  = '$_ =~ m|.*'. $pkg. '-('. $major.'.'.$minor.'.[0-9]*)\.tar\..*|; $version = $1; ';
+	    $FAMILY{$p} = $pattern;
+	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1b) family: ', $p, ' -> '. $pattern."\n" if $DEBUG_FAMILY;
+	    # (23) foomatic{,4}-filters
+	}  elsif ($p =~ /^(foomatic)(\d*)-filters$/) {
+	    my ($pkg)  = $1;
+	    my ($major) = $2;
+	    if ($major == '') { $major = 3;}
+	    my ($pattern) ;
+	    $pattern  = '$_ =~ m|.*foomatic-filters-('. $major.'.[0-9.]+)\.tar\..*|; $version = $1; ';
 	    $FAMILY{$p} = $pattern;
 	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1b) family: ', $p, ' -> '. $pattern."\n" if $DEBUG_FAMILY;
 	# normal numbering
