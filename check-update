@@ -3595,6 +3595,8 @@ sub GetSystemURL ($){
 #    open(HASH, "git log --format='%H' -1|");
 #    my ($HASH) = <HASH>;
 #    close(HASH);
+# instead, expecting $HASH is set by shell script who invokes this perl script,
+# usually check-update.sh
     my ($VERSION) = shift;
     my ($SystemURL);
     my ($HASH) = $ENV{'HASH'};
