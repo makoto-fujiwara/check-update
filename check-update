@@ -1588,7 +1588,8 @@ sub GetDistBase($$$$$) {	# <- Main       DISTBASEDISTBASE
     my ($PKGNAME)	= shift;
 
     my ($DISTBASE)	= GetVariableValue($dir, $PackageName, 'DISTNAME');
-
+    my ($EXTRACT_SUFX)	= GetVariableValue($dir, $PackageName, 'EXTRACT_SUFX');
+    $EXTRACT_SUFX =~ s/\./\\\./; # escape leading . to \.
 print STDERR sprintf("%4d ", __LINE__ ),
          "  (PKGNAME)\t", $PKGNAME,        "\n",
     "       (PKGBASE)\t", $PKGBASE,      "\n",
@@ -1633,12 +1634,14 @@ print STDERR sprintf("%4d ", __LINE__ ),
     "       (PKGVERSION)\t", $PKGVERSION , "\n",
     "       (DISTNAME)\t", $DISTBASE,      "\n"
 	if ($DEBUG_DISTBASE || $DEBUG_DISTBASE_EXTRACT) ;
-# delimiter is perid(-) 
-    if ($PKGBASE .'-'. $PKGVERSION =~ /$DISTBASE/i ) {
+# delimiter is (-) 
+    if ($DISTBASE =~ /$PKGBASE-(v*)$PKGVERSION/ ||
+	              $PKGBASE .'-'. $PKGVERSION =~ /$DISTBASE/i) {
+ my ($prefix) = $1; # this is not effective for devel/p5-Algorithm-CheckDigits
  my($distbase) = $DISTBASE ;
- $distbase =~ s/-$PKGVERSION//;
+ $distbase =~ s/-v*$PKGVERSION//;
 	if (! $SpecialPattern{$PKGBASE}) {
-	    $SpecialPatternY = 'm|.*' . $distbase.'-([0-9.]+)\.tar\..*|; $version = $1;' ; 
+	    $SpecialPatternY = 'm|.*' . $distbase.'-v*([0-9.]+)'.$EXTRACT_SUFX.'.*|; $version = $1;' ; 
 	}
  print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], "\n",
     "       (PKGNAME)\t", $PKGNAME,        "\n",
@@ -2672,7 +2675,7 @@ sub ParseDirectorySmall($$){
 sub ParseDirectory($$$$){   # 2564  to 2825 lines (260 lines
     my ($master_site) = shift;
   print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ',
-						 'master_site: ', $master_site, "\n" if $DEBUG_MASTER_SITE || $DEBUG_VERSION_DIR ;
+						 'master_site: ', $master_site, "\n" if $DEBUG_MASTER_SITE || $DEBUG_VERSION_DIR || $DEBUG_HTTP_HEADER ;
     my ($distbase)   = shift;
     my ($SimpleFallBack) = shift;
     my ($PackageName) = shift; 

@@ -65,6 +65,7 @@ RM=		/bin/rm
 all: ${DIRECTORY}/${DATE}/00_Summary.html
 
 ${DIRECTORY}/${DATE}/00_Summary.html: ${DIRECTORY}/${DATE}/diff
+	cp -p ${DIRECTORY}/${DATE}/00_Summary.html	${DIRECTORY}/${DATE}/00_Summary.bak.html
 	(cd ${DIRECTORY}; ${COLLECT_STATS} );
 
 ${DIRECTORY}/${DATE}/diff:  ${DIRECTORY}/${DATE}
