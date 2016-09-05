@@ -1639,7 +1639,23 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	              $PKGBASE .'-'. $PKGVERSION =~ /$DISTBASE/i) {
  my ($prefix) = $1; # this is not effective for devel/p5-Algorithm-CheckDigits
  my($distbase) = $DISTBASE ;
- $distbase =~ s/-v*$PKGVERSION//;
+
+ # Following $PKGVERSION is before EDITVersion, but to call EDITVersion, we need correct DISTBASE
+ #        (PKGNAME)        p5-IO-CaptureOutput-1.11.04
+ #        (PKGBASE)        p5-IO-CaptureOutput
+ #        (DISTNAME)       IO-CaptureOutput-1.1104
+ #        (PKGVERSION)     1.11.04
+ my($numeric) = $DISTNAME ;
+    $numeric =~ s/\S+-([0-9.]+)/$1/; # pick 1.1104 part from above
+ my($numeric_no_delim) = $numeric;
+    $numeric_no_delim) =~ s|.-||g;
+ my($PKGVERSION_no_delim) = $PKGVERSION;
+    $PKGVERSION_no_delim) =~ s|.-||g;
+my ($VERSION_to_remove) = $PKGVERSION;
+if ($numeric_no_delim eq $PKGVERSION_no_delim) {
+    $VERSION_to_remove = $numeric; }
+
+ $distbase =~ s/-v$VERSION_to_remove//;
 	if (! $SpecialPattern{$PKGBASE}) {
 	    $SpecialPatternY = 'm|.*' . $distbase.'-v*([0-9.]+)'.$EXTRACT_SUFX.'.*|; $version = $1;' ; 
 	}
