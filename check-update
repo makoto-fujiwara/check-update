@@ -1634,7 +1634,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
     "       (PKGVERSION)\t", $PKGVERSION , "\n",
     "       (DISTNAME)\t", $DISTBASE,      "\n"
 	if ($DEBUG_DISTBASE || $DEBUG_DISTBASE_EXTRACT) ;
-# delimiter is (-) 
+    # delimiter is (-) 
     if ($DISTBASE =~ /$PKGBASE-(v*)$PKGVERSION/ ||
 	              $PKGBASE .'-'. $PKGVERSION =~ /$DISTBASE/i) {
  my ($prefix) = $1; # this is not effective for devel/p5-Algorithm-CheckDigits
@@ -1645,17 +1645,32 @@ print STDERR sprintf("%4d ", __LINE__ ),
  #        (PKGBASE)        p5-IO-CaptureOutput
  #        (DISTNAME)       IO-CaptureOutput-1.1104
  #        (PKGVERSION)     1.11.04
- my($numeric) = $DISTNAME ;
-    $numeric =~ s/\S+-([0-9.]+)/$1/; # pick 1.1104 part from above
+ my($numeric) = $DISTBASE ;
+ $numeric =~ s/.*-([0-9.]+)$/$1/; # $numeric = $1; # pick 1.1104 part from above
  my($numeric_no_delim) = $numeric;
-    $numeric_no_delim) =~ s|.-||g;
+    $numeric_no_delim  =~ s|\.||g; $numeric_no_delim  =~ s|-||g;
  my($PKGVERSION_no_delim) = $PKGVERSION;
-    $PKGVERSION_no_delim) =~ s|.-||g;
+    $PKGVERSION_no_delim  =~ s|\.||g; $PKGVERSION_no_delim  =~ s|-||g;
 my ($VERSION_to_remove) = $PKGVERSION;
-if ($numeric_no_delim eq $PKGVERSION_no_delim) {
+my ($numeric_no_delim_variation) =  $numeric_no_delim . '[0]+';
+ if ($numeric_no_delim eq $PKGVERSION_no_delim ||
+     $PKGVERSION_no_delim =~ /$numeric_no_delim_variation/ ) { # devel/p5-IO-Util-1.5 -> PKGVERSION 1.50
     $VERSION_to_remove = $numeric; }
 
- $distbase =~ s/-v$VERSION_to_remove//;
+    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2],"\n",
+    "       (numeric)\t", 		$numeric, 	"\n",
+    "       (numeric_no_delim)\t",	$numeric_no_delim,"\n",
+     "       (PKGVERSION_no_delim)\t",	$PKGVERSION_no_delim,"\n",
+    "       (numeric_no_delim_variation)\t",	$numeric_no_delim_variation,"\n",     
+    "       (VERSION_to_remove)\t",	$VERSION_to_remove,"\n",
+    "       (distbase)\t",	$distbase,"\n"
+	if ($DEBUG_DISTBASE || $DEBUG_DISTBASE_EXTRACT) ;
+
+ $distbase =~ s/-v*$VERSION_to_remove//;
+    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2],"\n", 
+    "       (distbase)\t",	$distbase,"\n"
+
+	if ($DEBUG_DISTBASE || $DEBUG_DISTBASE_EXTRACT) ;
 	if (! $SpecialPattern{$PKGBASE}) {
 	    $SpecialPatternY = 'm|.*' . $distbase.'-v*([0-9.]+)'.$EXTRACT_SUFX.'.*|; $version = $1;' ; 
 	}
