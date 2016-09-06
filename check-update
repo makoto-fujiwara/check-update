@@ -2271,15 +2271,14 @@ sub pypiSpecial($$$$){
 
     my $site = 'https://pypi.python.org/pypi/' . $DISTBASE;
 #    my $ver = ParseDirectorySmall( $site, $DISTBASE);
-
   print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ',
-      'distbase: ', $DISTBASE, "\n"
-      if $DEBUG_PYPI || $DEBUG_HTTP_HEADER;
+      'distbase: ', $DISTBASE, ' master_site (',$master_site,")\n"     if $DEBUG_PYPI || $DEBUG_HTTP_HEADER;
     my $py_site = 'https://pypi.python.org/pypi/'. $distbase ;
 	    $dir = VersionedDirectory($DISTBASE, $py_site);
 	    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2],
 		': dir(', $dir, ')',"\n" if $DEBUG_PYPI; 
 	    if ($dir == -1) { next;}
+    $SpecialPatternY  = '';
     ($returnCode, @candidate) = ParseDirectory($dir, $DISTBASE, $SimpleFallBackNo, $PackageName);
 	    if ($returnCode == 200 ) {last;}
     return ($returnCode, @candidate);
@@ -4136,36 +4135,55 @@ if (0){
 	    ' candidate#: ', $#candidate,
 	    "\n" if ( $DEBUG_DISTBASE || $DEBUG_MASTER_SITES_LISTING );
 print STDERR sprintf("%4d ", __LINE__ ),
-    join (' ', @candidate) ,"\n" if $DEBUG_DISTBASE;
-	if ($#candidate == -1  &&  ( $MASTER_SITE  =~ m|http://pypi.python.org/| )) {		# MAJOR_IF_THEN_ELSE
-	    print STDERR sprintf("%4d ", __LINE__ ), 'MASTER_SITE ', $MASTER_SITE if $DEBUG_DISTBASE;
-	    ($returnCode, @candidate) = ParseDirectory(
+    join (' ', @candidate) ,"\n" if $DEBUG_DISTBASE || $DEBUG_PYPI ;
+	    my(@CANDIDATE);
+
+	if ($MASTER_SITE  =~ m|http://pypi.python.org/| ) {		# MAJOR_IF_THEN_ELSE
+	    print STDERR sprintf("%4d ", __LINE__ ), 'MASTER_SITE ', $MASTER_SITE if $DEBUG_DISTBASE || $DEBUG_PYPI ;
+	    ($returnCode, @CANDIDATE) = ParseDirectory(
 		"https://pypi.python.org/pypi/".$DISTBASE, $DISTBASE, $SimpleFallBackNo, $PackageName);}
+	    push(@candidate, @CANDIDATE);
 
 	if ($#candidate == -1  && $EGG_PACKAGE) {						# MAJOR_IF_THEN_ELSE
 	    print STDERR sprintf("%4d ", __LINE__ ), 'MASTER_SITE ', $MASTER_SITE if $DEBUG_DISTBASE;
 	    ($returnCode, @candidate) = ParseDirectory(
 		"https://warehouse.python.org/project/".$DISTBASE, $DISTBASE, $SimpleFallBackNo, $PackageName);}
 	print STDERR sprintf("%4d ", __LINE__ ), 'MASTER_SITE ', $MASTER_SITE, ' DISTBASE ', $DISTBASE, ' cand (', $#candidate,")\n" if $DEBUG_GITHUB;
+
 	if ($MASTER_SITE =~ m|github.com/| ) {				# MAJOR_IF_THEN_ELSE
 	 # ------------------ GitHubSpecial (3352)
-	    my(@CANDIDATE);
+	    @CANDIDATE = ();
 	    ($returnCode, @CANDIDATE) = GitHubSpecial($DISTBASE, $MASTER_SITE, $dir, $PackageName);
 	    push(@candidate, @CANDIDATE);
 	    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ': ', "\n",join ("\n", @candidate),"\n" if $DEBUG_CANDIDATE ;
 	}
 	if ($#candidate  < 1   && ($HOMEPAGE =~ m|github.com/|) ) {				# MAJOR_IF_THEN_ELSE
 	    # ------------------ GitHubSpecial on HOMEPAGE
-	    ($returnCode, @candidate) = GitHubSpecial($DISTBASE, $HOMEPAGE, $dir, $PackageName);
+	    @CANDIDATE = ();
+	    ($returnCode, @CANDIDATE) = GitHubSpecial($DISTBASE, $HOMEPAGE, $dir, $PackageName);
+	    push(@candidate, @CANDIDATE);
 	    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ': ', "\n",join ("\n", @candidate),"\n" if $DEBUG_CANDIDATE ;
 	}
-	## http://pypi.python.org/pypi/zope.interface
-	if ($#candidate  < 1 && ($HOMEPAGE =~ m|pypi.python.org/pypi|) ) {
+	    ## http://pypi.python.org/pypi/zope.interface
+	    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], 'HOMEPAGE (',$HOMEPAGE, ")\n";	    
+        if ($HOMEPAGE =~ m|pythonhosted.org/|) {
 	    # ------------------ on HOMEPAGE
-	    ($returnCode, @candidate) = pypiSpecial($DISTBASE, $HOMEPAGE, $dir, $PackageName);
-	}
-    print STDERR sprintf("%4d ", __LINE__ ), join "\n", @candidate, "\n" if $DEBUG_VERSION_DIR;
+	    @CANDIDATE = ();
+#	    ($returnCode, @CANDIDATE) = pypiSpecial($DISTBASE, $HOMEPAGE, $dir, $PackageName);
 
+	    $dir = VersionedDirectory($DISTBASE, $HOMEPAGE.'/core/changelog.html');
+	    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2],
+		': dir(', $dir, ')',"\n" if $DEBUG_PYPI; 
+	    if ($dir != -1) {
+    ($returnCode, @CANDIDATE) = ParseDirectory($dir, $DISTBASE, $SimpleFallBackNo, $PackageName);
+	    push(@candidate, @CANDIDATE); }
+	    print STDERR sprintf("%4d ", __LINE__ ), 'MASTER_SITE (', $MASTER_SITE, ') ', join "\n", @candidate, "\n" if $DEBUG_PYPI ;
+	}
+        if ($MASTER_SITE =~ m|https://files.pythonhosted.org/|) {
+	    @CANDIDATE = ();
+	    ($returnCode, @CANDIDATE) = pypiSpecial($DISTBASE, $MASTER_SITE, $dir, $PackageName);
+	    push(@candidate, @CANDIDATE); }
+	print STDERR sprintf("%4d ", __LINE__ ), join "\n", @candidate, "\n" if $DEBUG_PYPI ;	    
 	print STDERR sprintf("%4d ", __LINE__ ), 'MASTER_SITE ', $MASTER_SITE, ' DISTBASE ', $DISTBASE, "\n" if $DEBUG_DISTBASE;
 	print STDERR sprintf("%4d ", __LINE__ ),  $DownLoadAlternative{$DISTBASE}, "\n" if $DEBUG_ALTERNATIVE;
 #	if ($DISTBASE =~ /^pyobjc/ ) { ($MASTER_SITE, $line ) = pyObjcSpecial($DISTBASE);
