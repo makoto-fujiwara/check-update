@@ -1755,9 +1755,16 @@ my ($numeric_no_delim_variation) =  $numeric_no_delim . '[0]+';
 	    if ($DEBUG_DISTBASE || $DEBUG_SPECIAL_PATTERN || $DEBUG_DISTBASE_EXTRACT);
     return $PKGBASE ;}
 
+  # print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], "\n",
+  # "\t".'$DISTBASE'."\t".  $DISTBASE, "\n",
+  # "\t".'$PKGBASE'."\t".   $PKGBASE   , "\n",
+  # "\t".'$PKGVERSION'."\t".$PKGVERSION, "\n"
+  # if $DEBUG_DISTBASE || $DEBUG_DISTBASE_EXTRACT;	
+  #     if ($DISTBASE =~ /$PKGBASE.$PKGVERSION/i ) { print STDERR "        ==> match\n";}
     # GetDistBase (7) ------------------------------------------
 # delimiter is perid(.)  rtf2LaTeX.1.5
-    if ($PKGBASE .'.'. $PKGVERSION =~ /$DISTBASE$/i ) {
+#   if ($PKGBASE .'.'. $PKGVERSION =~ /$DISTBASE$/i ) {
+    if ($DISTBASE =~ /$PKGBASE.$PKGVERSION/i ) {
  my($distbase) = $DISTBASE ;
  $distbase =~ s/\.$PKGVERSION//;
 	if (! $SpecialPattern{$PKGBASE}) {
