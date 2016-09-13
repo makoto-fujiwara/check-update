@@ -1,14 +1,14 @@
 (TODO)
   - graphics/djview4 ->  https://sourceforge.net/projects/djvu/files/DjView/4.10/ (mixed uplow case)
   - Mailing to the MAINTAINER
-    Difference is firm (confidnet) and the rereiver wants, mail report
+    Difference is firm (confident) and the receiver wants, mail report
     on every Friday or on the update (?)
   - Introduce DISTPATTERN or DISTREGEXP (Regular Expression for DISTBASE + VERSION)
   - Stablize gnome
   - If VERSION is written in Makefile.common, share it and skip the referer (py-objc-*)
   - Stablize sourceforge (and gnome)
   - Take care github stuff but no release, ex sysutils/rkflashtool
-  - Develop branch not good to appear in the table (with odd number version or _xx for Perl module)
+  - Develop branch is not good to appear in the table (with odd number version or _xx for Perl module)
     perl
     dbus
     gnome stuff
@@ -19,6 +19,7 @@
     rdiff-backup
     webkit (gnome)
     (Thanks Thomas wiz@)
+  - (pre1) ham/gmfsk, don't pick 0.7pre1
   - (alpha)  audacious 3.7 is not release, but alpha or beta
   - (99 or 90) may be development version and nice not to list gdt@
   -  biology/cdhit 4.6.4 -> 454 EDITversion does not give any effect (?)
@@ -27,7 +28,6 @@
   - filesystems/fuse-ntfs-3g	fuse-ntfs-3g	2014.2.15 ->0.0	32015.3.14
   - diff links in devel? need to be adjusted
   - misc/goffice0{6,8} maybe on MaturedList (?)
-  - URL shown on MASTER_SITES gets strange after databases/rrdtool (the same URL continues)
   - graphics/clutter is upto date (1.22.2) but unable to find the version
   - MaturedList path is not good for standalone execution
   - editors/texmaker is upto date (as of 20150721)
