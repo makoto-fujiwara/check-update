@@ -1635,24 +1635,6 @@ print STDERR sprintf("%4d ", __LINE__ ),
     "       (PKGVERSION)\t", $PKGVERSION , "\n",
     "       (DISTNAME)\t", $DISTBASE,      "\n"
 	if ($DEBUG_DISTBASE || $DEBUG_DISTBASE_EXTRACT) ;
-    # ----------------------------------------
-    # 
-#     if ($DISTBASE=~ /(.*[a-zA-Z])v*([0-9.]+)(-*)(.*)/) {
-# 	my ($one)	= $1;
-# 	my ($version)	= $2;
-# 	my ($hyphen)    = $3;
-# 	my ($two)	= $4;
-# 	my ($distbase);
-# 	$distbase =~ $one;
-# 	$distbase =~ s/-$//;
-# 	$SpecialPatternY = '$_ =~ m|'.$one.'([0-9.]+)'.$hyphen.$two.'|; $version = $1;';
-#     print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2],"\n",
-#     "       (distbase)\t", $PKGBASE,      "\n",
-#     "       (SpecialPatternY)\t", $SpecialPatternY , "\n",
-# 	if  $DEBUG_DISTBASE_EXTRACT ;
-# 	return $distbase;
-#     }
-    # ----------------------------------------
     # delimiter is (-) 
     if ($DISTBASE =~ /$PKGBASE-(v*)$PKGVERSION$/ ||
 #	$PKGBASE .'-'. $PKGVERSION =~ /$DISTBASE/i
@@ -1709,18 +1691,18 @@ my ($numeric_no_delim_variation) =  $numeric_no_delim . '[0]+';
     "       (DISTNAME)\t", $DISTBASE,      "\n",
     "     (PKGVERSION)\t", $PKGVERSION , "\n" 
 	    if ($DEBUG_DISTBASE || $DEBUG_SPECIAL_PATTERN || $DEBUG_DISTBASE_EXTRACT);
+   
     # GetDistBase (3) ------------------------------------------
     if ($DISTBASE  =~      /([a-zA-Z-]+)([-])$PKGVERSION([-])([a-zA-Z]+)/ ||
-	$DISTBASE  =~      /([a-zA-Z]++)([-])$PKGVERSION([.])([a-zA-Z]+)/ ||
         $DISTBASE  =~ /([a-zA-Z]+[0-9]+)([-])$PKGVERSION([-])([a-zA-Z]+)/ ||
         $DISTBASE  =~      /([a-zA-Z-]+)([_])$PKGVERSION([.])([a-zA-Z]+)/ ||   #    py27-pslib (python-pslib_0.2.0.orig)
         $DISTBASE  =~ /([a-zA-Z]+[0-9]+)([-])[0-9]+([-])([a-zA-Z]+)/       ) { # games/nethack-lib
 	my ($former) = $1;
 	my ($dlm1)   = $2;
-	my ($dlm2)   = $3;
-	my ($latter) = $4;  if ($dlm2 =~ m|\.| ) { $dlm2 = '\\.'; }
+	my ($dlm2)   = $3;	    
+	my ($latter) = $4;
 #	if (! $SpecialPattern{$PKGBASE}) {
-	    $SpecialPatternY = '$_ =~ m|.*' . $former. $dlm1 .'([0-9.]+)'.$dlm2 . $latter . '.*|; $version = $1; ' ;
+	    $SpecialPatternY = 'm|.*' . $former. $dlm1 .'([0-9.]+)'.$dlm2 . $latter . '.*|; $version = $1; ' ;
 #	}     mysql-connector-odbc-5.3.4-src.tar.gz
   print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2],  ' ------------------',"\n",
 	    "       (DISTNAME)\t", $DISTBASE,      "\n",
@@ -1748,31 +1730,8 @@ my ($numeric_no_delim_variation) =  $numeric_no_delim . '[0]+';
     return $PKGBASE ;}
 
 
-#     # GetDistBase (4-0) ------------------------------------------
-#     if ($DISTBASE  =~      /^([a-zA-Z-]+)-([0-9]+)/ ) {
-# 	my ($distbase) = $1;
-# 	my ($version)  = $2;
-# 	$SpecialPatternY = '$_ =~ m|.*' . $distbase.'-([0-9]+)\..*|; $version = $1;' ;
-# 	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2],  ' ------------------',"\n",
-# 	    "       (DISTNAME)\t", $DISTBASE,      "\n",
-# 	    "       (distbase)\t", $distbase,      "\n",	    
-# 	    "(SpecialPatternY)\t", $SpecialPatternY,      "\n",
-# 	    "     (PKGVERSION)\t", $PKGVERSION , "\n" 
-# 	    if ($DEBUG_DISTBASE || $DEBUG_SPECIAL_PATTERN || $DEBUG_DISTBASE_EXTRACT);
-#     return $distbase ;}
-    # GetDistBase (4-1) ------------------------------------------  # .devel/p5-Canary-Stability-2011
-    if ($DISTBASE  =~      /^([a-zA-Z]+)-([0-9][0-9][0-9][0-9])$/ ) {
-	my ($distbase) = $1;
-	my ($version)  = $2;
-	$SpecialPatternY = 'm|.*' . $distbase.'-([0-9][0-9][0-9][0-9])\..*|; $version = $1;' ;
-	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2],  ' ------------------',"\n",
-	    "       (DISTNAME)\t", $DISTBASE,      "\n",
-	    "(SpecialPatternY)\t", $SpecialPatternY,      "\n",
-	    "     (PKGVERSION)\t", $PKGVERSION , "\n" 
-	    if ($DEBUG_DISTBASE || $DEBUG_SPECIAL_PATTERN || $DEBUG_DISTBASE_EXTRACT);
-    return $PKGBASE ;}
     # GetDistBase (4) ------------------------------------------
-    if ($DISTBASE  =~      /^([a-zA-Z-]+_*)([0-9])([0-9])([0-9])$/ ) {
+    if ($DISTBASE  =~      /([a-zA-Z-]+_*)([0-9])([0-9])([0-9])/ ) {
 	my ($distbase) = $1;
 	my ($a) = $2;
 	my ($b) = $3;
@@ -1947,19 +1906,11 @@ print STDERR sprintf("%4d ", __LINE__ ), '(PKGNAME) ', $PKGNAME, ' (PKGBASE) ', 
 	     0 ) {
 print STDERR sprintf("%4d ", __LINE__ ), ' ', $dir, '/', $PackageName, '; DISTBASE (', $DISTBASE,")\n" if $DEBUG_DISTBASE;
 	$DISTBASE =~ s/-$PKGVERSION//; 
-    } elsif
-	#  ----------------------------------
-	#      2-2.
-	#  ----------------------------------
-	( $DISTBASE =~ /(.+)v*([0-9.]+)(.+)/ ) {
-	    my($body)   = $1;
-	    my($suffix) = $2;
-	    $SpecialPatternY = 'm|.*'.$body.'v*([0-9.]+).*|; $version = $1;';
-	    return $DISTBASE;
-    } else {
 	#  ----------------------------------
 	#      3. Complicated others
 	#  ----------------------------------
+    } else {
+
 #    print STDERR sprintf("%4d ", __LINE__ ), ' ', $DISTBASE, "\n";
     # if - is included, strip - and after S T R I P
     # if _ is included, strip _ and after S T R I P
@@ -2922,13 +2873,8 @@ print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', 'PackageName 
 	    eval $pattern;
 print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', 'PackageName (', $PackageName, ') version (', $version, ') ',$_,"\n" if   ($DEBUG_FAMILY);
 	    push(@candidate, $version);
-	} elsif ( $SpecialPatternY ) {
-	    $version = $_;
-print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', '(SpecialPatternY) ', $SpecialPatternY,"\n" if   ($DEBUG_CURL_LISTING ||  $DEBUG_EVAL_PATTERN || $DEBUG_SPECIAL_PATTERN);
-	    eval $SpecialPatternY ;
-print STDERR sprintf("%4d ", __LINE__ ), '($version) ', $version, "\n" if   ($DEBUG_CURL_LISTING ||  $DEBUG_EVAL_PATTERN);
-	} elsif ( my($thispattern) = $SEARCH_STRINGS{$distbase} ) {
-	    eval $thispattern;
+	} elsif (my $pattern = $SEARCH_STRINGS{$distbase} ) {
+	    eval $pattern;
 print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> (', $distbase,') ', $_, '  pattern ( ', $pattern,') -> version(', $version, ")\n" if  ($DEBUG_CURL_LISTING ||  $DEBUG_EVAL_PATTERN || $DEBUG_SPECIAL_PATTERN);
 
 	} elsif ( grep (/$distbase/, @SimplePattern) || $SimplePattern || $SimpleFallBack ) {
@@ -2936,6 +2882,11 @@ print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> (', $distbase,')
 	    $version = $1;
 print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', 'distbase (', $distbase, ') version (', $version, ') ',$_,"\n" if   ($DEBUG_SIMPLE_PATTERN );
 #	    push(@candidate, $version);
+	} elsif ( $SpecialPatternY ) {
+	    $version = $_;
+print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', '(SpecialPatternY) ', $SpecialPatternY,"\n" if   ($DEBUG_CURL_LISTING ||  $DEBUG_EVAL_PATTERN || $DEBUG_SPECIAL_PATTERN);
+	    eval $SpecialPatternY ;
+print STDERR sprintf("%4d ", __LINE__ ), '($version) ', $version, "\n" if   ($DEBUG_CURL_LISTING ||  $DEBUG_EVAL_PATTERN);
 	} elsif ( grep (/$distbase/, keys %SpecialPattern) ||
 		  $SpecialPattern{$distbase}  ) {	     ### the first case won't match with Text-Tabs+Wrap (includes  '+')
 	    print STDERR sprintf("%4d ", __LINE__ ), '(', $distbase,') ', $_,"\n" if $DEBUG_EVAL_PATTERN;
@@ -3201,6 +3152,7 @@ sub StripLeaf($) {
   # Requesting http://downloads.sourceforge.net/project/qore/module-uuid/1.3/qore-uuid-module-1.3.tar.bz2
   # Redirected to http://heanet.dl.sourceforge.net/project/qore/module-uuid/1.3/qore-uuid-module-1.3.tar.bz2
   # Requesting http://heanet.dl.sourceforge.net/project/qore/module-uuid/1.3/qore-uuid-module-1.3.tar.bz2
+    my ($url) = shift;
     print STDERR ' ', sprintf("%4d ", __LINE__ ), ' url(', $url, ') ->  ' if $DEBUG_REDIRECT;
     if ($url =~ m,(.*)/.*\.tar\.(gz\|tgz\|bz2), ) {
 	$return = $1;
@@ -3689,7 +3641,7 @@ sub GetSFProjectCandidate($$$$) {  # line 2922 to 2979
     @directory_candidate =  ($alternative);
     }
     my ($iteration) = 0;
-
+    my (@candidate);
     my (@candidateLocal);
     foreach my $site (@directory_candidate) {
 	my ($candidate);
@@ -3712,8 +3664,8 @@ sub GetSFProjectCandidate($$$$) {  # line 2922 to 2979
 	print STDERR sprintf("%4d ", __LINE__ ), 
 	    ' (ParseDir) master_site(', $site, ') status('. $status. ') '. 'candidate('.$#candidate.') -> '. join (' ', @candidate), "\n"  if $DEBUG_SF;
 # 2. Add (push) Looking for the Latest Version info
-	my ($thisCandidate) = FindLookingForTheLatestVersion($site, $DISTBASE);
-	if ( $thisCandidate != '0.0') {push(@candidate, $thisCandidate); }# last;}
+	my ($candidate) = FindLookingForTheLatestVersion($site, $DISTBASE);
+	if ( $candidate != '0.0') {push(@candidate, $candidate); }# last;}
 # 3. Try Versioned Directory
 	my ($dir) = VersionedDirectory($DISTBASE, $site);
 	if ($SITE_CACHE{$dir}) {
