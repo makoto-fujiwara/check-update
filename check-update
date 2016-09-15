@@ -61,6 +61,7 @@ my ($DEBUG_CURL_CACHE);
 my ($DEBUG_CURL_LISTING);
 my ($DEBUG_DIGIT);
 my ($DEBUG_DISTBASE);
+my ($DEBUG_DISTBASE_EXTRACT);
 my ($DEBUG_DIVIDE_DEVEL) = 0;
 my ($DEBUG_EVAL_PATTERN);
 my ($DEBUG_EDITVersion);
@@ -85,6 +86,7 @@ my ($DEBUG_VERSION_DIR);
 
 my ($SINGLE_PACKAGE) = 0;
 
+# See Also ParseDebug
 my(%LongName)  = (
    'A',  'Alternative master site',
    'a',  'enable_All',
@@ -99,6 +101,7 @@ my(%LongName)  = (
    'g',  'Github',
    'G',  'Gnome',
    'h',  'HTTP Header',
+   'k',  'DISTBASE Extract special to SimplePatternY',
    'l',  'Curl Listing',
    'L',	 'Skipping - Looking for - message at soureforge',
    'm',	 'MASTER_SITES_LISTING',
@@ -217,6 +220,7 @@ my (@SkipTooOld)
 # Simple means $distbase-([0-9.]+)-(extran string not necessary)..
 my ($SimplePattern); # dynamically set to 1 if @SimplePattern equivalent
 my (@SimplePattern)  = qw(
+Regina-REXX
 CRF++
 Coin
 Event
@@ -251,6 +255,7 @@ html2wml
 inform
 iperf
 klayout
+lame
 lftp
 lout
 lzo
@@ -308,7 +313,6 @@ my (%SpecialPattern) = (
     'IPC-Run',		'$line =~ s/.*IPC-Run-([0-9.]+)\.tar.gz/$1/;',
     'Term-ReadLine-Perl','$line =~ s/.*Term-ReadLine-Perl5-([0-9.]+)\.tar.gz/$1/;',#
     'acmesrc',		'$line =~ s/.*acme([0-9.]+)src\.tar\.gz.*/$1/;',
-    'openscad',		'$line =~ s/.*openscad-([0-9.]+)\.src\.tar\.gz.*/$1/;',
     'gr-fcdproplus',	'$line =~ s/.*gr-fcdproplus_([0-9.]+)\.orig\.tar.*/$1/;',
     'apache-ivy-bin',	'$line =~ s|.*/([0-9.]+)/.*|$1|;',
     'pl',		'$line =~ s/.*pl-([0-9.]+)\.tar\..*/$1/;',
@@ -384,9 +388,15 @@ my (%SpecialPattern) = (
     'ragel',		'$line =~ s|.*ragel-([0-9]\.[0-9.]+[0-9]+)\.tar\..*|$1|;',
     'tk',		'$line =~ s|.*tk([0-9]\.[0-9.]+)-src\.tar\..*|$1|;',	# don't pick tk866-src.zip
     'lha',		'$line =~ s|.*lha-([0-9]).([0-9])([0-9])+([a-z]).*|$1$2$3.$4|; $line =~ y|a-i|1-9|;',
+    'nagi_src',		'$line =~ s|.*nagi_src_-_([0-9]+)-([0-9]+)-([0-9]+)\.tar.*|$1$2$3|;',
+    'mp3asm',		'$line =~ s|.*mp3asm-([0-9.-]+)\.tar\..*|$1|; $line =~ s/-/\./;',
+    'Level',		'$line =~ s|.*Level9_([0-9.]+)_Source.*|$1|;',
+    'psjoin',		'$line =~ s|.*\# version ([0-9.]+), .*|$1|;',
+    'openscad',		'$line =~ s|.*openscad-([0-9.-]+)\.src\..*|$1|; $line =~ s/-/p/;',
     );
    #http://prdownloads.sourceforge.jp/lha/11617/lha-1.14i-ac20040929.tar.gz
-
+ ##              nagi (=_src_-_2002-11-14) (3853 ) Now: 20021114 ->     0.0 Todo:       
+ 
 my(%SourceForgeAlternative) = qw (
     acidrip	http://sourceforge.net/projects/acidrip/files/acidrip/0.14%20-%20Your%20two-wheeled%20knife/
     dirac	http://sourceforge.net/projects/dirac/files/dirac-codec/Dirac-1.0.2/
@@ -400,6 +410,15 @@ my(%SourceForgeAlternative) = qw (
 
 # PKGBASE to $DISTBASE association Special (ending digit is main customer)
 my(%DISTBASE) = qw (
+    gplcver	gplcver
+    rexx-regina Regina-REXX
+    openscad	openscad
+    nethack-lib nethack
+    nethack-qt nethack
+    nethack-tty nethack
+    nethack-x11 nethack
+    level9	Level
+    mp3asm	mp3asm
     basic256	basic256
     nhc98	nhc98src
     ntfsprogs	ntfs-3g_ntfsprogs
@@ -434,9 +453,14 @@ my(%DISTBASE) = qw (
     boa-constructor	boa-constructor
     caff	signing-party
     tk		tk
+    nagi	nagi_src
     );
    
 my(%DownLoadAlternative) = qw (
+    john	http://www.openwall.com/john/
+    aKode	https://www.linux-apps.com/p/1126584/
+    agg		http://www.antigrain.com/download/index.html
+    Ngraph	http://www2e.biglobe.ne.jp/~isizaka/download.htm
     openbox	http://openbox.org/wiki/Openbox:Download
     oroborus	http://ftp.debian.org/debian/pool/main/o/oroborus/
     3proxy	http://3proxy.ru/download/
@@ -457,7 +481,6 @@ my(%DownLoadAlternative) = qw (
     pcre++	http://www.daemon.de/PcreDownload
     boolean	http://boolean.klaasholwerda.nl/download/download.html
     dinotrace	http://www.veripool.org/projects/dinotrace/wiki/Installing
-    openscad	http://files.openscad.org/
     qcad	http://www.qcad.org/archives/qcad/
     frozen-bubble	http://www.frozen-bubble.org/downloads/
     gmfsk	http://gmfsk.connect.fi/download.html
@@ -508,7 +531,10 @@ my(%DownLoadAlternative) = qw (
     clamav	http://www.clamav.net/downloads
     libssh	https://red.libssh.org/projects/libssh/files
     Renaissance	http://www.gnustep.it/Renaissance/Download.html
-    ); ##
+    pingus	http://pingus.seul.org/download.html
+    poppler	https://poppler.freedesktop.org/releases.html
+    psjoin	http://t-sato.in.coocan.jp/tools/psjoin
+  ); ##
 #    dact	http://www.rkeene.org/devel/dact/
 
 # for print/xpdf-arabic etc
@@ -570,7 +596,7 @@ gigbase gku bunzip wxRemind qkc atasm bicom bww2tex cgic
 PDF par jpilot-syncmail asterisk-perl pyserial datlib dutil 
 mdiff rbuild rinfo zident adodb lzma lzop upx piewm sawfish 
 wmctrl wmakerconf mesch gigabase plnode uno Par sgrep acmesrc netio
-mame telepathy-mission-control
+mame telepathy-mission-control quake tscp
 );
 
 # 31 -> 3.1 # 3370 -> 3.370 devel/cfitsio
@@ -579,7 +605,10 @@ my (@VER22) = qw(doc2html cfitsio lcc ctags elisau html gbdfed);
 #  Device-Gsm Device-Modem Device-SerialPort 
 #  0.46 -> 0.4.6
 my (@DOT2) =  qw(HTTP-Lite XML-Elemental yencode xworm gambatte_src Class-Std icecastq clex TiffIO
-TakaoExFonts_ TakaoFonts_ XML-Catalog Linux-Inotify2);
+TakaoExFonts_ TakaoFonts_ XML-Catalog Linux-Inotify2
+pixmap
+gnuchess
+);
 # 1.1103  -> 1.11.03
 # IO-CaptureOutput
 # 	p5-sybperl 	2.16 	->	2.171	2.18
@@ -647,7 +676,7 @@ my (@ADDZERO2) = qw(Convert-BER Spreadsheet-ParseExcel Test-Reporter Curses-UI-P
 my (@DELETE02) = qw(Class-C3-Componentised);
 
 # 325 -> 3.2.5
-my (@ThreeSingle) = qw(nulib john);
+my (@ThreeSingle) = qw(nulib);
 
 # 1.001002 -> 1.1.2
 my (@DOT133) = qw (DBIx-Class-Cursor-Cached IO-Pipeline Smart-Comments Parse-RecDescent);
@@ -924,7 +953,7 @@ my(%FAMILY);	# assoc for pkgname to family pattern
 sub ClassifyPackage(@) {
     # classify packages into Normal or Family
     # Family means like 
-    #	x11/gtksourcereview[23]*
+    #	x11/gtksourceview[23]*
     #	databases/postgresql9[0123]-server
     #	py-ipython01[03]
     # Normal is others, even ending with digit(s)
@@ -951,16 +980,16 @@ sub ClassifyPackage(@) {
 	    my ($minor) = $3;
 	    $FAMILY{$p} = '$version = $_; $version =~ s/.*'. $lang .'-('.$major.'_'.$minor.'_[0-9]+)\.html.*/$1/;' ; 
 	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1b) family: ', $p, "\n" if $DEBUG_FAMILY;
-	# (4) gnupg{,2}
-	}  elsif ($p =~ /(gnupg)([0-9]*)/) {
-	    my ($pkg)  = $1;
-	    my ($major) = $2;
-	    if ($major ne '') {
-		$FAMILY{$p} = '$version = $_ ; $version =~ s/.*'.$pkg.'-('.$major.'\.[0-9.]+)\.tar.*/$1/'; }
-	    else {
-		$FAMILY{$p} = '$version = $_ ; $version =~ s/.*'.$pkg.'-(1\.[0-9.]+)\.tar.*/$1/';
-	    }
-	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1c) family: ', $p, "\n" if $DEBUG_FAMILY;
+#	# (4) gnupg{,2}
+#	}  elsif ($p =~ /(gnupg)([0-9]*)/) {
+#	    my ($pkg)  = $1;
+#	    my ($major) = $2;
+#	    if ($major ne '') {
+#		$FAMILY{$p} = '$version = $_ ; $version =~ s/.*'.$pkg.'-('.$major.'\.[0-9.]+)\.tar.*/$1/'; }
+#	    else {
+#		$FAMILY{$p} = '$version = $_ ; $version =~ s/.*'.$pkg.'-(1\.[0-9.]+)\.tar.*/$1/';
+#	    }
+#	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1c) family: ', $p, "\n" if $DEBUG_FAMILY;
 	# (4-2) tk{,85}
 	}  elsif ($p =~ /^(tk)([0-9]*)([0-9]*)$/) {
 	    my ($pkg)  = $1;
@@ -985,12 +1014,13 @@ sub ClassifyPackage(@) {
 		$FAMILY{$p} = '$version = $_ ; $version =~ s/.*LIBDMAPSHARING_(2_9_[0-9]+).*/$1/i';  }
 	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1c) family: ', $p, "\n" if $DEBUG_FAMILY;
 	# (6) gtksourceview
-	} elsif ($p =~ /(gtksourceview)([0-9]*)$/) {
+	} elsif ($p =~ /^(gtksourceview)([0-9]*)$/) {
 	    my ($pkg)   = $1;
 	    my ($major) = $2;
 	    if ($major eq '') { $major = 1;}
-	    $FAMILY{$p} = '$version = $_ ; $version =~ s/.*'. $pkg .'-('. $major .'\.[0-9.]+).*/$1/;' ;
-	print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1d) family: ', $p, "\n" if $DEBUG_FAMILY;
+	    $FAMILY{$p} = 'm|.*'. $pkg .'-('. $major .'\.[0-9.]+)\.tar\..*|; $version = $1;' ;
+	print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], 
+'>  (1d) family: ', $p, ' -> ',$FAMILY{$p},"\n" if $DEBUG_FAMILY;
 	# (7) gnumeric
 	} elsif ($p =~ /(gnumeric)([0-9])([0-9])([0-9])$/ || $p =~ /(gnumeric)$/ ) {
 	    my ($pkg)   = $1;
@@ -1012,7 +1042,7 @@ sub ClassifyPackage(@) {
 	    my ($distbase) = $1;
 	    my ($major) = $2;
 	    my ($minor) = $3;
-	    $FAMILY{$p} = '$version = $_ ; $version =~ s/.*$distbase-('.$major.'\.'.$minor.'\.[0-9]+).*/$1/' ;
+	    $FAMILY{$p} = '$version = $_ ; $version =~ s/.*' .$distbase.'-('.$major.'\.'.$minor.'\.[0-9]+).*/$1/' ;
         # (10) security/libassuan{,2}
 	} elsif ($p =~ /(libassuan)([2])*$/) {
 	    my ($distbase) = $1;
@@ -1042,14 +1072,16 @@ sub ClassifyPackage(@) {
 	    $FAMILY{$p} = $pattern;
 	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1b) family: ', $p, ' -> '. $pattern."\n" if $DEBUG_FAMILY;
 	 # (13) libwnck{,3}
-	}  elsif ($p =~ /(libwnck)([0-9]*)/) {
+	}  elsif ($p =~ /^(libwnck)([0-9]+)$/ || $p =~ /^(libwnck)$/ ) {
 	    my ($pkg)  = $1;
 	    my ($major) = $2; 
+	    my ($pattern);
 	    if ($major eq '') {
-		$FAMILY{$p} = '$version = $_; $version =~ s/.*'.$pkg.'-(2\.[0-9.]+)\.tar\..*/$1/;'; }
+		$pattern = '$_ =~ m|.*'.$pkg.'-(2\.[0-9.]+)\.tar\..*|; $version = $1;';}
 	    else {
-		$FAMILY{$p} = '$version =~ s/.*'.$pkg.'-('.$major.'.[0-9.]+)\.tar\..*/$1/'; ;  }
-	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1c) family: ', $p, "\n" if $DEBUG_FAMILY;
+		$pattern = '$_ =~ m|.*'.$pkg.'-($major\.[0-9.]+)\.tar\..*|; $version = $1;';}
+	    $FAMILY{$p} = $pattern;
+	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1c) family: ', $p, ' -> ', $pattern,"\n" if $DEBUG_FAMILY;
 # 	 # (14) ffmpeg, ffplay[1-3]
 	}  elsif ($p =~ /(ffmpeg)([0-9])$/  ||
 	          $p =~ /(ffplay)([0-9])$/
@@ -1068,6 +1100,68 @@ sub ClassifyPackage(@) {
 	    $FAMILY{$p} = '$version = $_ ; $version =~ s/.*samba-('.$major.'.[0-9.]+)\.tar\..*/$1/';
 	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1i) family: ', $p, ' -> ', $FAMILY{$p},
 "\n" if $DEBUG_FAMILY;
+# 	 # (16) jdbc-mysql
+	}  elsif ($p =~ /^(jdbc-mysql)(\d)(\d*)/ ){
+	    my ($pkg)  = 'mysql-connector-java';
+	    my ($major) = $2;
+    	    my ($minor) = $3; 
+	    my ($pattern);
+	    if ($minor) {
+		$pattern = '$version = $_ ; $version =~ s/.*'. $pkg.'-('.$major.'\.'.$minor .'\.[0-9.]+)\.z.*/$1/';
+	    } else {
+		$pattern = '$version = $_ ; $version =~ s/.*'. $pkg.'-('.$major.'.[0-9.]+)\.z.*/$1/';		
+	    }
+	    $FAMILY{$p} = $pattern;
+	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1i) family: ', $p, ' -> ', $FAMILY{$p},
+"\n" if $DEBUG_FAMILY;
+# 	 # (17) ImageMagick
+	}  elsif ($p =~ /^(ImageMagick)(\d*)/ ){
+	    my ($pkg)  =  $1;
+	    my ($major) = $2;
+	    $FAMILY{$p} = '$version = $_ ; $version =~ s/.*'. $pkg.'-('.$major.'[0-9.-]+)\.tar.*/$1/; $version =~ s/-/./;';		
+	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1i) family: ', $p, ' -> ', $FAMILY{$p},
+"\n" if $DEBUG_FAMILY;
+# 	 # (18) gnupg
+	}  elsif ($p =~ /^(gnupg)$/ ) {
+	    $FAMILY{$p} = '$version = $_ ; $version =~ s/.*gnupg-(1\.[0-9.]+)\.tar\..*/$1/';	    
+	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1i) family: ', $p, ' -> ', $FAMILY{$p},
+"\n" if $DEBUG_FAMILY;
+# 	 # (19) gnupg
+	}  elsif ($p =~ /^(gnupg2)$/ ) {
+	    $FAMILY{$p} = '$version = $_ ; $version =~ s/.*gnupg-(2\.0\.[0-9.]+)\.tar\..*/$1/';	    
+	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1i) family: ', $p, ' -> ', $FAMILY{$p},
+"\n" if $DEBUG_FAMILY;
+# 	 # (20) gnupg
+	}  elsif ($p =~ /^(gnupg21)$/ ) {
+	    $FAMILY{$p} = '$version = $_ ; $version =~ s/.*gnupg-(2\.1\.[0-9.]+)\.tar\..*/$1/';	    
+	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1i) family: ', $p, ' -> ', $FAMILY{$p},
+"\n" if $DEBUG_FAMILY;
+	 # (21)
+	}  elsif ($p =~ /^(poppler)0(\d+)(-qt3)/ || $p =~ /^(poppler)0(\d+)/ ){
+	    my ($pkg)  =  $1;
+	    my ($minor) = $2;
+	    my ($suffix) = $3;
+	    $FAMILY{$p} = 'm|.*'. $pkg.'-(0.'.$minor.'\.[0-9.-]+)'.$suffix.'\.tar\..*|; $version = $1;';
+	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1i) family: ', $p, ' -> ', $FAMILY{$p},
+"\n" if $DEBUG_FAMILY;
+	    # (22) ruby-{18,21,22,23}-base
+	}  elsif ($p =~ /^(ruby)(\d)(\d)-base$/) {
+	    my ($pkg)  = $1;
+	    my ($major) = $2;
+    	    my ($minor) = $3;
+	    my ($pattern) ;
+	    $pattern  = '$_ =~ m|.*'. $pkg. '-('. $major.'.'.$minor.'.[0-9]*)\.tar\..*|; $version = $1; ';
+	    $FAMILY{$p} = $pattern;
+	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1b) family: ', $p, ' -> '. $pattern."\n" if $DEBUG_FAMILY;
+	    # (23) foomatic{,4}-filters
+	}  elsif ($p =~ /^(foomatic)(\d*)-filters$/) {
+	    my ($pkg)  = $1;
+	    my ($major) = $2;
+	    if ($major == '') { $major = 3;}
+	    my ($pattern) ;
+	    $pattern  = '$_ =~ m|.*foomatic-filters-('. $major.'.[0-9.]+)\.tar\..*|; $version = $1; ';
+	    $FAMILY{$p} = $pattern;
+	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1b) family: ', $p, ' -> '. $pattern."\n" if $DEBUG_FAMILY;
 	# normal numbering
 	} elsif ($p =~ /(.*)([0-9]+)$/) {
 	    my ($pybody) = $1 ;
@@ -1286,6 +1380,7 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (3) <', (caller 0)[3] ,'> ', $version
 	if (grep (/^$distbase$/, @Arabian)	> 0 ) { $version =~ s/ii/.2/;}
 	if (grep (/^$distbase$/, @swap4)	> 0 ) { $version =~ s/([0-9][0-9][0-9][0-9])([0-9][0-9][0-9][0-9])/$2$1/;}
 	if (grep (/^$distbase$/, 'eredis')	> 0 ) { $version =~ s/1\.0\.8/1.0.8.20150910/;}
+        if (   $distbase =~ m|^xpdf-| )		      { $version = MonthToDigit($version); }
     print STDERR sprintf("%4d ", __LINE__ ), ' (4) ', $version, "\n" if $DEBUG_EDITVersion;
 #	print STDERR sprintf("%4d ", __LINE__ ), ' ', $_, "\n", $distbase, ' --> ', $version,"\n";
     return $version;
@@ -1426,8 +1521,9 @@ sub GetDistBasePwlib($$$$){
     
     my ($value)		= $distname;	# pwlib-v1_8_3-src
     $value		=~ s/-v[0-9_]+-src//;# pwlib(-v1_8_3-src)
-print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[3], '> distbase: ', $value, "\n" if $DEBUG_DISTBASE;
-    $SpecialPatternY = '$line =~ /.*$value-v([0-9_]+)-src.*/$1/';  
+print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ',
+    '> distbase: ', $value, "\n" if ($DEBUG_DISTBASE || $DEBUG_SPECIAL_PATTERN ) ;    
+    $SpecialPatternY = '$line =~ s/.*'.$value.'-v([0-9_]+)-src.*/$1/';
     return $value;
 }
 sub GetDistBaseNoHyphen($$$$){
@@ -1491,14 +1587,15 @@ sub GetDistBase($$$$$) {	# <- Main       DISTBASEDISTBASE
     my ($PKGBASE)	= shift;
     my ($PKGVERSION)	= shift;
     my ($PKGNAME)	= shift;
-    
+
     my ($DISTBASE)	= GetVariableValue($dir, $PackageName, 'DISTNAME');
-    
+    my ($EXTRACT_SUFX)	= GetVariableValue($dir, $PackageName, 'EXTRACT_SUFX');
+    $EXTRACT_SUFX =~ s/\./\\\./; # escape leading . to \.
 print STDERR sprintf("%4d ", __LINE__ ),
          "  (PKGNAME)\t", $PKGNAME,        "\n",
     "       (PKGBASE)\t", $PKGBASE,      "\n",
     "       (DISTNAME)\t", $DISTBASE,      "\n",
-    "       (PKGVERSION)\t", $PKGVERSION , "\n" if $DEBUG_DISTBASE;
+    "       (PKGVERSION)\t", $PKGVERSION , "\n" if $DEBUG_DISTBASE || $DEBUG_DISTBASE_EXTRACT ;
 #  %DISTBASE special
     if  (my $distbase = $DISTBASE{$PKGBASE}) {
 	return $distbase;}
@@ -1513,7 +1610,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
     #  --------------------------------------
     #      0. If  very simple patterns
     #  --------------------------------------
-    # kde4-i10n-.. special 
+    # GetDistBase (1) kde4-i10n-.. special 
     if ($PKGBASE =~ /kde4-(l10n-..)/) {
 	return "kde-$1"}
 
@@ -1521,18 +1618,210 @@ print STDERR sprintf("%4d ", __LINE__ ),
      'BASE: ', $PKGBASE .'-'. $PKGVERSION, ' DISTNAME: ', $DISTBASE, "\n" if $DEBUG_DISTBASE;
 
     $SimplePattern = 0; # initialize to none
-
+    # GetDistBase (2) --------------------------------------
     if ($PKGBASE .'-'. $PKGVERSION eq $DISTBASE ) {
-print STDERR sprintf("%4d ", __LINE__ ),
-         "  (PKGNAME)\t", $PKGNAME,        "\n",
+ print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], "\n",
+    "       (PKGNAME)\t", $PKGNAME,        "\n",
     "       (PKGBASE)\t", $PKGBASE,      "\n",
     "       (DISTNAME)\t", $DISTBASE,      "\n",
-    "       (PKGVERSION)\t", $PKGVERSION , "\n" if $DEBUG_DISTBASE;
-if (! $SpecialPattern{$PKGBASE}) {
-$SimplePattern = 1;
-}
-	return $PKGBASE }
+    "       (PKGVERSION)\t", $PKGVERSION , "\n" if ($DEBUG_DISTBASE || $DEBUG_DISTBASE_EXTRACT);
+	if (! $SpecialPattern{$PKGBASE}) {
+	    $SimplePattern = 1;
+	}
+	return $PKGBASE ;
+    }
+    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2],"\n",
+    "       (PKGBASE)\t", $PKGBASE,      "\n",
+    "       (PKGVERSION)\t", $PKGVERSION , "\n",
+    "       (DISTNAME)\t", $DISTBASE,      "\n"
+	if ($DEBUG_DISTBASE || $DEBUG_DISTBASE_EXTRACT) ;
+    # ----------------------------------------
+    # 
+#     if ($DISTBASE=~ /(.*[a-zA-Z])v*([0-9.]+)(-*)(.*)/) {
+# 	my ($one)	= $1;
+# 	my ($version)	= $2;
+# 	my ($hyphen)    = $3;
+# 	my ($two)	= $4;
+# 	my ($distbase);
+# 	$distbase =~ $one;
+# 	$distbase =~ s/-$//;
+# 	$SpecialPatternY = '$_ =~ m|'.$one.'([0-9.]+)'.$hyphen.$two.'|; $version = $1;';
+#     print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2],"\n",
+#     "       (distbase)\t", $PKGBASE,      "\n",
+#     "       (SpecialPatternY)\t", $SpecialPatternY , "\n",
+# 	if  $DEBUG_DISTBASE_EXTRACT ;
+# 	return $distbase;
+#     }
+    # ----------------------------------------
+    # delimiter is (-) 
+    if ($DISTBASE =~ /$PKGBASE-(v*)$PKGVERSION$/ ||
+#	$PKGBASE .'-'. $PKGVERSION =~ /$DISTBASE/i
+        $DISTBASE =~ /$PKGBASE-$PKGVERSION$/i) {
+ my ($prefix) = $1; # this is not effective for devel/p5-Algorithm-CheckDigits
+ my($distbase) = $DISTBASE ;
 
+ # Following $PKGVERSION is before EDITVersion, but to call EDITVersion, we need correct DISTBASE
+ #        (PKGNAME)        p5-IO-CaptureOutput-1.11.04
+ #        (PKGBASE)        p5-IO-CaptureOutput
+ #        (DISTNAME)       IO-CaptureOutput-1.1104
+ #        (PKGVERSION)     1.11.04
+ my($numeric) = $DISTBASE ;
+ $numeric =~ s/.*-([0-9.]+)$/$1/; # $numeric = $1; # pick 1.1104 part from above
+ my($numeric_no_delim) = $numeric;
+    $numeric_no_delim  =~ s|\.||g; $numeric_no_delim  =~ s|-||g;
+ my($PKGVERSION_no_delim) = $PKGVERSION;
+    $PKGVERSION_no_delim  =~ s|\.||g; $PKGVERSION_no_delim  =~ s|-||g;
+my ($VERSION_to_remove) = $PKGVERSION;
+my ($numeric_no_delim_variation) =  $numeric_no_delim . '[0]+';
+ if ($numeric_no_delim eq $PKGVERSION_no_delim ||
+     $PKGVERSION_no_delim =~ /$numeric_no_delim_variation/ ) { # devel/p5-IO-Util-1.5 -> PKGVERSION 1.50
+    $VERSION_to_remove = $numeric; }
+
+    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2],"\n",
+    "       (numeric)\t", 		$numeric, 	"\n",
+    "       (numeric_no_delim)\t",	$numeric_no_delim,"\n",
+     "       (PKGVERSION_no_delim)\t",	$PKGVERSION_no_delim,"\n",
+    "       (numeric_no_delim_variation)\t",	$numeric_no_delim_variation,"\n",     
+    "       (VERSION_to_remove)\t",	$VERSION_to_remove,"\n",
+    "       (distbase)\t",	$distbase,"\n"
+	if ($DEBUG_DISTBASE || $DEBUG_DISTBASE_EXTRACT) ;
+
+ $distbase =~ s/-v*$VERSION_to_remove//;
+    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2],"\n", 
+    "       (distbase)\t",	$distbase,"\n"
+
+	if ($DEBUG_DISTBASE || $DEBUG_DISTBASE_EXTRACT) ;
+	if (! $SpecialPattern{$PKGBASE}) {
+	    $SpecialPatternY = 'm|.*' . $distbase.'-v*([0-9.]+)'.$EXTRACT_SUFX.'.*|; $version = $1;' ; 
+	}
+ print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], "\n",
+    "       (PKGNAME)\t", $PKGNAME,        "\n",
+    "       (PKGBASE)\t", $PKGBASE,      "\n",
+    "       (DISTNAME)\t", $DISTBASE,      "\n",
+    "       (PKGVERSION)\t", $PKGVERSION , "\n",
+    "       (SpecialPatternY)\t", $SpecialPatternY , "\n"
+	    if ($DEBUG_DISTBASE || $DEBUG_DISTBASE_EXTRACT);
+	return $distbase ;
+    }
+# set    $SpecialPatternY  by looking at DISTBASE and PKGVERSION relation
+  print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ------------------',"\n",
+    "    (PackageName)\t", $PackageName,"\n",
+    "       (DISTNAME)\t", $DISTBASE,      "\n",
+    "     (PKGVERSION)\t", $PKGVERSION , "\n" 
+	    if ($DEBUG_DISTBASE || $DEBUG_SPECIAL_PATTERN || $DEBUG_DISTBASE_EXTRACT);
+    # GetDistBase (3) ------------------------------------------
+    if ($DISTBASE  =~      /([a-zA-Z-]+)([-])$PKGVERSION([-])([a-zA-Z]+)/ ||
+	$DISTBASE  =~      /([a-zA-Z]++)([-])$PKGVERSION([.])([a-zA-Z]+)/ ||
+        $DISTBASE  =~ /([a-zA-Z]+[0-9]+)([-])$PKGVERSION([-])([a-zA-Z]+)/ ||
+        $DISTBASE  =~      /([a-zA-Z-]+)([_])$PKGVERSION([.])([a-zA-Z]+)/ ||   #    py27-pslib (python-pslib_0.2.0.orig)
+        $DISTBASE  =~ /([a-zA-Z]+[0-9]+)([-])[0-9]+([-])([a-zA-Z]+)/       ) { # games/nethack-lib
+	my ($former) = $1;
+	my ($dlm1)   = $2;
+	my ($dlm2)   = $3;
+	my ($latter) = $4;  if ($dlm2 =~ m|\.| ) { $dlm2 = '\\.'; }
+#	if (! $SpecialPattern{$PKGBASE}) {
+	    $SpecialPatternY = '$_ =~ m|.*' . $former. $dlm1 .'([0-9.]+)'.$dlm2 . $latter . '.*|; $version = $1; ' ;
+#	}     mysql-connector-odbc-5.3.4-src.tar.gz
+  print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2],  ' ------------------',"\n",
+	    "       (DISTNAME)\t", $DISTBASE,      "\n",
+	    "         (former)\t", $former,      "\n",
+	    "         (latter)\t", $latter,      "\n",	    
+	    "(SpecialPatternY)\t", $SpecialPatternY,      "\n",
+	    "     (PKGVERSION)\t", $PKGVERSION , "\n" 
+	    if ($DEBUG_DISTBASE || $DEBUG_SPECIAL_PATTERN || $DEBUG_DISTBASE_EXTRACT);
+	return $PKGBASE ;}
+
+
+    #   compat15-extras-i386-1.5.3.tar.bz2 
+    # GetDistBase (6) ------------------------------------------
+    if ($DISTBASE  =~      /([a-zA-Z-]+[0-9]*)(-extras-)(i386|x86_64)-([0-9.]+)$/ ||
+	$DISTBASE  =~             /([a-zA-Z-]+[0-9]*)(-)(i386|x86_64)-([0-9.]+)$/ ){
+	my ($distbase) = $1;
+	my ($extra) = $2;	
+	my ($arch) = $3;
+	$SpecialPatternY = 'm|' . $distbase.$extra.$arch.'-([0-9.]+)\.tar\.|; $version = $1;' ;
+	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2],  ' ------------------',"\n",
+	    "       (DISTNAME)\t", $distbase,      "\n",
+	    "(SpecialPatternY)\t", $SpecialPatternY,      "\n",
+	    "     (PKGVERSION)\t", $PKGVERSION , "\n" 
+	    if ($DEBUG_DISTBASE || $DEBUG_SPECIAL_PATTERN || $DEBUG_DISTBASE_EXTRACT);
+    return $PKGBASE ;}
+
+
+    # GetDistBase (4) ------------------------------------------
+    if ($DISTBASE  =~      /^([a-zA-Z-]+_*)([0-9])([0-9])([0-9])$/ ) {
+	my ($distbase) = $1;
+	my ($a) = $2;
+	my ($b) = $3;
+	my ($c) = $4;
+	$SpecialPatternY = 'm|.*' . $distbase.'([0-9])([0-9])([0-9])\..*|; $version = $1.\'.\'.$2.$3;' ;
+	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2],  ' ------------------',"\n",
+	    "       (DISTNAME)\t", $DISTBASE,      "\n",
+	    "(SpecialPatternY)\t", $SpecialPatternY,      "\n",
+	    "     (PKGVERSION)\t", $PKGVERSION , "\n" 
+	    if ($DEBUG_DISTBASE || $DEBUG_SPECIAL_PATTERN || $DEBUG_DISTBASE_EXTRACT);
+    return $PKGBASE ;}
+    # GetDistBase (5) ------------------------------------------
+    if ($DISTBASE  =~      /([a-zA-Z-]+)([0-9])([0-9])$/ ) {
+	my ($distbase) = $1;
+	my ($a) = $2;
+	my ($b) = $3;
+	$SpecialPatternY = 'm|.*' . $distbase.'([0-9])([0-9])\..*|; $version = $1.\'.\'.$2;' ;
+	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2],  ' ------------------',"\n",
+	    "       (DISTNAME)\t", $DISTBASE,      "\n",
+	    "(SpecialPatternY)\t", $SpecialPatternY,      "\n",
+	    "     (PKGVERSION)\t", $PKGVERSION , "\n" 
+	    if ($DEBUG_DISTBASE || $DEBUG_SPECIAL_PATTERN || $DEBUG_DISTBASE_EXTRACT);
+    return $PKGBASE ;}
+
+  # print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], "\n",
+  # "\t".'$DISTBASE'."\t".  $DISTBASE, "\n",
+  # "\t".'$PKGBASE'."\t".   $PKGBASE   , "\n",
+  # "\t".'$PKGVERSION'."\t".$PKGVERSION, "\n"
+  # if $DEBUG_DISTBASE || $DEBUG_DISTBASE_EXTRACT;	
+  #     if ($DISTBASE =~ /$PKGBASE.$PKGVERSION/i ) { print STDERR "        ==> match\n";}
+    # GetDistBase (7) ------------------------------------------
+# delimiter is perid(.)  rtf2LaTeX.1.5
+#   if ($PKGBASE .'.'. $PKGVERSION =~ /$DISTBASE$/i ) {
+    if ($DISTBASE =~ /$PKGBASE.$PKGVERSION/i ) {
+ my($distbase) = $DISTBASE ;
+ $distbase =~ s/\.$PKGVERSION//;
+	if (! $SpecialPattern{$PKGBASE}) {
+	    $SpecialPatternY = 'm|.*' . $distbase.'.([0-9.]+)\.tar\..*|; $version = $1;' ; 
+	}
+ print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], "\n",
+    "       (PKGNAME)\t", $PKGNAME,        "\n",
+    "       (PKGBASE)\t", $PKGBASE,      "\n",
+    "       (DISTNAME)\t", $DISTBASE,      "\n",
+    "       (PKGVERSION)\t", $PKGVERSION , "\n",
+    "       (SpecialPatternY)\t", $SpecialPatternY , "\n"
+	    if ($DEBUG_DISTBASE || $DEBUG_DISTBASE_EXTRACT);
+	return $distbase ;
+    }
+
+    # GetDistBase (8) ------------------------------------------
+    my($concatVersion) = '';
+    if ($DISTBASE  =~      /([a-zA-Z-]+)-([0-9.]+)-p([0-9])/    # devel/automake14 automake-1.4-p6    
+	) {
+	my($pkgname) = $1;
+	my($major) =   $2;
+	my($minor) =   $3;	
+	$concatVersion = $major . '.' . $minor;
+	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], 
+	    ' ---- $concatVersion ('. $concatVersion. ') $PKGVERSION ('. $PKGVERSION ,
+	    ")\n"
+	        if ($DEBUG_DISTBASE || $DEBUG_SPECIAL_PATTERN || $DEBUG_DISTBASE_EXTRACT);
+
+	if ($PKGVERSION eq $concatVersion ) { # automake-1.4-p6 -> 1.4.6
+	$SpecialPatternY = ' m|.*' . $pkgname. '-([0-9.]+-p[0-9]+)\.tar\..*|; $version = $1; $version =~ s/-p/./; ' ;
+  print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2],  ' ------------------',"\n",
+	    "       (DISTNAME)\t", $DISTBASE,      "\n",
+	    "(SpecialPatternY)\t", $SpecialPatternY,      "\n",
+	    "     (PKGVERSION)\t", $PKGVERSION , "\n" 
+	    if ($DEBUG_DISTBASE || $DEBUG_SPECIAL_PATTERN || $DEBUG_DISTBASE_EXTRACT);
+	return $PKGBASE ;}
+    }
+    # GetDistBase (9) -------------------------------------------------------
     # Get several value to do very simple logic for the very first 'if' line below.
     my($PKGBODY) = $DISTBASE;	# For Substracting $PKGVERSION from $PKGNAME
     				# This variable appears only these several lines, to pickup $VERSION_CANDIDATE
@@ -1548,6 +1837,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
     ' (VERSION_CANDIDATE) ', $VERSION_CANDIDATE,
     ' (PKGNAME) ', $PKGNAME,
     ' (PKGBASE) ', $PKGBASE,   "\n" if $DEBUG_DISTBASE;    
+    # GetDistBase (10) -------------------------------------------------------
     if ($testA.'-'.$VERSION_CANDIDATE eq $PKGNAME ) {
 	print STDERR sprintf("%4d ", __LINE__ ), '(DISTBASE) ', $PKGBASE,"\n" if $DEBUG_DISTBASE;
 	return $PKGBASE;}
@@ -1563,6 +1853,7 @@ print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], '> ',"\n" if $DEBUG_
     #   (DISTNAME)       libarchive-3.1.2
     #   (PKGVERSION)     3.1.2
     #  --------------------------------------
+    # GetDistBase (11) -------------------------------------------------------
         $thisreturn =	GetDistBaseSwap($PKGNAME, $PKGBASE, $DISTBASE);
     if ($thisreturn) { return $thisreturn }
 
@@ -1941,7 +2232,7 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (PKGNAME) ', $PKGNAME, ' --> master_s
 	if ($Dont_check_homepage{$DISTBASE} != 1 ) {
 	$master_site = $home_page; }# fall back to home_page
 	}
-    }
+    } ##     if ($MasterSiteStat == 404 ) { 
     if ($MasterSiteStat == 550 ) { 
 	($HomePageStat, $location) =  CheckHeader($home_page);
 print STDERR sprintf("%04d ", __LINE__ ), ' (PKGNAME) ', $PKGNAME, ' --> master_site = ', $master_site,"\n" if $DEBUG_DISTBASE;
@@ -2050,18 +2341,17 @@ sub pypiSpecial($$$$){
         $master_site =~ s|archive/|releases|;
     my ($dir)		= shift;
     my ($PackageName)	= shift;
-
+    my (@candidate);
     my $site = 'https://pypi.python.org/pypi/' . $DISTBASE;
 #    my $ver = ParseDirectorySmall( $site, $DISTBASE);
-
   print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ',
-      'distbase: ', $DISTBASE, "\n"
-      if $DEBUG_PYPI || $DEBUG_HTTP_HEADER;
+      'distbase: ', $DISTBASE, ' master_site (',$master_site,")\n"     if $DEBUG_PYPI || $DEBUG_HTTP_HEADER;
     my $py_site = 'https://pypi.python.org/pypi/'. $distbase ;
 	    $dir = VersionedDirectory($DISTBASE, $py_site);
 	    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2],
 		': dir(', $dir, ')',"\n" if $DEBUG_PYPI; 
 	    if ($dir == -1) { next;}
+    $SpecialPatternY  = '';
     ($returnCode, @candidate) = ParseDirectory($dir, $DISTBASE, $SimpleFallBackNo, $PackageName);
 	    if ($returnCode == 200 ) {last;}
     return ($returnCode, @candidate);
@@ -2077,6 +2367,8 @@ sub GitHubSpecial($$$$){
     my ($GITHUB_PROJECT);
     my ($GITHUB_TAG)	= GetVariableValue($dir, $PackageName, 'GITHUB_TAG');
 # devel/pcre-ocaml has GITHUB_TAG ocaml-pcre-ocaml (ocaml- is too much). To manage that case:
+  print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' master_site (', $master_site, ,")\n" if $DEBUG_GITHUB;
+
     if ($GITHUB_TAG) {
 	$GITHUB_PROJECT	= $PackageName;
 	$GITHUB_PROJECT	=~ s/^py-//;
@@ -2381,7 +2673,7 @@ print STDERR sprintf("%4d ", __LINE__ ).' location: ', $location,"\n" if  $DEBUG
 sub ParseDebug($){
     my ($pattern) = shift;
     my %DEBUG;
-    my $char_list = 'aAcCdDEegFfGhlLmMnpPrRsSUVxXy';
+    my $char_list = 'aAcCdDEegFfGhklLmMnpPrRsSUVxXy';
 
     if ( $pattern =~ /a/ ) { $pattern = $char_list  }
     print STDERR sprintf("%4d ", __LINE__ ), ' DEBUG pattern (',  $pattern,  ')',"\n";
@@ -2402,6 +2694,7 @@ sub ParseDebug($){
     $DEBUG_CURL_LISTING		= $DEBUG{'l'} + $DEBUG{'a'} ;
     $DEBUG_DIGIT		= $DEBUG{'D'} + $DEBUG{'a'} ; 
     $DEBUG_DISTBASE		= $DEBUG{'d'} + $DEBUG{'a'} ;
+    $DEBUG_DISTBASE_EXTRACT	= $DEBUG{'k'} + $DEBUG{'a'} ;
     $DEBUG_EDITVersion		= $DEBUG{'E'} + $DEBUG{'a'} ;
     $DEBUG_EVAL_PATTERN		= $DEBUG{'e'} + $DEBUG{'a'} ;
     $DEBUG_FALLBACK_SIMPLE	= $DEBUG{'F'} + $DEBUG{'a'} ;
@@ -2482,9 +2775,10 @@ sub ParseDirectorySmall($$){
 # Called 11 times
 #   inside GetSFProjectCandidate( x 6)
 #   main                          x 5
-sub ParseDirectory($$$$){   # 2276  to  2502 lines (230 lines
+sub ParseDirectory($$$$){   # 2564  to 2825 lines (260 lines
     my ($master_site) = shift;
-	print STDERR sprintf("%4d ", __LINE__ ), 'master_site: ', $master_site, "\n" if $DEBUG_MASTER_SITE ;
+  print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ',
+						 'master_site: ', $master_site, "\n" if $DEBUG_MASTER_SITE || $DEBUG_VERSION_DIR || $DEBUG_HTTP_HEADER ;
     my ($distbase)   = shift;
     my ($SimpleFallBack) = shift;
     my ($PackageName) = shift; 
@@ -2577,7 +2871,11 @@ sub ParseDirectory($$$$){   # 2276  to  2502 lines (230 lines
 # ----------  A L W A Y S   G O  T H R U   H E R E  --------------	# MAJOR_IF_THEN_ELSE
 print STDERR sprintf("%4d ** ", __LINE__ ), (caller 0)[3], ' (', $distbase,') ', $SpecialPattern{$distbase},': ', $_, ' ---: ',
 	    grep (/$distbase/, keys %SpecialPattern)," :---\n" if
-	    ($DEBUG_CURL_LISTING ||  $DEBUG_EVAL_PATTERN || $DEBUG_MASTER_SITES_LISTING );
+	    ($DEBUG_CURL_LISTING || $DEBUG_MASTER_SITES_LISTING);
+#	if ( ! /$distbase/ ) { next;}
+print STDERR sprintf("%4d ** ", __LINE__ ), (caller 0)[3], ' (', $distbase,') ', $SpecialPattern{$distbase},': ', $_, ' ---: ',
+	    grep (/$distbase/, keys %SpecialPattern)," :---\n" if
+	    ($DEBUG_CURL_LISTING || $DEBUG_MASTER_SITES_LISTING ) ;
 print STDERR sprintf("%4d ** ", __LINE__ ), (caller 0)[3], ' (', $distbase,') :', $FAMILY{$PackageName},': ', $version,': ',"\n" if
 	    ($DEBUG_CURL_LISTING ||  $DEBUG_EVAL_PATTERN || $DEBUG_MASTER_SITES_LISTING );
 print STDERR sprintf("%4d ** ", __LINE__ ), (caller 0)[3], ' (', $distbase,') :', $_ ,"\n" if $DEBUG_SF_LOOKING_FOR;
@@ -2586,6 +2884,7 @@ print STDERR sprintf("%4d ** ", __LINE__ ), (caller 0)[3], ' (', $distbase,') :'
 print STDERR sprintf("%4d ** ", __LINE__ ), (caller 0)[3], ' (', $distbase,') :', $_ ,"\n" if $DEBUG_SF_LOOKING_FOR;
 #  ----------------------------------------------------------------
 print STDERR sprintf("%4d ** ", __LINE__ ), '(', $distbase,') $_(', $_,')',"\n" if $DEBUG_EVAL_PATTERN ;
+print STDERR sprintf("%4d ** ", __LINE__ ), '$SpecialPatternY: ', $SpecialPatternY,"\n" if $DEBUG_SPECIAL_PATTERN && $SpecialPatternY ;
 	if (0) { # dummy for ease to swap sequence below
 	} elsif (my $pattern = $FAMILY{$PackageName} ) {
 print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', 'PackageName (', $PackageName, ') pattern (', $pattern, ') ',$_,"\n" if   ($DEBUG_FAMILY);
@@ -2594,24 +2893,19 @@ print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', 'PackageName 
 	    push(@candidate, $version);
 	} elsif (my $pattern = $SEARCH_STRINGS{$distbase} ) {
 	    eval $pattern;
-print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> (', $distbase,') ', $_, '  pattern ( ', $pattern,') -> version(', $version, ")\n" if   ($DEBUG_CURL_LISTING ||  $DEBUG_EVAL_PATTERN );
+print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> (', $distbase,') ', $_, '  pattern ( ', $pattern,') -> version(', $version, ")\n" if  ($DEBUG_CURL_LISTING ||  $DEBUG_EVAL_PATTERN || $DEBUG_SPECIAL_PATTERN);
 
 	} elsif ( grep (/$distbase/, @SimplePattern) || $SimplePattern || $SimpleFallBack ) {
 	    $_ =~ /.*$distbase-([0-9.]+[0-9]).*/;	# not to include last '.'
 	    $version = $1;
 print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', 'distbase (', $distbase, ') version (', $version, ') ',$_,"\n" if   ($DEBUG_SIMPLE_PATTERN );
 #	    push(@candidate, $version);
-	} elsif ( $SpecialPatternY ) {
-	    $version = $_;
-print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', '(SpecialPatternY) ', $SpecialPatternY,"\n" if   ($DEBUG_CURL_LISTING ||  $DEBUG_EVAL_PATTERN || $DEBUG_EVAL_PATTERN );
-	    eval $SpecialPatternY ;
-print STDERR sprintf("%4d ", __LINE__ ), '($version) ', $version, "\n" if   ($DEBUG_CURL_LISTING ||  $DEBUG_EVAL_PATTERN);
 	} elsif ( grep (/$distbase/, keys %SpecialPattern) ||
 		  $SpecialPattern{$distbase}  ) {	     ### the first case won't match with Text-Tabs+Wrap (includes  '+')
 	    print STDERR sprintf("%4d ", __LINE__ ), '(', $distbase,') ', $_,"\n" if $DEBUG_EVAL_PATTERN;
 	    #  E V A L U A T E SpecialPattern
 	    $version = SpecialPattern($distbase, $_);
-	    print STDERR sprintf("%4d ", __LINE__ ), '(', $distbase,') ', $_,'--> ', $version,"\n" if $DEBUG_EVAL_PATTERN;
+	    print STDERR sprintf("%4d ", __LINE__ ), '(', $distbase,') ', $_,'--> ', $version,"\n" if $DEBUG_EVAL_PATTERN  || $DEBUG_SPECIAL_PATTERN ;
 	} elsif ( $distbase eq 'Unicode-Map' && 
 		$_ =~ /Unicode-Map8(.*)/ ) { 
 print STDERR sprintf("%4d ", __LINE__ ), ' (1a)', $distbase, ' --> ', $version,"\n" if $DEBUG_DISTBASE;
@@ -2633,7 +2927,8 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (01)', $distbase,' version-> ', $vers
 		0 ) {
 	    my $pattern = $1;
 	    if ($pattern =~ /-$/) { 
-		print STDERR sprintf("%4d ", __LINE__ ), ' (-) ', $_,"\n" if $DEBUG_DISTBASE;
+  print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ',
+							 ' (-) ', $_,"\n" if $DEBUG_DISTBASE || $DEBUG_VERSION_DIR ;
 		next;}  # Avoid to pick CGI-Cookie-XS-0.18.tar.gz for Cookie-XS
 	    $version =	$2; $version =~ s/^[-]//;  # www-VRML-1.10.tar.gz -> -1.10 -> 1.10
 	    print STDERR sprintf("%4d ", __LINE__ ), ' (0) >', $pattern, '< ', $_,"\n" if ($DEBUG_DISTBASE||$DEBUG_EVAL_PATTERN);
@@ -2736,7 +3031,7 @@ print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[3], '> (distbase) ', $distb
     if ($curl_lines == 0 ) { $returnCode = -1; };
 
 print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ': (distbase) ', $distbase,' (version) ', $version, 
-' returnCode ', $returnCode, ' @candidate: ', "\n------------------\n",join ("\n", @candidate), "\n" if $DEBUG_CANDIDATE;
+' returnCode ', $returnCode, ' @candidate: ', "\n------------------\n",join ("\n". __LINE__.' ', @candidate), "\n" if $DEBUG_CANDIDATE || $DEBUG_VERSION_DIR ;
 #      foreach my $c (@candidate) {
 #  	if (1 || $c =~ /4\.8\.3/) {
 #  print STDERR sprintf("%4d <", __LINE__), (caller 0)[3],'> (edit_version) ', $c, "\n"; }}
@@ -3287,7 +3582,7 @@ sub SummaryName(){
 	$summary	= $output_directory .'/' . $summary;
     }
   }
-sub GetSFProjectString($$){
+sub FindLookingForTheLatestVersion($$){
     my($url)	  = shift;
     my($distbase) = shift;
     # Looking for the latest version? Download cmusphinx-ru-5.2.tar.gz (157.7 MB)
@@ -3321,13 +3616,16 @@ sub GetSFProjectCandidate($$$$) {  # line 2922 to 2979
     my (@candidate);
         $#candidate = -1;  # make it empty
     my ($returnCode);
+    my (%SITE_CACHE) = ();
     my ($status, $location);
+
     my ($master_site) = $SF_SITE. $SFProject;
     $master_site =~ s,http://sourceforge,https://download.sourceforge,;
 
     print STDERR sprintf("%4d ", __LINE__ ), ' SFProject: ',  $SFProject."\n" if $DEBUG_SF;
     my ($subDirectory) = $DISTBASE;
     $subDirectory =~ s/-/_/g;
+    $subDirectory =~ s/py[0-9]+_/python-/g;    # print/py-pslib -> python-pslib
     my (@directory_candidate);
 
     my ($directory_candidate) = GetMasterSiteSubDirectory($master_site, $dist_name);
@@ -3356,32 +3654,48 @@ sub GetSFProjectCandidate($$$$) {  # line 2922 to 2979
     @directory_candidate =  ($alternative);
     }
     my ($iteration) = 0;
-    foreach my $site (
-	@directory_candidate) {
-	if ($site eq '' ) {
-	    print STDERR sprintf("%4d ", __LINE__ ), ' <', (caller 0)[3], ">\t:", (caller 0)[2], ': ', $site, " \$site is empty\n"; next;
-	}
-	($status, $location) = CheckHeader($site);
-	    print STDERR sprintf("%4d ", __LINE__ ), '(',$iteration  ,') ', $site, ') status('. $status.") -> \n"  if $DEBUG_HTTP_HEADER;
-	if ($status == 200 ) {
-	    print STDERR sprintf("%4d ", __LINE__ ), '(',$iteration++,') ', $location, ') status('. $status.") -> \n"  if $DEBUG_HTTP_HEADER;
-	    ($returnCode, @candidate) = ParseDirectory($site, $DISTBASE, $SimpleFallBackNo, $PackageName);
-	    print STDERR sprintf("%4d ", __LINE__ ), 
-		' (ParseDir) master_site(', $site, ') status('. $status. ') '. 'candidate('.$#candidate.') -> '. join (' ', @candidate), "\n"  if $DEBUG_SF;
-	}
-	if ($#candidate > 0 ) { $master_site = $site ;last;}
+    my (@candidate);
+    my (@candidateLocal);
+    foreach my $site (@directory_candidate) {
 	my ($candidate);
-	    if ($status == 200 ) {
-		my ($candidate) = GetSFProjectString($site, $DISTBASE);
-		if ( $candidate != '0.0') {push(@candidate, $candidate); }# last;}
-		my ($dir) = VersionedDirectory($DISTBASE, $site);
-		print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ': dir (', $dir, ')',"\n" if $DEBUG_VERSION_DIR;
-		if ($dir == -1) { next;}
-		print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ': dir (', $dir, ')',"\n" if $DEBUG_VERSION_DIR;
-		if ( $dir =~ m|\/([0-9.]+)$| ) { $dir =~ s|$1||; }
-		($returnCode, @candidate) = ParseDirectory($dir, $DISTBASE, $SimpleFallBackNo, $PackageName);
-	    }
-	}    # end foreach
+	if ($site eq '' ) { print STDERR sprintf("%4d ", __LINE__ ), ' <', (caller 0)[3], ">\t:", (caller 0)[2], ': ', $site, " \$site is empty\n";
+			    next;}
+	($status, $location) = CheckHeader($site);
+	print STDERR sprintf("%4d ", __LINE__ ), '(',$iteration  ,') ', $site, ') status('. $status.") ncand (",$#candidate,') -> ',
+	PickFromCandidate(@candidate), "\n"  if $DEBUG_HTTP_HEADER;
+
+	if ($status != 200 ) { next; }
+	if ($SITE_CACHE{$site}) {
+	    print STDERR sprintf("%4d ", __LINE__ ), ' *** (',$iteration  ,') ', $site, ') status('. $status.") ncand (",$#candidate,') -> ',	    
+	    next;}
+	$SITE_CACHE{$site}++;  # mark as this site checked already
+
+	print STDERR sprintf("%4d ", __LINE__ ), '(',$iteration++,') ', $location, ') status('. $status.") -> \n"  if $DEBUG_HTTP_HEADER;
+# 1. Do the first level
+	($returnCode, @candidateLocal) = ParseDirectory($site, $DISTBASE, $SimpleFallBackNo, $PackageName);
+	push(@candidate,@candidateLocal);
+	print STDERR sprintf("%4d ", __LINE__ ), 
+	    ' (ParseDir) master_site(', $site, ') status('. $status. ') '. 'candidate('.$#candidate.') -> '. join (' ', @candidate), "\n"  if $DEBUG_SF;
+# 2. Add (push) Looking for the Latest Version info
+	my ($candidate) = FindLookingForTheLatestVersion($site, $DISTBASE);
+	if ( $candidate != '0.0') {push(@candidate, $candidate); }# last;}
+# 3. Try Versioned Directory
+	my ($dir) = VersionedDirectory($DISTBASE, $site);
+	if ($SITE_CACHE{$dir}) {
+	    print STDERR sprintf("%4d ", __LINE__ ), ' *** (',$iteration  ,') ', $dir, ') status('. $status.") ncand (",$#candidate,') -> ',	    
+	    next;}
+	($SITE_CACHE{$dir})++;
+	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ': dir (', $dir, ')',"\n" if $DEBUG_VERSION_DIR;
+	if ($dir == -1) { next;}
+	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ': dir (', $dir, ')',"\n" if $DEBUG_VERSION_DIR;
+	if ( $dir =~ m|\/([0-9.]+)$| ) { $dir =~ s|$1||; }
+	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ': dir (', $dir, ')',"\n" if $DEBUG_VERSION_DIR;
+	my(@versionedCadidate);
+	my($returnCode, @versionedCandidate) = ParseDirectory($dir, $DISTBASE, $SimpleFallBackNo, $PackageName);
+	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' -> ',
+	    PickFromCandidate(@versionedCandidate), "\n" if $DEBUG_VERSION_DIR;
+	push(@candidate,@versionedCandidate);
+    }    # end foreach
 
 	if ($#candidate  < 0 && (my ($alternative) = $SourceForgeAlternative{$DISTBASE} ) ) {
 	foreach my $site (split ';', $alternative) {
@@ -3391,12 +3705,15 @@ sub GetSFProjectCandidate($$$$) {  # line 2922 to 2979
 	    $master_site = $site;
 	}
 	}
+    print STDERR sprintf("%4d ", __LINE__ ), '(',$iteration  ,') ', $master_site, ') status('. $status.") ncand (",$#candidate,")\n"  if $DEBUG_HTTP_HEADER;
     return ($master_site, $returnCode, @candidate);
 }
 sub GetSystemURL ($){
 #    open(HASH, "git log --format='%H' -1|");
 #    my ($HASH) = <HASH>;
 #    close(HASH);
+# instead, expecting $HASH is set by shell script who invokes this perl script,
+# usually check-update.sh
     my ($VERSION) = shift;
     my ($SystemURL);
     my ($HASH) = $ENV{'HASH'};
@@ -3421,7 +3738,7 @@ print STDERR  $version,"\n" if $DEBUG_DISTBASE;
     return $version;
 }
 sub VersionedDirectory ($$){
-    # like SourceForge, there are directory that holds versioned
+    # like SourceForge, there are directories that holds versioned
     # sub directories. For example
     # https://sourceforge.net/projects/aegis/files/aegis/
     # (1) To check if it is a directory like this
@@ -3445,10 +3762,11 @@ sub VersionedDirectory ($$){
     open(W3M, "$w3m_command |") || print STDERR 'problem'."\n";
     while(<W3M>) {
 	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ', $_  if $DEBUG_VERSION_DIR;
-	if (                   /^([\t ]+)([0-9.]+)[\t ]+/  ||
+	if (                   /^([\t ]+)([0-9.]+a*)[\t ]+/  ||		# cad/gplcvar wants (a) .. 2.12(a)
 			       /^[\t ]*($distbase[-]*)([0-9.]+)[\t ]+/ ||
 			       /^[\t ]*($distbase[-]*)([0-9.]+)/ ||
 			       /^[\t ]*($distbase[-]*) ([0-9.]+)/ ||
+			       /($distbase[-]*)([0-9.]+)\.tar.gz/ ||
 			       m|.(DIR).\s+([0-9.]+)/| ) {
 	    $name = $1; # pick prefix
 	    $ver = $2;
@@ -3511,6 +3829,7 @@ if ($opts{'V'}) { ShowVersion(); exit;}
 if ($opts{'w'}) { $include_wip++};	# not implemented yet
 if ($opts{'W'}) { $update_wip++};	# not implemented yet
 
+#  ------ Setup (Adjust) execution mode  ---------
 if (($category eq '' ) && ($selected =~ m|(.*)/(.*)| ) ||
     ( $ARGV[0] =~ m|(.*)/(.*)| ) ) {
     $category = $1; $selected = $2;
@@ -3533,6 +3852,7 @@ if ($SINGLE_PACKAGE) {
 } else {
     print STDERR sprintf("%4d ", __LINE__), ' *** category (', $category, ') package (', $selected, ")\n";
 }
+ # ----------------------------------------------
 my($gems_name);
 
 $gems_name = CheckRubyGems( $skip_rubygems_check );
@@ -3548,7 +3868,6 @@ if ( -f $MaturedList) {
 my(%DIVIDE_DEVEL) = ( 1, '[A-Za-o].*',
 		      2, 'p.*',
 		      3, '[q-z].*' );
-
 
 chdir $pkgsrc;
 AddSpecialPattern();
@@ -3700,7 +4019,6 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	# ----------- I M P O R T A N T    S T A T I S T I C S   V A L U E -------------
     $TotalChecked++;			# becoming serial so on (to count)
     #  ----------------------------------------------------------------------------
-
 	if ( grep (/^$PackageName$/, @SkipTooOld) > 0 ) { $SkipTooOld++; next; }
 	# ------------- P a c k a g e  n a m e ---------
 	# -------------------
@@ -3724,6 +4042,12 @@ print STDERR sprintf("%4d ", __LINE__ ),
     if ($TEXLIVE) { $StatTEXLIVE++; next;} # skip texlive for the moment
     # GEM_PACKAGE and %FAMILY
 	my ($p);
+  print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ------------------',"\n",
+    "    (PackageName)\t", $PackageName,"\n",
+    "       (DISTNAME)\t", $DISTBASE,      "\n",
+    "     (PKGVERSION)\t", $PKGVERSION , "\n" 
+	    if ($DEBUG_DISTBASE || $DEBUG_SPECIAL_PATTERN || $DEBUG_DISTBASE_EXTRACT);
+
     if ( ($p = $FAMILY{$PackageName} ) && $GEM_PACKAGE ) {	# MAJOR_IF_THEN_ELSE
 	print STDERR sprintf("%4d ", __LINE__ ), 'p (', $p,') PackageName (',$PackageName, ") \n" if $DEBUG_FAMILY;
 	$DISTBASE = GetVariableValue ($dir, $PackageName, 'DISTNAME');
@@ -3731,19 +4055,21 @@ print STDERR sprintf("%4d ", __LINE__ ),
 
     } elsif ($GEM_PACKAGE) {   # MAJOR_IF_THEN_ELSE
 	$DISTBASE = GetVariableValue ($dir, $PackageName, 'DISTNAME');
-
 	$DISTBASE =~ s/-[0-9.-]+//;
 	$available = GetGemVersion($DISTBASE, $gems_name);
 	$http_code = 0;
 	print STDERR sprintf("%4d ", __LINE__ ), ' HOMEPAGE: ', $HOMEPAGE,"\n" if $DEBUG_RUBYGEM;
         # ------------  not $GEM_PACKAGE to 3181 (some 130 lines)
+
     } else {	# MAJOR_IF_THEN_ELSE
+
 #  -----------------------------------------------------------------------	
 	    print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[2], '> (PackageName) ', $PackageName, ' URL(', join ("\n", @MASTER_SITES), ")\n" if $DEBUG_URL;
 
 	print STDERR sprintf("%4d ", __LINE__ ), '#candidate: ', $#candidate, ' DISTBASE: ', $DISTBASE,"\n" if $DEBUG_GNOME;
 
 	my($PKGNAME)	= $PKGBASE . '-'. $PKGVERSION;
+
 	$DISTBASE	= GetDistBase($dir, $PackageName, $PKGBASE, $PKGVERSION, $PKGNAME);
 print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> (DISTBASE) ', $DISTBASE, "\n" if $DEBUG_DISTBASE;
 	if ($DISTBASE =~ /.*-$/ ) { $DISTBASE =~ s/-$//;}  # aspell6-ca- -> aspell6-ca # 20150411
@@ -3764,7 +4090,8 @@ print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> (DISTBASE) ', $D
 	chomp($URL);
 	if ( my ($p) = $FAMILY{$PackageName} ) {
 	    print STDERR sprintf("%4d ", __LINE__ ), '(PackageName) ', $PackageName, ' (p) ', $p, "\n" if $DEBUG_FAMILY;
-	    $SpecialPatternY = $p ;
+	    if ( ! $SpecialPatternY ) {
+		$SpecialPatternY = $p ; }
 	}
 
 	# ---------------------------------------------------------------
@@ -3855,7 +4182,7 @@ if (0){
 # 1 is good for www/librest07 but bad for many occasion:
 	print STDERR sprintf("%4d ", __LINE__ ), ' (HOMEPAGE) ', $#candidate, "\n" if $DEBUG_MASTER_SITES_LISTING ;
 	 if ($#candidate < 1  && $HOMEPAGE) {
-	if ($Dont_check_homepage{$DISTBASE} != 1 ) {							# MAJOR_IF_THEN_ELSE
+	if ($Dont_check_homepage{$DISTBASE} != 1 ) {						# MAJOR_IF_THEN_ELSE
 	    ($returnCode, @candidate) = ParseDirectory($HOMEPAGE, $DISTBASE, $SimpleFallBackNo, $PackageName);
 	    print STDERR sprintf("%4d ", __LINE__ ), $HOMEPAGE," checked.\n" if $DEBUG_MASTER_SITES_LISTING
 	}
@@ -3876,40 +4203,62 @@ if (0){
 	    ' candidate#: ', $#candidate,
 	    "\n" if ( $DEBUG_DISTBASE || $DEBUG_MASTER_SITES_LISTING );
 print STDERR sprintf("%4d ", __LINE__ ),
-    join (' ', @candidate) ,"\n" if $DEBUG_DISTBASE;
-	if ($#candidate == -1  &&  ( $MASTER_SITE  =~ m|http://pypi.python.org/| )) {		# MAJOR_IF_THEN_ELSE
-	    print STDERR sprintf("%4d ", __LINE__ ), 'MASTER_SITE ', $MASTER_SITE if $DEBUG_DISTBASE;
-	    ($returnCode, @candidate) = ParseDirectory(
+    join (' ', @candidate) ,"\n" if $DEBUG_DISTBASE || $DEBUG_PYPI ;
+	    my(@CANDIDATE);
+
+	if ($MASTER_SITE  =~ m|http://pypi.python.org/| ) {		# MAJOR_IF_THEN_ELSE
+	    print STDERR sprintf("%4d ", __LINE__ ), 'MASTER_SITE ', $MASTER_SITE if $DEBUG_DISTBASE || $DEBUG_PYPI ;
+	    ($returnCode, @CANDIDATE) = ParseDirectory(
 		"https://pypi.python.org/pypi/".$DISTBASE, $DISTBASE, $SimpleFallBackNo, $PackageName);}
+	    push(@candidate, @CANDIDATE);
 
 	if ($#candidate == -1  && $EGG_PACKAGE) {						# MAJOR_IF_THEN_ELSE
 	    print STDERR sprintf("%4d ", __LINE__ ), 'MASTER_SITE ', $MASTER_SITE if $DEBUG_DISTBASE;
 	    ($returnCode, @candidate) = ParseDirectory(
 		"https://warehouse.python.org/project/".$DISTBASE, $DISTBASE, $SimpleFallBackNo, $PackageName);}
 	print STDERR sprintf("%4d ", __LINE__ ), 'MASTER_SITE ', $MASTER_SITE, ' DISTBASE ', $DISTBASE, ' cand (', $#candidate,")\n" if $DEBUG_GITHUB;
-	if ($#candidate  < 1   && ($MASTER_SITE =~ m|github.com/|) ) {				# MAJOR_IF_THEN_ELSE
-	 # ------------------ GitHubSpecial (3352)
-	    ($returnCode, @candidate) = GitHubSpecial($DISTBASE, $MASTER_SITE, $dir, $PackageName);
-	}
-	if ($#candidate  < 1   && ($HOMEPAGE =~ m|github.com/|) ) {				# MAJOR_IF_THEN_ELSE
-	    # ------------------ GitHubSpecial on HOMEPAGE
-	    ($returnCode, @candidate) = GitHubSpecial($DISTBASE, $HOMEPAGE, $dir, $PackageName);
-	}
-	## http://pypi.python.org/pypi/zope.interface
-	if ($#candidate  < 1 && ($HOMEPAGE =~ m|pypi.python.org/pypi|) ) {
-	    # ------------------ on HOMEPAGE
-	    ($returnCode, @candidate) = pypiSpecial($DISTBASE, $HOMEPAGE, $dir, $PackageName);
-	}
-    print STDERR sprintf("%4d ", __LINE__ ), join "\n", @candidate, "\n" if $DEBUG_VERSION_DIR;
 
+	if ($MASTER_SITE =~ m|github.com/| ) {				# MAJOR_IF_THEN_ELSE
+	 # ------------------ GitHubSpecial (3352)
+	    @CANDIDATE = ();
+	    ($returnCode, @CANDIDATE) = GitHubSpecial($DISTBASE, $MASTER_SITE, $dir, $PackageName);
+	    push(@candidate, @CANDIDATE);
+	    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ': ', "\n",join ("\n", @candidate),"\n" if $DEBUG_CANDIDATE ;
+	}
+	if ($HOMEPAGE =~ m|github.com/| ) {				# MAJOR_IF_THEN_ELSE
+	    # ------------------ GitHubSpecial on HOMEPAGE
+	    @CANDIDATE = ();
+	    ($returnCode, @CANDIDATE) = GitHubSpecial($DISTBASE, $HOMEPAGE, $dir, $PackageName);
+	    push(@candidate, @CANDIDATE);
+	    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', " -------------\n", (caller 0)[2], ': ', "\n",join ("\n", @candidate),"\n" if $DEBUG_CANDIDATE ;
+	}
+	    ## http://pypi.python.org/pypi/zope.interface
+	    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], 'HOMEPAGE (',$HOMEPAGE, ")\n" if $DEBUG_PYPI;
+        if ($HOMEPAGE =~ m|pythonhosted.org/|) {
+	    # ------------------ on HOMEPAGE
+	    @CANDIDATE = ();
+	    ($returnCode, @CANDIDATE) = pypiSpecial($DISTBASE, $HOMEPAGE, $dir, $PackageName);
+	    push(@candidate,@CANDIDATE);
+	}
+	print STDERR sprintf("%4d ", __LINE__ ), " -------------\n", join "\n", @candidate, "\n" if $DEBUG_PYPI || $DEBUG_CANDIDATE ;
+        if ($MASTER_SITE =~ m|https://files.pythonhosted.org/|) {
+	    @CANDIDATE = ();
+	    ($returnCode, @CANDIDATE) = pypiSpecial($DISTBASE, $MASTER_SITE, $dir, $PackageName);
+	    push(@candidate, @CANDIDATE); }
+
+	print STDERR sprintf("%4d ", __LINE__ ), join "\n", @candidate, "\n" if $DEBUG_PYPI || $DEBUG_CANDIDATE ;
 	print STDERR sprintf("%4d ", __LINE__ ), 'MASTER_SITE ', $MASTER_SITE, ' DISTBASE ', $DISTBASE, "\n" if $DEBUG_DISTBASE;
 	print STDERR sprintf("%4d ", __LINE__ ),  $DownLoadAlternative{$DISTBASE}, "\n" if $DEBUG_ALTERNATIVE;
 #	if ($DISTBASE =~ /^pyobjc/ ) { ($MASTER_SITE, $line ) = pyObjcSpecial($DISTBASE);
 #	    print STDERR sprintf("%4d ", __LINE__ ), 'MASTER_SITE ', $MASTER_SITE,"\n" if $DEBUG_DISTBASE;
 #		($returnCode, @candidate) = ParseDirectory($MASTER_SITE, $DISTBASE, 0);
 #	}
+    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ',
+	' DISTBASE: ', $DISTBASE, 
+	' DownLoadAlternative: ', $DownLoadAlternative{$DISTBASE}
+	,"\n" if $DEBUG_ALTERNATIVE;
 	if ( $DownLoadAlternative{$DISTBASE}) {			# MAJOR_IF_THEN_ELSE
-	    $MASTER_SITE= $DownLoadAlternative{$DISTBASE};
+	    $MASTER_SITE = $DownLoadAlternative{$DISTBASE};
 	    print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[3], '> MASTER_SITE ', $MASTER_SITE,"\n" if $DEBUG_ALTERNATIVE;
 		($returnCode, @candidate) = ParseDirectory($MASTER_SITE, $DISTBASE, $SimpleFallBackNo, $PackageName);
 
@@ -4067,4 +4416,4 @@ __END__
 
 # debug format
   print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ',
-
+    

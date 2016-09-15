@@ -4,6 +4,10 @@ use 5.012; # so readdir assigns to $_ in a lone while test (See perldoc -f readd
 use Getopt::Std;
 require Algorithm::Diff;
 
+# example when you need manually invocation
+# trailing slash after HEAD is important
+# h97@makoto 12:53:06/160519(..git-work/check-update)% (cd ~/public_html/pkgsrc/check-update/HEAD; perl /export/git-work/check-update/summary-diff -d ~/public_html/pkgsrc/check-update/HEAD/  -u  http://www.ki.nu/~makoto/pkgsrc/check-update/HEAD/ )
+
 my($DEBUG) = 0;
 
 ## ------------------------------------------
@@ -116,7 +120,7 @@ sub GetLines($){
    $#Lines   = -1; # make it empty
 #   $limit = 10;
    print STDERR sprintf("%4d ", __LINE__), $name, "\n" if $DEBUG;
-   open(NAME, $name) || print sprintf("%4d ", __LINE__), "Problem opening $name to read $! \n";
+   open(NAME, $name) || print sprintf("%4d ", __LINE__), '<', (caller 0)[2], '> :', (caller 0 )[3], ": Problem opening $name to read $! \n";
     do { 
 #	($name, $version, $buffer) = (GetOneRecord(*NAME));
 			  $buffer  = (GetOneRecord(*NAME));
@@ -236,7 +240,7 @@ if ($opts{'u'}) { $URL = $opts{'u'};}
 else            { $URL = 'http://www.ki.nu/~makoto/pkgsrc/check-update/';}
 
 if ($opts{'d'}) { $DIR = $opts{'d'};}
-else            { $DIR = $ENV{'HOME'}.'/public_html/pkgsrc/check-update/';}
+else            { $DIR = $ENV{'HOME'}.'/public_html/pkgsrc/check-update';}
 
 my($directory) = $DIR;
 
