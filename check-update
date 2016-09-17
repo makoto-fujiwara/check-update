@@ -1731,7 +1731,7 @@ my ($numeric_no_delim_variation) =  $numeric_no_delim . '[0]+';
 
 
     # GetDistBase (4) ------------------------------------------
-    if ($DISTBASE  =~      /([a-zA-Z-]+_*)([0-9])([0-9])([0-9])/ ) {
+    if ($DISTBASE  =~      /^([a-zA-Z-]+_*)([0-9])([0-9])([0-9])$/ ) {
 	my ($distbase) = $1;
 	my ($a) = $2;
 	my ($b) = $3;
