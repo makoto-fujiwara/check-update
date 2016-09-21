@@ -4,6 +4,8 @@ use strict;
 use Net::DNS;	# net/p5-Net-DNS
 use Getopt::Std;
 use v5.16;
+use POSIX qw( SIGKILL );
+
 # global variable
 
 # By some reason, to know master site directory listing is reliable
@@ -15,6 +17,7 @@ my(%Dont_check_homepage) = (
 my($SimpleFallBackYes) = 1; # define constant;
 my($SimpleFallBackNo ) = 0; # define constant;
 
+my($W3MTimeout) = 60;
 # prototype for subroutine called very early stage :-)
 sub GetSystemURL($);
 
@@ -556,6 +559,25 @@ my (%MonthToDigit) = qw (
 
     my ($max_version);
     my ($returnCode, @candidate);
+
+sub warnTimeout($$$$){
+    my ($pid)	  = shift;
+    my ($TIMEOUT) = shift;
+    my ($url) = shift;
+    my ($caller) = shift;        
+
+    my $timeout = 0;
+    eval {
+        local $SIG{ALRM} = sub { $timeout = 1; };
+        alarm($TIMEOUT);
+        while(!$timeout) {
+            last if waitpid($pid, POSIX::WNOHANG);
+            sleep(1); }   };
+    if ($@) {warn "Error:".$@;}
+    if ($timeout) {
+        kill(SIGKILL, $pid);
+        warn " *****  TIMEOUT : $caller : $url";
+    }}
 
 sub SpecialPattern($$){
     my($distbase) = shift;
@@ -3578,6 +3600,10 @@ sub FindLookingForTheLatestVersion($$){
     my ($name); # cmph- etc
     my ($ver) = '0.0';
   print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' w3m_command(', $w3m_command,') <- ', "\n" if $DEBUG_VERSION_DIR;
+    my $pid = fork();
+    if (!defined($pid)) {
+	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], warn " failed to fork"; }
+    if ($pid == 0 ) {
     open(W3M, "$w3m_command |") || print STDERR 'problem'."\n";
     while(<W3M>) {
 #	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ', $_;
@@ -3591,7 +3617,11 @@ sub FindLookingForTheLatestVersion($$){
 	}
     }
     close(W3M);
-    return ($ver);
+    exit;
+    } elsif ($pid) {
+	warnTimeout($pid, $W3MTimeout, $url, (caller 0)[2]);  # set timeout as 180 sec
+    }
+	return ($ver);
 }
 sub GetSFProjectCandidate($$$$) {  # line 2922 to 2979
     my ($SFProject) = shift;
@@ -3746,6 +3776,10 @@ sub VersionedDirectory ($$){
     my $w3m_command = 'w3m -T TEXT '. $url;
     my ($name); # cmph- etc
     print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' w3m_command(', $w3m_command,') <- ', $_ ,"\n" if $DEBUG_VERSION_DIR || $DEBUG_HTTP_HEADER;
+	my $pid = fork();
+	if (!defined($pid)) {
+	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], warn " failed to fork"; }
+	if ($pid == 0 ) {
     open(W3M, "$w3m_command |") || print STDERR 'problem'."\n";
     while(<W3M>) {
 	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ', $_  if $DEBUG_VERSION_DIR;
@@ -3765,6 +3799,10 @@ sub VersionedDirectory ($$){
 	}
     }
     close(W3M);
+    exit;
+    } elsif ($pid) {
+       warnTimeout($pid, $W3MTimeout, $url, (caller 0)[2]);  # set timeout as 180 sec
+    }
     if ($ver eq '0.0') { return -1;}
     my ($return);
     if ($url =~ /pypi/ ) {
