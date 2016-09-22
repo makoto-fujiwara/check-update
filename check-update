@@ -572,17 +572,18 @@ sub warnTimeout($$$$){
 
     my $timeout = 0;
     eval {
-        local $SIG{ALRM} = sub { $timeout = 1; };
+        local $SIG{ALRM} = sub { $timeout = 1; alarm 0;};
         alarm($TIMEOUT);
         while(!$timeout) {
             last if waitpid($pid, POSIX::WNOHANG);
             sleep(1); }   };
-    alarm 0;
     if ($@) {warn "Error:".$@;}
     if ($timeout) {
         kill(SIGKILL, $pid);
         warn " *****  TIMEOUT : $caller : $url";
-    }}
+    }
+    alarm 0;
+}
 
 sub SpecialPattern($$){
     my($distbase) = shift;
