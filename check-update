@@ -17,7 +17,7 @@ my(%Dont_check_homepage) = (
 my($SimpleFallBackYes) = 1; # define constant;
 my($SimpleFallBackNo ) = 0; # define constant;
 
-my($W3MTimeout) = 60;
+my($W3MTimeout) = 180;
 # prototype for subroutine called very early stage :-)
 sub GetSystemURL($);
 
@@ -32,6 +32,7 @@ my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
 my ($MIN_LINES) = 5;		# retry threshold less than this lines
 my ($SF_SITE) = 'http://sourceforge.net/';
+my (%Accept99) = qw (TeXemacs ); #  accept version with 99 
 our(@ARGV);
 #   requirement:
 #       net/curl
@@ -922,10 +923,13 @@ sub CheckHeader($) {
     if ($url eq '') {
 	print STDERR sprintf("%4d ", __LINE__ ), ' <', (caller 0)[3], ">\t:", (caller 0)[2], ': ', $url, " \$url is empty\n";
 	return -1;}
-    
+    print STDERR sprintf("%4d ", __LINE__ ), ' ', $curl_head, ' ', $url,"\n"  if $DEBUG_HTTP_HEADER ;	    
     open(CURL, "$curl_head $url 2>&1|") || print STDERR '*** ',sprintf("%4d ", __LINE__ ),' Problem on ', (caller 0)[3],"\n";
+    my ($line_count) = 0;
     while (<CURL>){
+	$line_count++;
 	chomp();
+	print STDERR sprintf("%4d ", __LINE__ ), ' ', $_  if $DEBUG_HTTP_HEADER ;	
 	if ( /Server denied you to change to the given directory/) {
 	    $status = 550;
 	    print STDERR sprintf("%4d ", __LINE__ ), ' ', $url, ' -> ', $_  if $DEBUG_HTTP_HEADER ;
@@ -939,7 +943,9 @@ sub CheckHeader($) {
 	}
     }
     close(CURL);
-  print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ', '  *** returning  ( ', $status, ', ', $location,") *** \n"  if $DEBUG_HTTP_HEADER ;
+    if ( $url =~ /ftp/ && $line_count <= 3 ) { $status = 200 ; $location = $url ;} # no new is good news editors/TeXemacs
+  print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ', 
+'  *** returning  ( ', $status, ', ', $location, ', line_count = ', $line_count, ") *** \n"  if $DEBUG_HTTP_HEADER ;
     return ($status, $location);
 }
 sub CheckDNS($) {
@@ -1724,7 +1730,7 @@ my ($numeric_no_delim_variation) =  $numeric_no_delim . '[0]+';
 	my ($dlm2)   = $3;	    
 	my ($latter) = $4;
 #	if (! $SpecialPattern{$PKGBASE}) {
-	    $SpecialPatternY = 'm|.*' . $former. $dlm1 .'([0-9.]+)'.$dlm2 . $latter . '.*|; $version = $1; ' ;
+	    $SpecialPatternY = 'm|.*' . $former. $dlm1 .'([0-9.]+)'.$dlm2 . $latter . '\..*|; $version = $1; ' ;
 #	}     mysql-connector-odbc-5.3.4-src.tar.gz
   print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2],  ' ------------------',"\n",
 	    "       (DISTNAME)\t", $DISTBASE,      "\n",
@@ -2215,7 +2221,8 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (PKGNAME) ', $PKGNAME, ' --> DISTBASE
     }
 
      ($MasterSiteStat, $location) = CheckHeader($master_site);
-print STDERR sprintf("%4d ", __LINE__ ), ' (PKGNAME) ', $PKGNAME, ' --> DISTBASE (', $DISTBASE,") status: ", $MasterSiteStat, "\n" if $DEBUG_HTTP_HEADER ;
+print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ',
+					 ' (PKGNAME) ', $PKGNAME, ' --> DISTBASE (', $DISTBASE,") status: ", $MasterSiteStat, "\n" if $DEBUG_HTTP_HEADER ;
     if ($MasterSiteStat == 404 ) { 
 print STDERR sprintf("%4d ", __LINE__ ), ' (PKGNAME) ', $PKGNAME, ' --> DISTBASE (', $DISTBASE,") status: ", $MasterSiteStat, "\n" if $DEBUG_DISTBASE;
 	if ($master_site =~ m|github| ) {	
@@ -3027,7 +3034,7 @@ print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', 'distbase (',
 #	push(@candidate, $version); # for the safefy, push before edit too
 	my($edit_version) = EditVersion($distbase, $version);
 print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> distbase: ', $distbase,' (version) ', $edit_version, "\n" if $DEBUG_EDITVersion;
-	if ( $edit_version =~ m|\.99\.| ) { next;}  ## .99. is generally developement vesrion, and to be excluded
+	if ( $Accept99{$distbase} ne '' &&  $edit_version =~ m|\.99\.| ) { next;}  ## .99. is generally developement vesrion, and to be excluded
 	    push(@candidate, "$edit_version");
 #	    $count   =	CountPeriod($version);
 
