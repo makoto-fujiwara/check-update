@@ -463,6 +463,7 @@ my(%DISTBASE) = qw (
     );
    
 my(%DownLoadAlternative) = qw (
+    gallery	http://codex.galleryproject.org/Downloads
     john	http://www.openwall.com/john/
     aKode	https://www.linux-apps.com/p/1126584/
     agg		http://www.antigrain.com/download/index.html
@@ -631,11 +632,12 @@ mame telepathy-mission-control quake tscp
 my (@VER22) = qw(doc2html cfitsio lcc ctags elisau html gbdfed);
 
 #  Device-Gsm Device-Modem Device-SerialPort 
-#  0.46 -> 0.4.6
+#  0.46 -> 0.4.6,  1.38 -> 1.3.8
 my (@DOT2) =  qw(HTTP-Lite XML-Elemental yencode xworm gambatte_src Class-Std icecastq clex TiffIO
 TakaoExFonts_ TakaoFonts_ XML-Catalog Linux-Inotify2
 pixmap
 gnuchess
+visualvm
 );
 # 1.1103  -> 1.11.03
 # IO-CaptureOutput
@@ -1186,6 +1188,7 @@ sub ClassifyPackage(@) {
 	    $pattern  = '$_ =~ m|.*'. $pkg. '-('. $major.'.'.$minor.'.[0-9]*)\.tar\..*|; $version = $1; ';
 	    $FAMILY{$p} = $pattern;
 	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1b) family: ', $p, ' -> '. $pattern."\n" if $DEBUG_FAMILY;
+	    # (23) foomatic{,4}-filters
 	    # (23) foomatic{,4}-filters
 	}  elsif ($p =~ /^(foomatic)(\d*)-filters$/) {
 	    my ($pkg)  = $1;
