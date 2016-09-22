@@ -32,7 +32,9 @@ my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 			        # avoid problem on devel/py-ipython-10
 my ($MIN_LINES) = 5;		# retry threshold less than this lines
 my ($SF_SITE) = 'http://sourceforge.net/';
-my (%Accept99) = qw (TeXemacs ); #  accept version with 99 
+my (%Accept99) = qw (TeXemacs 1);	#  accept version with 99
+my (%NoDot)    = qw (arpack   1);	#  math/arpack arpack96
+
 our(@ARGV);
 #   requirement:
 #       net/curl
@@ -1776,9 +1778,12 @@ my ($numeric_no_delim_variation) =  $numeric_no_delim . '[0]+';
 	my ($distbase) = $1;
 	my ($a) = $2;
 	my ($b) = $3;
-	$SpecialPatternY = 'm|.*' . $distbase.'([0-9])([0-9])\..*|; $version = $1.\'.\'.$2;' ;
+ if ( $NoDot{$distbase} ) { $SpecialPatternY = 'm|.*' . $distbase.'([0-9])([0-9])\..*|; $version = $1.$2;' ; }
+ else                     { $SpecialPatternY = 'm|.*' . $distbase.'([0-9])([0-9])\..*|; $version = $1.\'.\'.$2;' ;}
 	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2],  ' ------------------',"\n",
+     "           %NoDot\t", $NoDot{$distbase},     "\n",
 	    "       (DISTNAME)\t", $DISTBASE,      "\n",
+	    "       (DISTBASE)\t", $distbase,      "\n",
 	    "(SpecialPatternY)\t", $SpecialPatternY,      "\n",
 	    "     (PKGVERSION)\t", $PKGVERSION , "\n" 
 	    if ($DEBUG_DISTBASE || $DEBUG_SPECIAL_PATTERN || $DEBUG_DISTBASE_EXTRACT);
