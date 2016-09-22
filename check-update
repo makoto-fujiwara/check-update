@@ -714,7 +714,8 @@ my (@DOT133) = qw (DBIx-Class-Cursor-Cached IO-Pipeline Smart-Comments Parse-Rec
 # gdal-lib-1111 -> 1.11.1
 my (@DOT121) = qw (gdal FreeImage);
 
-my (@DOT845) = qw (IO-Prompt);
+#  0.997003 -> 0.99.7.003
+my (@DOT845);#  = qw (IO-Prompt);
 
 # devel/p5-Devel-FindRef 	p5-Devel-FindRef 	1.422 	->	1.44
 my(@LeftJustify1_3) = qw(Devel-FindRef DateTime-Format-Mail Class-MakeMethods enum);
@@ -1188,7 +1189,6 @@ sub ClassifyPackage(@) {
 	    $pattern  = '$_ =~ m|.*'. $pkg. '-('. $major.'.'.$minor.'.[0-9]*)\.tar\..*|; $version = $1; ';
 	    $FAMILY{$p} = $pattern;
 	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1b) family: ', $p, ' -> '. $pattern."\n" if $DEBUG_FAMILY;
-	    # (23) foomatic{,4}-filters
 	    # (23) foomatic{,4}-filters
 	}  elsif ($p =~ /^(foomatic)(\d*)-filters$/) {
 	    my ($pkg)  = $1;
