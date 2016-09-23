@@ -1737,7 +1737,9 @@ my ($numeric_no_delim_variation) =  $numeric_no_delim . '[0]+';
     if ($DISTBASE  =~      /([a-zA-Z-]+)([-])$PKGVERSION([-])([a-zA-Z]+)/ ||
         $DISTBASE  =~ /([a-zA-Z]+[0-9]+)([-])$PKGVERSION([-])([a-zA-Z]+)/ ||
         $DISTBASE  =~      /([a-zA-Z-]+)([_])$PKGVERSION([.])([a-zA-Z]+)/ ||   #    py27-pslib (python-pslib_0.2.0.orig)
-        $DISTBASE  =~ /([a-zA-Z]+[0-9]+)([-])[0-9]+([-])([a-zA-Z]+)/       ) { # games/nethack-lib
+        $DISTBASE  =~ /([a-zA-Z]+[0-9])([-])[0-9.]+([-])([a-zA-Z]+)/      ||   # games/nethack-lib
+	0
+	) {
 	my ($former) = $1;
 	my ($dlm1)   = $2;
 	my ($dlm2)   = $3;	    
@@ -3799,10 +3801,10 @@ sub VersionedDirectory ($$){
     my $w3m_command = 'w3m -T TEXT '. $url;
     my ($name); # cmph- etc
     print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' w3m_command(', $w3m_command,') <- ', $_ ,"\n" if $DEBUG_VERSION_DIR || $DEBUG_HTTP_HEADER;
-	my $pid = fork();
-	if (!defined($pid)) {
-	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], warn " failed to fork"; }
-	if ($pid == 0 ) {
+#	my $pid = fork();
+#	if (!defined($pid)) {
+#	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], warn " failed to fork"; }
+#	if ($pid == 0 ) {
     open(W3M, "$w3m_command |") || print STDERR 'problem'."\n";
     while(<W3M>) {
 	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ', $_  if $DEBUG_VERSION_DIR;
@@ -3822,10 +3824,10 @@ sub VersionedDirectory ($$){
 	}
     }
     close(W3M);
-    exit;
-    } elsif ($pid) {
-       warnTimeout($pid, $W3MTimeout, $url, (caller 0)[2]);  # set timeout as 180 sec
-    }
+#    } elsif ($pid ) {
+#       warnTimeout($pid, $W3MTimeout, $url, (caller 0)[2]);  # set timeout as 180 sec
+#       exit;  # from forked side
+#    }
     if ($ver eq '0.0') { return -1;}
     my ($return);
     if ($url =~ /pypi/ ) {
