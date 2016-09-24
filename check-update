@@ -1734,9 +1734,9 @@ my ($numeric_no_delim_variation) =  $numeric_no_delim . '[0]+';
 	    if ($DEBUG_DISTBASE || $DEBUG_SPECIAL_PATTERN || $DEBUG_DISTBASE_EXTRACT);
    
     # GetDistBase (3) ------------------------------------------
-    if ($DISTBASE  =~      /([a-zA-Z-]+)([-])$PKGVERSION([-])([a-zA-Z]+)/ ||
+    if (
         $DISTBASE  =~ /([a-zA-Z]+[0-9]+)([-])$PKGVERSION([-])([a-zA-Z]+)/ ||
-        $DISTBASE  =~      /([a-zA-Z-]+)([_])$PKGVERSION([.])([a-zA-Z]+)/ ||   #    py27-pslib (python-pslib_0.2.0.orig)
+        $DISTBASE  =~      /([a-zA-Z-]+)([_.-])$PKGVERSION([_.-])([a-zA-Z]+)/ ||   #    py27-pslib (python-pslib_0.2.0.orig)
         $DISTBASE  =~ /([a-zA-Z]+[0-9])([-])[0-9.]+([-])([a-zA-Z]+)/      ||   # games/nethack-lib
 	0
 	) {
@@ -1811,7 +1811,7 @@ my ($numeric_no_delim_variation) =  $numeric_no_delim . '[0]+';
     # GetDistBase (7) ------------------------------------------
 # delimiter is perid(.)  rtf2LaTeX.1.5
 #   if ($PKGBASE .'.'. $PKGVERSION =~ /$DISTBASE$/i ) {
-    if ($DISTBASE =~ /$PKGBASE.$PKGVERSION/i ) {
+    if ($DISTBASE =~ /^$PKGBASE.$PKGVERSION$/i ) {
  my($distbase) = $DISTBASE ;
  $distbase =~ s/\.$PKGVERSION//;
 	if (! $SpecialPattern{$PKGBASE}) {
@@ -2909,7 +2909,6 @@ print STDERR sprintf("%4d ** ", __LINE__ ), (caller 0)[3], ' (', $distbase,') :'
 	    ($DEBUG_CURL_LISTING ||  $DEBUG_EVAL_PATTERN || $DEBUG_MASTER_SITES_LISTING );
 print STDERR sprintf("%4d ** ", __LINE__ ), (caller 0)[3], ' (', $distbase,') :', $_ ,"\n" if $DEBUG_SF_LOOKING_FOR;
 	if ($master_site =~ m|sourceforge| && /<span>Download / )   { next;} # skip harmfull and obsolete catch
-	if ($master_site =~ m|sourceforge| && m|latest/download\?| ) { next;} # skip harmfull and obsolete catch	
 print STDERR sprintf("%4d ** ", __LINE__ ), (caller 0)[3], ' (', $distbase,') :', $_ ,"\n" if $DEBUG_SF_LOOKING_FOR;
 #  ----------------------------------------------------------------
 print STDERR sprintf("%4d ** ", __LINE__ ), '(', $distbase,') $_(', $_,')',"\n" if $DEBUG_EVAL_PATTERN ;
