@@ -17,7 +17,7 @@ my(%Dont_check_homepage) = (
 my($SimpleFallBackYes) = 1; # define constant;
 my($SimpleFallBackNo ) = 0; # define constant;
 
-my($W3MTimeout) = 180;
+my($W3MTimeout) = 60;
 # prototype for subroutine called very early stage :-)
 sub GetSystemURL($);
 
@@ -73,6 +73,7 @@ my ($DEBUG_EVAL_PATTERN);
 my ($DEBUG_EDITVersion);
 my ($DEBUG_FAMILY) = 0;
 my ($DEBUG_FALLBACK_SIMPLE) = 0;
+my ($DEBUG_FORK) = 0;
 my ($DEBUG_GITHUB);
 my ($DEBUG_GNOME);
 my ($DEBUG_HTTP_HEADER);
@@ -124,6 +125,7 @@ my(%LongName)  = (
    'x',  'Curl Cache',
    'X',	 'Explode candidate',
    'y',	 'pypi special',
+   'z',  'Fork',
 );
 
 # Skip the guide saying "Looking for the latest version ?"
@@ -2702,7 +2704,7 @@ print STDERR sprintf("%4d ", __LINE__ ).' location: ', $location,"\n" if  $DEBUG
 sub ParseDebug($){
     my ($pattern) = shift;
     my %DEBUG;
-    my $char_list = 'aAcCdDEegFfGhklLmMnpPrRsSUVxXy';
+    my $char_list = 'aAcCdDEegFfGhklLmMnpPrRsSUVxXyz';
 
     if ( $pattern =~ /a/ ) { $pattern = $char_list  }
     print STDERR sprintf("%4d ", __LINE__ ), ' DEBUG pattern (',  $pattern,  ')',"\n";
@@ -2728,6 +2730,7 @@ sub ParseDebug($){
     $DEBUG_EVAL_PATTERN		= $DEBUG{'e'} + $DEBUG{'a'} ;
     $DEBUG_FALLBACK_SIMPLE	= $DEBUG{'F'} + $DEBUG{'a'} ;
     $DEBUG_FAMILY		= $DEBUG{'f'} + $DEBUG{'a'} ;
+    $DEBUG_FORK			= $DEBUG{'z'} + $DEBUG{'a'} ;    
     $DEBUG_GITHUB		= $DEBUG{'g'} + $DEBUG{'a'} ;
     $DEBUG_GNOME		= $DEBUG{'G'} + $DEBUG{'a'} ;
     $DEBUG_HTTP_HEADER		= $DEBUG{'h'} + $DEBUG{'a'} ;
@@ -3641,7 +3644,7 @@ sub FindLookingForTheLatestVersion($$){
 	}
     }
     close(W3M);
-    exit;
+#    exit;
     } elsif ($pid) {
 	warnTimeout($pid, $W3MTimeout, $url, (caller 0)[2]);  # set timeout as 180 sec
     }
@@ -3723,7 +3726,8 @@ sub GetSFProjectCandidate($$$$) {  # line 2922 to 2979
 # 3. Try Versioned Directory
 	my ($dir) = VersionedDirectory($DISTBASE, $site);
 	if ($SITE_CACHE{$dir}) {
-	    print STDERR sprintf("%4d ", __LINE__ ), ' *** (',$iteration  ,') ', $dir, ') status('. $status.") ncand (",$#candidate,') -> ',	    
+	    print STDERR sprintf("%4d ", __LINE__ ), ' *** (',$iteration  ,') ', $dir, ') status('. $status.") ncand (",$#candidate,') -> '
+            if $DEBUG_VERSION_DIR;
 	    next;}
 	($SITE_CACHE{$dir})++;
 	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ': dir (', $dir, ')',"\n" if $DEBUG_VERSION_DIR;
@@ -3800,11 +3804,11 @@ sub VersionedDirectory ($$){
     my $w3m_command = 'w3m -T TEXT '. $url;
     my ($name); # cmph- etc
     print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' w3m_command(', $w3m_command,') <- ', $_ ,"\n" if $DEBUG_VERSION_DIR || $DEBUG_HTTP_HEADER;
-#	my $pid = fork();
-#	if (!defined($pid)) {
-#	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], warn " failed to fork"; }
-#	if ($pid == 0 ) {
-    open(W3M, "$w3m_command |") || print STDERR 'problem'."\n";
+    my($pid);
+    $pid = open(W3M, "$w3m_command |-");
+    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' pid(', $pid,')',"\n" if $DEBUG_FORK;    
+    if (! defined ($pid)) {   # successfully forked, and children side
+    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' pid(', $pid,')',"\n" if $DEBUG_FORK;    	
     while(<W3M>) {
 	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ', $_  if $DEBUG_CURL_LISTING;
 	if (                   /^([\t ]+)([0-9.]+a*)[\t ]+/  ||		# cad/gplcvar wants (a) .. 2.12(a)
@@ -3823,10 +3827,12 @@ sub VersionedDirectory ($$){
 	}
     }
     close(W3M);
-#    } elsif ($pid ) {
-#       warnTimeout($pid, $W3MTimeout, $url, (caller 0)[2]);  # set timeout as 180 sec
-#       exit;  # from forked side
-#    }
+    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' name (', $name,') version (',$ver,')', "\n" if $DEBUG_FORK;    	
+    } else { # main side, $pid is valid
+    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' pid(', $pid,')' if $DEBUG_FORK;
+       warnTimeout($pid, $W3MTimeout, $url, (caller 0)[2]);  # set timeout as 180 sec
+    exit;
+    }
     if ($ver eq '0.0') { return -1;}
     my ($return);
     if ($url =~ /pypi/ ) {
