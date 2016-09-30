@@ -3806,16 +3806,16 @@ sub VersionedDirectory ($$){
 #	if ($pid == 0 ) {
     open(W3M, "$w3m_command |") || print STDERR 'problem'."\n";
     while(<W3M>) {
-	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ', $_  if $DEBUG_VERSION_DIR;
+	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ', $_  if $DEBUG_CURL_LISTING;
 	if (                   /^([\t ]+)([0-9.]+a*)[\t ]+/  ||		# cad/gplcvar wants (a) .. 2.12(a)
 			       /^[\t ]*($distbase[-]*)([0-9.]+)[\t ]+/ ||
-			       /^[\t ]*($distbase[-]*)([0-9.]+)/ ||
-			       /^[\t ]*($distbase[-]*) ([0-9.]+)/ ||
+			       /^[\t ]*($distbase[-]*)([0-9.]+)\S*/ ||
+			       /^[\t ]*($distbase[-]*) ([0-9.]+)\S*/ ||
 			       /($distbase[-]*)([0-9.]+)\.tar.gz/ ||
 			       m|.(DIR).\s+([0-9.]+)/| ) {
 	    $name = $1; # pick prefix
 	    $ver = $2;
-	    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ver(', $ver,') <- ', $_ if $DEBUG_VERSION_DIR;
+#	    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ver(', $ver,') <- ', $_ if $DEBUG_VERSION_DIR;
 	    if (CompareVersion($ver, $max_version) > 0) { $max_version = $ver;}
 	    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' max_ver(', $max_version,') <- ', $_ if $DEBUG_VERSION_DIR || $DEBUG_URL;
 	    if ($name eq 'DIR')		{ $name ='';}  # discard if meaningless converters/librevenge
