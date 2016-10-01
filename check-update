@@ -408,6 +408,7 @@ my (%SpecialPattern) = (
     'liblinear',	'$line =~ s|.*Version ([0-9.]+) released.*|$1|;',
     'libshorttext',	'$line =~ s|.*Version ([0-9.]+) released.*|$1|;',
     'libsvm',		'$line =~ s|.*Version ([0-9.]+) released.*|$1|;',        
+    'plib',    		'$line =~ s|The latest stable version of PLIB is ([0-9.]+) .*|$1|;',
     );
    #http://prdownloads.sourceforge.jp/lha/11617/lha-1.14i-ac20040929.tar.gz
  ##              nagi (=_src_-_2002-11-14) (3853 ) Now: 20021114 ->     0.0 Todo:       
@@ -421,6 +422,7 @@ my(%SourceForgeAlternative) = qw (
     OdfConverter http://sourceforge.net/projects/odf-converter/files/ODF%20Add-in%20for%20Office/Release%204.0/
     libhtmlobject-perl http://sourceforge.net/projects/htmlobject/files/htmlobject/
     tk		https://sourceforge.net/projects/tcl/files/Tcl/
+    plib	http://plib.sourceforge.net/download.html
 ); #'
 
 # PKGBASE to $DISTBASE association Special (ending digit is main customer)
@@ -1676,6 +1678,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
     "       (PKGBASE)\t", $PKGBASE,      "\n",
     "       (DISTNAME)\t", $DISTBASE,      "\n",
     "       (SpecialPatternY)\t", $SpecialPatternY,      "\n",
+    "       (SimplePattern)\t", $SimplePattern,      "\n",
     "       (PKGVERSION)\t", $PKGVERSION , "\n" if ($DEBUG_DISTBASE || $DEBUG_DISTBASE_EXTRACT);
 
 	return $PKGBASE ;
