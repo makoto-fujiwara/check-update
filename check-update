@@ -405,6 +405,7 @@ my (%SpecialPattern) = (
     'Level',		'$line =~ s|.*Level9_([0-9.]+)_Source.*|$1|;',
     'psjoin',		'$line =~ s|.*\# version ([0-9.]+), .*|$1|;',
     'openscad',		'$line =~ s|.*openscad-([0-9.-]+)\.src\..*|$1|; $line =~ s/-/p/;',
+    'liblinear',	'$line =~ s|.*Version ([0-9.]+) released.*|$1|;',
     );
    #http://prdownloads.sourceforge.jp/lha/11617/lha-1.14i-ac20040929.tar.gz
  ##              nagi (=_src_-_2002-11-14) (3853 ) Now: 20021114 ->     0.0 Todo:       
