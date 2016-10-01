@@ -3644,7 +3644,7 @@ sub FindLookingForTheLatestVersion($$){
 	}
     }
     close(W3M);
-#    exit;
+    exit;
     } elsif ($pid) {
 	warnTimeout($pid, $W3MTimeout, $url, (caller 0)[2]);  # set timeout as 180 sec
     }
