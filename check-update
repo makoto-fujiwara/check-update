@@ -3626,12 +3626,12 @@ sub FindLookingForTheLatestVersion($$){
     my $w3m_command = 'w3m -T TEXT '. $url;
     my ($name); # cmph- etc
     my ($ver) = '0.0';
-  print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' w3m_command(', $w3m_command,') <- ', "\n" if $DEBUG_VERSION_DIR;
-    my $pid = fork();
-    if (!defined($pid)) {
-	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], warn " failed to fork"; }
-    if ($pid == 0 ) {
-    open(W3M, "$w3m_command |") || print STDERR 'problem'."\n";
+    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' w3m_command(', $w3m_command,') <- ', "\n" if $DEBUG_VERSION_DIR;
+    my($pid);
+    $pid  = open(W3M, "$w3m_command |-"); # forking 
+    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' pid(', $pid,')',"\n" if $DEBUG_FORK;    
+    if (! defined ($pid)) {   # successfully forked, and children side
+    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' pid(', $pid,')',"\n" if $DEBUG_FORK;    	
     while(<W3M>) {
 #	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ', $_;
 	if (/Looking for the latest version/ &&  ! $SkipLookingForGuide{$distbase} ) {
@@ -3644,9 +3644,10 @@ sub FindLookingForTheLatestVersion($$){
 	}
     }
     close(W3M);
-    exit;
-    } elsif ($pid) {
+    } else {  # main side, $pid is valid
+	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' pid(', $pid,')' if $DEBUG_FORK;
 	warnTimeout($pid, $W3MTimeout, $url, (caller 0)[2]);  # set timeout as 180 sec
+	exit;
     }
 	return ($ver);
 }
@@ -3805,7 +3806,7 @@ sub VersionedDirectory ($$){
     my ($name); # cmph- etc
     print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' w3m_command(', $w3m_command,') <- ', $_ ,"\n" if $DEBUG_VERSION_DIR || $DEBUG_HTTP_HEADER;
     my($pid);
-    $pid = open(W3M, "$w3m_command |-");
+    $pid = open(W3M, "$w3m_command |-"); # forking
     print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' pid(', $pid,')',"\n" if $DEBUG_FORK;    
     if (! defined ($pid)) {   # successfully forked, and children side
     print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' pid(', $pid,')',"\n" if $DEBUG_FORK;    	
