@@ -3806,7 +3806,13 @@ sub VersionedDirectory ($$){
     my ($name); # cmph- etc
     print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' w3m_command(', $w3m_command,') <- ', $_ ,"\n" if $DEBUG_VERSION_DIR || $DEBUG_HTTP_HEADER;
     my($pid);
+    if ($url =~ /pypi.python.org/) {
+    $pid = open(W3M, "$w3m_command |") ||
+	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], 'Failed to open',"\n";
+    undef($pid);
+    } else {
     $pid = open(W3M, "$w3m_command |-"); # forking
+    }
     print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' pid(', $pid,')',"\n" if $DEBUG_FORK;    
     if (! defined ($pid)) {   # successfully forked, and children side
     print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' pid(', $pid,')',"\n" if $DEBUG_FORK;    	
