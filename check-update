@@ -33,7 +33,10 @@ my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 my ($MIN_LINES) = 5;		# retry threshold less than this lines
 my ($SF_SITE) = 'http://sourceforge.net/';
 my (%Accept99) = qw (TeXemacs 1);	#  accept version with 99
-my (%NoDot)    = qw (arpack   1);	#  math/arpack arpack96
+my (%NoDot)    = qw (
+arpack   1
+ picasm  1
+    );	#  math/arpack arpack96
 
 our(@ARGV);
 #   requirement:
@@ -1781,7 +1784,9 @@ my ($numeric_no_delim_variation) =  $numeric_no_delim . '[0]+';
 	my ($a) = $2;
 	my ($b) = $3;
 	my ($c) = $4;
-	$SpecialPatternY = 'm|.*' . $distbase.'([0-9])([0-9])([0-9])\..*|; $version = $1.\'.\'.$2.$3;' ;
+ if ( $NoDot{$distbase} ) { $SpecialPatternY = 'm|.*' . $distbase.'([0-9])([0-9])([0-9])\..*|; $version = $1.$2.$3;' ;}
+ else                     { $SpecialPatternY = 'm|.*' . $distbase.'([0-9])([0-9])([0-9])\..*|; $version = $1.\'.\'.$2.$3;' ;}
+
 	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2],  ' ------------------',"\n",
 	    "       (DISTNAME)\t", $DISTBASE,      "\n",
 	    "(SpecialPatternY)\t", $SpecialPatternY,      "\n",
