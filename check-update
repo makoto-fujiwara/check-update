@@ -34,9 +34,10 @@ my ($MIN_LINES) = 5;		# retry threshold less than this lines
 my ($SF_SITE) = 'http://sourceforge.net/';
 my (%Accept99) = qw (TeXemacs 1);	#  accept version with 99
 my (%NoDot)    = qw (
-arpack   1
+ arpack  1 
  picasm  1
-    );	#  math/arpack arpack96
+ newmat  1
+    );	#  math/arpack arpack96 math/newmat -> newmat11
 
 our(@ARGV);
 #   requirement:
