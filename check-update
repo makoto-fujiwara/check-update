@@ -425,6 +425,7 @@ my(%SourceForgeAlternative) = qw (
     tk		https://sourceforge.net/projects/tcl/files/Tcl/
     plib	http://plib.sourceforge.net/download.html
     docbook-xsl	https://sourceforge.net/projects/docbook/files/docbook-xsl/
+    PyQt-x11-gpl https://sourceforge.net/projects/pyqt/files/PyQt4/
 ); #'
 
 # PKGBASE to $DISTBASE association Special (ending digit is main customer)
@@ -1770,7 +1771,22 @@ my ($numeric_no_delim_variation) =  $numeric_no_delim . '[0]+';
 	    if ($DEBUG_DISTBASE || $DEBUG_SPECIAL_PATTERN || $DEBUG_DISTBASE_EXTRACT);
     	return $DISTBASE;
     }
-
+##      # GetDistBase (2-3) ------------------------------------------  x11/py-qt4 -> PyQt-x11-gpl-4.11.4
+##      if (
+##          $DISTBASE  =~ /^([a-zA-Z]+)([-])([a-zA-Z0-9]+)([-])([a-zA-Z]+)([-])$PKGVERSION$/ ) {
+##  	$DISTBASE = $1.$2.$3.$4.$5;
+##  	if (! $SpecialPattern{$PKGBASE}) {
+##  	    $SimplePattern = 1;
+##  	}
+##  	$SpecialPatternY = 'm|.*' . $DISTBASE.'-([0-9.]+)\..*|; $version = $1; ' ;	    
+##    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ------------------',"\n",
+##  #    "    (PackageName)\t", $PackageName,"\n",
+##      "       (DISTBASE)\t", $DISTBASE,      "\n",
+##  	    "(SpecialPatternY)\t", $SpecialPatternY,      "\n",
+##  	    if ($DEBUG_DISTBASE || $DEBUG_SPECIAL_PATTERN || $DEBUG_DISTBASE_EXTRACT);
+##      	return $DISTBASE;
+##      }
+##  
     # GetDistBase (3) ------------------------------------------
     if (
         $DISTBASE  =~ /([a-zA-Z]+[0-9]+)([-])$PKGVERSION([-])([a-zA-Z]+)/ ||
