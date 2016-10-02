@@ -28,6 +28,7 @@ editors/xcoral
 games/gnuchess4
 net/dnsdoctor
 net/ser
+net/socks4
 net/sharity-light
 sysutils/acpidump
 textproc/biblook
