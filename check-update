@@ -409,6 +409,7 @@ my (%SpecialPattern) = (
     'libshorttext',	'$line =~ s|.*Version ([0-9.]+) released.*|$1|;',
     'libsvm',		'$line =~ s|.*Version ([0-9.]+) released.*|$1|;',        
     'plib',    		'$line =~ s|The latest stable version of PLIB is ([0-9.]+) .*|$1|;',
+    'mad_fcl',		'$line =~ s|.*MAD-FCL \(v_([0-9.]+)\).*|$1|;',
     );
    #http://prdownloads.sourceforge.jp/lha/11617/lha-1.14i-ac20040929.tar.gz
  ##              nagi (=_src_-_2002-11-14) (3853 ) Now: 20021114 ->     0.0 Todo:       
@@ -423,10 +424,12 @@ my(%SourceForgeAlternative) = qw (
     libhtmlobject-perl http://sourceforge.net/projects/htmlobject/files/htmlobject/
     tk		https://sourceforge.net/projects/tcl/files/Tcl/
     plib	http://plib.sourceforge.net/download.html
+    docbook-xsl	https://sourceforge.net/projects/docbook/files/docbook-xsl/
 ); #'
 
 # PKGBASE to $DISTBASE association Special (ending digit is main customer)
 my(%DISTBASE) = qw (
+    mad-flute	mad_fcl
     gplcver	gplcver
     rexx-regina Regina-REXX
     openscad	openscad
@@ -474,6 +477,7 @@ my(%DISTBASE) = qw (
     );
    
 my(%DownLoadAlternative) = qw (
+    mad-fcl	http://mad.cs.tut.fi/download.html
     gallery	http://codex.galleryproject.org/Downloads
     john	http://www.openwall.com/john/
     aKode	https://www.linux-apps.com/p/1126584/
@@ -1687,6 +1691,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
 
 	return $PKGBASE ;
     }
+    # GetDistBase (2) not matched --------------------------------------    
     print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2],"\n",
     "       (PKGBASE)\t", $PKGBASE,      "\n",
     "       (PKGVERSION)\t", $PKGVERSION , "\n",
@@ -1742,13 +1747,30 @@ my ($numeric_no_delim_variation) =  $numeric_no_delim . '[0]+';
 	    if ($DEBUG_DISTBASE || $DEBUG_DISTBASE_EXTRACT);
 	return $distbase ;
     }
+# GetDistBase (2) not matched
 # set    $SpecialPatternY  by looking at DISTBASE and PKGVERSION relation
   print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ------------------',"\n",
     "    (PackageName)\t", $PackageName,"\n",
     "       (DISTNAME)\t", $DISTBASE,      "\n",
     "     (PKGVERSION)\t", $PKGVERSION , "\n" 
 	    if ($DEBUG_DISTBASE || $DEBUG_SPECIAL_PATTERN || $DEBUG_DISTBASE_EXTRACT);
-   
+
+    # GetDistBase (2-2) ------------------------------------------  textproc/dbtoepub
+    if (
+        $DISTBASE  =~ /^([a-zA-Z]+)([-])([a-zA-Z]+)([-])$PKGVERSION$/ ) {
+	$DISTBASE = $1.$2.$3;
+
+	if (! $SpecialPattern{$PKGBASE}) {
+	    $SimplePattern = 1;
+	}
+  print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ------------------',"\n",
+#    "    (PackageName)\t", $PackageName,"\n",
+    "       (DISTBASE)\t", $DISTBASE,      "\n",
+    "     (SimplePattern)\t", $SimplePattern , "\n" 
+	    if ($DEBUG_DISTBASE || $DEBUG_SPECIAL_PATTERN || $DEBUG_DISTBASE_EXTRACT);
+    	return $DISTBASE;
+    }
+
     # GetDistBase (3) ------------------------------------------
     if (
         $DISTBASE  =~ /([a-zA-Z]+[0-9]+)([-])$PKGVERSION([-])([a-zA-Z]+)/ ||
@@ -2835,7 +2857,7 @@ sub ParseDirectory($$$$$){   # 2564  to 2825 lines (260 lines
     my ($PackageName)	= shift;
     my ($caller)	= shift;  # debug purpose print only
 
-  print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' (',$caller.')  ',
+   print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' (',$caller.')  ',
 						 'master_site: ', $master_site, "\n" if $DEBUG_MASTER_SITE || $DEBUG_VERSION_DIR || $DEBUG_HTTP_HEADER ;
 
     # returns ($returnCode, @candidate);
@@ -3089,7 +3111,7 @@ print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[3], '> (distbase) ', $distb
     print STDERR sprintf("%4d ", __LINE__ ), '==> curl_lines: ', $curl_lines, "\n" if $DEBUG_DISTBASE;
     if ($curl_lines == 0 ) { $returnCode = -1; };
 
-print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' (',$caller.') : (distbase) ', $distbase,' (version) ', $version, 
+print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' (', $caller.') : (distbase) ', $distbase,' (version) ', $version, 
 ' returnCode ', $returnCode, ' @candidate: ', "\n------------------\n",join ("\n". __LINE__.' ', @candidate), "\n" if $DEBUG_CANDIDATE || $DEBUG_VERSION_DIR ;
 #      foreach my $c (@candidate) {
 #  	if (1 || $c =~ /4\.8\.3/) {
@@ -3740,7 +3762,7 @@ sub GetSFProjectCandidate($$$$) {  # line 2922 to 2979
 
 	print STDERR sprintf("%4d ", __LINE__ ), '(',$iteration++,') ', $location, ') status('. $status.") -> \n"  if $DEBUG_HTTP_HEADER;
 # 1. Do the first level
-	($returnCode, @candidateLocal) = ParseDirectory($site, $DISTBASE, $SimpleFallBackNo, $PackageName, (caller)[3]);
+	($returnCode, @candidateLocal) = ParseDirectory($site, $DISTBASE, $SimpleFallBackNo, $PackageName, (caller 0)[3] );
 	push(@candidate,@candidateLocal);
 	print STDERR sprintf("%4d ", __LINE__ ), 
 	    ' (ParseDir) master_site(', $site, ') status('. $status. ') '. 'candidate('.$#candidate.') -> '. join (' ', @candidate), "\n"  if $DEBUG_SF;
@@ -3750,7 +3772,7 @@ sub GetSFProjectCandidate($$$$) {  # line 2922 to 2979
 # 3. Try Versioned Directory
 	my ($dir) = VersionedDirectory($DISTBASE, $site);
 	if ($SITE_CACHE{$dir}) {
-	    print STDERR sprintf("%4d ", __LINE__ ), ' *** (',$iteration  ,') ', $dir, ') status('. $status.") ncand (",$#candidate,') -> '
+	    print STDERR sprintf("%4d ", __LINE__ ), ' *** (',$iteration  ,') dir (', $dir, ') status('. $status.") ncand (",$#candidate,') -> '
             if $DEBUG_VERSION_DIR;
 	    next;}
 	($SITE_CACHE{$dir})++;
@@ -3829,16 +3851,17 @@ sub VersionedDirectory ($$){
     my ($name); # cmph- etc
     print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' w3m_command(', $w3m_command,') <- ', $_ ,"\n" if $DEBUG_VERSION_DIR || $DEBUG_HTTP_HEADER;
     my($pid);
-    if ($url =~ /pypi.python.org/ || $url=~ /GNOME/ ) {
-    $pid = open(W3M, "$w3m_command |") ||
-	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], 'Failed to open',"\n";
-    undef($pid);
-    } else {
-    $pid = open(W3M, "$w3m_command |-"); # forking
-    }
-    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' pid(', $pid,')',"\n" if $DEBUG_FORK;    
-    if (! defined ($pid)) {   # successfully forked, and children side
-    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' pid(', $pid,')',"\n" if $DEBUG_FORK;    	
+#    if ($url =~ /pypi.python.org/ || $url=~ /GNOME/ || $url =~ /sourceforge/ ) {
+#    $pid = open(W3M, "$w3m_command |") ||
+#	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], 'Failed to open',"\n";
+#    undef($pid);
+#    } else {
+    $pid = open(W3M, "-|", "$w3m_command"); # forking
+#    }
+    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' pid (', $pid,')',"\n" if $DEBUG_FORK;    
+    my ($child_pid) = $pid;
+    if ($pid) {   # parent side
+    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' pid (', $pid,')',"\n" if $DEBUG_FORK;    	
     while(<W3M>) {
 	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ', $_  if $DEBUG_CURL_LISTING;
 	if (                   /^([\t ]+)([0-9.]+a*)[\t ]+/  ||		# cad/gplcvar wants (a) .. 2.12(a)
@@ -3857,12 +3880,17 @@ sub VersionedDirectory ($$){
 	}
     }
     close(W3M);
-    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' name (', $name,') version (',$ver,')', "\n" if $DEBUG_FORK;    	
-    } else { # main side, $pid is valid
-    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' pid(', $pid,')' if $DEBUG_FORK;
-       warnTimeout($pid, $W3MTimeout, $url, (caller 0)[2]);  # set timeout as 180 sec
-    exit;
+    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], 
+	' name (', $name,') version (',$ver,')', "\n" if $DEBUG_FORK;    	
+    } else { # children side, see perldoc -f open (fork part)
+    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], 
+	' kid pid (', $child_pid,')', 
+	'     pid (', $pid,')', 
+	"\n" if $DEBUG_FORK;
+       warnTimeout($child_pid, $W3MTimeout, $url, (caller 0)[2]);  # set timeout as 180 sec
+       exit;
     }
+    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' pid (', $pid,') ver (', $ver, ")\n" if $DEBUG_FORK;
     if ($ver eq '0.0') { return -1;}
     my ($return);
     if ($url =~ /pypi/ ) {
@@ -4325,7 +4353,8 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	    ($returnCode, @CANDIDATE) = pypiSpecial($DISTBASE, $HOMEPAGE, $dir, $PackageName);
 	    push(@candidate,@CANDIDATE);
 	}
-	print STDERR sprintf("%4d ", __LINE__ ), " -------------\n", join "\n", @candidate, "\n" if $DEBUG_PYPI || $DEBUG_CANDIDATE ;
+        print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], "-------------\n",
+	    join "\n", @candidate, "\n" if $DEBUG_PYPI || $DEBUG_CANDIDATE ;
         if ($MASTER_SITE =~ m|https://files.pythonhosted.org/|) {
 	    @CANDIDATE = ();
 	    ($returnCode, @CANDIDATE) = pypiSpecial($DISTBASE, $MASTER_SITE, $dir, $PackageName);
