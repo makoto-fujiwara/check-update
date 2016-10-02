@@ -2578,6 +2578,8 @@ sub GnomeSpecial($$$){
 	    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2],
 		': dir(', $dir, ')',"\n" if $DEBUG_GNOME;  
 	    ($returnCode, @candidate) = ParseDirectory($dir, $DISTBASE, $SimpleFallBackNo, $PackageName);
+	    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2],
+		join "\n", @candidate if $DEBUG_VERSION_DIR;
 	    if ($returnCode == 200 ) {last;}
 	}
     }
@@ -3818,7 +3820,7 @@ sub VersionedDirectory ($$){
     my ($name); # cmph- etc
     print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' w3m_command(', $w3m_command,') <- ', $_ ,"\n" if $DEBUG_VERSION_DIR || $DEBUG_HTTP_HEADER;
     my($pid);
-    if ($url =~ /pypi.python.org/) {
+    if ($url =~ /pypi.python.org/ || $url=~ /GNOME/ ) {
     $pid = open(W3M, "$w3m_command |") ||
 	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], 'Failed to open',"\n";
     undef($pid);
