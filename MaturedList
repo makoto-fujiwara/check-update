@@ -30,6 +30,7 @@ net/dnsdoctor
 net/ser
 net/socks4
 net/sharity-light
+net/ttt
 sysutils/acpidump
 textproc/biblook
 textproc/convertlit
