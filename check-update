@@ -258,6 +258,7 @@ db
 docbook-xsl
 flags
 gamin
+gens
 gmpc
 hal
 hands
@@ -1641,7 +1642,9 @@ print STDERR sprintf("%4d ", __LINE__ ),
          "  (PKGNAME)\t", $PKGNAME,        "\n",
     "       (PKGBASE)\t", $PKGBASE,      "\n",
     "       (DISTNAME)\t", $DISTBASE,      "\n",
-    "       (PKGVERSION)\t", $PKGVERSION , "\n" if $DEBUG_DISTBASE || $DEBUG_DISTBASE_EXTRACT ;
+    "       (PKGVERSION)\t", $PKGVERSION , "\n",
+    "       (\@SimplePattern)\t", scalar(grep (/$PKGBASE/, @SimplePattern)) , "\n"
+    if $DEBUG_DISTBASE || $DEBUG_DISTBASE_EXTRACT ;
 #  %DISTBASE special
     if  (my $distbase = $DISTBASE{$PKGBASE}) {
 	return $distbase;}
@@ -1665,7 +1668,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
 
     $SimplePattern = 0; # initialize to none
     # GetDistBase (2) --------------------------------------
-    if ($PKGBASE .'-'. $PKGVERSION eq $DISTBASE ) {
+    if ($PKGBASE .'-'. $PKGVERSION eq $DISTBASE  || scalar(grep (/$PKGBASE/,@SimplePattern)) ) {
         if ($PKGBASE =~ /[0-9]/) {  # games/4stAttack 
 	    $SpecialPatternY = 'm|.*' . $PKGBASE.'-v*([0-9.]+)'.$EXTRACT_SUFX.'.*|; $version = $1;' ;      
 	} elsif ( $PKGVERSION =~ m|^[0-9]\.|) {  # don't pickup emulator/hercules 390, should include dot(.)
