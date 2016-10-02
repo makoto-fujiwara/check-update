@@ -473,7 +473,6 @@ my(%DISTBASE) = qw (
     p7zip	p7zip
     boa-constructor	boa-constructor
     caff	signing-party
-    tk		tk
     nagi	nagi_src
     );
    
@@ -691,7 +690,9 @@ my (@DOT3) = qw (
 # util-linux <- (libuuid)
 
 # devel/p5-ExtUtils-CBuilder)  0.280220 --> 0.28.02.20
-my (@DOT32) = qw (ExtUtils-CBuilder dpbox);
+my (@DOT32) = qw (ExtUtils-CBuilder);
+# ham/dpbox 60000 -> 6.00.00
+my (@DOT13) = qw (dpbox);
 
 # audio/hydrogen 	hydrogen 	0.9.6.1 	->	0.9.61
 my (@DOT1111) = qw (hydrogen);
@@ -1400,6 +1401,7 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (3) <', (caller 0)[3] ,'> ', $version
 	if (grep (/^$distbase$/, @DOT2)		> 0 ) { $version = InsertDot($version, 2);}
 	if (grep (/^$distbase$/, @qkcc)		> 0 ) { $version =~ s|([0-9])([0-9])([0-9])|$1.$2|; }
 	if (grep (/^$distbase$/, @DOT3)		> 0 ) { $version = InsertDot($version, 3);}
+	if (grep (/^$distbase$/, @DOT13)	> 0 ) { $version = InsertDot13($version, 1,3);}
 	if (grep (/^$distbase$/, @DOT32)	> 0 ) { $version = InsertDot2($version, 2,4);}
 	if (grep (/^$distbase$/, @DOT133)	> 0 ) { $version = InsertDot133($version);}
 	if (grep (/^$distbase$/, @DOT4)		> 0 ) { $version = InsertDot($version, 4);}
@@ -1652,6 +1654,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
     if $DEBUG_DISTBASE || $DEBUG_DISTBASE_EXTRACT ;
 #  %DISTBASE special
     if  (my $distbase = $DISTBASE{$PKGBASE}) {
+	print STDERR sprintf("%4d ", __LINE__ ),"\n" if $DEBUG_DISTBASE_EXTRACT;
 	return $distbase;}
 
     if  ($PKGBASE =~ m|aspell|) {
@@ -1664,14 +1667,14 @@ print STDERR sprintf("%4d ", __LINE__ ),
     #  --------------------------------------
     #      0. If  very simple patterns
     #  --------------------------------------
-    # GetDistBase (1) kde4-i10n-.. special 
+    # GetDistBase (1) kde4-i10n-.. special ------------------
     if ($PKGBASE =~ /kde4-(l10n-..)/) {
 	return "kde-$1"}
 
-print STDERR sprintf("%4d ", __LINE__ ),
+    print STDERR sprintf("%4d ", __LINE__ ),
      'BASE: ', $PKGBASE .'-'. $PKGVERSION, ' DISTNAME: ', $DISTBASE, "\n" if $DEBUG_DISTBASE;
-
     $SimplePattern = 0; # initialize to none
+
     # GetDistBase (2) --------------------------------------
     if ($PKGBASE .'-'. $PKGVERSION eq $DISTBASE  || scalar(grep (/$PKGBASE/,@SimplePattern)) ) {
         if ($PKGBASE =~ /[0-9]/) {  # games/4stAttack 
@@ -1691,14 +1694,17 @@ print STDERR sprintf("%4d ", __LINE__ ),
     "       (PKGVERSION)\t", $PKGVERSION , "\n" if ($DEBUG_DISTBASE || $DEBUG_DISTBASE_EXTRACT);
 
 	return $PKGBASE ;
-    }
-    # GetDistBase (2) not matched --------------------------------------    
+    } 
+
+    # GetDistBase (2) not matched --------non conditional print ----------------------
     print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2],"\n",
     "       (PKGBASE)\t", $PKGBASE,      "\n",
     "       (PKGVERSION)\t", $PKGVERSION , "\n",
     "       (DISTNAME)\t", $DISTBASE,      "\n"
 	if ($DEBUG_DISTBASE || $DEBUG_DISTBASE_EXTRACT) ;
     # delimiter is (-) 
+
+    # GetDistBase (2-1) 
     if ($DISTBASE =~ /$PKGBASE-(v*)$PKGVERSION$/ ||
 #	$PKGBASE .'-'. $PKGVERSION =~ /$DISTBASE/i
         $DISTBASE =~ /$PKGBASE-$PKGVERSION$/i) {
@@ -1787,6 +1793,24 @@ my ($numeric_no_delim_variation) =  $numeric_no_delim . '[0]+';
 ##      	return $DISTBASE;
 ##      }
 ##  
+
+    # GetDistBase (2-3) ------------------------------------------  x11/tk -> tk8.6.5-src  ( Ref Family )
+    if (
+        $DISTBASE  =~ /^([a-zA-Z]+)$PKGVERSION-(src)/ ) {
+	$DISTBASE = $1;
+ 	my($post) = $2;
+	if (! $SpecialPattern{$PKGBASE}) {
+	    $SimplePattern = 1;
+	}
+	$SpecialPatternY = 'm|.*' . $DISTBASE.'([0-9.]+)-'.$post.'\..*|; $version = $1; ' ;	    
+  print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ------------------',"\n",
+#    "    (PackageName)\t", $PackageName,"\n",
+    "       (DISTBASE)\t", $DISTBASE,      "\n",
+	    "(SpecialPatternY)\t", $SpecialPatternY,      "\n",
+	    if ($DEBUG_DISTBASE || $DEBUG_SPECIAL_PATTERN || $DEBUG_DISTBASE_EXTRACT);
+    	return $DISTBASE;
+    }
+
     # GetDistBase (3) ------------------------------------------
     if (
         $DISTBASE  =~ /([a-zA-Z]+[0-9]+)([-])$PKGVERSION([-])([a-zA-Z]+)/ ||
@@ -3567,6 +3591,20 @@ sub InsertDot2($$$){
 	.     substr($version, $one, 2) .'.'
 	.     substr($version, $two, 2) .'.'
         .    substr($version,  $two + 2, 2) ;
+    return $result;
+}
+sub InsertDot13($$$){  # 60000 -> 6.00.00
+    my($version) = shift;
+    my($one) =   shift;
+    my($two) =   shift;
+    my($result) = $version;
+
+    #  	ham/dpbox
+    $result = substr($version, 0,    1) . '.'
+	.     substr($version, $one, 2) . '.'
+	.     substr($version, $two, 2) 
+	;
+#    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ', $result,"\n";
     return $result;
 }
 
