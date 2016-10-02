@@ -2822,12 +2822,13 @@ sub ParseDirectorySmall($$){
 #   main                          x 5
 sub ParseDirectory($$$$$){   # 2564  to 2825 lines (260 lines
     my ($master_site) = shift;
-  print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ',
-						 'master_site: ', $master_site, "\n" if $DEBUG_MASTER_SITE || $DEBUG_VERSION_DIR || $DEBUG_HTTP_HEADER ;
     my ($distbase)	= shift;
     my ($SimpleFallBack) = shift;
     my ($PackageName)	= shift;
     my ($caller)	= shift;  # debug purpose print only
+
+  print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' (',$caller.')  ',
+						 'master_site: ', $master_site, "\n" if $DEBUG_MASTER_SITE || $DEBUG_VERSION_DIR || $DEBUG_HTTP_HEADER ;
 
     # returns ($returnCode, @candidate);
 
@@ -2835,7 +2836,7 @@ sub ParseDirectory($$$$$){   # 2564  to 2825 lines (260 lines
     my ($version);
     if ($master_site eq '')	{ print STDERR sprintf("%4d ", __LINE__ ), ' $master_site is empty ',	 "\n"; return -1;}
     if ($master_site eq 'DNS')	{ print STDERR sprintf("%4d ", __LINE__ ), ' ',$distbase,' has DNS problem',"\n"; return -1;}
-    print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[3], '> :', (caller 0)[2], ': ', $master_site, "   \n" if  ($DEBUG_URL || $DEBUG_MASTER_SITES_LISTING);
+    print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[3], '> :', (caller 0)[2], '(',$caller.') : ', $master_site, "   \n" if  ($DEBUG_URL || $DEBUG_MASTER_SITES_LISTING);
     my($curl_lines) = 0; # count how many lines came from curl -l
     my($repeat) = 3 ;
     my($sslv3) = '';
@@ -3080,7 +3081,7 @@ print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[3], '> (distbase) ', $distb
     print STDERR sprintf("%4d ", __LINE__ ), '==> curl_lines: ', $curl_lines, "\n" if $DEBUG_DISTBASE;
     if ($curl_lines == 0 ) { $returnCode = -1; };
 
-print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ': (distbase) ', $distbase,' (version) ', $version, 
+print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' (',$caller.') : (distbase) ', $distbase,' (version) ', $version, 
 ' returnCode ', $returnCode, ' @candidate: ', "\n------------------\n",join ("\n". __LINE__.' ', @candidate), "\n" if $DEBUG_CANDIDATE || $DEBUG_VERSION_DIR ;
 #      foreach my $c (@candidate) {
 #  	if (1 || $c =~ /4\.8\.3/) {
