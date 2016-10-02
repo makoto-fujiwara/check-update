@@ -2560,6 +2560,7 @@ sub GnomeSpecial($$$){
     my($returnCode, @candidate);
     my(@master_site) = split ' ', GetVariableValue ('devel', 'accerciser', 'MASTER_SITE_GNOME');
     my($dir);
+    my (@local_candidate);
 
     foreach my $master_site (@master_site) {
 	my ($url) = $master_site.'sources/'.$distbase. '/';
@@ -2576,15 +2577,17 @@ sub GnomeSpecial($$$){
 	    if ($dir == -1) { next;}
 	    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2],
 		': dir(', $dir, ')',"\n" if $DEBUG_GNOME;  
-	    ($returnCode, @candidate) = ParseDirectory($dir, $DISTBASE, $SimpleFallBackNo, $PackageName, (caller 0)[3]);
+	    ($returnCode, @local_candidate) = ParseDirectory($dir, $DISTBASE, $SimpleFallBackNo, $PackageName, (caller 0)[3]);
 	    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2],
 		join "\n", @candidate if $DEBUG_VERSION_DIR;
+		push(@candidate, @local_candidate);
 	    if ($returnCode == 200 ) {last;}
 	}
     }
     print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2],
 	': returnCode(', $returnCode, ') @candidate', join ("\n", @candidate), "\n" if $DEBUG_GNOME;
-    ($returnCode, @candidate) = ParseDirectory($dir, $DISTBASE, $SimpleFallBackNo, $PackageName, (caller 0)[3]);
+    ($returnCode, @local_candidate) = ParseDirectory($dir, $DISTBASE, $SimpleFallBackNo, $PackageName, (caller 0)[3]);
+    push(@candidate, @local_candidate);
     return($returnCode, @candidate);
 }
 sub SFSubDirectory($$){
