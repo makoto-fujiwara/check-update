@@ -87,8 +87,9 @@ my ($DEBUG_REDIRECT);
 my ($DEBUG_RUBYGEM);
 my ($DEBUG_SF);
 my ($DEBUG_SF_LOOKING_FOR);
-my ($DEBUG_SPECIAL_PATTERN);
 my ($DEBUG_SIMPLE_PATTERN);
+my ($DEBUG_SITE_HEADER);
+my ($DEBUG_SPECIAL_PATTERN);
 my ($DEBUG_STATS);
 my ($DEBUG_URL);
 my ($DEBUG_VER_PATTERN) = 0;
@@ -111,6 +112,7 @@ my(%LongName)  = (
    'g',  'Github',
    'G',  'Gnome',
    'h',  'HTTP Header',
+   'H',  'HTTP Header Summary',
    'k',  'DISTBASE Extract special to SimplePatternY',
    'l',  'Curl Listing',
    'L',	 'Skipping - Looking for - message at soureforge',
@@ -950,7 +952,7 @@ sub CheckHeader($) {
     if ($url eq '') {
 	print STDERR sprintf("%4d ", __LINE__ ), ' <', (caller 0)[3], ">\t:", (caller 0)[2], ': ', $url, " \$url is empty\n";
 	return -1;}
-    print STDERR sprintf("%4d ", __LINE__ ), ' ', $curl_head, ' ', $url,"\n"  if $DEBUG_HTTP_HEADER ;	    
+    print STDERR sprintf("%4d ", __LINE__ ), ' ', $curl_head, ' ', $url,"\n"  if $DEBUG_HTTP_HEADER || $DEBUG_SITE_HEADER;
     open(CURL, "$curl_head $url 2>&1|") || print STDERR '*** ',sprintf("%4d ", __LINE__ ),' Problem on ', (caller 0)[3],"\n";
     my ($line_count) = 0;
     while (<CURL>){
@@ -972,7 +974,7 @@ sub CheckHeader($) {
     close(CURL);
     if ( $url =~ /ftp/ && $line_count <= 3 ) { $status = 200 ; $location = $url ;} # no new is good news editors/TeXemacs
   print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ', 
-'  *** returning  ( ', $status, ', ', $location, ', line_count = ', $line_count, ") *** \n"  if $DEBUG_HTTP_HEADER ;
+	'  *** returning  ( ', $status, ', ', $location, ', line_count = ', $line_count, ") *** \n"  if $DEBUG_HTTP_HEADER || $DEBUG_SITE_HEADER ;
     return ($status, $location);
 }
 sub CheckDNS($) {
@@ -1644,6 +1646,7 @@ sub GetDistBase($$$$$) {	# <- Main       DISTBASEDISTBASE
     my ($PKGVERSION)	= shift;
     my ($PKGNAME)	= shift;
 
+    my ($MASTER_SITE_bis) = GetVariableValue($dir, $PackageName, 'MASTER_SITE');
     my ($DISTBASE)	= GetVariableValue($dir, $PackageName, 'DISTNAME');
     my ($EXTRACT_SUFX)	= GetVariableValue($dir, $PackageName, 'EXTRACT_SUFX');
     $EXTRACT_SUFX =~ s/\./\\\./; # escape leading . to \.
@@ -1678,11 +1681,15 @@ print STDERR sprintf("%4d ", __LINE__ ),
     $SimplePattern = 0; # initialize to none
 
     # GetDistBase (2) --------------------------------------
-    if ($PKGBASE .'-'. $PKGVERSION eq $DISTBASE  || scalar(grep (/$PKGBASE/,@SimplePattern)) ) {
+    if (($MASTER_SITE_bis =~ /GNOME/) ||
+	($PKGBASE .'-'. $PKGVERSION eq $DISTBASE  || scalar(grep (/$PKGBASE/,@SimplePattern) ))) {
         if ($PKGBASE =~ /[0-9]/) {  # games/4stAttack 
 	    $SpecialPatternY = 'm|.*' . $PKGBASE.'-v*([0-9.]+)'.$EXTRACT_SUFX.'.*|; $version = $1;' ;      
 	} elsif ( $PKGVERSION =~ m|^[0-9]\.|) {  # don't pickup emulator/hercules 390, should include dot(.)
+	    # Following line is harmful to GNOME package (20161002)
+	    if (! $MASTER_SITE_bis =~ /GNOME/) {
 	    $SpecialPatternY = 'm|.*' . $PKGBASE.'-([0-9]\.[0-9.]+)'.$EXTRACT_SUFX.'.*|; $version = $1;' ;
+	    }
 	}
 	elsif (! $SpecialPattern{$PKGBASE}) {
 	    $SimplePattern = 1;
@@ -1738,12 +1745,11 @@ my ($numeric_no_delim_variation) =  $numeric_no_delim . '[0]+';
     "       (VERSION_to_remove)\t",	$VERSION_to_remove,"\n",
     "       (distbase)\t",	$distbase,"\n"
 	if ($DEBUG_DISTBASE || $DEBUG_DISTBASE_EXTRACT) ;
-
  $distbase =~ s/-v*$VERSION_to_remove//;
     print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2],"\n", 
     "       (distbase)\t",	$distbase,"\n"
-
 	if ($DEBUG_DISTBASE || $DEBUG_DISTBASE_EXTRACT) ;
+
 	if (! $SpecialPattern{$PKGBASE}) {
 	    $SpecialPatternY = 'm|.*' . $distbase.'-v*([0-9.]+)'.$EXTRACT_SUFX.'.*|; $version = $1;' ; 
 	}
@@ -2789,7 +2795,7 @@ print STDERR sprintf("%4d ", __LINE__ ).' location: ', $location,"\n" if  $DEBUG
 sub ParseDebug($){
     my ($pattern) = shift;
     my %DEBUG;
-    my $char_list = 'aAcCdDEegFfGhklLmMnpPrRsSUVxXyz';
+    my $char_list = 'aAcCdDEegFfGhHklLmMnpPrRsSUVxXyz';
 
     if ( $pattern =~ /a/ ) { $pattern = $char_list  }
     print STDERR sprintf("%4d ", __LINE__ ), ' DEBUG pattern (',  $pattern,  ')',"\n";
@@ -2826,6 +2832,7 @@ sub ParseDebug($){
     $DEBUG_REDIRECT		= $DEBUG{'R'} + $DEBUG{'a'} ;
     $DEBUG_SPECIAL_PATTERN	= $DEBUG{'p'} + $DEBUG{'a'} ;
     $DEBUG_SIMPLE_PATTERN	= $DEBUG{'P'} + $DEBUG{'a'} ;
+    $DEBUG_SITE_HEADER		= $DEBUG{'H'} + $DEBUG{'a'} ;    
     $DEBUG_SF			= $DEBUG{'s'} + $DEBUG{'a'} ;
     $DEBUG_SF_LOOKING_FOR	= $DEBUG{'L'} + $DEBUG{'a'} ;
     $DEBUG_STATS		= $DEBUG{'S'} + $DEBUG{'a'} ;
