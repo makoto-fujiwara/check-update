@@ -1,5 +1,7 @@
 (TODO)
-  - family finde (external tool)
+  - 10/02/2016 results degraded on GNOME site, hint -> git diff  569021d 6815338 ,
+    but possibly network condition ?
+  - family find (external tool)
   - w3m result cache
   - Implement timeout mechanism for external process (curl and w3m)
   - limited-list mode: list set of packages and scan partially base on it
