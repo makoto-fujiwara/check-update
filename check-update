@@ -1636,7 +1636,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
 }
 
 #    if ($thisreturn) { return $thisreturn; }
-# main -> 
+# main -> only once
 sub GetDistBase($$$$$) {	# <- Main       DISTBASEDISTBASE
     my ($dir) = shift;		# category
     my ($PackageName) = shift;	# leaf
