@@ -77,8 +77,9 @@ my ($DEBUG_REDIRECT);
 my ($DEBUG_RUBYGEM);
 my ($DEBUG_SF);
 my ($DEBUG_SF_LOOKING_FOR);
-my ($DEBUG_SPECIAL_PATTERN);
 my ($DEBUG_SIMPLE_PATTERN);
+my ($DEBUG_SITE_HEADER);
+my ($DEBUG_SPECIAL_PATTERN);
 my ($DEBUG_STATS);
 my ($DEBUG_URL);
 my ($DEBUG_VER_PATTERN) = 0;
@@ -101,6 +102,7 @@ my(%LongName)  = (
    'g',  'Github',
    'G',  'Gnome',
    'h',  'HTTP Header',
+   'H',  'HTTP Header Summary',
    'k',  'DISTBASE Extract special to SimplePatternY',
    'l',  'Curl Listing',
    'L',	 'Skipping - Looking for - message at soureforge',
@@ -900,7 +902,7 @@ sub CheckHeader($) {
     if ($url eq '') {
 	print STDERR sprintf("%4d ", __LINE__ ), ' <', (caller 0)[3], ">\t:", (caller 0)[2], ': ', $url, " \$url is empty\n";
 	return -1;}
-    
+    print STDERR sprintf("%4d ", __LINE__ ), ' ', $curl_head, ' ', $url,"\n"  if $DEBUG_HTTP_HEADER || $DEBUG_SITE_HEADER ;
     open(CURL, "$curl_head $url 2>&1|") || print STDERR '*** ',sprintf("%4d ", __LINE__ ),' Problem on ', (caller 0)[3],"\n";
     while (<CURL>){
 	chomp();
@@ -917,7 +919,8 @@ sub CheckHeader($) {
 	}
     }
     close(CURL);
-  print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ', '  *** returning  ( ', $status, ', ', $location,") *** \n"  if $DEBUG_HTTP_HEADER ;
+  print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ', 
+      '  *** returning  ( ', $status, ', ', $location,") *** \n"  if $DEBUG_HTTP_HEADER || $DEBUG_SITE_HEADER;
     return ($status, $location);
 }
 sub CheckDNS($) {
@@ -2655,7 +2658,7 @@ print STDERR sprintf("%4d ", __LINE__ ).' location: ', $location,"\n" if  $DEBUG
 sub ParseDebug($){
     my ($pattern) = shift;
     my %DEBUG;
-    my $char_list = 'aAcCdDEegFfGhklLmMnpPrRsSUVxXy';
+    my $char_list = 'aAcCdDEegFfGhHklLmMnpPrRsSUVxXy';
 
     if ( $pattern =~ /a/ ) { $pattern = $char_list  }
     print STDERR sprintf("%4d ", __LINE__ ), ' DEBUG pattern (',  $pattern,  ')',"\n";
@@ -2691,6 +2694,7 @@ sub ParseDebug($){
     $DEBUG_REDIRECT		= $DEBUG{'R'} + $DEBUG{'a'} ;
     $DEBUG_SPECIAL_PATTERN	= $DEBUG{'p'} + $DEBUG{'a'} ;
     $DEBUG_SIMPLE_PATTERN	= $DEBUG{'P'} + $DEBUG{'a'} ;
+    $DEBUG_SITE_HEADER		= $DEBUG{'H'} + $DEBUG{'a'} ;    
     $DEBUG_SF			= $DEBUG{'s'} + $DEBUG{'a'} ;
     $DEBUG_SF_LOOKING_FOR	= $DEBUG{'L'} + $DEBUG{'a'} ;
     $DEBUG_STATS		= $DEBUG{'S'} + $DEBUG{'a'} ;
