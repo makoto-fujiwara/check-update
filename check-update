@@ -477,6 +477,7 @@ my(%DISTBASE) = qw (
     );
    
 my(%DownLoadAlternative) = qw (
+    moneyguru	qhttps://download.hardcoded.net/
     yabause	https://yabause.org/download/
     mad-fcl	http://mad.cs.tut.fi/download.html
     gallery	http://codex.galleryproject.org/Downloads
