@@ -1772,7 +1772,7 @@ my ($numeric_no_delim_variation) =  $numeric_no_delim . '[0]+';
 
     # GetDistBase (2-2) ------------------------------------------  textproc/dbtoepub
     if (
-        $DISTBASE  =~ /^([a-zA-Z]+)([-])([a-zA-Z]+)([-])$PKGVERSION$/ ) {
+        $DISTBASE  =~ /^([a-zA-Z]+[0-9]*)([-])([a-zA-Z]+)([-])$PKGVERSION$/ ) {
 	$DISTBASE = $1.$2.$3;
 
 	if (! $SpecialPattern{$PKGBASE}) {
