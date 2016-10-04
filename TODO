@@ -1,4 +1,5 @@
 (TODO)
+  - audio/mikmod picked 3.3.10 before but now 3.27
   - tk problem (versioned directory and family, I am afraid) 
   - 10/02/2016 results degraded on GNOME site, hint -> git diff  569021d 6815338 ,
     but possibly network condition ?
