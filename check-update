@@ -16,7 +16,7 @@ my(%Dont_check_homepage) = (
 my($SimpleFallBackYes) = 1; # define constant;
 my($SimpleFallBackNo ) = 0; # define constant;
 
-my($W3MTimeout) = 60;
+my($W3MTimeout) = 30;
 # prototype for subroutine called very early stage :-)
 sub GetSystemURL($);
 
@@ -2928,7 +2928,7 @@ sub ParseDirectory($$$$$){   # 2564  to 2825 lines (260 lines
 	    '> distbase (', $distbase, ') ', $master_site, "   \n" if $DEBUG_DISTBASE ;
 	if ($master_site eq '') { print STDERR sprintf("%4d ", __LINE__ ), " \$master_site is empty\n"; return -1;}
 	if ($master_site =~/^[0-9.]+$/ )
-	{ print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[3], '> :', (caller 0)[2], ': ', $caller, ' ',$master_site,  ' (', $master_site, ') is strange.',"\n";
+	{ print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[3], '> :', (caller 0)[2], ': ', $caller, ' ',$master_site,  ' (', $master_site, ') is strange. PackageName: '. $PackageName, "\n";
 #	  $LastCurl = ''; # invalidate @CurlCache
 	  next;}
 	# $master_site sometimes holds version number only, strange
@@ -3737,9 +3737,9 @@ sub FindLookingForTheLatestVersion($$){
     print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' w3m_command(', $w3m_command,') <- ', "\n" if $DEBUG_VERSION_DIR;
     my($pid);
     $pid  = open(W3M, "$w3m_command |-"); # forking 
-    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' pid(', $pid,')',"\n" if $DEBUG_FORK;    
+    print STDERR sprintf("%4d   <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' pid(', $pid,')',"\n" if $DEBUG_FORK;    
     if (! defined ($pid)) {   # successfully forked, and children side
-    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' pid(', $pid,')',"\n" if $DEBUG_FORK;    	
+    print STDERR sprintf("%4d --<", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' pid(', $pid,')',"\n" if $DEBUG_FORK;    	
     while(<W3M>) {
 #	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ', $_;
 	if (/Looking for the latest version/ &&  ! $SkipLookingForGuide{$distbase} ) {
@@ -3753,7 +3753,7 @@ sub FindLookingForTheLatestVersion($$){
     }
     close(W3M);
     } else {  # main side, $pid is valid
-	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' pid(', $pid,')' if $DEBUG_FORK;
+	print STDERR sprintf("%4d   <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' pid(', $pid,')' if $DEBUG_FORK;
 	warnTimeout($pid, $W3MTimeout, $url, (caller 0)[2]);  # set timeout as 180 sec
 	exit;
     }
@@ -3919,14 +3919,13 @@ sub VersionedDirectory ($$){
 #	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], 'Failed to open',"\n";
 #    undef($pid);
 #    } else {
-    $pid = open(W3M, "-|", "$w3m_command"); # forking
-#    }
-    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' pid (', $pid,')',"\n" if $DEBUG_FORK;    
-    my ($child_pid) = $pid;
+    my($child_pid) = open(W3M, "$w3m_command |"); 
+    $pid = fork();
+    print STDERR sprintf("%4d   <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' pid (', $pid,')',"\n" if $DEBUG_FORK;    
     if ($pid) {   # parent side
-    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' pid (', $pid,')',"\n" if $DEBUG_FORK;    	
+    print STDERR sprintf("%4d --<", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' pid (', $pid,')',"\n" if $DEBUG_FORK;    	
     while(<W3M>) {
-	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ', $_  if $DEBUG_CURL_LISTING;
+	print STDERR sprintf("%4d   <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ', $_  if $DEBUG_CURL_LISTING;
 	if (                   /^([\t ]+)([0-9.]+a*)[\t ]+/  ||		# cad/gplcvar wants (a) .. 2.12(a)
 			       /^[\t ]*($distbase[-]*)([0-9.]+)[\t ]+/ ||
 			       /^[\t ]*($distbase[-]*)([0-9.]+)\S*/ ||
@@ -3943,17 +3942,17 @@ sub VersionedDirectory ($$){
 	}
     }
     close(W3M);
-    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], 
+    print STDERR sprintf("%4d --<", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], 
 	' name (', $name,') version (',$ver,')', "\n" if $DEBUG_FORK;    	
     } else { # children side, see perldoc -f open (fork part)
-    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], 
+    print STDERR sprintf("%4d **<", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], 
 	' kid pid (', $child_pid,')', 
 	'     pid (', $pid,')', 
 	"\n" if $DEBUG_FORK;
        warnTimeout($child_pid, $W3MTimeout, $url, (caller 0)[2]);  # set timeout as 180 sec
        exit;
     }
-    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' pid (', $pid,') ver (', $ver, ")\n" if $DEBUG_FORK;
+    print STDERR sprintf("%4d   <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' pid (', $pid,') ver (', $ver, ")\n" if $DEBUG_FORK;
     if ($ver eq '0.0') { return -1;}
     my ($return);
     if ($url =~ /pypi/ ) {
@@ -4191,7 +4190,8 @@ print STDERR sprintf("%4d ", __LINE__ ),
     if ( ! -d $this_PackageDir ) { print STDERR "Not directory: $thispwd -> $this_PackageDir\n"; next;}
 
     my ($Makefile) = $this_PackageDir.'/Makefile';
-    if ( ! -f "$Makefile")        { print STDERR "Makefile does not exist or is not file\n"; next; }
+    if ( ! -f "$Makefile")        { 
+	print STDERR ColorString( 'yellow', '          '. $this_PackageDir . "\tMakefile does not exist or is not file\n"); next;}
 	# ----------- I M P O R T A N T    S T A T I S T I C S   V A L U E -------------
     $TotalChecked++;			# becoming serial so on (to count)
     #  ----------------------------------------------------------------------------
@@ -4353,13 +4353,13 @@ if (0){
 	print STDERR sprintf("%4d ", __LINE__ ), 'master_site: ', $master_site, "\n" if $DEBUG_MASTER_SITE ;
 	 if ($#candidate < 1  && $master_site && $http_code ne 'DNS' ) {			# MAJOR_IF_THEN_ELSE
 	    print STDERR sprintf("%4d ", __LINE__ ), $#candidate, ' DNS ok, master_site (', $master_site,")\n" if $DEBUG_MASTER_SITES_LISTING ;
-	    ($returnCode, @candidate) = ParseDirectory($master_site, $DISTBASE, $SimpleFallBackNo, $PackageName, (caller)[3] );
+	    ($returnCode, @candidate) = ParseDirectory($master_site, $DISTBASE, $SimpleFallBackNo, $PackageName, (caller 0)[3] );
          }
 # 1 is good for www/librest07 but bad for many occasion:
 	print STDERR sprintf("%4d ", __LINE__ ), ' (HOMEPAGE) ', $#candidate, "\n" if $DEBUG_MASTER_SITES_LISTING ;
 	 if ($#candidate < 1  && $HOMEPAGE) {
 	if ($Dont_check_homepage{$DISTBASE} != 1 ) {						# MAJOR_IF_THEN_ELSE
-	    ($returnCode, @candidate) = ParseDirectory($HOMEPAGE, $DISTBASE, $SimpleFallBackNo, $PackageName, (caller)[3] );
+	    ($returnCode, @candidate) = ParseDirectory($HOMEPAGE, $DISTBASE, $SimpleFallBackNo, $PackageName, (caller 0)[3] );
 	    print STDERR sprintf("%4d ", __LINE__ ), $HOMEPAGE," checked.\n" if $DEBUG_MASTER_SITES_LISTING
 	}
 	}
@@ -4385,13 +4385,13 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	if ($MASTER_SITE  =~ m|http://pypi.python.org/| ) {		# MAJOR_IF_THEN_ELSE
 	    print STDERR sprintf("%4d ", __LINE__ ), 'MASTER_SITE ', $MASTER_SITE if $DEBUG_DISTBASE || $DEBUG_PYPI ;
 	    ($returnCode, @CANDIDATE) = ParseDirectory(
-		"https://pypi.python.org/pypi/".$DISTBASE, $DISTBASE, $SimpleFallBackNo, $PackageName, (caller)[3] );}
+		"https://pypi.python.org/pypi/".$DISTBASE, $DISTBASE, $SimpleFallBackNo, $PackageName, (caller 0)[3] );}
 	    push(@candidate, @CANDIDATE);
 
 	if ($#candidate == -1  && $EGG_PACKAGE) {						# MAJOR_IF_THEN_ELSE
 	    print STDERR sprintf("%4d ", __LINE__ ), 'MASTER_SITE ', $MASTER_SITE if $DEBUG_DISTBASE;
 	    ($returnCode, @candidate) = ParseDirectory(
-		"https://warehouse.python.org/project/".$DISTBASE, $DISTBASE, $SimpleFallBackNo, $PackageName, (caller)[3] );}
+		"https://warehouse.python.org/project/".$DISTBASE, $DISTBASE, $SimpleFallBackNo, $PackageName, (caller 0)[3] );}
 	print STDERR sprintf("%4d ", __LINE__ ), 'MASTER_SITE ', $MASTER_SITE, ' DISTBASE ', $DISTBASE, ' cand (', $#candidate,")\n" if $DEBUG_GITHUB;
 
 	if ($MASTER_SITE =~ m|github.com/| ) {				# MAJOR_IF_THEN_ELSE
@@ -4437,7 +4437,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	if ( $DownLoadAlternative{$DISTBASE}) {			# MAJOR_IF_THEN_ELSE
 	    $MASTER_SITE = $DownLoadAlternative{$DISTBASE};
 	    print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[3], '> MASTER_SITE ', $MASTER_SITE,"\n" if $DEBUG_ALTERNATIVE;
-		($returnCode, @candidate) = ParseDirectory($MASTER_SITE, $DISTBASE, $SimpleFallBackNo, $PackageName, (caller)[3] );
+		($returnCode, @candidate) = ParseDirectory($MASTER_SITE, $DISTBASE, $SimpleFallBackNo, $PackageName, (caller 0)[3] );
 
 	}							# MAJOR_IF_THEN_ELSE  ----------------------
 	    push(@CANDIDATE, @candidate);
@@ -4468,7 +4468,7 @@ print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], '
 ' @candidate: ', "\n------------------\n", join("\n", @candidate),"\n" if $DEBUG_CANDIDATE;
 
 	if (( $available eq '0.0' || $available eq '' || $returnCode == -1 ) && $#candidate == -1 && ! $candidate[0] ne '0.0' ) {
-	    ($returnCode, @candidate) =  ParseDirectory($MASTER_SITE, $DISTBASE, $SimpleFallBackYes, $PackageName, (caller)[3] );
+	    ($returnCode, @candidate) =  ParseDirectory($MASTER_SITE, $DISTBASE, $SimpleFallBackYes, $PackageName, (caller 0)[3] );
 	    $available = PickFromCandidate(@candidate);
 print STDERR sprintf("%4d ", __LINE__ ), 
     ' (SimpleFallBack) master_site(', $MASTER_SITE, ') returnCode('. $returnCode.") -> available(". $available.")\n"  if $DEBUG_FALLBACK_SIMPLE;
