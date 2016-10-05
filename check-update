@@ -77,6 +77,7 @@ my ($DEBUG_EDITVersion);
 my ($DEBUG_FAMILY) = 0;
 my ($DEBUG_FALLBACK_SIMPLE) = 0;
 my ($DEBUG_FORK) = 0;
+my ($DEBUG_FORK_QUIET) = 0;
 my ($DEBUG_GITHUB);
 my ($DEBUG_GNOME);
 my ($DEBUG_HTTP_HEADER);
@@ -131,6 +132,7 @@ my(%LongName)  = (
    'X',	 'Explode candidate',
    'y',	 'pypi special',
    'z',  'Fork',
+   'Z',  'Fork quit',
 );
 
 # Skip the guide saying "Looking for the latest version ?"
@@ -2795,7 +2797,7 @@ print STDERR sprintf("%4d ", __LINE__ ).' location: ', $location,"\n" if  $DEBUG
 sub ParseDebug($){
     my ($pattern) = shift;
     my %DEBUG;
-    my $char_list = 'aAcCdDEegFfGhHklLmMnpPrRsSUVxXyz';
+    my $char_list = 'aAcCdDEegFfGhHklLmMnpPrRsSUVxXyzZ';
 
     if ( $pattern =~ /a/ ) { $pattern = $char_list  }
     print STDERR sprintf("%4d ", __LINE__ ), ' DEBUG pattern (',  $pattern,  ')',"\n";
@@ -2822,6 +2824,7 @@ sub ParseDebug($){
     $DEBUG_FALLBACK_SIMPLE	= $DEBUG{'F'} + $DEBUG{'a'} ;
     $DEBUG_FAMILY		= $DEBUG{'f'} + $DEBUG{'a'} ;
     $DEBUG_FORK			= $DEBUG{'z'} + $DEBUG{'a'} ;    
+    $DEBUG_FORK_QUIET		= $DEBUG{'Z'} + $DEBUG{'a'} ;
     $DEBUG_GITHUB		= $DEBUG{'g'} + $DEBUG{'a'} ;
     $DEBUG_GNOME		= $DEBUG{'G'} + $DEBUG{'a'} ;
     $DEBUG_HTTP_HEADER		= $DEBUG{'h'} + $DEBUG{'a'} ;
@@ -3942,14 +3945,19 @@ sub VersionedDirectory ($$){
 	}
     }
     close(W3M);
+    print STDERR sprintf("%4d **<", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2],     
+	'     pid (', $pid,')', 
+	"\n" if $DEBUG_FORK || $DEBUG_FORK_QUIET;
+    kill 9, $pid; # should not be used
     print STDERR sprintf("%4d --<", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], 
 	' name (', $name,') version (',$ver,')', "\n" if $DEBUG_FORK;    	
-    } else { # children side, see perldoc -f open (fork part)
+    } else { # children side, pid = 0 see perldoc -f open (fork part)
     print STDERR sprintf("%4d **<", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], 
 	' kid pid (', $child_pid,')', 
 	'     pid (', $pid,')', 
-	"\n" if $DEBUG_FORK;
+	"\n" if $DEBUG_FORK || $DEBUG_FORK_QUIET;
        warnTimeout($child_pid, $W3MTimeout, $url, (caller 0)[2]);  # set timeout as 180 sec
+#      kill $child_pid;
        exit;
     }
     print STDERR sprintf("%4d   <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' pid (', $pid,') ver (', $ver, ")\n" if $DEBUG_FORK;
