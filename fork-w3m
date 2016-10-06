@@ -1,0 +1,64 @@
+#!/usr/pkg/bin/perl
+use strict;
+use Getopt::Std;
+use POSIX qw( SIGKILL );
+
+our(@ARGV);
+our(%opts);
+my ($command_line);
+my ($timeout);
+
+sub warnTimeout($$$$){
+    my ($pid)	  = shift;
+    my ($TIMEOUT) = shift;
+    # just for information
+    my ($url) 	  = shift;
+    my ($caller)  = shift;        
+
+    my $timeout = 0;
+    eval {
+        local $SIG{ALRM} = sub { $timeout = 1; alarm 0;};
+        alarm($TIMEOUT);
+        while(!$timeout) {
+            last if waitpid($pid, POSIX::WNOHANG);
+            sleep(1); }   };
+    if ($@) {warn "Error:".$@;}
+    if ($timeout) {
+        kill(SIGKILL, $pid);
+        warn " *****  TIMEOUT : $caller : $url";
+    }
+    alarm 0;
+}
+
+getopts('ht:', \%opts);
+print $opts{'h'};
+
+if (@ARGV) { $command_line = join ' ', @ARGV; }
+else { die 'You need command_line string',"\n";}
+print $command_line,"\n";
+
+if ($opts{'t'}) { $timeout = $opts{'t'};}
+
+my($w3m) =  open(W3M, "$command_line|") ; #|| print STDERR __FILE__
+my($pid) = fork() ;
+if (!defined $pid) { die __FILE__,' ', sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ', "\n";}
+if ($pid == 0 ) {  # child
+	print STDERR __FILE__,' ', sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], 'pid (',$pid,') ', "\n";
+    while(<W3M>){
+	print;
+    } 
+    close (W3M);
+} else { # parent
+    print STDERR __FILE__,' ', sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], 'pid (',$pid,') ', "\n";    
+    warnTimeout($w3m, $timeout, $command_line, (caller 0)[2]);  # set timeout
+    print STDERR __FILE__,' ', sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], 'pid (',$pid,') ', "\n";        
+}
+
+__END__
+  print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ',
+
+   37  perl fork-w3m  -t 1  w3m -T TEXT ftp://ftp.gnome.org/pub/GNOME/sources/at-spi2-atk/ > /dev/null
+   38  perl fork-w3m  -t 3  w3m -T TEXT ftp://ftp.gnome.org/pub/GNOME/sources/at-spi2-atk/ > /dev/null
+   39  perl fork-w3m  -t 10  w3m -T TEXT ftp://ftp.gnome.org/pub/GNOME/sources/at-spi2-atk/ > /dev/null
+   40  perl fork-w3m  -t 10  w3m -T TEXT ftp://ftp.gnome.org/pub/GNOME/sources/at-spi2-atk/ 
+
