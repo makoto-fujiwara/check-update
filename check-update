@@ -16,7 +16,18 @@ my(%Dont_check_homepage) = (
 my($SimpleFallBackYes) = 1; # define constant;
 my($SimpleFallBackNo ) = 0; # define constant;
 
+#--------- external command fork-w3m setup ----------
 my($W3MTimeout) = 30;
+my($fork_w3m);
+# perldoc -q path
+use File::Spec::Functions qw(rel2abs);
+use File::Basename qw(dirname);
+my $path   = rel2abs( $0 );
+our $directory = dirname( $path );
+
+$fork_w3m = $directory.'/fork-w3m';
+# ----------------------------------------------------
+
 # prototype for subroutine called very early stage :-)
 sub GetSystemURL($);
 
@@ -3915,18 +3926,9 @@ sub VersionedDirectory ($$){
 
     my $w3m_command = 'w3m -T TEXT '. $url;
     my ($name); # cmph- etc
-    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' w3m_command(', $w3m_command,') <- ', $_ ,"\n" if $DEBUG_VERSION_DIR || $DEBUG_HTTP_HEADER;
-    my($pid);
-#    if ($url =~ /pypi.python.org/ || $url=~ /GNOME/ || $url =~ /sourceforge/ ) {
-#    $pid = open(W3M, "$w3m_command |") ||
-#	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], 'Failed to open',"\n";
-#    undef($pid);
-#    } else {
-    my($child_pid) = open(W3M, "$w3m_command |"); 
-    $pid = fork();
-    print STDERR sprintf("%4d   <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' pid (', $pid,')',"\n" if $DEBUG_FORK;    
-    if ($pid) {   # parent side
-    print STDERR sprintf("%4d --<", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' pid (', $pid,')',"\n" if $DEBUG_FORK;    	
+
+    open(W3M, "perl $fork_w3m -t $W3MTimeout $w3m_command|") ||
+	print STDERR sprintf("%4d   <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' Problem opening external cmd.',"\n";
     while(<W3M>) {
 	print STDERR sprintf("%4d   <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ', $_  if $DEBUG_CURL_LISTING;
 	if (                   /^([\t ]+)([0-9.]+a*)[\t ]+/  ||		# cad/gplcvar wants (a) .. 2.12(a)
@@ -3945,22 +3947,6 @@ sub VersionedDirectory ($$){
 	}
     }
     close(W3M);
-    print STDERR sprintf("%4d **<", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2],     
-	'     pid (', $pid,')', 
-	"\n" if $DEBUG_FORK || $DEBUG_FORK_QUIET;
-    kill 9, $pid; # should not be used
-    print STDERR sprintf("%4d --<", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], 
-	' name (', $name,') version (',$ver,')', "\n" if $DEBUG_FORK;    	
-    } else { # children side, pid = 0 see perldoc -f open (fork part)
-    print STDERR sprintf("%4d **<", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], 
-	' kid pid (', $child_pid,')', 
-	'     pid (', $pid,')', 
-	"\n" if $DEBUG_FORK || $DEBUG_FORK_QUIET;
-       warnTimeout($child_pid, $W3MTimeout, $url, (caller 0)[2]);  # set timeout as 180 sec
-#      kill $child_pid;
-       exit;
-    }
-    print STDERR sprintf("%4d   <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' pid (', $pid,') ver (', $ver, ")\n" if $DEBUG_FORK;
     if ($ver eq '0.0') { return -1;}
     my ($return);
     if ($url =~ /pypi/ ) {
