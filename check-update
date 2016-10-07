@@ -70,8 +70,9 @@ my ($MaturedList) = 'MaturedList';# File name for the list of matured list categ
 my ($line); # SpecialPattern
 # output to tmp name and rename it at the end of execution
 my ($summary_tmp);
-my ($summary_leaf);	# only for stats output
+my ($summary_leaf);	# only for stats output, not used now
 
+# debugging flags, see ParseDebug
 my ($DEBUG_ALTERNATIVE);
 my ($DEBUG_CACHE);
 my ($DEBUG_CANDIDATE);
@@ -94,6 +95,7 @@ my ($DEBUG_GNOME);
 my ($DEBUG_HTTP_HEADER);
 my ($DEBUG_MASTER_SITES_LISTING);
 my ($DEBUG_MASTER_SITE);  # $master_site get strange  with previous version #
+my ($DEBUG_NCAND);		# Number of Candidate (summary)
 my ($DEBUG_PYPI);
 my ($DEBUG_REDIRECT);
 my ($DEBUG_RUBYGEM);
@@ -109,7 +111,7 @@ my ($DEBUG_VERSION_DIR);
 
 my ($SINGLE_PACKAGE) = 0;
 
-# See Also ParseDebug
+# Debug letters for command line, See Also ParseDebug
 my(%LongName)  = (
    'A',  'Alternative master site',
    'a',  'enable_All',
@@ -131,6 +133,7 @@ my(%LongName)  = (
    'm',	 'MASTER_SITES_LISTING',
    'M',	 'MASTER_SITE',
    'n',  'CountNumber (not implemented yet)',
+   'N',  'Number of candidate',
    'p',  'Special Pattern',
    'P',	 'Simple Pattern',
    'r',  'RubyGems',
@@ -166,7 +169,7 @@ my ($curl_list_secure)	= 'curl -k -l --location --insecure --user-agent FireFox 
 ## modena@makoto 22:35:59/150120(~)% w3m -dump_head http://www.kipple.pe.kr/win/unalz/
 ## unable to get local issuer certificate: accept? (y/n)
 
-# stats:
+# stats numbers
 my ($Found)	= 0;
 my ($OK)	= 0;
 my ($NotFound)	= 0;
@@ -595,7 +598,7 @@ my (%MonthToDigit) = qw (
 
     my ($max_version);
     my ($returnCode, @candidate);
-
+# -------- S U B  R O U T I N E S -------
 sub warnTimeout($$$$){
     my ($pid)	  = shift;
     my ($TIMEOUT) = shift;
@@ -617,7 +620,7 @@ sub warnTimeout($$$$){
     }
     alarm 0;
 }
-
+# eval SpecialPattern, only called once
 sub SpecialPattern($$){
     my($distbase) = shift;
     my($line) = shift;
@@ -2808,7 +2811,7 @@ print STDERR sprintf("%4d ", __LINE__ ).' location: ', $location,"\n" if  $DEBUG
 sub ParseDebug($){
     my ($pattern) = shift;
     my %DEBUG;
-    my $char_list = 'aAcCdDEegFfGhHklLmMnpPrRsSUVxXyzZ';
+    my $char_list = 'aAcCdDEegFfGhHklLmMnNpPrRsSUVxXyzZ';
 
     if ( $pattern =~ /a/ ) { $pattern = $char_list  }
     print STDERR sprintf("%4d ", __LINE__ ), ' DEBUG pattern (',  $pattern,  ')',"\n";
@@ -2841,7 +2844,8 @@ sub ParseDebug($){
     $DEBUG_HTTP_HEADER		= $DEBUG{'h'} + $DEBUG{'a'} ;
     $DEBUG_MASTER_SITES_LISTING = $DEBUG{'m'} + $DEBUG{'a'} ;
     $DEBUG_MASTER_SITE		= $DEBUG{'M'} + $DEBUG{'a'} ;	 
-    $DEBUG_PYPI			= $DEBUG{'y'} + $DEBUG{'a'} ;
+    $DEBUG_NCAND		= $DEBUG{'N'} + $DEBUG{'a'} ;
+    $DEBUG_PYPI			= $DEBUG{'y'} + $DEBUG{'a'} ;    
     $DEBUG_RUBYGEM		= $DEBUG{'r'} + $DEBUG{'a'} ;
     $DEBUG_REDIRECT		= $DEBUG{'R'} + $DEBUG{'a'} ;
     $DEBUG_SPECIAL_PATTERN	= $DEBUG{'p'} + $DEBUG{'a'} ;
@@ -3745,15 +3749,12 @@ sub FindLookingForTheLatestVersion($$){
     my($distbase) = shift;
     # Looking for the latest version? Download cmusphinx-ru-5.2.tar.gz (157.7 MB)
     print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2] , ' ', $url,"\n"  if $DEBUG_VERSION_DIR;
-    my $w3m_command = 'w3m -T TEXT '. $url;
+    my $w3m_command = 'curl '.$url. '| w3m -T text/html ';
     my ($name); # cmph- etc
     my ($ver) = '0.0';
     print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' w3m_command(', $w3m_command,') <- ', "\n" if $DEBUG_VERSION_DIR;
-    my($pid);
-    $pid  = open(W3M, "$w3m_command 2>&1 |-"); # forking 
-    print STDERR sprintf("%4d   <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' pid(', $pid,')',"\n" if $DEBUG_FORK;    
-    if (! defined ($pid)) {   # successfully forked, and children side
-    print STDERR sprintf("%4d --<", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' pid(', $pid,')',"\n" if $DEBUG_FORK;    	
+    open(W3M, "perl $fork_w3m -t $W3MTimeout $w3m_command 2>&1 |") ||
+	print STDERR sprintf("%4d   <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' Problem opening external cmd.',"\n";
     while(<W3M>) {
 #	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ', $_;
 	if (/Looking for the latest version/ &&  ! $SkipLookingForGuide{$distbase} ) {
@@ -3766,12 +3767,7 @@ sub FindLookingForTheLatestVersion($$){
 	}
     }
     close(W3M);
-    } else {  # main side, $pid is valid
-	print STDERR sprintf("%4d   <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' pid(', $pid,')' if $DEBUG_FORK;
-	warnTimeout($pid, $W3MTimeout, $url, (caller 0)[2]);  # set timeout as 180 sec
-	exit;
-    }
-	return ($ver);
+    return ($ver);
 }
 sub GetSFProjectCandidate($$$$) {  # line 2922 to 2979
     my ($SFProject) = shift;
@@ -3829,7 +3825,7 @@ sub GetSFProjectCandidate($$$$) {  # line 2922 to 2979
 			    next;}
 	($status, $location) = CheckHeader($site);
 	print STDERR sprintf("%4d ", __LINE__ ), '(',$iteration  ,') ', $site, ') status('. $status.") ncand (",$#candidate,') -> ',
-	PickFromCandidate(@candidate), "\n"  if $DEBUG_HTTP_HEADER;
+	PickFromCandidate(@candidate), "\n"  if $DEBUG_HTTP_HEADER || $DEBUG_NCAND ;
 
 	if ($status != 200 ) { next; }
 	if ($SITE_CACHE{$site}) {
