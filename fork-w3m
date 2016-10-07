@@ -39,7 +39,7 @@ else { die 'You need command_line string',"\n";}
 
 if ($opts{'t'}) { $timeout = $opts{'t'};}
 
-my($w3m) =  open(W3M, "$command_line|") ; #|| print STDERR __FILE__
+my($w3m) =  open(W3M, "$command_line 2>&1|") ; #|| print STDERR __FILE__
 my($pid) = fork() ;
 if (!defined $pid) { die __FILE__,' ', sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ', "\n";}
 if ($pid == 0 ) {  # child

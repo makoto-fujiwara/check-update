@@ -3750,7 +3750,7 @@ sub FindLookingForTheLatestVersion($$){
     my ($ver) = '0.0';
     print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' w3m_command(', $w3m_command,') <- ', "\n" if $DEBUG_VERSION_DIR;
     my($pid);
-    $pid  = open(W3M, "$w3m_command |-"); # forking 
+    $pid  = open(W3M, "$w3m_command 2>&1 |-"); # forking 
     print STDERR sprintf("%4d   <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' pid(', $pid,')',"\n" if $DEBUG_FORK;    
     if (! defined ($pid)) {   # successfully forked, and children side
     print STDERR sprintf("%4d --<", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' pid(', $pid,')',"\n" if $DEBUG_FORK;    	
@@ -3924,10 +3924,10 @@ sub VersionedDirectory ($$){
     # w3m -T TEXT  https://sourceforge.net/projects/aegis/files/aegis/ > /tmp/1.txt
     # and searches for /^[ ]+[0-9.][ ]+$/ line to get version directory name.
 
-    my $w3m_command = 'w3m -T TEXT '. $url;
+    my $w3m_command = 'curl '.$url. '| w3m -T text/html ';
     my ($name); # cmph- etc
 
-    open(W3M, "perl $fork_w3m -t $W3MTimeout $w3m_command|") ||
+    open(W3M, "perl $fork_w3m -t $W3MTimeout $w3m_command 2>&1 |") ||
 	print STDERR sprintf("%4d   <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' Problem opening external cmd.',"\n";
     while(<W3M>) {
 	print STDERR sprintf("%4d   <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ', $_  if $DEBUG_CURL_LISTING;
