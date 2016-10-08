@@ -14,6 +14,7 @@ audio/akode-plugins-resampler
 audio/akode-plugins-sun
 audio/akode-plugins-xiph  
 databases/rrdtool12
+devel/papaya
 devel/p5-Term-ReadLine-Perl
 editors/emacs20
 editors/leim20
@@ -27,7 +28,10 @@ editors/mule
 editors/xcoral
 games/gnuchess4
 net/dnsdoctor
+net/ser
+net/socks4
 net/sharity-light
+net/ttt
 sysutils/acpidump
 textproc/biblook
 textproc/convertlit
