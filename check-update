@@ -295,6 +295,7 @@ modulegraph
 ntp
 ocaml
 parchive
+pcre++
 pen
 proj
 py2app
