@@ -702,6 +702,7 @@ my (@DOT3) = qw (
     xsane
     flow-tools
     Mojo-IOLoop-ForkCall
+    Test-File
     Text-Diff-Parser
     Log-Any
     Text-Autoformat
