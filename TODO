@@ -1,6 +1,6 @@
 (TODO)
   - devel/bzr-gtk	bzr-gtk	0.100.0	->	0.9.0	0.103.0 (strange)
-  - audio/mikmod picked 3.3.10 before but now 3.27
+  - audio/mikmod picked 3.3.10 before but now 3.2.7
   - tk problem (versioned directory and family, I am afraid) 
   - 10/02/2016 results degraded on GNOME site, hint -> git diff  569021d 6815338 ,
     but possibly network condition ?
@@ -11,7 +11,8 @@
   - Individual (single or partial) execution finds following, but -c devel won't  (devel/ruby-needle)
     ruby23- =>        (needle) (4321 ) Now:    1.3.0 ->   1.3.0 Todo:       
   - 0.32rc1 < 0.32 (cad/ghdl ghdl 0.32rc1 -> 0.32)
-  - graphics/djview4 ->  https://sourceforge.net/projects/djvu/files/DjView/4.10/ (mixed uplow case)
+  - graphics/djview4
+      ->  https://sourceforge.net/projects/djvu/files/DjView/4.10/ (mixed uplow case)
   - Mailing to the MAINTAINER
     Difference is firm (confident) and the receiver wants, mail report
     on every Friday or on the update (?)
