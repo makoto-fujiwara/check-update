@@ -1,4 +1,6 @@
 (TODO)
+  - ruby-needle (and succeeding packages) get (0.0). Individual exec OK. ruby-ncurses
+    affects (?)
   - devel/bzr-gtk	bzr-gtk	0.100.0	->	0.9.0	0.103.0 (strange)
   - audio/mikmod picked 3.3.10 before but now 3.2.7
   - tk problem (versioned directory and family, I am afraid) 
