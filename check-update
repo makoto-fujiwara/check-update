@@ -1,4 +1,5 @@
 #!/usr/pkg/bin/perl
+
 use strict;
 use Net::DNS;	# net/p5-Net-DNS
 use Getopt::Std;
@@ -702,6 +703,7 @@ my (@DOT3) = qw (
     xsane
     flow-tools
     Mojo-IOLoop-ForkCall
+    Test-File
     Text-Diff-Parser
     Log-Any
     Text-Autoformat
@@ -4224,7 +4226,10 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	$DISTBASE = GetVariableValue ($dir, $PackageName, 'DISTNAME');
 	$DISTBASE =~ s/-[0-9.-]+//;
 	$available = GetGemVersion($DISTBASE, $gems_name);
-	$http_code = 0;
+	if ($available == '(0,0)') {
+	    $http_code = -1; }
+	else {
+	    $returnCode = '200'; }
 	print STDERR sprintf("%4d ", __LINE__ ), ' HOMEPAGE: ', $HOMEPAGE,"\n" if $DEBUG_RUBYGEM;
         # ------------  not $GEM_PACKAGE to 3181 (some 130 lines)
 
@@ -4584,4 +4589,3 @@ __END__
 
 # debug format
   print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ',
-    
