@@ -4226,10 +4226,10 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	$DISTBASE = GetVariableValue ($dir, $PackageName, 'DISTNAME');
 	$DISTBASE =~ s/-[0-9.-]+//;
 	$available = GetGemVersion($DISTBASE, $gems_name);
-	if ($available == '(0,0)') {
-	    $http_code = -1; }
-	else {
+	if ($available != '(0,0)') {
 	    $returnCode = '200'; }
+	else {
+	    $http_code = -1; }
 	print STDERR sprintf("%4d ", __LINE__ ), ' HOMEPAGE: ', $HOMEPAGE,"\n" if $DEBUG_RUBYGEM;
         # ------------  not $GEM_PACKAGE to 3181 (some 130 lines)
 
