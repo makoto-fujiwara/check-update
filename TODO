@@ -1,6 +1,5 @@
 (TODO)
-  - ruby-needle (and succeeding packages) get (0.0). Individual exec OK. ruby-ncurses
-    affects (?)
+  - Pick from http://beta.repology.org/package/
   - devel/bzr-gtk	bzr-gtk	0.100.0	->	0.9.0	0.103.0 (strange)
   - audio/mikmod picked 3.3.10 before but now 3.2.7
   - tk problem (versioned directory and family, I am afraid) 
@@ -9,9 +8,6 @@
   - family find (external tool)
   - w3m result cache
   - limited-list mode: list set of packages and scan partially base on it
-
-  - Individual (single or partial) execution finds following, but -c devel won't  (devel/ruby-needle)
-    ruby23- =>        (needle) (4321 ) Now:    1.3.0 ->   1.3.0 Todo:       
   - 0.32rc1 < 0.32 (cad/ghdl ghdl 0.32rc1 -> 0.32)
   - graphics/djview4
       ->  https://sourceforge.net/projects/djvu/files/DjView/4.10/ (mixed uplow case)
