@@ -18,7 +18,7 @@ my($SimpleFallBackYes) = 1; # define constant;
 my($SimpleFallBackNo ) = 0; # define constant;
 
 #--------- external command fork-w3m setup ----------
-my($W3MTimeout) = 30;
+my($W3MTimeout) = 60;
 my($fork_w3m);
 # perldoc -q path
 use File::Spec::Functions qw(rel2abs);
@@ -4226,7 +4226,8 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	$DISTBASE = GetVariableValue ($dir, $PackageName, 'DISTNAME');
 	$DISTBASE =~ s/-[0-9.-]+//;
 	$available = GetGemVersion($DISTBASE, $gems_name);
-	$http_code = 0;
+	if ($available != '(0,0)') {
+	    $returnCode = '200'; }
 	print STDERR sprintf("%4d ", __LINE__ ), ' HOMEPAGE: ', $HOMEPAGE,"\n" if $DEBUG_RUBYGEM;
         # ------------  not $GEM_PACKAGE to 3181 (some 130 lines)
 
