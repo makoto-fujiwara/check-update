@@ -265,6 +265,7 @@ Text-Diff
 WWW-Shorten
 aspell
 auctex
+audacious-plugins
 autotrace
 cabextract
 celt
@@ -2077,7 +2078,6 @@ print STDERR sprintf("%4d ", __LINE__ ), ' ', $dir, '/', $PackageName, '; DISTBA
     $DISTBASE   =~ s/-src//;		# editors/ted ted-2.21.src
     $DISTBASE   =~ s/-release//;	# audio/festival-2.1-release
     $DISTBASE   =~ s/-source//;		# print/mupdf mupdf-1.6-source
-    $DISTBASE   =~ s/-beta//;		# time
     $DISTBASE   =~ s/\.alpha//;		# time/asclock-gtk wm/weewm
 #   $DISTBASE   =~ s/_src//;		#  gambatte_src --> -r571.tar
     $DISTBASE   =~ s/_src_all//;	#  p7zip_9.20.1_src_all
