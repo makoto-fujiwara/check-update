@@ -32,6 +32,7 @@
     (Thanks Thomas wiz@)
 
   - (alpha)  audacious 3.7 is not release, but alpha or beta
+  - audio/audacious-plugin, don't pick audacious-plugins-3.8-beta2.tar.bz2  (as 3.8.2)
   - (99 or 90) may be development version and nice not to list gdt@
   -  biology/cdhit 4.6.4 -> 454 EDITversion does not give any effect (?)
   -  (done) Avoid to show 1.[odd number].x for sysutils/dbus. It is unstable branch
