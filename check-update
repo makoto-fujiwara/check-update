@@ -4525,6 +4525,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
     $MAINTAINER =~ s/\@NetBSD.org//i;
     $MAINTAINER =  substr($MAINTAINER, 0, 13);  # pkgsrc-users@ 13 letters
 
+	if (length($PKGVERSION) > 15 ) { $PKGVERSION = substr($PKGVERSION, 0, 15) . '..'; }
     $output_record = sprintf "<tr%s>
 <td><a href=\"%s\">%s</a></td>
 <td>%s</td>
