@@ -2087,7 +2087,7 @@ print STDERR sprintf("%4d ", __LINE__ ), ' ', $dir, '/', $PackageName, '; DISTBA
     $DISTBASE   =~ s/-src//;		# editors/ted ted-2.21.src
     $DISTBASE   =~ s/-release//;	# audio/festival-2.1-release
     $DISTBASE   =~ s/-source//;		# print/mupdf mupdf-1.6-source
-    $DISTBASE   =~ s/\.alpha//;		# time/asclock-gtk wm/weewm
+#   $DISTBASE   =~ s/\.alpha//;		# time/asclock-gtk wm/weewm
 #   $DISTBASE   =~ s/_src//;		#  gambatte_src --> -r571.tar
     $DISTBASE   =~ s/_src_all//;	#  p7zip_9.20.1_src_all
 #   $DISTBASE   =~ s/([0-9])_alpha/$1/;	#  wm/novawn NovaWM-0.8_alpha
@@ -2545,10 +2545,10 @@ sub GitHubSpecial($$$$){
     while(<CURL>) {
 	print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> (',$distbase, ' / ', $target.') ', $_,"\n" if $DEBUG_GITHUB;
 	$distbase =~ s/-[a-z]+//;
-	if       (m,$distbase-([0-9.]+)-pre.*,) { next;}
-	if (m,archive/release_([0-9_]+)-pre.*,) { next;}
-	if         (m,release-([0-9.]+)-pre.*,) { next;}
-	if    (m,releases/tag/([0-9.]+)-pre.*,) { next;}  # not to pick audio/ardour-5.0pre0
+	if       (m,$distbase-([0-9.]+)-(pre|alpha).*,) { next;}
+	if (m,archive/release_([0-9_]+)-(pre|alpha).*,) { next;}
+	if         (m,release-([0-9.]+)-(pre|alpha).*,) { next;}
+	if    (m,releases/tag/([0-9.]+)-(pre|alpha).*,) { next;}  # not to pick audio/ardour-5.0pre0
 
 	if (
 	    m,data-name=\"(2[0-9]+-[01][0-9]-[0-9]+),	||   # devel/re2 2016-08-01
@@ -3116,7 +3116,7 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (3) ', $distbase, ' --> ', $version,"
 	    $version =~ s/release//;
 	    $version =~ s/\.cmake//;
 	    $version =~ s/source//;
-	    $version =~ s/\.alpha//;	# wm/weewm
+#	    $version =~ s/\.alpha//;	# wm/weewm
 	    $version =~ s/-dev//;
             $version =~ s/-src-//;	# qt-everywhere-opensource --> -src-5.2.1
 	    $version =~ s/-src//;	# qt-everywhere-opensource --> -src-5.2.1	     
