@@ -2264,7 +2264,7 @@ sub GetGemVersion($$){		# <- Main
     print STDERR sprintf("%4d ",__LINE__ ), "$gems_command\n" if $DEBUG_RUBYGEM;
     while(<GEM>) {
 	print STDERR sprintf("%4d ", __LINE__ ), ' ', $_  if $DEBUG_RUBYGEM;
-	if ( /\b$dist_name \(([0-9.]+).*\)/ ) { 
+	if ( /^$dist_name \(([0-9.]+).*\)/ ) { 
 	    $available = $1 ;
 	    push(@candidate, $available); }
     }
