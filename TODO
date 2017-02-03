@@ -1,4 +1,8 @@
 (TODO)
+  - pick 4.6.1 for jquery-rails (should be 4.2.2)
+    when   "gem22 list -r -q jquery-rails" returns following lines
+     jqgrid-jquery-rails (4.6.1)
+     jquery-rails (4.2.2)
   - Pick from http://beta.repology.org/package/
   - devel/bzr-gtk	bzr-gtk	0.100.0	->	0.9.0	0.103.0 (strange)
   - audio/mikmod picked 3.3.10 before but now 3.2.7
