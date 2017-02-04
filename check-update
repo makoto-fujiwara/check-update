@@ -3086,7 +3086,7 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (01)', $distbase,' version-> ', $vers
 		/(.*\b)$distbase-v([0-9.]+)-linux/ ||
 		/(.*\b)$distbase-([0-9.]+)\.python/ ||	# devel/pythontidy
 		/(.*\b)$distbase.v([0-9.]+)/ ||
-		0 ) {
+		0 ) {  #  line 3089/3155
 	    my $pattern = $1;
 	    if ($pattern =~ /-$/) { 
   print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ',
@@ -3152,7 +3152,7 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (3) ', $distbase, ' --> ', $version,"
 	    $version =~ s/\.c$//;	# bunzip-0.21.c.gz
 	    $version =~ s/v([0-9._-]+)/$1/;
 	    }
-	} # line 2133, elsif (/(.*\b)$distbase([013-9_.-][0-9a-z_.-]+)\.(gz|bz2|zip|xz|7z|tgz|tbz|tar|Z)/ ||
+	} # line 3089/3155, elsif (/(.*\b)$distbase([013-9_.-][0-9a-z_.-]+)\.(gz|bz2|zip|xz|7z|tgz|tbz|tar|Z)/ ||
 
 print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', 'distbase (', $distbase, ') version (', $version, ') ',$_,"\n" if $DEBUG_SIMPLE_PATTERN ;
 
