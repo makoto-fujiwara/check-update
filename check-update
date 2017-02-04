@@ -3025,7 +3025,7 @@ sub ParseDirectory($$$$$){   # 2564  to 2825 lines (260 lines
 	}
 	# ---------------------------------------
 
-	if ( /^[0-9]$/ ) { next;} # skip single digit by itself (devel/py-pyobjc-.*)  why ?
+	if ( /^[0-9]$/ ) { next;} # skip single digit by itself (devel/py-pyobjc-.*)  why ?  			# MAJOR_IF_THEN_ELSE
 # ----------  A L W A Y S   G O  T H R U   H E R E  --------------	# MAJOR_IF_THEN_ELSE
 print STDERR sprintf("%4d ** ", __LINE__ ), (caller 0)[3], ' (', $distbase,') ', $SpecialPattern{$distbase},': ', $_, ' ---: ',
 	    grep (/$distbase/, keys %SpecialPattern)," :---\n" if
@@ -3043,46 +3043,46 @@ print STDERR sprintf("%4d ** ", __LINE__ ), (caller 0)[3], ' (', $distbase,') :'
 print STDERR sprintf("%4d ** ", __LINE__ ), '(', $distbase,') $_(', $_,')',"\n" if $DEBUG_EVAL_PATTERN ;
 print STDERR sprintf("%4d ** ", __LINE__ ), '$SpecialPatternY: ', $SpecialPatternY,"\n" if $DEBUG_SPECIAL_PATTERN && $SpecialPatternY ;
 	if (0) { # dummy for ease to swap sequence below
-	} elsif (my $pattern = $FAMILY{$PackageName} ) {
+	} elsif (my $pattern = $FAMILY{$PackageName} ) {		# MAJOR_IF_THEN_ELSE
 print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', 'PackageName (', $PackageName, ') pattern (', $pattern, ') ',$_,"\n" if   ($DEBUG_FAMILY);
 	    eval $pattern;
 print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', 'PackageName (', $PackageName, ') version (', $version, ') ',$_,"\n" if   ($DEBUG_FAMILY);
 	    push(@candidate, $version);
-	} elsif (my $pattern = $SEARCH_STRINGS{$distbase} ) {
+	} elsif (my $pattern = $SEARCH_STRINGS{$distbase} ) {		# MAJOR_IF_THEN_ELSE
 	    eval $pattern;
 print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> (', $distbase,') ', $_, '  pattern ( ', $pattern,') -> version(', $version, ")\n" if  ($DEBUG_CURL_LISTING ||  $DEBUG_EVAL_PATTERN || $DEBUG_SPECIAL_PATTERN);
 
-	} elsif ( grep (/$distbase/, @SimplePattern) || $SimplePattern || $SimpleFallBack ) {
+	} elsif ( grep (/$distbase/, @SimplePattern) || $SimplePattern || $SimpleFallBack ) {			# MAJOR_IF_THEN_ELSE
 	    $_ =~ /.*$distbase-([0-9.]+[0-9]).*/;	# not to include last '.'
 	    $version = $1;
 print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', 'distbase (', $distbase, ') version (', $version, ') ',$_,"\n" if   ($DEBUG_SIMPLE_PATTERN );
 #	    push(@candidate, $version);
-	} elsif ( $SpecialPatternY ) {
+	} elsif ( $SpecialPatternY ) {					# MAJOR_IF_THEN_ELSE
 	    $version = $_;
 print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', '(SpecialPatternY) ', $SpecialPatternY,"\n" if   ($DEBUG_CURL_LISTING ||  $DEBUG_EVAL_PATTERN || $DEBUG_SPECIAL_PATTERN);
 	    eval $SpecialPatternY ;
 print STDERR sprintf("%4d ", __LINE__ ), '($version) ', $version, "\n" if   ($DEBUG_CURL_LISTING ||  $DEBUG_EVAL_PATTERN);
-	} elsif ( grep (/$distbase/, keys %SpecialPattern) ||
+	} elsif ( grep (/$distbase/, keys %SpecialPattern) ||		# MAJOR_IF_THEN_ELSE
 		  $SpecialPattern{$distbase}  ) {	     ### the first case won't match with Text-Tabs+Wrap (includes  '+')
 	    print STDERR sprintf("%4d ", __LINE__ ), '(', $distbase,') ', $_,"\n" if $DEBUG_EVAL_PATTERN;
 	    #  E V A L U A T E SpecialPattern
 	    $version = SpecialPattern($distbase, $_);
 	    print STDERR sprintf("%4d ", __LINE__ ), '(', $distbase,') ', $_,'--> ', $version,"\n" if $DEBUG_EVAL_PATTERN  || $DEBUG_SPECIAL_PATTERN ;
-	} elsif ( $distbase eq 'Unicode-Map' && 
+	} elsif ( $distbase eq 'Unicode-Map' && 			# MAJOR_IF_THEN_ELSE
 		$_ =~ /Unicode-Map8(.*)/ ) { 
 print STDERR sprintf("%4d ", __LINE__ ), ' (1a)', $distbase, ' --> ', $version,"\n" if $DEBUG_DISTBASE;
 next;
-	} elsif ( $distbase eq 'otp_src_R' &&
+	} elsif ( $distbase eq 'otp_src_R' &&				# MAJOR_IF_THEN_ELSE
 		/\b$distbase([0-9]+)B([0-9]*)/ ) {
 	    $version =	$1.$2 ;
-	} elsif ( $distbase eq 'xmx-2.1alpha.pl')	{ 
+	} elsif ( $distbase eq 'xmx-2.1alpha.pl')	{ 		# MAJOR_IF_THEN_ELSE
 	    s/alpha/a/g;
     	    s/beta/b/g;
 		$_ =~ /xmx-(.*)pl.*\.tar\.gz/;
 		$version = $1;
 print STDERR sprintf("%4d ", __LINE__ ), ' (01)', $distbase,' version-> ', $version,"\n" if $DEBUG_DISTBASE;
 	# avoid 2, www/p5-Catalyst-View-Mason2 will not be picked for www/p5-Catalyst-View-Mason
-	} elsif ( /(.*\b)$distbase([013-9_.-][0-9a-z_.-]+)\.(gz|bz2|zip|xz|7z|tgz|tbz|tar|Z)/ ||
+	} elsif ( /(.*\b)$distbase([013-9_.-][0-9a-z_.-]+)\.(gz|bz2|zip|xz|7z|tgz|tbz|tar|Z)/ ||	# MAJOR_IF_THEN_ELSE
 		/(.*\b)$distbase-v([0-9.]+)-linux/ ||
 		/(.*\b)$distbase-([0-9.]+)\.python/ ||	# devel/pythontidy
 		/(.*\b)$distbase.v([0-9.]+)/ ||
@@ -3152,7 +3152,7 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (3) ', $distbase, ' --> ', $version,"
 	    $version =~ s/\.c$//;	# bunzip-0.21.c.gz
 	    $version =~ s/v([0-9._-]+)/$1/;
 	    }
-	} # line 3089/3155, elsif (/(.*\b)$distbase([013-9_.-][0-9a-z_.-]+)\.(gz|bz2|zip|xz|7z|tgz|tbz|tar|Z)/ ||
+	} # line 3089/3155, elsif (/(.*\b)$distbase([013-9_.-][0-9a-z_.-]+)\.(gz|bz2|zip|xz|7z|tgz|tbz|tar|Z)/ ||			# MAJOR_IF_THEN_ELSE
 
 print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', 'distbase (', $distbase, ') version (', $version, ') ',$_,"\n" if $DEBUG_SIMPLE_PATTERN ;
 
