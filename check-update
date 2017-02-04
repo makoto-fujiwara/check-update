@@ -499,7 +499,8 @@ my(%DISTBASE) = qw (
     );
    
 my(%DownLoadAlternative) = qw (
-    moneyguru	qhttps://download.hardcoded.net/
+    dante	http://www.inet.no/dante/download.html
+    moneyguru	https://download.hardcoded.net/
     yabause	https://yabause.org/download/
     mad-fcl	http://mad.cs.tut.fi/download.html
     gallery	http://codex.galleryproject.org/Downloads
@@ -3025,7 +3026,7 @@ sub ParseDirectory($$$$$){   # 2564  to 2825 lines (260 lines
 	}
 	# ---------------------------------------
 
-	if ( /^[0-9]$/ ) { next;} # skip single digit by itself (devel/py-pyobjc-.*)  why ?  			# MAJOR_IF_THEN_ELSE
+	if ( /^[0-9]$/ ) { next;} # skip single digit by itself (devel/py-pyobjc-.*)  why ?  	# MAJOR_IF_THEN_ELSE
 # ----------  A L W A Y S   G O  T H R U   H E R E  --------------	# MAJOR_IF_THEN_ELSE
 print STDERR sprintf("%4d ** ", __LINE__ ), (caller 0)[3], ' (', $distbase,') ', $SpecialPattern{$distbase},': ', $_, ' ---: ',
 	    grep (/$distbase/, keys %SpecialPattern)," :---\n" if
@@ -3042,7 +3043,7 @@ print STDERR sprintf("%4d ** ", __LINE__ ), (caller 0)[3], ' (', $distbase,') :'
 #  ----------------------------------------------------------------
 print STDERR sprintf("%4d ** ", __LINE__ ), '(', $distbase,') $_(', $_,')',"\n" if $DEBUG_EVAL_PATTERN ;
 print STDERR sprintf("%4d ** ", __LINE__ ), '$SpecialPatternY: ', $SpecialPatternY,"\n" if $DEBUG_SPECIAL_PATTERN && $SpecialPatternY ;
-	if (0) { # dummy for ease to swap sequence below
+	if (0) { # dummy for ease to swap sequence below		# MAJOR_IF_THEN_ELSE
 	} elsif (my $pattern = $FAMILY{$PackageName} ) {		# MAJOR_IF_THEN_ELSE
 print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', 'PackageName (', $PackageName, ') pattern (', $pattern, ') ',$_,"\n" if   ($DEBUG_FAMILY);
 	    eval $pattern;
@@ -3053,6 +3054,7 @@ print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', 'PackageName 
 print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> (', $distbase,') ', $_, '  pattern ( ', $pattern,') -> version(', $version, ")\n" if  ($DEBUG_CURL_LISTING ||  $DEBUG_EVAL_PATTERN || $DEBUG_SPECIAL_PATTERN);
 
 	} elsif ( grep (/$distbase/, @SimplePattern) || $SimplePattern || $SimpleFallBack ) {			# MAJOR_IF_THEN_ELSE
+	    if ($_ =~ /.*$distbase-([0-9.]+_[0-9][0-9]).*/) { next;} # skip  underscore version
 	    $_ =~ /.*$distbase-([0-9.]+[0-9]).*/;	# not to include last '.'
 	    $version = $1;
 print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', 'distbase (', $distbase, ') version (', $version, ') ',$_,"\n" if   ($DEBUG_SIMPLE_PATTERN );
@@ -3127,13 +3129,9 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (3) ', $distbase, ' --> ', $version,"
        	    $version =~ s/dos//;	#  archivers/hpack79dos
 #	    $version =~ s/pre[0-9]//;
 	    $version =~ s/^[_.-]//;
-	    if ( ($distbase =~ /[A-Z][A-Za-z]+[0-9]*-[A-Z][a-z]+/ ) ) { # perl module regular shape
-		print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> Perl Module: ', $version, "\n" if $DEBUG_DISTBASE;
-		if ( $version =~ m|_[0-9]+$| ) { $version = ''; next;}	# skip  or after (DEVELOPER RELEASE)
-		print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> Perl Module: ', $version, "\n" if $DEBUG_DISTBASE;
-	    } else {			# harmful for p5-Data-Printer-0.35_01 -> 0.35.1
-	    $version =~ s/[_.-]/\./g;
-	    }
+	    		# harmful for p5-Data-Printer-0.35_01 -> 0.35.1
+#	    $version =~ s/[_.-]/\./g;
+
        	    $version =~ s/([0-9])p([0-9]+)/$1\.$2/;	# zorro 1.1p8, 1.1p8 ->1.1.8, while unzip60 is retained  
        	    $version =~ s/p[0-9]+//;
     	    $version =~ s/\.diff//;	# beav_1.40.diff
@@ -3153,8 +3151,6 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (3) ', $distbase, ' --> ', $version,"
 	    $version =~ s/v([0-9._-]+)/$1/;
 	    }
 	} # line 3089/3155, elsif (/(.*\b)$distbase([013-9_.-][0-9a-z_.-]+)\.(gz|bz2|zip|xz|7z|tgz|tbz|tar|Z)/ ||			# MAJOR_IF_THEN_ELSE
-
-print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', 'distbase (', $distbase, ') version (', $version, ') ',$_,"\n" if $DEBUG_SIMPLE_PATTERN ;
 
 	if ($version =~ m|[0-9.]+pre[0-9]| ) { next;}
 	if ($version =~ m|[0-9.]+beta| ) { next;}
