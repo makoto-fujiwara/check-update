@@ -275,6 +275,7 @@ clisp
 cmph
 crack-attack
 crimson
+dcsharp
 db
 docbook-xsl
 flags
@@ -499,6 +500,7 @@ my(%DISTBASE) = qw (
     );
    
 my(%DownLoadAlternative) = qw (
+    dcsharp	https://code.google.com/archive/p/dcsharp/downloads
     dante	http://www.inet.no/dante/download.html
     moneyguru	https://download.hardcoded.net/
     yabause	https://yabause.org/download/
