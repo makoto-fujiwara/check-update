@@ -3045,6 +3045,15 @@ print STDERR sprintf("%4d ** ", __LINE__ ), (caller 0)[3], ' (', $distbase,') :'
 #  ----------------------------------------------------------------
 print STDERR sprintf("%4d ** ", __LINE__ ), '(', $distbase,') $_(', $_,')',"\n" if $DEBUG_EVAL_PATTERN ;
 print STDERR sprintf("%4d ** ", __LINE__ ), '$SpecialPatternY: ', $SpecialPatternY,"\n" if $DEBUG_SPECIAL_PATTERN && $SpecialPatternY ;
+	if ( /[0-9._]+-rc/ ) {next;}
+	if ( /[0-9._]+-beta/ ) {next;}
+	if ( /[0-9._]+-alpha/ ) {next;}
+	if ( /[0-9._]+-android/ ) {next;}
+	if ( /[0-9._]+-cygwin/ ) {next;}
+	if ( /[0-9._]+-openbsd/ ) {next;}	# 
+	if ( /[0-9._]+-windows/ ) {next;}
+	if ( /[0-9._]+_win/ ) {next;}		# net/tighvnc
+	if ( /[0-9._]+-static/ ) {next;}
 	if (0) { # dummy for ease to swap sequence below		# MAJOR_IF_THEN_ELSE
 	} elsif (my $pattern = $FAMILY{$PackageName} ) {		# MAJOR_IF_THEN_ELSE
 print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', 'PackageName (', $PackageName, ') pattern (', $pattern, ') ',$_,"\n" if   ($DEBUG_FAMILY);
