@@ -806,6 +806,7 @@ my (@DIGIT_IN_NAME) = qw(cal3d emacs-w3m x2x w3m nec2c xnec2c asn1c py34-unittes
 #
 my (@DISTBASE_DIGIT) = qw(perl5 hdf5 libosip2 xfwm4 Catalyst-View-Mason2);
 
+my (@xtimer) = qw(xtimer);
 ##    -------------------------
 ##    P R O T O T Y P E S
 ##    -------------------------
@@ -1440,6 +1441,7 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (3) <', (caller 0)[3] ,'> ', $version
 	if (grep (/^$distbase$/, @DOT2)		> 0 ) { $version = InsertDot($version, 2);}
 	if (grep (/^$distbase$/, @qkcc)		> 0 ) { $version =~ s|([0-9])([0-9])([0-9])|$1.$2|; }
 	if (grep (/^$distbase$/, @DOT3)		> 0 ) { $version = InsertDot($version, 3);}
+	if (grep (/^$distbase$/, @xtimer)	> 0 ) { $version = InsertDot($version, -1);}
 	if (grep (/^$distbase$/, @DOT13)	> 0 ) { $version = InsertDot13($version, 1,3);}
 	if (grep (/^$distbase$/, @DOT32)	> 0 ) { $version = InsertDot2($version, 2,4);}
 	if (grep (/^$distbase$/, @DOT133)	> 0 ) { $version = InsertDot133($version);}
@@ -3657,11 +3659,14 @@ sub DelDot422($$$) {
 sub InsertDot($$){
     my($version) = shift;
     my($digit) =   shift;
+   
     my($result) = $version;
     # if the letter at the location of $digit + 1 is digit, insert period at that point
     # example yencode 0.46 -> 0.4.6
     # 0.341 -> 0.34 but 0.42 -> 0.42 (not 0.42.) ($digit == 3, graphics/p5-SWF-File)
-#print STDERR '(',sprintf("%4d ", __LINE__ ), ')  ', $version, ' --> ', $digit,"\n" if $DEBUG_DISTBASE;
+#    print STDERR '(',sprintf("%4d ", __LINE__ ), ')  ', $version, ' --> ', $digit,"\n";
+    if ($digit == -1 ) { return '0.'.$version;}
+#    print STDERR '(',sprintf("%4d ", __LINE__ ), ')  ', $version, ' --> ', $digit,"\n";
     if ($digit == 3 && length($version) == 4 ) {return $result;}
 #print STDERR '(',sprintf("%4d ", __LINE__ ), ')  ', $version, ' --> ', $digit,"\n" if $DEBUG_DISTBASE;    
     $digit++;
