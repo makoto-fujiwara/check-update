@@ -433,7 +433,9 @@ my (%SpecialPattern) = (
     'libsvm',		'$line =~ s|.*Version ([0-9.]+) released.*|$1|;',        
     'plib',    		'$line =~ s|The latest stable version of PLIB is ([0-9.]+) .*|$1|;',
     'mad_fcl',		'$line =~ s|.*MAD-FCL \(v_([0-9.]+)\).*|$1|;',
+    'sgb',		'$line =~ s|.*sgb-([0-9]+)-([0-9]+)-([0-9]+)\.tar\.gz.*|$1$2$3|;',
     );
+   # sgb does not work yet
    #http://prdownloads.sourceforge.jp/lha/11617/lha-1.14i-ac20040929.tar.gz
  ##              nagi (=_src_-_2002-11-14) (3853 ) Now: 20021114 ->     0.0 Todo:       
  
@@ -3044,16 +3046,57 @@ print STDERR sprintf("%4d ** ", __LINE__ ), (caller 0)[3], ' (', $distbase,') :'
 print STDERR sprintf("%4d ** ", __LINE__ ), (caller 0)[3], ' (', $distbase,') :', $_ ,"\n" if $DEBUG_SF_LOOKING_FOR;
 #  ----------------------------------------------------------------
 print STDERR sprintf("%4d ** ", __LINE__ ), '(', $distbase,') $_(', $_,')',"\n" if $DEBUG_EVAL_PATTERN ;
-print STDERR sprintf("%4d ** ", __LINE__ ), '$SpecialPatternY: ', $SpecialPatternY,"\n" if $DEBUG_SPECIAL_PATTERN && $SpecialPatternY ;
-	if ( /[0-9._]+-rc/ ) {next;}
-	if ( /[0-9._]+-beta/ ) {next;}
-	if ( /[0-9._]+-alpha/ ) {next;}
+print STDERR sprintf("%4d ** ", __LINE__ ), '$SpecialPatternY: ', $SpecialPatternY,"\n" if $DEBUG_SPECIAL_PATTERN && $SpecialPatternY ; 
+	if ( /[0-9._]+[-_]rc/ )	{next;}
+	if ( /[0-9._]+-beta/ )	{next;}
+	if ( /[0-9._]+-alpha/ )	{next;}
 	if ( /[0-9._]+-android/ ) {next;}
 	if ( /[0-9._]+-cygwin/ ) {next;}
 	if ( /[0-9._]+-openbsd/ ) {next;}	# 
 	if ( /[0-9._]+-windows/ ) {next;}
-	if ( /[0-9._]+_win/ ) {next;}		# net/tighvnc
+	if ( /[0-9._]+-linux/ )	{next;}	
+	if ( /[0-9._]+[-_]win/ ){next;}		# net/tighvnc
+	if ( /[0-9._]+[-_]mac/ ){next;}
+	if ( /[0-9._]+-steamos/ ){next;}
 	if ( /[0-9._]+-static/ ) {next;}
+	if ( /[0-9._]+--x86/ )	{next;}
+	if ( /[0-9._]+_x86_/ )	 {next;}
+	if ( /[0-9._]+-gpl/ )	 {next;}	# audio/rubberband
+	if ( /[0-9._]+-repack/ ) {next;}
+	if ( /[0-9._]+-patch/ ) {next;}
+	if ( /[0-9._]+__ppc/ ) {next;}	
+	if ( /[0-9._]+-win32-jitc/ ) {next;}
+	if ( /[0-9._]+-web/ ) {next;}
+	if ( /[0-9._]+-freebsd/ ) {next;}	
+	if ( /[0-9._]+-dingux/ ) {next;}
+	if ( /[0-9._]+-bin/ ) {next;}
+	if ( /[0-9._]+-solaris/ ) {next;}
+	if ( /[0-9._]+-msc/ )	{next;}
+	if ( /[0-9._]+-pics/ )	{next;}		# ddd
+	if ( /[0-9._]+-sunos/ )	{next;}
+	if ( /[0-9._]+-sdl/ )	{next;}
+	if ( /[0-9._]+-full/ )	{next;}
+	if ( /[0-9._]+-atari/ )	{next;}
+	if ( /[0-9._]+-rasp/ )	{next;}
+	if ( /[0-9._]+-xdoc/ )	{next;}
+	if ( /[0-9._]+-xdpm/ )	{next;}
+	if ( /[0-9._]+unknown/ ){next;}
+	if ( /[0-9._]+alpha/ ){next;}	
+	if ( /[0-9._]+win32/ ){next;}	
+	if ( /[0-9._]+-full/ )	{next;}
+	if ( /[0-9._]+_static/ )	{next;}
+	if ( /[0-9._]+-ming/ )	{next;}
+	if ( /[0-9._]+-patch/ )	{next;}
+	if ( /[0-9._]+-fisherkernel/ )	{next;}
+	if ( /[0-9._]+-git/ )	{next;}
+	if ( /[0-9._]+-port/ )	{next;}
+	if ( /[0-9._]+-exp/ )	{next;}
+	if ( /[0-9._]+-gcc3/ )	{next;}
+	if ( /[0-9._]+-nodoc/ ){next;}		# json-c
+	if ( /[0-9._]+-sparc/ )	{next;}
+	if ( /[0-9._]+-cmake/ )	{next;}
+	if ( /[0-9._]+_headers/ )	{next;}	
+
 	if (0) { # dummy for ease to swap sequence below		# MAJOR_IF_THEN_ELSE
 	} elsif (my $pattern = $FAMILY{$PackageName} ) {		# MAJOR_IF_THEN_ELSE
 print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', 'PackageName (', $PackageName, ') pattern (', $pattern, ') ',$_,"\n" if   ($DEBUG_FAMILY);
