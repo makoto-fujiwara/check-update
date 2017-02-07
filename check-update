@@ -3102,6 +3102,7 @@ print STDERR sprintf("%4d ** ", __LINE__ ), '$SpecialPatternY: ', $SpecialPatter
 	if ( /[0-9._]+_headers/ )	{next;}
 	if ( /[0-9._]+-os-x/ )	{next;}
 	if ( /[0-9._]+-install/ )	{next;}
+	if ( /[0-9._]+pr1/ )	{next;}
 
 	if (0) { # dummy for ease to swap sequence below		# MAJOR_IF_THEN_ELSE
 	} elsif (my $pattern = $FAMILY{$PackageName} ) {		# MAJOR_IF_THEN_ELSE
