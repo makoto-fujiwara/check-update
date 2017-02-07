@@ -3060,16 +3060,17 @@ print STDERR sprintf("%4d ** ", __LINE__ ), '$SpecialPatternY: ', $SpecialPatter
 	if ( /[0-9._]+[-_]win/ ){next;}		# net/tighvnc
 	if ( /[0-9._]+[-_]mac/ ){next;}
 	if ( /[0-9._]+-steamos/ ){next;}
+	if ( /[0-9._]+-minimal/ ){next;}	# sysutils/webmin
 	if ( /[0-9._]+-static/ ) {next;}
 	if ( /[0-9._]+--x86/ )	{next;}
 	if ( /[0-9._]+_x86_/ )	 {next;}
 	if ( /[0-9._]+-gpl/ )	 {next;}	# audio/rubberband
 	if ( /[0-9._]+-repack/ ) {next;}
 	if ( /[0-9._]+-patch/ ) {next;}
-	if ( /[0-9._]+__ppc/ ) {next;}	
+	if ( /[0-9._]+__ppc/ ) {next;}
 	if ( /[0-9._]+-win32-jitc/ ) {next;}
 	if ( /[0-9._]+-web/ ) {next;}
-	if ( /[0-9._]+-freebsd/ ) {next;}	
+	if ( /[0-9._]+-freebsd/ ) {next;}
 	if ( /[0-9._]+-dingux/ ) {next;}
 	if ( /[0-9._]+-bin/ ) {next;}
 	if ( /[0-9._]+-solaris/ ) {next;}
@@ -3083,8 +3084,8 @@ print STDERR sprintf("%4d ** ", __LINE__ ), '$SpecialPatternY: ', $SpecialPatter
 	if ( /[0-9._]+-xdoc/ )	{next;}
 	if ( /[0-9._]+-xdpm/ )	{next;}
 	if ( /[0-9._]+unknown/ ){next;}
-	if ( /[0-9._]+alpha/ ){next;}	
-	if ( /[0-9._]+win32/ ){next;}	
+	if ( /[0-9._]+alpha/ ){next;}
+	if ( /[0-9._]+win32/ ){next;}
 	if ( /[0-9._]+-full/ )	{next;}
 	if ( /[0-9._]+_static/ )	{next;}
 	if ( /[0-9._]+-ming/ )	{next;}
