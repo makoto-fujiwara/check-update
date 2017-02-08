@@ -683,6 +683,7 @@ pixmap
 gnuchess
 visualvm
 pscpug
+mlvwm
 );
 # 1.1103  -> 1.11.03
 # IO-CaptureOutput
@@ -806,6 +807,7 @@ my (@DIGIT_IN_NAME) = qw(cal3d emacs-w3m x2x w3m nec2c xnec2c asn1c py34-unittes
 #
 my (@DISTBASE_DIGIT) = qw(perl5 hdf5 libosip2 xfwm4 Catalyst-View-Mason2);
 
+# 8089 -> 0.8089
 my (@xtimer) = qw(xtimer);
 ##    -------------------------
 ##    P R O T O T Y P E S
@@ -3099,6 +3101,9 @@ print STDERR sprintf("%4d ** ", __LINE__ ), '$SpecialPatternY: ', $SpecialPatter
 	if ( /[0-9._]+-nodoc/ ){next;}		# json-c
 	if ( /[0-9._]+-sparc/ )	{next;}
 	if ( /[0-9._]+-cmake/ )	{next;}
+	if ( /[0-9._]+-crlf/ )	{next;}
+	if ( /[0-9._]+-deploy/ ){next;}
+	if ( /[0-9._]+-fulldo/ ){next;}
 	if ( /[0-9._]+_headers/ )	{next;}
 	if ( /[0-9._]+-os-x/ )	{next;}
 	if ( /[0-9._]+-install/ )	{next;}
