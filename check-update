@@ -267,6 +267,7 @@ aspell
 auctex
 audacious-plugins
 autotrace
+bash-doc
 cabextract
 celt
 clamav
@@ -274,6 +275,7 @@ clisp
 cmph
 crack-attack
 crimson
+dcsharp
 db
 docbook-xsl
 flags
@@ -431,7 +433,9 @@ my (%SpecialPattern) = (
     'libsvm',		'$line =~ s|.*Version ([0-9.]+) released.*|$1|;',        
     'plib',    		'$line =~ s|The latest stable version of PLIB is ([0-9.]+) .*|$1|;',
     'mad_fcl',		'$line =~ s|.*MAD-FCL \(v_([0-9.]+)\).*|$1|;',
+    'sgb',		'$line =~ s|.*sgb-([0-9]+)-([0-9]+)-([0-9]+)\.tar\.gz.*|$1$2$3|;',
     );
+   # sgb does not work yet
    #http://prdownloads.sourceforge.jp/lha/11617/lha-1.14i-ac20040929.tar.gz
  ##              nagi (=_src_-_2002-11-14) (3853 ) Now: 20021114 ->     0.0 Todo:       
  
@@ -498,7 +502,9 @@ my(%DISTBASE) = qw (
     );
    
 my(%DownLoadAlternative) = qw (
-    moneyguru	qhttps://download.hardcoded.net/
+    dcsharp	https://code.google.com/archive/p/dcsharp/downloads
+    dante	http://www.inet.no/dante/download.html
+    moneyguru	https://download.hardcoded.net/
     yabause	https://yabause.org/download/
     mad-fcl	http://mad.cs.tut.fi/download.html
     gallery	http://codex.galleryproject.org/Downloads
@@ -800,6 +806,7 @@ my (@DIGIT_IN_NAME) = qw(cal3d emacs-w3m x2x w3m nec2c xnec2c asn1c py34-unittes
 #
 my (@DISTBASE_DIGIT) = qw(perl5 hdf5 libosip2 xfwm4 Catalyst-View-Mason2);
 
+my (@xtimer) = qw(xtimer);
 ##    -------------------------
 ##    P R O T O T Y P E S
 ##    -------------------------
@@ -1139,6 +1146,14 @@ sub ClassifyPackage(@) {
 	    $FAMILY{$p} = $pattern;
 	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1a) family: ', $p,' -> ', $pattern,"\n" if $DEBUG_FAMILY;
 	    # (12) gdb{,3}
+	# (11-2) bugzilla
+	} elsif ($p =~ /^(bugzilla)([0-9])$/ ) {
+	    my ($lang)  = $1;
+	    my ($major) = $2; if ($major eq '') { $major = 5;}
+	    my ($pattern) = '$_ =~ m|.*'. $lang .'-('.$major.'\.[0-9.]+)\.tar\..*|; $version = $1;' ;
+	    $FAMILY{$p} = $pattern;
+	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1a) family: ', $p,' -> ', $pattern,"\n" if $DEBUG_FAMILY;
+	    # (12) gdb{,3}
 	}  elsif ($p =~ /^(gdb)([0-9]*)$/) {
 	    my ($pkg)  = $1;
 	    my ($major) = $2;
@@ -1426,6 +1441,7 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (3) <', (caller 0)[3] ,'> ', $version
 	if (grep (/^$distbase$/, @DOT2)		> 0 ) { $version = InsertDot($version, 2);}
 	if (grep (/^$distbase$/, @qkcc)		> 0 ) { $version =~ s|([0-9])([0-9])([0-9])|$1.$2|; }
 	if (grep (/^$distbase$/, @DOT3)		> 0 ) { $version = InsertDot($version, 3);}
+	if (grep (/^$distbase$/, @xtimer)	> 0 ) { $version = InsertDot($version, -1);}
 	if (grep (/^$distbase$/, @DOT13)	> 0 ) { $version = InsertDot13($version, 1,3);}
 	if (grep (/^$distbase$/, @DOT32)	> 0 ) { $version = InsertDot2($version, 2,4);}
 	if (grep (/^$distbase$/, @DOT133)	> 0 ) { $version = InsertDot133($version);}
@@ -2078,7 +2094,7 @@ print STDERR sprintf("%4d ", __LINE__ ), ' ', $dir, '/', $PackageName, '; DISTBA
     $DISTBASE   =~ s/-src//;		# editors/ted ted-2.21.src
     $DISTBASE   =~ s/-release//;	# audio/festival-2.1-release
     $DISTBASE   =~ s/-source//;		# print/mupdf mupdf-1.6-source
-    $DISTBASE   =~ s/\.alpha//;		# time/asclock-gtk wm/weewm
+#   $DISTBASE   =~ s/\.alpha//;		# time/asclock-gtk wm/weewm
 #   $DISTBASE   =~ s/_src//;		#  gambatte_src --> -r571.tar
     $DISTBASE   =~ s/_src_all//;	#  p7zip_9.20.1_src_all
 #   $DISTBASE   =~ s/([0-9])_alpha/$1/;	#  wm/novawn NovaWM-0.8_alpha
@@ -2255,7 +2271,7 @@ sub GetGemVersion($$){		# <- Main
     print STDERR sprintf("%4d ",__LINE__ ), "$gems_command\n" if $DEBUG_RUBYGEM;
     while(<GEM>) {
 	print STDERR sprintf("%4d ", __LINE__ ), ' ', $_  if $DEBUG_RUBYGEM;
-	if ( /\b$dist_name \(([0-9.]+).*\)/ ) { 
+	if ( /^$dist_name \(([0-9.]+).*\)/ ) { 
 	    $available = $1 ;
 	    push(@candidate, $available); }
     }
@@ -2536,10 +2552,10 @@ sub GitHubSpecial($$$$){
     while(<CURL>) {
 	print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> (',$distbase, ' / ', $target.') ', $_,"\n" if $DEBUG_GITHUB;
 	$distbase =~ s/-[a-z]+//;
-	if       (m,$distbase-([0-9.]+)-pre.*,) { next;}
-	if (m,archive/release_([0-9_]+)-pre.*,) { next;}
-	if         (m,release-([0-9.]+)-pre.*,) { next;}
-	if    (m,releases/tag/([0-9.]+)-pre.*,) { next;}  # not to pick audio/ardour-5.0pre0
+	if       (m,$distbase-([0-9.]+)-(pre|alpha|rc).*,) { next;}
+	if (m,archive/release_([0-9_]+)-(pre|alpha|rc).*,) { next;}
+	if         (m,release-([0-9.]+)-(pre|alpha|rc).*,) { next;}
+	if    (m,releases/tag/([0-9.]+)-(pre|alpha|rc).*,) { next;}  # not to pick audio/ardour-5.0pre0
 
 	if (
 	    m,data-name=\"(2[0-9]+-[01][0-9]-[0-9]+),	||   # devel/re2 2016-08-01
@@ -3005,6 +3021,7 @@ sub ParseDirectory($$$$$){   # 2564  to 2825 lines (260 lines
 	if ( /Pod-Simple-31337-0.02.tar.gz/)	{ next;} #
 	if ( /buildrump-1369495826.tar.bz2/)	{ next;} # ignore old stuff (misc/rump)
 	if ( /aspell6-ca-20[0-9][0-9]+/)	{ next;} # ignore aspell6-ca-20xx pattern
+	if ( /dirvish-1.3.1.tar.gz/)		{ next;} # Not production code
 	if ( $distbase eq 'libXaw' && /libXaw3d/ )	{ next;}
 
 	# ----- textproc/aspell special ----------
@@ -3015,7 +3032,7 @@ sub ParseDirectory($$$$$){   # 2564  to 2825 lines (260 lines
 	}
 	# ---------------------------------------
 
-	if ( /^[0-9]$/ ) { next;} # skip single digit by itself (devel/py-pyobjc-.*)  why ?
+	if ( /^[0-9]$/ ) { next;} # skip single digit by itself (devel/py-pyobjc-.*)  why ?  	# MAJOR_IF_THEN_ELSE
 # ----------  A L W A Y S   G O  T H R U   H E R E  --------------	# MAJOR_IF_THEN_ELSE
 print STDERR sprintf("%4d ** ", __LINE__ ), (caller 0)[3], ' (', $distbase,') ', $SpecialPattern{$distbase},': ', $_, ' ---: ',
 	    grep (/$distbase/, keys %SpecialPattern)," :---\n" if
@@ -3031,52 +3048,108 @@ print STDERR sprintf("%4d ** ", __LINE__ ), (caller 0)[3], ' (', $distbase,') :'
 print STDERR sprintf("%4d ** ", __LINE__ ), (caller 0)[3], ' (', $distbase,') :', $_ ,"\n" if $DEBUG_SF_LOOKING_FOR;
 #  ----------------------------------------------------------------
 print STDERR sprintf("%4d ** ", __LINE__ ), '(', $distbase,') $_(', $_,')',"\n" if $DEBUG_EVAL_PATTERN ;
-print STDERR sprintf("%4d ** ", __LINE__ ), '$SpecialPatternY: ', $SpecialPatternY,"\n" if $DEBUG_SPECIAL_PATTERN && $SpecialPatternY ;
-	if (0) { # dummy for ease to swap sequence below
-	} elsif (my $pattern = $FAMILY{$PackageName} ) {
+print STDERR sprintf("%4d ** ", __LINE__ ), '$SpecialPatternY: ', $SpecialPatternY,"\n" if $DEBUG_SPECIAL_PATTERN && $SpecialPatternY ; 
+	if ( /[0-9._]+[-_]rc/ )	{next;}
+	if ( /[0-9._]+-beta/ )	{next;}
+	if ( /[0-9._]+-alpha/ )	{next;}
+	if ( /[0-9._]+-android/ ) {next;}
+	if ( /[0-9._]+-cygwin/ ) {next;}
+	if ( /[0-9._]+-openbsd/ ) {next;}	# 
+	if ( /[0-9._]+-windows/ ) {next;}
+	if ( /[0-9._]+-linux/ )	{next;}
+	if ( /[0-9._]+-ubuntu/ ){next;}
+	if ( /[0-9._]+[-_]win/ ){next;}		# net/tighvnc
+	if ( /[0-9._]+[-_]mac/ ){next;}
+	if ( /[0-9._]+-steamos/ ){next;}
+	if ( /[0-9._]+-minimal/ ){next;}	# sysutils/webmin
+	if ( /[0-9._]+-static/ ) {next;}
+	if ( /[0-9._]+--x86/ )	{next;}
+	if ( /[0-9._]+_x86_/ )	 {next;}
+	if ( /[0-9._]+-gpl/ )	 {next;}	# audio/rubberband
+	if ( /[0-9._]+-repack/ ) {next;}
+	if ( /[0-9._]+-patch/ ) {next;}
+	if ( /[0-9._]+__ppc/ ) {next;}
+	if ( /[0-9._]+-win32-jitc/ ) {next;}
+	if ( /[0-9._]+-web/ ) {next;}
+	if ( /[0-9._]+-freebsd/ ) {next;}
+	if ( /[0-9._]+-dingux/ ) {next;}
+	if ( /[0-9._]+-bin/ ) {next;}
+	if ( /[0-9._]+-solaris/ ) {next;}
+	if ( /[0-9._]+-msc/ )	{next;}
+	if ( /[0-9._]+-pics/ )	{next;}		# ddd
+	if ( /[0-9._]+-sunos/ )	{next;}
+	if ( /[0-9._]+-sdl/ )	{next;}
+	if ( /[0-9._]+-full/ )	{next;}
+	if ( /[0-9._]+-atari/ )	{next;}
+	if ( /[0-9._]+-rasp/ )	{next;}
+	if ( /[0-9._]+-xdoc/ )	{next;}
+	if ( /[0-9._]+-xdpm/ )	{next;}
+	if ( /[0-9._]+unknown/ ){next;}
+	if ( /[0-9._]+alpha/ ){next;}
+	if ( /[0-9._]+win32/ ){next;}
+	if ( /[0-9._]+-full/ )	{next;}
+	if ( /[0-9._]+_static/ )	{next;}
+	if ( /[0-9._]+-ming/ )	{next;}
+	if ( /[0-9._]+-patch/ )	{next;}
+	if ( /[0-9._]+-fisherkernel/ )	{next;}
+	if ( /[0-9._]+-git/ )	{next;}
+	if ( /[0-9._]+-port/ )	{next;}
+	if ( /[0-9._]+-exp/ )	{next;}
+	if ( /[0-9._]+-gcc3/ )	{next;}
+	if ( /[0-9._]+-nodoc/ ){next;}		# json-c
+	if ( /[0-9._]+-sparc/ )	{next;}
+	if ( /[0-9._]+-cmake/ )	{next;}
+	if ( /[0-9._]+_headers/ )	{next;}
+	if ( /[0-9._]+-os-x/ )	{next;}
+	if ( /[0-9._]+-install/ )	{next;}
+	if ( /[0-9._]+pr1/ )	{next;}
+
+	if (0) { # dummy for ease to swap sequence below		# MAJOR_IF_THEN_ELSE
+	} elsif (my $pattern = $FAMILY{$PackageName} ) {		# MAJOR_IF_THEN_ELSE
 print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', 'PackageName (', $PackageName, ') pattern (', $pattern, ') ',$_,"\n" if   ($DEBUG_FAMILY);
 	    eval $pattern;
 print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', 'PackageName (', $PackageName, ') version (', $version, ') ',$_,"\n" if   ($DEBUG_FAMILY);
 	    push(@candidate, $version);
-	} elsif (my $pattern = $SEARCH_STRINGS{$distbase} ) {
+	} elsif (my $pattern = $SEARCH_STRINGS{$distbase} ) {		# MAJOR_IF_THEN_ELSE
 	    eval $pattern;
 print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> (', $distbase,') ', $_, '  pattern ( ', $pattern,') -> version(', $version, ")\n" if  ($DEBUG_CURL_LISTING ||  $DEBUG_EVAL_PATTERN || $DEBUG_SPECIAL_PATTERN);
 
-	} elsif ( grep (/$distbase/, @SimplePattern) || $SimplePattern || $SimpleFallBack ) {
+	} elsif ( grep (/$distbase/, @SimplePattern) || $SimplePattern || $SimpleFallBack ) {			# MAJOR_IF_THEN_ELSE
+	    if ($_ =~ /.*$distbase-([0-9.]+_[0-9][0-9]).*/) { next;} # skip  underscore version
 	    $_ =~ /.*$distbase-([0-9.]+[0-9]).*/;	# not to include last '.'
 	    $version = $1;
 print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', 'distbase (', $distbase, ') version (', $version, ') ',$_,"\n" if   ($DEBUG_SIMPLE_PATTERN );
 #	    push(@candidate, $version);
-	} elsif ( $SpecialPatternY ) {
+	} elsif ( $SpecialPatternY ) {					# MAJOR_IF_THEN_ELSE
 	    $version = $_;
 print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', '(SpecialPatternY) ', $SpecialPatternY,"\n" if   ($DEBUG_CURL_LISTING ||  $DEBUG_EVAL_PATTERN || $DEBUG_SPECIAL_PATTERN);
 	    eval $SpecialPatternY ;
 print STDERR sprintf("%4d ", __LINE__ ), '($version) ', $version, "\n" if   ($DEBUG_CURL_LISTING ||  $DEBUG_EVAL_PATTERN);
-	} elsif ( grep (/$distbase/, keys %SpecialPattern) ||
+	} elsif ( grep (/$distbase/, keys %SpecialPattern) ||		# MAJOR_IF_THEN_ELSE
 		  $SpecialPattern{$distbase}  ) {	     ### the first case won't match with Text-Tabs+Wrap (includes  '+')
 	    print STDERR sprintf("%4d ", __LINE__ ), '(', $distbase,') ', $_,"\n" if $DEBUG_EVAL_PATTERN;
 	    #  E V A L U A T E SpecialPattern
 	    $version = SpecialPattern($distbase, $_);
 	    print STDERR sprintf("%4d ", __LINE__ ), '(', $distbase,') ', $_,'--> ', $version,"\n" if $DEBUG_EVAL_PATTERN  || $DEBUG_SPECIAL_PATTERN ;
-	} elsif ( $distbase eq 'Unicode-Map' && 
+	} elsif ( $distbase eq 'Unicode-Map' && 			# MAJOR_IF_THEN_ELSE
 		$_ =~ /Unicode-Map8(.*)/ ) { 
 print STDERR sprintf("%4d ", __LINE__ ), ' (1a)', $distbase, ' --> ', $version,"\n" if $DEBUG_DISTBASE;
 next;
-	} elsif ( $distbase eq 'otp_src_R' &&
+	} elsif ( $distbase eq 'otp_src_R' &&				# MAJOR_IF_THEN_ELSE
 		/\b$distbase([0-9]+)B([0-9]*)/ ) {
 	    $version =	$1.$2 ;
-	} elsif ( $distbase eq 'xmx-2.1alpha.pl')	{ 
+	} elsif ( $distbase eq 'xmx-2.1alpha.pl')	{ 		# MAJOR_IF_THEN_ELSE
 	    s/alpha/a/g;
     	    s/beta/b/g;
 		$_ =~ /xmx-(.*)pl.*\.tar\.gz/;
 		$version = $1;
 print STDERR sprintf("%4d ", __LINE__ ), ' (01)', $distbase,' version-> ', $version,"\n" if $DEBUG_DISTBASE;
 	# avoid 2, www/p5-Catalyst-View-Mason2 will not be picked for www/p5-Catalyst-View-Mason
-	} elsif ( /(.*\b)$distbase([013-9_.-][0-9a-z_.-]+)\.(gz|bz2|zip|xz|7z|tgz|tbz|tar|Z)/ ||
+	} elsif ( /(.*\b)$distbase([013-9_.-][0-9a-z_.-]+)\.(gz|bz2|zip|xz|7z|tgz|tbz|tar|Z)/ ||	# MAJOR_IF_THEN_ELSE
 		/(.*\b)$distbase-v([0-9.]+)-linux/ ||
 		/(.*\b)$distbase-([0-9.]+)\.python/ ||	# devel/pythontidy
 		/(.*\b)$distbase.v([0-9.]+)/ ||
-		0 ) {
+		0 ) {  #  line 3089/3155
 	    my $pattern = $1;
 	    if ($pattern =~ /-$/) { 
   print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ',
@@ -3107,7 +3180,7 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (3) ', $distbase, ' --> ', $version,"
 	    $version =~ s/release//;
 	    $version =~ s/\.cmake//;
 	    $version =~ s/source//;
-	    $version =~ s/\.alpha//;	# wm/weewm
+#	    $version =~ s/\.alpha//;	# wm/weewm
 	    $version =~ s/-dev//;
             $version =~ s/-src-//;	# qt-everywhere-opensource --> -src-5.2.1
 	    $version =~ s/-src//;	# qt-everywhere-opensource --> -src-5.2.1	     
@@ -3117,13 +3190,9 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (3) ', $distbase, ' --> ', $version,"
        	    $version =~ s/dos//;	#  archivers/hpack79dos
 #	    $version =~ s/pre[0-9]//;
 	    $version =~ s/^[_.-]//;
-	    if ( ($distbase =~ /[A-Z][A-Za-z]+[0-9]*-[A-Z][a-z]+/ ) ) { # perl module regular shape
-		print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> Perl Module: ', $version, "\n" if $DEBUG_DISTBASE;
-		if ( $version =~ m|_[0-9]+$| ) { $version = ''; next;}	# skip  or after (DEVELOPER RELEASE)
-		print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> Perl Module: ', $version, "\n" if $DEBUG_DISTBASE;
-	    } else {			# harmful for p5-Data-Printer-0.35_01 -> 0.35.1
-	    $version =~ s/[_.-]/\./g;
-	    }
+	    		# harmful for p5-Data-Printer-0.35_01 -> 0.35.1
+#	    $version =~ s/[_.-]/\./g;
+
        	    $version =~ s/([0-9])p([0-9]+)/$1\.$2/;	# zorro 1.1p8, 1.1p8 ->1.1.8, while unzip60 is retained  
        	    $version =~ s/p[0-9]+//;
     	    $version =~ s/\.diff//;	# beav_1.40.diff
@@ -3142,9 +3211,7 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (3) ', $distbase, ' --> ', $version,"
 	    $version =~ s/\.c$//;	# bunzip-0.21.c.gz
 	    $version =~ s/v([0-9._-]+)/$1/;
 	    }
-	} # line 2133, elsif (/(.*\b)$distbase([013-9_.-][0-9a-z_.-]+)\.(gz|bz2|zip|xz|7z|tgz|tbz|tar|Z)/ ||
-
-print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', 'distbase (', $distbase, ') version (', $version, ') ',$_,"\n" if $DEBUG_SIMPLE_PATTERN ;
+	} # line 3089/3155, elsif (/(.*\b)$distbase([013-9_.-][0-9a-z_.-]+)\.(gz|bz2|zip|xz|7z|tgz|tbz|tar|Z)/ ||			# MAJOR_IF_THEN_ELSE
 
 	if ($version =~ m|[0-9.]+pre[0-9]| ) { next;}
 	if ($version =~ m|[0-9.]+beta| ) { next;}
@@ -3597,11 +3664,14 @@ sub DelDot422($$$) {
 sub InsertDot($$){
     my($version) = shift;
     my($digit) =   shift;
+   
     my($result) = $version;
     # if the letter at the location of $digit + 1 is digit, insert period at that point
     # example yencode 0.46 -> 0.4.6
     # 0.341 -> 0.34 but 0.42 -> 0.42 (not 0.42.) ($digit == 3, graphics/p5-SWF-File)
-#print STDERR '(',sprintf("%4d ", __LINE__ ), ')  ', $version, ' --> ', $digit,"\n" if $DEBUG_DISTBASE;
+#    print STDERR '(',sprintf("%4d ", __LINE__ ), ')  ', $version, ' --> ', $digit,"\n";
+    if ($digit == -1 ) { return '0.'.$version;}
+#    print STDERR '(',sprintf("%4d ", __LINE__ ), ')  ', $version, ' --> ', $digit,"\n";
     if ($digit == 3 && length($version) == 4 ) {return $result;}
 #print STDERR '(',sprintf("%4d ", __LINE__ ), ')  ', $version, ' --> ', $digit,"\n" if $DEBUG_DISTBASE;    
     $digit++;
