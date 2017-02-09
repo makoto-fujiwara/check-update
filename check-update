@@ -3112,6 +3112,13 @@ print STDERR sprintf("%4d ** ", __LINE__ ), '$SpecialPatternY: ', $SpecialPatter
 	if ( /[0-9._]+pr1/ )	{next;}
 
 	if (0) { # dummy for ease to swap sequence below		# MAJOR_IF_THEN_ELSE
+	} elsif ($R_Package) {						# MAJOR_IF_THEN_ELSE
+#	    print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', 'PackageName (', $PackageName, ') vesion (', $version, ') ',$_,"\n";
+	    if (/$distbase(_)([0-9_.-]+)\.tar./ )	{
+                 #MatrixModels_0.4-1.tar.gz
+	    $version = $2; $version =~ s/-/./;
+#	    print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', 'PackageName (', $PackageName, ') vesion (', $version, ') ',$_,"\n";
+	    push(@candidate), $version}
 	} elsif (my $pattern = $FAMILY{$PackageName} ) {		# MAJOR_IF_THEN_ELSE
 print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', 'PackageName (', $PackageName, ') pattern (', $pattern, ') ',$_,"\n" if   ($DEBUG_FAMILY);
 	    eval $pattern;
@@ -3332,8 +3339,8 @@ sub ReadMakefile($$)  {		# <- Main
     my ($category) =	shift;
     my ($directory) =	shift;
     my ($Makefile)  =	"$pkgsrc/$category/$directory/Makefile";
-    my ($MAINTAINER, $HOMEPAGE, $GEM_PACKAGE, $PEAR_PACKAGE, $HS_PACKAGE, $SFProject, $texlive) 
-	= ('',	     '',        0,            0,             0,		  -1,         0);
+    my ($MAINTAINER, $HOMEPAGE, $GEM_PACKAGE, $PEAR_PACKAGE, $HS_PACKAGE, $R_Package,	$SFProject, $texlive) 
+	= ('',	     '',        0,            0,             0,		  0,		-1,         0);
 #print STDERR '   ***', __FILE__ , ' -> ', (caller 0)[3], ': ',  sprintf("%4d ", __LINE__ ),"\n";
 #    print STDERR "Checking $Makefile\n";    
     if ( -f $Makefile ) {
@@ -3342,11 +3349,11 @@ sub ReadMakefile($$)  {		# <- Main
 	open(MAKEFILE, $Makefile) || print STDERR "Problem opening $Makefile: $!\n";
 	while (<MAKEFILE>) {
 	    if ( /^MAINTAINER=\s*(.*)/ )	{ $MAINTAINER = $1; }
-	    if ( /^HOMEPAGE=\s*(.*)/ )		{ $HOMEPAGE = $1; $HOMEPAGE =~ s|\#.*||; } 
+	    if ( /^HOMEPAGE=\s*(.*)/ )		{ $HOMEPAGE = $1; $HOMEPAGE =~ s|\#.*||; }
 	    if ( m|^.\s*include.*\.\./\.\./lang/ruby/gem\.mk|)	{ $GEM_PACKAGE++;}
 	    if ( m|^.\s*include.*\.\./\.\./lang/php/pear\.mk|)	{ $PEAR_PACKAGE++;}
 	    if ( m|^.\s*include.*\.\./\.\./mk/haskell\.mk|)	{ $HS_PACKAGE++;}
-	    if ( m|^.\s*include.*\.\./\.\./math/R/Makefile\.extentionk|)	{ $R_Package++;}
+	    if ( m|^.\s*include.*\.\./\.\./math/R/Makefile\.extension|)	{ $R_Package++;}
 	    if ( m|^.\s*include.*\.\./\.\./lang/python/egg\.mk|)	{ $EGG_PACKAGE++;}
 	    if ( m|^.\s*include.*\.\./\.\./print/texlive/package\.mk|)	{ $texlive++;}
 
@@ -4259,7 +4266,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
     my($thispwd) = `pwd`;    # not really effectively used
     $thispwd =~ chomp($thispwd);
 #    print STDERR '   ***', __FILE__ , ' -> ', (caller 0)[3], ': ',  sprintf("%4d ", __LINE__ )," " ;
-    if ( ! -d $this_PackageDir ) { print STDERR "Not directory: $thispwd -> $this_PackageDir\n"; next;}
+    if ( ! -d $this_PackageDir ) { print STDERR sprintf("%4d ", __LINE__ ), "Not directory: $thispwd -> $this_PackageDir\n"; next;}
 
     my ($Makefile) = $this_PackageDir.'/Makefile';
     if ( ! -f "$Makefile")        { 
