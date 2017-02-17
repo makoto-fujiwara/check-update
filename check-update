@@ -1263,6 +1263,23 @@ sub ClassifyPackage(@) {
 	    $pattern  = '$_ =~ m|.*foomatic-filters-('. $major.'.[0-9.]+)\.tar\..*|; $version = $1; ';
 	    $FAMILY{$p} = $pattern;
 	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1b) family: ', $p, ' -> '. $pattern."\n" if $DEBUG_FAMILY;
+	    # (24) cyrus
+	}  elsif ($p =~ /^(cyrus-imapd)(\d)(\d*)/  ||
+                  $p =~ /^(cyrus-imapd)/ ){
+	    my ($pkg)  =  $1;
+	    my ($major) = $2;
+	    my ($minor) = $3;
+	    my ($pattern);
+	    if ($major == '') { $major = 2; $minor = 2}
+#	    if ($minor) {
+		$pattern = '$version = $_ ; $version =~ s/.*'. $pkg.'-('.$major.'\.'.$minor .'\.[0-9.p]+)\.tar.*/$1/';
+#	    } else {
+#		$pattern = '$version = $_ ; $version =~ s/.*'. $pkg.'-('.$major.'.[0-9.p]+)\.tar.*/$1/';
+#	    }
+	    $FAMILY{$p} = $pattern;
+	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1i) family: ', $p, ' -> ', $FAMILY{$p},
+"\n" if $DEBUG_FAMILY;
+
 	# normal numbering
 	} elsif ($p =~ /(.*)([0-9]+)$/) {
 	    my ($pybody) = $1 ;
@@ -4547,6 +4564,8 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	$DISTBASE_TO_SHOW =~ s/$PKGBASE/=/;
 	if ( $DISTBASE_TO_SHOW ne '='){
 	    ($PKGBASE_TO_SHOW) =~ s/$DISTBASE/ =>/;}
+
+	if ($FAMILY{$PKGBASE} == '') { $TODO{$PKGBASE} = ''}
 
     $console_string .= 
     sprintf  ("%20s %15s %4s Now: %8s -> %7s Todo: %5s ", 
