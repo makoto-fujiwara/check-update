@@ -3166,7 +3166,7 @@ print STDERR sprintf("%4d ** ", __LINE__ ), '$SpecialPatternY: ', $SpecialPatter
                  #MatrixModels_0.4-1.tar.gz
 	    $version = $2; $version =~ s/-/./;
 #	    print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', 'PackageName (', $PackageName, ') vesion (', $version, ') ',$_,"\n";
-	    push(@candidate), $version}
+	    push(@candidate, $version); }
 	} elsif (my $pattern = $FAMILY{$PackageName} ) {		# MAJOR_IF_THEN_ELSE
 print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', 'PackageName (', $PackageName, ') pattern (', $pattern, ') ',$_,"\n" if   ($DEBUG_FAMILY);
 	    eval $pattern;
