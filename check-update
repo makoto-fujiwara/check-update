@@ -44,11 +44,17 @@ my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 my ($MIN_LINES) = 5;		# retry threshold less than this lines
 my ($SF_SITE) = 'http://sourceforge.net/';
 my (%Accept99) = qw (TeXemacs 1);	#  accept version with 99
+
+# distname has no dot,  math/arpack arpack96 math/newmat -> newmat11
 my (%NoDot)    = qw (
  arpack  1 
  picasm  1
  newmat  1
-    );	#  math/arpack arpack96 math/newmat -> newmat11
+    );
+# PKGVERSION should include dot, say, avoid picking amavisd-new-20040701 etc
+# should automatically detecated from PKGVERSION ?
+my (%NeedsDot) = qw (amavisd-new);
+my ($NeedsDot) = 0; # activated automatically if PKGVERSION has dot.
 
 our(@ARGV);
 #   requirement:
@@ -4326,6 +4332,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	 $R_Package, $SFProject, $TEXLIVE, $EGG_PACKAGE)
 	= ReadMakefile($dir, $PackageName);
 	$PKGVERSION		= GetVariableValue ($dir, $PackageName, 'PKGVERSION_NOREV');
+	if ($PKGVERSION =~ m|^[0-9]+\.|) { $NeedsDot++;}
 	my ($location); # destination to be directed
 	my ($dist_name) = GetVariableValue ($dir, $PackageName, 'DISTNAME');
         $dist_name .= GetVariableValue ($dir, $PackageName, 'EXTRACT_SUFX');
