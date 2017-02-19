@@ -1042,7 +1042,7 @@ print STDERR sprintf("%4d ", __LINE__ ), ' hostname -> ', $hostname, "\n" if $DE
 }
 # http://basercms.net/packages/download/basercms/3.0.6.1
 #
-my(%FAMILY);	# assoc for pkgname to family pattern
+my(%FAMILY) = '';	# assoc for pkgname to family pattern
 sub ClassifyPackage(@) {
     # classify packages into Normal or Family
     # Family means like 
@@ -4564,8 +4564,9 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	$DISTBASE_TO_SHOW =~ s/$PKGBASE/=/;
 	if ( $DISTBASE_TO_SHOW ne '='){
 	    ($PKGBASE_TO_SHOW) =~ s/$DISTBASE/ =>/;}
-
-	if ($FAMILY{$PKGBASE} == '') { $TODO{$PKGBASE} = ''}
+# print STDERR sprintf("%4d ", __LINE__ ), 
+#	' (PKGBASE) ', $PKGBASE, ' --> FAMILY (', $FAMILY{$PKGBASE},') TODO (',$TODO{$PKGBASE},")\n";
+	if ($FAMILY{$PKGBASE}) { $TODO{$PKGBASE} = ''}
 
     $console_string .= 
     sprintf  ("%20s %15s %4s Now: %8s -> %7s Todo: %5s ", 
