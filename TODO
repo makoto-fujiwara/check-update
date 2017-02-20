@@ -1,22 +1,22 @@
 (TODO)
-  - audio/mikmod picked 3.3.10 before but now 3.27
+  - MaturedList doesn't work with family, say, math/pari23 won't be disabled
+  - chat/anope  'Download anope-2.0.1-source.tar.gz (1.8 MB) ' -> 2.0.1-
+  - pick 4.6.1 for jquery-rails (should be 4.2.2)
+    when   "gem22 list -r -q jquery-rails" returns following lines
+     jqgrid-jquery-rails (4.6.1)
+     jquery-rails (4.2.2)
+  - Pick from http://beta.repology.org/package/
+  - devel/bzr-gtk	bzr-gtk	0.100.0	->	0.9.0	0.103.0 (strange)
+  - audio/mikmod picked 3.3.10 before but now 3.2.7
   - tk problem (versioned directory and family, I am afraid) 
   - 10/02/2016 results degraded on GNOME site, hint -> git diff  569021d 6815338 ,
     but possibly network condition ?
   - family find (external tool)
   - w3m result cache
-  - Implement timeout mechanism for external process (curl and w3m)
   - limited-list mode: list set of packages and scan partially base on it
-
-  - Individual (single or partial) execution finds following, but -c devel won't  (devel/ruby-needle)
-    ruby23- =>        (needle) (4321 ) Now:    1.3.0 ->   1.3.0 Todo:       
   - 0.32rc1 < 0.32 (cad/ghdl ghdl 0.32rc1 -> 0.32)
-
-  - Do not pick
-        ham/xlog-2.0.14beta4.tar.gz
-        ham/fl_logbook-256.png
-        ham/gmfsk (pre1), don't pick 0.7pre1
-  - graphics/djview4 ->  https://sourceforge.net/projects/djvu/files/DjView/4.10/ (mixed uplow case)
+  - graphics/djview4
+      ->  https://sourceforge.net/projects/djvu/files/DjView/4.10/ (mixed uplow case)
   - Mailing to the MAINTAINER
     Difference is firm (confident) and the receiver wants, mail report
     on every Friday or on the update (?)
@@ -38,6 +38,8 @@
     (Thanks Thomas wiz@)
 
   - (alpha)  audacious 3.7 is not release, but alpha or beta
+  - Don't pick alpha version of devel/rdp
+  - audio/audacious-plugin, don't pick audacious-plugins-3.8-beta2.tar.bz2  (as 3.8.2)
   - (99 or 90) may be development version and nice not to list gdt@
   -  biology/cdhit 4.6.4 -> 454 EDITversion does not give any effect (?)
   -  (done) Avoid to show 1.[odd number].x for sysutils/dbus. It is unstable branch

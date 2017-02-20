@@ -44,11 +44,17 @@ my ($MAXSTRINGLEN) = 30;	# Max length of string to pick version
 my ($MIN_LINES) = 5;		# retry threshold less than this lines
 my ($SF_SITE) = 'http://sourceforge.net/';
 my (%Accept99) = qw (TeXemacs 1);	#  accept version with 99
+
+# distname has no dot,  math/arpack arpack96 math/newmat -> newmat11
 my (%NoDot)    = qw (
  arpack  1 
  picasm  1
  newmat  1
-    );	#  math/arpack arpack96 math/newmat -> newmat11
+    );
+# PKGVERSION should include dot, say, avoid picking amavisd-new-20040701 etc
+# should automatically detecated from PKGVERSION ?
+my (%NeedsDot) = qw (amavisd-new);
+my ($NeedsDot) = 0; # activated automatically if PKGVERSION has dot.
 
 our(@ARGV);
 #   requirement:
@@ -325,6 +331,7 @@ my (%SEARCH_STRINGS)  = (
 #my (@Debian) = qw(signing-party);
 
 my ($SpecialPatternY);	# variable to hold by-package pattern
+#  --- HARDCODE TABLES --- ( to ease accessing tables )
 # key is DISTBASE (but please note DISTBASE itself is extracted by this script)    
 my (%SpecialPattern) = (
     'cairo',		'$line =~ s/.*$distbase(-5c){0,}-([0-9.]+[0-9]).*/$2/ ;',  # games/crimsonfields
@@ -453,8 +460,10 @@ my(%SourceForgeAlternative) = qw (
     PyQt-x11-gpl https://sourceforge.net/projects/pyqt/files/PyQt4/
 ); #'
 
+#  --- HARDCODE TABLES --- ( to ease accessing tables )
 # PKGBASE to $DISTBASE association Special (ending digit is main customer)
 my(%DISTBASE) = qw (
+    awhois	awhois.sh
     mad-flute	mad_fcl
     gplcver	gplcver
     rexx-regina Regina-REXX
@@ -810,6 +819,8 @@ my (@DISTBASE_DIGIT) = qw(perl5 hdf5 libosip2 xfwm4 Catalyst-View-Mason2);
 
 # 8089 -> 0.8089
 my (@xtimer) = qw(xtimer);
+# 1.61.0 -> 1.61
+my (@euler)  = qw(euler);
 ##    -------------------------
 ##    P R O T O T Y P E S
 ##    -------------------------
@@ -1037,7 +1048,7 @@ print STDERR sprintf("%4d ", __LINE__ ), ' hostname -> ', $hostname, "\n" if $DE
 }
 # http://basercms.net/packages/download/basercms/3.0.6.1
 #
-my(%FAMILY);	# assoc for pkgname to family pattern
+my(%FAMILY) = '';	# assoc for pkgname to family pattern
 sub ClassifyPackage(@) {
     # classify packages into Normal or Family
     # Family means like 
@@ -1258,6 +1269,23 @@ sub ClassifyPackage(@) {
 	    $pattern  = '$_ =~ m|.*foomatic-filters-('. $major.'.[0-9.]+)\.tar\..*|; $version = $1; ';
 	    $FAMILY{$p} = $pattern;
 	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1b) family: ', $p, ' -> '. $pattern."\n" if $DEBUG_FAMILY;
+	    # (24) cyrus
+	}  elsif ($p =~ /^(cyrus-imapd)(\d)(\d*)/  ||
+                  $p =~ /^(cyrus-imapd)/ ){
+	    my ($pkg)  =  $1;
+	    my ($major) = $2;
+	    my ($minor) = $3;
+	    my ($pattern);
+	    if ($major == '') { $major = 2; $minor = 2}
+#	    if ($minor) {
+		$pattern = '$version = $_ ; $version =~ s/.*'. $pkg.'-('.$major.'\.'.$minor .'\.[0-9.p]+)\.tar.*/$1/';
+#	    } else {
+#		$pattern = '$version = $_ ; $version =~ s/.*'. $pkg.'-('.$major.'.[0-9.p]+)\.tar.*/$1/';
+#	    }
+	    $FAMILY{$p} = $pattern;
+	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1i) family: ', $p, ' -> ', $FAMILY{$p},
+"\n" if $DEBUG_FAMILY;
+
 	# normal numbering
 	} elsif ($p =~ /(.*)([0-9]+)$/) {
 	    my ($pybody) = $1 ;
@@ -1428,6 +1456,7 @@ sub DistbaseCacheQuery($$) {
         printf( STDERR "%4d (Q) %10s %5s", sprintf("%4d ", __LINE__ ), $distbase,  -1 )  if $DEBUG_CACHE;    
     return -1;
 }
+#  --- HARDCODE TABLES --- ( to ease accessing tables )
 sub EditVersion($$) {
     my ($distbase) = shift;
     my ($version) = shift;
@@ -1479,6 +1508,7 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (3) <', (caller 0)[3] ,'> ', $version
 	if (grep (/^$distbase$/, @swap4)	> 0 ) { $version =~ s/([0-9][0-9][0-9][0-9])([0-9][0-9][0-9][0-9])/$2$1/;}
 	if (grep (/^$distbase$/, 'eredis')	> 0 ) { $version =~ s/1\.0\.8/1.0.8.20150910/;}
         if (   $distbase =~ m|^xpdf-| )		      { $version = MonthToDigit($version); }
+        if ( $distbase =~ m|^euler$| )                { $version = substr($version, 0, 4); }
     print STDERR sprintf("%4d ", __LINE__ ), ' (4) ', $version, "\n" if $DEBUG_EDITVersion;
 #	print STDERR sprintf("%4d ", __LINE__ ), ' ', $_, "\n", $distbase, ' --> ', $version,"\n";
     return $version;
@@ -2085,6 +2115,7 @@ print STDERR sprintf("%4d ", __LINE__ ), ' ', $dir, '/', $PackageName, '; DISTBA
 	#  ----------------------------------
     } else {
 
+#  --- HARDCODE TABLES --- ( to ease accessing tables )
 #    print STDERR sprintf("%4d ", __LINE__ ), ' ', $DISTBASE, "\n";
     # if - is included, strip - and after S T R I P
     # if _ is included, strip _ and after S T R I P
@@ -2290,6 +2321,7 @@ sub PickFromCandidate(@) {
     my ($max_version);
 	    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ': ', "\n",join ("\n", @CANDIDATE),"\n" if $DEBUG_CANDIDATE ;
 
+#  --- HARDCODE TABLES --- ( to ease accessing tables )
     foreach  my $i ( 0.. $#CANDIDATE ) {
 	my($ver) = $CANDIDATE[$i];
 	print STDERR sprintf("%4d ", __LINE__ ), 'ver (', $ver,') max_version (',$max_version,")\n" if $DEBUG_VER_PATTERN;
@@ -3051,6 +3083,7 @@ print STDERR sprintf("%4d ** ", __LINE__ ), (caller 0)[3], ' (', $distbase,') :'
 	if ($master_site =~ m|sourceforge| && /<span>Download / )   { next;} # skip harmfull and obsolete catch
 print STDERR sprintf("%4d ** ", __LINE__ ), (caller 0)[3], ' (', $distbase,') :', $_ ,"\n" if $DEBUG_SF_LOOKING_FOR;
 #  ----------------------------------------------------------------
+#  --- HARDCODE TABLES --- ( to ease accessing tables )
 print STDERR sprintf("%4d ** ", __LINE__ ), '(', $distbase,') $_(', $_,')',"\n" if $DEBUG_EVAL_PATTERN ;
 print STDERR sprintf("%4d ** ", __LINE__ ), '$SpecialPatternY: ', $SpecialPatternY,"\n" if $DEBUG_SPECIAL_PATTERN && $SpecialPatternY ; 
 	if ( /[0-9._]+[-_]rc/ )	{next;}
@@ -3118,7 +3151,7 @@ print STDERR sprintf("%4d ** ", __LINE__ ), '$SpecialPatternY: ', $SpecialPatter
                  #MatrixModels_0.4-1.tar.gz
 	    $version = $2; $version =~ s/-/./;
 #	    print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', 'PackageName (', $PackageName, ') vesion (', $version, ') ',$_,"\n";
-	    push(@candidate), $version}
+	    push(@candidate, $version); }
 	} elsif (my $pattern = $FAMILY{$PackageName} ) {		# MAJOR_IF_THEN_ELSE
 print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', 'PackageName (', $PackageName, ') pattern (', $pattern, ') ',$_,"\n" if   ($DEBUG_FAMILY);
 	    eval $pattern;
@@ -3184,6 +3217,7 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (2) ', $distbase, ' --> ', $version,"
 		    $version =~  s/-([0-9]+)-[jfmasond][a-z][a-z]-([0-9]+)\.tar/$1$digit$2/;
 print STDERR sprintf("%4d ", __LINE__ ), ' (3) ', $distbase, ' --> ', $version,"\n" if $DEBUG_DISTBASE;
 		}
+#  --- HARDCODE TABLES --- ( to ease accessing tables )
 	    } else { # not xpdf
 	    $version =~ s/-vax-//;	# compat30-extras-sparc-3.1.tar.bz2  S T R I P
 	    $version =~ s/-i386-//;	#
@@ -4283,6 +4317,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	 $R_Package, $SFProject, $TEXLIVE, $EGG_PACKAGE)
 	= ReadMakefile($dir, $PackageName);
 	$PKGVERSION		= GetVariableValue ($dir, $PackageName, 'PKGVERSION_NOREV');
+	if ($PKGVERSION =~ m|^[0-9]+\.|) { $NeedsDot++;}
 	my ($location); # destination to be directed
 	my ($dist_name) = GetVariableValue ($dir, $PackageName, 'DISTNAME');
         $dist_name .= GetVariableValue ($dir, $PackageName, 'EXTRACT_SUFX');
@@ -4536,6 +4571,9 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	$DISTBASE_TO_SHOW =~ s/$PKGBASE/=/;
 	if ( $DISTBASE_TO_SHOW ne '='){
 	    ($PKGBASE_TO_SHOW) =~ s/$DISTBASE/ =>/;}
+# print STDERR sprintf("%4d ", __LINE__ ), 
+#	' (PKGBASE) ', $PKGBASE, ' --> FAMILY (', $FAMILY{$PKGBASE},') TODO (',$TODO{$PKGBASE},")\n";
+	if ($FAMILY{$PKGBASE}) { $TODO{$PKGBASE} = ''}
 
     $console_string .= 
     sprintf  ("%20s %15s %4s Now: %8s -> %7s Todo: %5s ", 
