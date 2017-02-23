@@ -457,6 +457,7 @@ my(%SourceForgeAlternative) = qw (
 #  --- HARDCODE TABLES --- ( to ease accessing tables )
 # PKGBASE to $DISTBASE association Special (ending digit is main customer)
 my(%DISTBASE) = qw (
+    imp		imp-h3
     awhois	awhois.sh
     mad-flute	mad_fcl
     gplcver	gplcver
