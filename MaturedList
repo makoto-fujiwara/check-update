@@ -27,6 +27,7 @@ editors/emacs23-nox11
 editors/mule
 editors/xcoral
 games/gnuchess4
+mail/gmime24
 net/dnsdoctor
 net/ser
 net/socks4
