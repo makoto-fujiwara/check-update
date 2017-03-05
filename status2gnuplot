@@ -146,7 +146,7 @@ set out "/dev/null"
 set out "$GNUPLOT_OUT.png"
 $xtics;
 plot \\
-    "$GNUPLOT_FILE" using 1:3  title "Found" w linespoints, \\
+    "$GNUPLOT_FILE" using 1:3  title "To Be Updated" w linespoints, \\
     "$GNUPLOT_FILE" using 1:4  title "TODO" w linespoints, \\
 CMD_HEAD
 
