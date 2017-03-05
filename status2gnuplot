@@ -127,13 +127,13 @@ print GNUPLOT_CMD <<CMD_HEAD;
 set term png
 set out "/dev/null"
 set out '/tmp/check-update-trend.png'
-set xtics ('2015/05' 100, '2015/10' 200, '2016/01' 300, '2016/05' 400, '2016/08' 500, '2016/12' 600, '2017/03' 690)
+set xtics ('2015/01' 1, '2015/05' 100, '2015/10' 200, '2016/01' 300, '2016/05' 400, '2016/08' 500, '2016/12' 600, '2017/03' 690)
 plot \\
     "$GNUPLOT_FILE" using 1:3  title "Found" w linespoints, \\
     "$GNUPLOT_FILE" using 1:4  title "TODO" w linespoints, \\
 CMD_HEAD
 
-    if ($opts{'u'}) {
+    if ( ! $opts{'u'}) {
 print GNUPLOT_CMD <<CMD_UTD;
     "$GNUPLOT_FILE" using 1:5  title "UpToDate" w linespoints, \\
 CMD_UTD
