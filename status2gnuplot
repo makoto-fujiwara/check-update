@@ -21,22 +21,13 @@ sub usage{
 $0
 HELP
 };
-if ($opts{'h'}) { usage(); exit}
-if ($opts{'b'}) { $branch = $opts{'b'};}
-
-if ($branch) { $DIR .= '/'. $branch;}
-print 'branch: ' . $branch,"\n";
-print    'dir: ' . $DIR,"\n";
+sub ReadFile($$@) {
+    my ($summary) = shift;
+    my ($dir)     = shift;
+    my (@ITEM)    = shift;
 
 my ($Found, $TODO, $UptoDate, $NA, $NoMaster, $NotFound, $Forbidden, $NotinDNS, 
     $Texlive, $META, $confusing, $NotListed, $Checked, $Total);
-my ($serial) = 1;
-opendir (DIR, $DIR);
-while (my $dir = readdir(DIR)){
-    if ($dir =~ /^20/) { 
-#	print $dir,"\n";
-	my ($summary) = $DIR.'/'.$dir. '/00_Stats.html';
-	if ( -f $summary) {
 #	    print $summary,"\n";
 	    open(FILE, $summary) || print STDERR sprintf("%04d ", __LINE__). 'problem opening file'. "$!\n";
 	    while (<FILE>) {
@@ -60,7 +51,7 @@ while (my $dir = readdir(DIR)){
 	    close(FILE);
 	    my ($date) = $dir;
 	    $date =~ s/(\d{8})-\d{2}/$1/;
-	    push(@ITEM, [
+return (
 $date,
 $Found,
 $TODO,
@@ -76,18 +67,52 @@ $confusing,
 $NotListed,
 $Checked,
 $Total,
-]);
+);
 
 #Sum of Above:             0 
-	    }
+
+}
+    
+if ($opts{'h'}) { usage(); exit}
+if ($opts{'b'}) { $branch = $opts{'b'};}
+
+if ($branch) { $DIR .= '/'. $branch;}
+print 'branch: ' . $branch,"\n";
+print    'dir: ' . $DIR,"\n";
+
+opendir (DIR, $DIR);
+while (my $dir = readdir(DIR)){
+    if ($dir =~ /^20/) { 
+#	print $dir,"\n";
+	my ($summary) = $DIR.'/'.$dir. '/00_Stats.html';
+	if ( -f $summary) {
+	    push(@ITEM, [ReadFile($summary, $dir)]);
+	}
 	}
 } # end while
-
 closedir(DIR);
+
+$DIR = $DIR.'/d2015';
+opendir (DIR, $DIR);
+while (my $dir = readdir(DIR)){
+#	    print $dir,"\n";
+
+    if ($dir =~ /^20/) { 
+	my ($summary) = $DIR.'/'.$dir. '/00_Stats.html';
+#	    print $summary,"\n";	
+	if ( -f $summary) {
+	    push(@ITEM, [ReadFile($summary, $dir)]);
+	}
+	}
+} # end while
+closedir(DIR);
+
+
 my(@SORTED);
 @SORTED = sort { $a->[0] <=> $b ->[0] } @ITEM;
 
 open(GNUPLOT_FILE, "> $GNUPLOT_FILE" ) || print STDERR sprintf("%04d ", __LINE__). 'problem opening file: '. $GNUPLOT_FILE. " $!\n";
+my ($serial) = 1;
 while (my $ptr = shift @SORTED) {
     print  GNUPLOT_FILE $serial++ . ' '; 
     foreach my $i (0..14) {print  GNUPLOT_FILE $ptr -> [$i]. ' ';  }
