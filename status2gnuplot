@@ -1,0 +1,192 @@
+#!/usr/pkg/bin/perl
+use strict;
+use Getopt::Std;
+our(%opts);
+our(%ARGV);
+
+my($DIR) = $ENV{'HOME'}. '/public_html/pkgsrc/check-update';
+my($branch);
+
+my(@ITEM);
+# temporary file for passing to gnuplot
+my($GNUPLOT) = '/tmp/.' .$0;
+
+my($GNUPLOT_FILE) = $GNUPLOT. '_file';
+my($GNUPLOT_CMD)  = $GNUPLOT. '_cmd';
+
+getopts('ab:h',\%opts);
+
+sub usage{
+    print <<HELP;
+$0
+HELP
+};
+if ($opts{'h'}) { usage(); exit}
+if ($opts{'b'}) { $branch = $opts{'b'};}
+
+if ($branch) { $DIR .= '/'. $branch;}
+print 'branch: ' . $branch,"\n";
+print    'dir: ' . $DIR,"\n";
+
+my ($Found, $TODO, $UptoDate, $NA, $NoMaster, $NotFound, $Forbidden, $NotinDNS, 
+    $Texlive, $META, $confusing, $NotListed, $Checked, $Total);
+my ($serial) = 1;
+opendir (DIR, $DIR);
+while (my $dir = readdir(DIR)){
+    if ($dir =~ /^20/) { 
+#	print $dir,"\n";
+	my ($summary) = $DIR.'/'.$dir. '/00_Stats.html';
+	if ( -f $summary) {
+#	    print $summary,"\n";
+	    open(FILE, $summary) || print STDERR sprintf("%04d ", __LINE__). 'problem opening file'. "$!\n";
+	    while (<FILE>) {
+		if    (/Found:\s*([0-9]+) /)		{ $Found = $1;}
+		elsif (/TODO flags:\s*([0-9]+) /)	{ $TODO = $1;}
+		elsif (/Up-to-date:\s*([0-9]+) /)	{ $UptoDate = $1;}
+		elsif (/Not Available:\s*([0-9]+) /)	{ $NA = $1;}
+		elsif (/No Master Sites:\s*([0-9]+) /)	{ $NoMaster = $1;}
+		elsif (/NotFound \(404\):\s*([0-9]+) /)	{ $NotFound = $1;}
+		elsif (m|Forbidden\(403/550\):\s*([0-9]+)|){ $Forbidden = $1;}
+		elsif (/Site not in DNS:\s*([0-9]+) /)	{ $NotinDNS = $1;}
+		elsif (/Texlive:\s*([0-9]+) /)		{ $Texlive = $1;}
+		elsif (/META_PACKAGE:\s*([0-9]+) /)	{ $META = $1;}
+		elsif (/Confusing:\s*([0-9]+) /)	{ $confusing = $1;}
+		elsif (/Not Listed:\s*([0-9]+) /)	{ $NotListed = $1;}
+#Sum of Above:             0 
+#Total Checked:        13658 
+		elsif (/Total Checked:\s*([0-9]+) /)	{ $Checked = $1;}
+		elsif (/                    \s+([0-9]+) /)	{ $Total = $1;}
+	    }
+	    close(FILE);
+	    my ($date) = $dir;
+	    $date =~ s/(\d{8})-\d{2}/$1/;
+	    push(@ITEM, [
+$date,
+$Found,
+$TODO,
+$UptoDate,
+$NA,
+$NoMaster,
+$NotFound,
+$Forbidden,
+$NotinDNS,
+$Texlive,
+$META,
+$confusing,
+$NotListed,
+$Checked,
+$Total,
+]);
+
+#Sum of Above:             0 
+	    }
+	}
+} # end while
+
+closedir(DIR);
+my(@SORTED);
+@SORTED = sort { $a->[0] <=> $b ->[0] } @ITEM;
+
+open(GNUPLOT_FILE, "> $GNUPLOT_FILE" ) || print STDERR sprintf("%04d ", __LINE__). 'problem opening file: '. $GNUPLOT_FILE. " $!\n";
+while (my $ptr = shift @SORTED) {
+    print  GNUPLOT_FILE $serial++ . ' '; 
+    foreach my $i (0..14) {print  GNUPLOT_FILE $ptr -> [$i]. ' ';  }
+    print GNUPLOT_FILE "\n";
+}
+close(GNUPLOT_FILE);
+
+open(GNUPLOT_CMD, "> $GNUPLOT_CMD")|| print STDERR sprintf("%04d ", __LINE__). 'problem opening file: '. $GNUPLOT_CMD . " $!\n";
+#print join "\n", @list, "\n";
+
+print GNUPLOT_CMD <<CMD_HEAD;
+set term png
+set out "/dev/null"
+set out '/tmp/check-update-trend.png'
+plot \\
+    "$GNUPLOT_FILE" using 1:3  title "Found" w linespoints, \\
+    "$GNUPLOT_FILE" using 1:4  title "TODO" w linespoints, \\
+CMD_HEAD
+
+    if ($opts{'u'}) {
+print GNUPLOT_CMD <<CMD_UTD;
+    "$GNUPLOT_FILE" using 1:5  title "UpToDate" w linespoints, \\
+CMD_UTD
+}
+
+print GNUPLOT_CMD <<CMD_HEAD2;
+    "$GNUPLOT_FILE" using 1:6  title "N/A" w linespoints, \\
+    "$GNUPLOT_FILE" using 1:7  title "No-Master" w linespoints, \\
+    "$GNUPLOT_FILE" using 1:8  title "Not-Found" w linespoints, \\
+    "$GNUPLOT_FILE" using 1:9  title "Forbidden" w linespoints, \\
+    "$GNUPLOT_FILE" using 1:10  title "Not-in- DNS" w linespoints, \\
+    "$GNUPLOT_FILE" using 1:11  title "TexLive" w linespoints, \\
+    "$GNUPLOT_FILE" using 1:12  title "Meta" w linespoints, \\
+    "$GNUPLOT_FILE" using 1:13  title "confusing" w linespoints, \\
+    "$GNUPLOT_FILE" using 1:14  title "NotListed" w linespoints, \\
+CMD_HEAD2
+
+    if ($opts{'a'}) {
+	print GNUPLOT_CMD <<GNUPLOT_CMD_ALL;
+    "$GNUPLOT_FILE" using 1:15  title "Checked" w linespoints, \\
+    "$GNUPLOT_FILE" using 1:16  title "Total" w linespoints
+GNUPLOT_CMD_ALL
+	}
+close(GNUPLOT_CMD);
+
+system("/usr/pkg/bin/gnuplot $GNUPLOT_CMD");
+
+
+__END__
+<body>
+<pre>
+<span class="brown">Found:                 2117 These packages are to be updated</span>
+<span class="brown">TODO flags:             507 (More to be updated, by TODO)</span>
+Up-to-date:            5544 OK, Already up-to-date
+Not Available:          739 Failed to get update info (indicated as 0.0)
+No Master Sites:          0 (usually in files directory)
+NotFound (404):         788 MASTER_SITES returns 404, and no recovery
+Forbidden(403/550):     282 
+Site not in DNS:       1400 
+Name ends with digit:      0 (The name ends with digits, may give false version)
+Texlive:                131 (Texlive is skipped for now)
+META_PACKAGE:          1862 (Other than meta-pkgs category)
+Confusing:               42 <span class="reverse">(Found version wrong, hilighted, only for debug purpose)</span>
+Not Listed:             246 
+Sum of Above:             0 
+Total Checked:        13658 
+                      13950 
+Started:         Thu May 12 17:32:40 2016 UTC
+Ended:           Fri May 13 02:53:01 2016 UTC
+Elapsed:                    09:20:21
+
+
+#!/usr/local/bin/gnuplot -persist
+# set terminal postscript landscape noenhanced monochrome \
+#              dashed defaultplex "Helvetica" 14
+# set output 'output.ps'
+#set xrange [ 0 : 2 ] noreverse nowriteback
+#set yrange [ 0 : 1 ] noreverse nowriteback
+#set mxtics 5.000000
+#set mytics 5.000000
+#set xtics border mirror norotate 1
+#set ytics border mirror norotate 0.5
+set term png
+set out "/dev/null"
+set out '2012-arrl-cw.png'
+
+# plot "2011-xpo" using 1:2 title "2010" w boxes, \
+#      "2011-xpo" using 1:3 title "2011" w boxes
+
+plot \
+     "~/prep/arrl-2012-cw" using 1:3  title "2012-1" w linespoints,\
+     "~/prep/arrl-2012-cw" using 1:5  title "2012-2" w linespoints,\
+     "~/prep/arrl-2012-cw" using 1:4  title "2011-2" w lines,\
+     "~/prep/arrl-2012-cw" using 1:2  title "2011-1" w lines\
+
+#    EOF
+
+# expecting 'lines', 'points', 'linespoints', 'dots', 'impulses',
+#         'yerrorbars', 'xerrorbars', 'xyerrorbars', 'steps', 'fs
+
+
+
