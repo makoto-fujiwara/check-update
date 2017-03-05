@@ -152,7 +152,7 @@ CMD_HEAD
 
     if ( ! $opts{'u'}) {
 print GNUPLOT_CMD <<CMD_UTD;
-    "$GNUPLOT_FILE" using 1:5  title "UpToDate" w linespoints, \\
+    "$GNUPLOT_FILE" using 1:5  title "OK" w linespoints, \\
 CMD_UTD
 }
 
