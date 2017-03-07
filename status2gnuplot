@@ -8,6 +8,8 @@ sub usage{
 -b branch      -b HEAD
 -h help
 -u Omit up-to-date value  (default add)
+-r recent
+-p percent
 
 $0
 HELP
@@ -19,7 +21,17 @@ sub ReadFile($$@) {
 
 my ($Found, $TODO, $UptoDate, $NA, $NoMaster, $NotFound, $Forbidden, $NotinDNS, 
     $Texlive, $META, $confusing, $NotListed, $Checked, $Total);
+# syntax varies before and after 20150505-17 .. 20150507-00
+    my ($summary_date) = $summary;
+    my ($old_syntax) = 0;
+    $summary_date =~ m|/(\d{8})-\d{2}/00|; $summary_date = $1;
+    if ($summary_date <= 20150505 ) {
+	$old_syntax = 1;
 #	    print $summary,"\n";
+    }
+	    my ($date) = $dir;
+	    $date =~ s/(\d{8})-\d{2}/$1/;
+    if ($old_syntax) {
 	    open(FILE, $summary) || print STDERR sprintf("%04d ", __LINE__). 'problem opening file'. "$!\n";
 	    while (<FILE>) {
 		if    (/Found:\s*([0-9]+) /)		{ $Found = $1;}
@@ -35,13 +47,34 @@ my ($Found, $TODO, $UptoDate, $NA, $NoMaster, $NotFound, $Forbidden, $NotinDNS,
 		elsif (/Confusing:\s*([0-9]+) /)	{ $confusing = $1;}
 		elsif (/Not Listed:\s*([0-9]+) /)	{ $NotListed = $1;}
 #Sum of Above:             0 
+	#Total Checked:        13658
+		elsif (/Sum of Above:\s*([0-9]+) /)	{ $Checked = $1;}
+		elsif (/Total Checked:\s*([0-9]+) /)	{ $Total = $1;}
+	    }
+	    close(FILE);
+    } else {
+	    open(FILE, $summary) || print STDERR sprintf("%04d ", __LINE__). 'problem opening file'. "$!\n";
+	    while (<FILE>) {
+		if    (/Found:\s*([0-9]+) /)		{ $Found = $1;}
+		elsif (/TODO flags:\s*([0-9]+) /)	{ $TODO = $1;}
+		elsif (/Up-to-date:\s*([0-9]+) /)	{ $UptoDate = $1;}
+		elsif (/Not Available:\s*([0-9]+) /)	{ $NA = $1;}
+		elsif (/No Master Sites:\s*([0-9]+) /)	{ $NoMaster = $1;}
+		elsif (/NotFound \(404\):\s*([0-9]+) /)	{ $NotFound = $1;}
+		elsif (m|Forbidden\(403/550\):\s*([0-9]+)|){ $Forbidden = $1;}
+		elsif (/Site not in DNS:\s*([0-9]+) /)	{ $NotinDNS = $1;}
+		elsif (/Texlive:\s*([0-9]+) /)		{ ;}
+
+		elsif (/META_PACKAGE:\s*([0-9]+) /)	{ $Texlive = $1;}
+		elsif (/Confusing:\s*([0-9]+) /)	{ $META = $1;}
+		elsif (/Not Listed:\s*([0-9]+) /)	{ $confusing = $1;}
+		elsif (/Sum of Above:\s*([0-9]+) /)	{ $NotListed = $1;}
 #Total Checked:        13658 
 		elsif (/Total Checked:\s*([0-9]+) /)	{ $Checked = $1;}
 		elsif (/                    \s+([0-9]+) /)	{ $Total = $1;}
 	    }
 	    close(FILE);
-	    my ($date) = $dir;
-	    $date =~ s/(\d{8})-\d{2}/$1/;
+    }
 return (
 $date,
 $Found,
@@ -79,13 +112,20 @@ my($GNUPLOT_CMD)  = $GNUPLOT. '_cmd';
 
 my($GNUPLOT_OUT)  = '/tmp/check-update-trend';
 
-getopts('ab:hr:u',\%opts);
+getopts('ab:hr:up',\%opts);
     
 if ($opts{'h'}) { usage(); exit}
 if ($opts{'b'}) { $branch = $opts{'b'};}
 if ($opts{'a'}) { $GNUPLOT_OUT .= '-a';}
 if ($opts{'u'}) { $GNUPLOT_OUT .= '-u';}
-if ($opts{'r'}) { $GNUPLOT_OUT .= '-r';}
+
+my ($recent) = 3650;
+if ($opts{'r'}){
+    $recent = $opts{'r'} + 0;
+    $GNUPLOT_OUT .= '-r';    
+}
+if ($recent < 10 ) { 
+    print STDERR sprintf("%04d ", __LINE__). " You need how many date for recent --> "; die }
 
 if ($branch) { $DIR .= '/'. $branch;}
 print 'branch: ' . $branch,"\n";
@@ -140,6 +180,18 @@ open(GNUPLOT_CMD, "> $GNUPLOT_CMD")|| print STDERR sprintf("%04d ", __LINE__). '
 my ($xtics) = "set xtics ('2015/01' 1, '2015/05' 100, '2015/10' 200, '2016/01' 300, '2016/05' 400, '2016/08' 500, '2016/12' 600, '2017/03' 690)";
 if ( $opts{'r'}) { $xtics ='';}
 
+if ($opts{'p'}) {
+    print GNUPLOT_CMD <<CMD_PER_CENT;
+set term png
+set out "/dev/null"
+set out "$GNUPLOT_OUT".'-per-cent.png'
+$xtics;
+;
+plot \\
+    "/tmp/.status2gnuplot_file"  using 1:(\$3/\$16\*100)  title "To Be Updated" w linespoints, \\
+    "/tmp/.status2gnuplot_file"  using 1:(\$5/\$16\*100)  title "OK" w linespoints, \\
+CMD_PER_CENT
+} else {
 print GNUPLOT_CMD <<CMD_HEAD;
 set term png
 set out "/dev/null"
@@ -175,7 +227,7 @@ CMD_HEAD2
 GNUPLOT_CMD_ALL
 	}
 close(GNUPLOT_CMD);
-
+}
 system("/usr/pkg/bin/gnuplot $GNUPLOT_CMD");
 
 
