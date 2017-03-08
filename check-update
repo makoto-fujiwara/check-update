@@ -3534,7 +3534,7 @@ sub Stats($$){
     # 95 + 21 - 7(Matured)
     my($number4) = "%-107s %6d  %s\n";
 
-    my($URLmatured) = '<a href="https://github.com/makoto-fujiwara/check-update/blob/master/MaturedList">Matured:</a>';
+    my($URLmatured) = '<a href="https://github.com/makoto-fujiwara/check-update/blob/master/MaturedList">Matured</a>:';
 # Be carefull to have each header has colon(:) for merge-process be done correctly
 
     print  SUMMARY '<pre>',"\n";
