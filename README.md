@@ -4,7 +4,7 @@ Tool for [pkgsrc](http://www.netbsd.org/docs/software/packages.html)
 tree. Reading [whole tree](http://cvsweb.netbsd.org/bsdweb.cgi/pkgsrc/)
 and generates the list of To-Be-Updated packges.
 
-[Presentation](http://www.ki.nu/~makoto/mef/2017310/)
+[Presentation](http://www.ki.nu/~makoto/mef/20170310/)
 at NetBSD BoF (AsiaBSDCon 2017 at Tokyo, opera@IIJ)
 
 [Presentation](http://www.ki.nu/~makoto/mef/20150313/)
