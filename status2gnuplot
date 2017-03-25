@@ -4,14 +4,13 @@ use Getopt::Std;
 
 sub usage{
     print <<HELP;
--a all         (add total number)
--b branch      -b HEAD
--h help
--u Omit up-to-date value  (default add)
--r recent
--p percent
-
-$0
+$0 [-a] [-b branch] [-h] [-p] [-r days] [-u]
+  -a         all  (plot total number also)
+  -b branch  example: -b HEAD
+  -h         help
+  -p         percent (ratio to total count)
+  -r days   (default 3650 days = 10 years)
+  -u         Omit up-to-date (OK) value  (default plot it)
 HELP
 };
 sub ReadFile($$@) {
@@ -21,17 +20,17 @@ sub ReadFile($$@) {
 
 my ($Found, $TODO, $UptoDate, $NA, $NoMaster, $NotFound, $Forbidden, $NotinDNS, 
     $Texlive, $META, $confusing, $NotListed, $Checked, $Total);
-# syntax varies before and after 20150505-17 .. 20150507-00
+# row layout varies before and after 20150505-17 .. 20150507-00 .. 20170308
     my ($summary_date) = $summary;
-    my ($old_syntax) = 0;
+    my ($row_shifted) = 1;
     $summary_date =~ m|/(\d{8})-\d{2}/00|; $summary_date = $1;
-    if ($summary_date <= 20150505 ) {
-	$old_syntax = 1;
-#	    print $summary,"\n";
+    if ($summary_date <= 20150505  ||
+        20170308      <=  $summary_date ) {
+	$row_shifted = 0;
     }
 	    my ($date) = $dir;
 	    $date =~ s/(\d{8})-\d{2}/$1/;
-    if ($old_syntax) {
+    if ($row_shifted) {
 	    open(FILE, $summary) || print STDERR sprintf("%04d ", __LINE__). 'problem opening file'. "$!\n";
 	    while (<FILE>) {
 		if    (/Found:\s*([0-9]+) /)		{ $Found = $1;}
