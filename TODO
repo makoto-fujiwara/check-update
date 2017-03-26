@@ -1,4 +1,9 @@
 (TODO)
+  - port to pkgsrc/wip
+    perl and shell script to ${PREFIX}/share/check-update/
+    example setup to ${PREFIX}/share/examples/check-update/
+    Makefile to ${VARBASE}/check-update/
+
   - If EMACS_TYPE=emacs26 (in /etc/mk.conf) , which is not ususally defined, in module.mk, some variables
      won't be defined. Probably, nice to ignore /etc/mk.conf
   - mail/elm DISTNAME is elm258 (no hyphen), should be automatically processed
