@@ -3072,6 +3072,7 @@ sub ParseDirectory($$$$$$){   # 2564  to 2825 lines (260 lines
 	if ( /buildrump-1369495826.tar.bz2/)	{ next;} # ignore old stuff (misc/rump)
 	if ( /aspell6-ca-20[0-9][0-9]+/)	{ next;} # ignore aspell6-ca-20xx pattern
 	if ( /dirvish-1.3.1.tar.gz/)		{ next;} # Not production code
+	if ( /aumix-20000123.tar.gz/)		{ next;} # versioning changed
 	if ( $distbase eq 'libXaw' && /libXaw3d/ )	{ next;}
 
 	# ----- textproc/aspell special ----------
