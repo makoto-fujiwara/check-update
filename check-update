@@ -3116,7 +3116,8 @@ print STDERR sprintf("%4d ** ", __LINE__ ), '$SpecialPatternY: ', $SpecialPatter
 	if ( /[0-9._]+-minimal/ ){next;}	# sysutils/webmin
 	if ( /[0-9._]+-static/ ) {next;}
 	if ( /[0-9._]+--x86/ )	{next;}
-	if ( /[0-9._]+-dos/ )	{next;}
+	if ( /[0-9._]+-dos/ )	{next;}		# archivers/advancecomp
+	if ( /[0-9._]+-os2/ )	{next;}		# audio/libwildmini
 	if ( /[0-9._]+_x86_/ )	 {next;}
 	if ( /[0-9._]+-gpl/ )	 {next;}	# audio/rubberband
 	if ( /[0-9._]+-repack/ ) {next;}
