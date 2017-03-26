@@ -17,6 +17,25 @@ Synopsys:
   -x         debug
 HELP
 };
+sub GenerateXtics ($@){
+    my $range = shift;
+    my @xtics  = @_;
+
+    my $xtics;
+    my $segment = int ($range/10);
+    if ( $range < 370) {
+	foreach my $i ( 0 .. 9) {
+	    my $index = $i * $segment;
+	    $xtics .= "\'". substr($xtics[$index]->[1], 4, 2) . '/'
+		          . substr($xtics[$index]->[1], 6, 2) . "\' " 
+		          . substr($xtics[$index]->[0], 0, 4) .', ' ;
+	}
+    } elsif ( $range < 180) {
+    } else {
+	$xtics = "'2015/01' 1, '2015/05' 100, '2015/10' 200, '2016/01' 300, '2016/05' 400, '2016/08' 500, '2016/12' 600, '2017/03' 690";
+    }
+    return $xtics;
+}
 sub ReadFile($$@) {
     my ($summary) = shift;
     my ($dir)     = shift;
@@ -26,14 +45,16 @@ my ($Found, $TODO, $UptoDate, $NA, $NoMaster, $NotFound, $Forbidden, $NotinDNS,
     $Texlive, $META, $confusing, $NotListed, $Checked, $Total);
 # row layout varies before and after 20150505-17 .. 20150507-00 .. 20170308
     my ($summary_date) = $summary;
-    my ($row_shifted) = 1;
+    my ($row_shifted) = 0;
     $summary_date =~ m|/(\d{8})-\d{2}/00|; $summary_date = $1;
     if ($summary_date <= 20150505  ||
         20170308      <=  $summary_date ) {
-	$row_shifted = 0;
+	$row_shifted = 1;
     }
+#    print STDERR sprintf("%04d ", __LINE__), 'row_shifted: ', $row_shifted, "\n";
 	    my ($date) = $dir;
 	    $date =~ s/(\d{8})-\d{2}/$1/;
+    # collect column
     if ($row_shifted) {
 	    open(FILE, $summary) || print STDERR sprintf("%04d ", __LINE__). 'problem opening file'. "$!\n";
 	    while (<FILE>) {
@@ -55,6 +76,7 @@ my ($Found, $TODO, $UptoDate, $NA, $NoMaster, $NotFound, $Forbidden, $NotinDNS,
 		elsif (/Total Checked:\s*([0-9]+) /)	{ $Total = $1;}
 	    }
 	    close(FILE);
+    # row shifted 2015/05/08 -- 2017/03.07
     } else {
 	    open(FILE, $summary) || print STDERR sprintf("%04d ", __LINE__). 'problem opening file'. "$!\n";
 	    while (<FILE>) {
@@ -142,10 +164,11 @@ print sprintf("%04d ", __LINE__) . '         dir: ' . $DIR,        "\n";
 print sprintf("%04d ", __LINE__) . ' output file: ' . $GNUPLOT_OUT,"\n";
 if ( ! -d $DIR ) { die sprintf("%04d ", __LINE__) . ' *** No directory ***  ' . $DIR, "\n";}
 
+# now we have two directories, current (.) and old (./d2015). Do each
 opendir (DIR, $DIR);
 while (my $dir = readdir(DIR)){
 #    print $opts{'r'} .' - '.  $dir . ' -> ' . (stat($DIR.'/'.$dir))[9] .' : ' . time() . ';  '. 90*24*60*60 .  "+\n" ;
-    if ($opts{'r'} && ((stat($DIR.'/'.$dir))[9] < time() - $opts{'r'}*24*60*60 ) ) { next;}
+    if ($recent && ((stat($DIR.'/'.$dir))[9] < time() - $recent*24*60*60 ) ) { next;}
     if ($dir =~ /^20/) { 
 #	print $dir,"\n";
 	my ($summary) = $DIR.'/'.$dir. '/00_Stats.html';
@@ -160,7 +183,7 @@ $DIR = $DIR.'/d2015';
 opendir (DIR, $DIR);
 while (my $dir = readdir(DIR)){
 #	    print $dir,"\n";
-    if ( $opts{'r'} && ((stat($DIR.'/'.$dir))[9] < time() - $opts{'r'}*24*60*60 ))  { next;}
+    if ( $recent && ((stat($DIR.'/'.$dir))[9] < time() - $recent*24*60*60 ))  { next;}
     if ($dir =~ /^20/) { 
 	my ($summary) = $DIR.'/'.$dir. '/00_Stats.html';
 #	    print $summary,"\n";	
@@ -171,32 +194,46 @@ while (my $dir = readdir(DIR)){
 } # end while
 closedir(DIR);
 
-
+my(@XTICS);
 my(@SORTED);
 @SORTED = sort { $a->[0] <=> $b ->[0] } @ITEM;
 
 open(GNUPLOT_FILE, "> $GNUPLOT_FILE" ) || print STDERR sprintf("%04d ", __LINE__). 'problem opening file: '. $GNUPLOT_FILE. " $!\n";
 my ($serial) = 1;
 while (my $ptr = shift @SORTED) {
+    push(@XTICS,[$serial, $ptr ->[0] ]);
     print  GNUPLOT_FILE $serial++ . ' '; 
     foreach my $i (0..14) {print  GNUPLOT_FILE $ptr -> [$i]. ' ';  }
     print GNUPLOT_FILE "\n";
 }
 close(GNUPLOT_FILE);
+# collect xtic information from serial and date
+foreach my $i ( 0.. $#XTICS){
+    print sprintf("%04d ", __LINE__). $XTICS[$i] ->[0] .' -> '. $XTICS[$i] ->[1]. "\n" if $DEBUG;
+}
 
 open(GNUPLOT_CMD, "> $GNUPLOT_CMD")|| print STDERR sprintf("%04d ", __LINE__). 'problem opening file: '. $GNUPLOT_CMD . " $!\n";
 #print join "\n", @list, "\n";
 
 
-my ($xtics) = "set xtics ('2015/01' 1, '2015/05' 100, '2015/10' 200, '2016/01' 300, '2016/05' 400, '2016/08' 500, '2016/12' 600, '2017/03' 690)";
-if ( $opts{'r'}) { $xtics ='';}
+my ($xtics);
+$xtics  = "'2015/01' 1, '2015/05' 100, '2015/10' 200, '2016/01' 300, '2016/05' 400, '2016/08' 500, '2016/12' 600, '2017/03' 690";
+
+#foreach my $i ( 0.. $#XTICS) {
+#    print $XTICS[$i]->[0], "\t",  $XTICS[$i]->[1], "\n";
+
+
+#print STDERR sprintf("%04d ", __LINE__) 
+
+$xtics  = GenerateXtics($recent, @XTICS);
+print STDERR sprintf("%04d ", __LINE__) . $xtics. "\n";
 
 if ($opts{'p'}) {
     print GNUPLOT_CMD <<CMD_PER_CENT;
 set term png
 set out "/dev/null"
 set out "$GNUPLOT_OUT"
-$xtics;
+set xtics ( $xtics)
 ;
 plot \\
     "/tmp/.status2gnuplot_file"  using 1:(\$3/\$16\*100)  title "To Be Updated" w linespoints, \\
@@ -207,7 +244,7 @@ print GNUPLOT_CMD <<CMD_HEAD;
 set term png
 set out "/dev/null"
 set out "$GNUPLOT_OUT"
-$xtics;
+set xtics ( $xtics)
 plot \\
     "$GNUPLOT_FILE" using 1:3  title "To Be Updated" w linespoints, \\
     "$GNUPLOT_FILE" using 1:4  title "TODO" w linespoints, \\
