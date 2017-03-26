@@ -4,13 +4,17 @@ use Getopt::Std;
 
 sub usage{
     print <<HELP;
-$0 [-a] [-b branch] [-h] [-p] [-r days] [-u]
+$0 
+   Collect check-update status number and issue gnuplot command
+Synopsys:
+   $0 [-a] [-b branch] [-h] [-p] [-r days] [-u] [x]
   -a         all  (plot total number also)
-  -b branch  example: -b HEAD
+  -b branch  PATH extention to collect status (example: HEAD)
   -h         help
   -p         percent (ratio to total count)
   -r days   (default 3650 days = 10 years)
   -u         Omit up-to-date (OK) value  (default plot it)
+  -x         debug
 HELP
 };
 sub ReadFile($$@) {
@@ -110,25 +114,33 @@ my($GNUPLOT_FILE) = $GNUPLOT. '_file';
 my($GNUPLOT_CMD)  = $GNUPLOT. '_cmd';
 
 my($GNUPLOT_OUT)  = '/tmp/check-update-trend';
+my($DEBUG)  = 0;
 
-getopts('ab:hr:up',\%opts);
+getopts('ab:hr:upx',\%opts);
     
-if ($opts{'h'}) { usage(); exit}
 if ($opts{'b'}) { $branch = $opts{'b'};}
 if ($opts{'a'}) { $GNUPLOT_OUT .= '-a';}
 if ($opts{'u'}) { $GNUPLOT_OUT .= '-u';}
+if ($opts{'p'}) { $GNUPLOT_OUT .= '-percent';}
+if ($opts{'h'}) { usage(); exit}
+
+if ($opts{'x'}) { $DEBUG++;}
 
 my ($recent) = 3650;
 if ($opts{'r'}){
     $recent = $opts{'r'} + 0;
     $GNUPLOT_OUT .= '-r';    
 }
+
+$GNUPLOT_OUT .= '.png';
 if ($recent < 10 ) { 
     print STDERR sprintf("%04d ", __LINE__). " You need how many date for recent --> "; die }
 
 if ($branch) { $DIR .= '/'. $branch;}
-print 'branch: ' . $branch,"\n";
-print    'dir: ' . $DIR,"\n";
+print sprintf("%04d ", __LINE__) . '      branch: ' . $branch,     "\n";
+print sprintf("%04d ", __LINE__) . '         dir: ' . $DIR,        "\n";
+print sprintf("%04d ", __LINE__) . ' output file: ' . $GNUPLOT_OUT,"\n";
+if ( ! -d $DIR ) { die sprintf("%04d ", __LINE__) . ' *** No directory ***  ' . $DIR, "\n";}
 
 opendir (DIR, $DIR);
 while (my $dir = readdir(DIR)){
@@ -183,7 +195,7 @@ if ($opts{'p'}) {
     print GNUPLOT_CMD <<CMD_PER_CENT;
 set term png
 set out "/dev/null"
-set out "$GNUPLOT_OUT".'-per-cent.png'
+set out "$GNUPLOT_OUT"
 $xtics;
 ;
 plot \\
@@ -194,7 +206,7 @@ CMD_PER_CENT
 print GNUPLOT_CMD <<CMD_HEAD;
 set term png
 set out "/dev/null"
-set out "$GNUPLOT_OUT.png"
+set out "$GNUPLOT_OUT"
 $xtics;
 plot \\
     "$GNUPLOT_FILE" using 1:3  title "To Be Updated" w linespoints, \\
