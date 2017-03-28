@@ -46,12 +46,12 @@ DEVEL?= devel1 devel2 devel3
 
 PKGSRC?=	/usr/pkgsrc
 
-CHECK_UPDATE?=	/export/git-work/check-update/check-update
-MERGE?=		/export/git-work/check-update/merge-check-update
-COLLECT_STATS?=	/export/git-work/check-update/collect-stats
-SUMMARY_DIFF?=	/export/git-work/check-update/summary-diff
+CHECK_UPDATE?=	/usr/pkg/sbin/check-update
+MERGE?=		/usr/pkg/share/check-update/merge-check-update/
+COLLECT_STATS?=	/usr/pkg/share/check-update/collect-stats
+SUMMARY_DIFF?=	/usr/pkg/share/check-update/summary-diff
 
-DIRECTORY?=	${HOME}/public_html/pkgsrc/check-update
+DIRECTORY?=	/var/check-update/htdocs
 
 DATE_H!=	env TZ=UTC date +%Y%m%d-%H
 # To allow 'env DATE=20150101-12 make -j 16' for executing beyond date boundary
