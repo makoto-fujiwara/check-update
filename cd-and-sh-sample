@@ -1,0 +1,4 @@
+#!/bin/sh
+cd /var/check-update
+ulimit
+/bin/sh ./check-update.sh
