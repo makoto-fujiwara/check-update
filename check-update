@@ -463,6 +463,7 @@ my(%SourceForgeAlternative) = qw (
 #  --- HARDCODE TABLES --- ( to ease accessing tables )
 # PKGBASE to $DISTBASE association Special (ending digit is main customer)
 my(%DISTBASE) = qw (
+    imp		imp-h3
     awhois	awhois.sh
     mad-flute	mad_fcl
     gplcver	gplcver
@@ -1079,6 +1080,19 @@ sub ClassifyPackage(@) {
 	    my ($minor) = $3;
 	    $FAMILY{$p} = '$version = $_; $version =~ s/.*'. $lang .'-('.$major.'_'.$minor.'_[0-9]+)\.html.*/$1/;' ; 
 	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1b) family: ', $p, "\n" if $DEBUG_FAMILY;
+#	# (3-1) gmime
+#	} elsif (
+#	    $p =~ /(gmime)([0-9])([0-9])/ ||
+#	    $p =~ /(gmime)/) {
+#	    my ($lang)  = $1;
+#	    my ($major) = $2;
+#	    my ($minor) = $3;
+#	    if ($major && $minor ) {
+#	    $FAMILY{$p} = '$version = $_; $version =~ s/.*'. $lang .'-('.$major.'.'.$minor.'.[0-9]+)\..*/$1/;' ; 
+#	    } else {
+#		$FAMILY{$p} = '$version = $_; $version =~ s/.*'. $lang .'-([0-9.]+)\.tar.*/$1/;' ; 
+#	    }
+#	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1b) family: ', $FAMILY{$p}, "\n" if $DEBUG_FAMILY;
 #	# (4) gnupg{,2}
 #	}  elsif ($p =~ /(gnupg)([0-9]*)/) {
 #	    my ($pkg)  = $1;
@@ -3058,6 +3072,7 @@ sub ParseDirectory($$$$$$){   # 2564  to 2825 lines (260 lines
 	if ( /buildrump-1369495826.tar.bz2/)	{ next;} # ignore old stuff (misc/rump)
 	if ( /aspell6-ca-20[0-9][0-9]+/)	{ next;} # ignore aspell6-ca-20xx pattern
 	if ( /dirvish-1.3.1.tar.gz/)		{ next;} # Not production code
+	if ( /aumix-20000123.tar.gz/)		{ next;} # versioning changed
 	if ( $distbase eq 'libXaw' && /libXaw3d/ )	{ next;}
 
 	# ----- textproc/aspell special ----------
@@ -3101,6 +3116,8 @@ print STDERR sprintf("%4d ** ", __LINE__ ), '$SpecialPatternY: ', $SpecialPatter
 	if ( /[0-9._]+-minimal/ ){next;}	# sysutils/webmin
 	if ( /[0-9._]+-static/ ) {next;}
 	if ( /[0-9._]+--x86/ )	{next;}
+	if ( /[0-9._]+-dos/ )	{next;}		# archivers/advancecomp
+	if ( /[0-9._]+-os2/ )	{next;}		# audio/libwildmini
 	if ( /[0-9._]+_x86_/ )	 {next;}
 	if ( /[0-9._]+-gpl/ )	 {next;}	# audio/rubberband
 	if ( /[0-9._]+-repack/ ) {next;}
@@ -3143,6 +3160,7 @@ print STDERR sprintf("%4d ** ", __LINE__ ), '$SpecialPatternY: ', $SpecialPatter
 	if ( /[0-9._]+-os-x/ )	{next;}
 	if ( /[0-9._]+-install/ )	{next;}
 	if ( /[0-9._]+pr1/ )	{next;}
+	if ( /[0-9._]+-TRIAL/ )	{next;}
 
 	if (0) { # dummy for ease to swap sequence below		# MAJOR_IF_THEN_ELSE
 	} elsif ($R_Package) {						# MAJOR_IF_THEN_ELSE
