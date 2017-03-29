@@ -1,0 +1,207 @@
+(TODO)
+  - (check-update-sampl.sh)  git update only if .git directory exists
+  - port to pkgsrc/wip
+    perl and shell script to ${PREFIX}/share/check-update/
+    example setup to ${PREFIX}/share/examples/check-update/
+    Makefile to ${VARBASE}/check-update/
+  - If EMACS_TYPE=emacs26 (in /etc/mk.conf) , which is not ususally defined, in module.mk, some variables
+     won't be defined. Probably, nice to ignore /etc/mk.conf
+  - mail/elm DISTNAME is elm258 (no hyphen), should be automatically processed
+  - MaturedList doesn't work with family, say, math/pari23 won't be disabled
+  - chat/anope  'Download anope-2.0.1-source.tar.gz (1.8 MB) ' -> 2.0.1-
+  - pick 4.6.1 for jquery-rails (should be 4.2.2)
+    when   "gem22 list -r -q jquery-rails" returns following lines
+     jqgrid-jquery-rails (4.6.1)
+     jquery-rails (4.2.2)
+  - Pick from http://beta.repology.org/package/
+  - devel/bzr-gtk	bzr-gtk	0.100.0	->	0.9.0	0.103.0 (strange)
+  - audio/mikmod picked 3.3.10 before but now 3.2.7
+  - tk problem (versioned directory and family, I am afraid) 
+  - 10/02/2016 results degraded on GNOME site, hint -> git diff  569021d 6815338 ,
+    but possibly network condition ?
+  - family find (external tool)
+  - w3m result cache
+  - limited-list mode: list set of packages and scan partially base on it
+  - 0.32rc1 < 0.32 (cad/ghdl ghdl 0.32rc1 -> 0.32)
+  - graphics/djview4
+      ->  https://sourceforge.net/projects/djvu/files/DjView/4.10/ (mixed uplow case)
+  - Mailing to the MAINTAINER
+    Difference is firm (confident) and the receiver wants, mail report
+    on every Friday or on the update (?)
+  - Introduce DISTPATTERN or DISTREGEXP (Regular Expression for DISTBASE + VERSION)
+  - Stablize gnome
+  - If VERSION is written in Makefile.common, share it and skip the referer (py-objc-*)
+  - Stablize sourceforge (and gnome)
+  - Take care github stuff but no release, ex sysutils/rkflashtool
+  - Develop branch is not good to appear in the table (with odd number version or _xx for Perl module)
+    perl
+    dbus
+    gnome stuff
+    gstreamer and gst-plugins* (part of gnome...)
+    fontconfig
+    lilypond
+    poppler* (gnome)
+    rdiff-backup
+    webkit (gnome)
+    (Thanks Thomas wiz@)
+
+  - (alpha)  audacious 3.7 is not release, but alpha or beta
+  - Don't pick alpha version of devel/rdp
+  - audio/audacious-plugin, don't pick audacious-plugins-3.8-beta2.tar.bz2  (as 3.8.2)
+  - (99 or 90) may be development version and nice not to list gdt@
+  -  biology/cdhit 4.6.4 -> 454 EDITversion does not give any effect (?)
+  -  (done) Avoid to show 1.[odd number].x for sysutils/dbus. It is unstable branch
+  - (www/opera) seems up to date, but not pick up it.
+  - filesystems/fuse-ntfs-3g	fuse-ntfs-3g	2014.2.15 ->0.0	32015.3.14
+  - diff links in devel? need to be adjusted
+  - misc/goffice0{6,8} maybe on MaturedList (?)
+  - graphics/clutter is upto date (1.22.2) but unable to find the version
+  - MaturedList path is not good for standalone execution
+  - editors/texmaker is upto date (as of 20150721)
+  - databases/postgresql-postgis stays intentionally v1. don't flag please
+  - devel/fann is actually up to date.  source tarball has a goofy name
+  - geography/proj is also up to date
+    (thanks gdt@)
+  - sysutils/entr  no list by curl but list by wget (?)
+  
+  - Issue for */*-devel package. Some 53 are listed now
+  - sentinel (watch timeout of curl process)
+    misc/py-stdnum
+  - Taking care math/R-* package
+  - README.md
+     * Prerequisite
+     * setup
+     * first trial
+     * tuning
+     * debugging
+     * FAQ
+
+  - If no argument, take current directory as category/package
+    (In that case, no html output will generated)
+
+   * If the (last) argument, say @ARGV has shape categery/package
+    take it as it is.
+
+    * decide the only one final status for each package (for (0.0) case)  and then collect the Stats
+
+    *  ----- By package status  -----
+      Get status for MASTER_SITE (MasterSiteStatus) .. for listing,        
+      Get status for HOMEPAGE    (HomePageStatus)   .. for listing,        
+      Get status for Package     (PackageStatus)    .. Stats will look for this
+
+    *  ----- For Stats -----
+    DNS Refused 550 500  403 404 301 302 200 found
+    * %STATS{'200'} %STATS{'403'} %STATS{'404'} %STATS{'500'} %STATS{'550'} etc
+      Use the 3rd value of above listed (by package)
+      $STATS{$PackagStatus}++;
+       (MASTER_SITE, HOMEPAGE, PATTERN problem = site was found but not find the string)
+
+    * (Special Master site for SF) sysutils/heirloom-basename 	heirloom-basename
+    * Customized list. Every developer can check his/her own list
+      or -M maintainer option 
+    * Two level candidates
+         1. MASTER_SITES + HOMEPAGE
+         2. versions 
+    * Algorithm
+         Time stamp
+         unzip60 > unzip552
+         Add list of three-digits, they will be translated 60 -> 6.0 552 -> 5.5.2
+    * category mode, -C -> all categories with -c -f -S category.html
+    * Catetory mode (output is by category name for whole tree)
+    * Exclude wip in the list, but add wip column
+    * check the version at wip
+    * If the directory (of MASTER_SITES) contains pure digit element
+      say, /0.5/ etc, check upper directory
+    * log by classification (say PROBLEM.log etc)
+    * sub main ()
+    * if the new version > 10, dont make it the number as regular #
+    (done ?) * Stats is not correct (especially 0.0)
+    (stats)
+    * add 403 for stats.
+      Is this missing in the stats ?
+    * Utilize PKGNAME= line in Makefile for evaluating version number (?)
+      (like adding 00 for the name)
+    * Disable DISTBASE_CACHE (for debug ?)
+
+(BAD case)
+ *** 209: ham/7plus -> 7pl225sr
+     109: w3m -dump ftp://ftp.fi.NetBSD.org/pub/NetBSD/packages/distfiles/
+     221: available: 0.0 PKGVERSION: 225 
+     # ----------------------------
+     7plus -> 225(0.0) ftp://ftp.fi.NetBSD.org/pub/NetBSD/packages/distfiles/
+     # ----------------------------
+
+GC Warning: Out of Memory! Heap size: 247 MiB. Returning NULL!
+     225: available: 0.0 PKGVERSION: 2.3.99.7 
+     # ----------------------------
+     abcde -> 2.3.99.7(0.0) http://ftp-stud.fht-esslingen.de/pub/Mirrors/gentoo/distfiles/
+     # ----------------------------
+ *** 214: audio/amaroc -> amaroc
+     120: w3m -dump http://downloads.sourceforge.net/sourceforge/amaroc/
+     225: available: 0.0 PKGVERSION: 0.3 
+     # ----------------------------
+                    http://sourceforge.net/projects/amaroc/files/amaroc/0.3/
+
+ *** 217: audio/amarok-kde3 -> amarok
+     123: w3m -dump ftp://ftp.kde.org/pub/kde/stable/amarok/1.4.10/src/
+     228: available: 1.4.10 PKGVERSION: 1.4.10 amarok  OK
+
+(Problem)
+    * available is empty -> not listed now (example arp-scan)  see $curl_lines
+
+    * stats are not correct in above
+(done)
+    * Cache most recently used distbase (upto 30 ?)
+       DistbaseCacheUpdate();
+       DistbaseCacheQuery();
+       push(@DISTBASE_CACHE, \[$distbase, $version, $timestamp, $cycle]);
+    * if MASTER_SITES failed to give the new version, see HOMEPAGE (example is editors/hexedit)
+    * if MASTER_SITES gets empty with curl -l, go HOMEPAGE.
+    * File name will be the date
+      ( or the category name )
+--------------------
+
+Following is 0.6-26 
+graphics/R-latticeExtra 	R-latticeExtra	0.6.26	->	26		pkgsrc-users@NetBSD.org 	http://cran.r-project.org/src/contrib/
+
+
+x11/tktable is not fixed yet:
+http://sourceforge.net/projects/tktable/files/
+http://sourceforge.net/projects/tktable/files/tktable/2.10/
+
+XXXX *** GetMasterSite Logic is strange  *** XXXX
+
+------ (Issue) -------
+1544     ---  (multimedia) ---
+ 773   (PKGVERSION_NOREV)  1.3.0
+ 773            (PKGBASE)  libdvdcss
+ 773           (DISTNAME)  libdvdcss-1.3.0
+ 528   (PKGNAME)        libdvdcss-1.3.0
+       (DISTBASE)       libdvdcss-1.3.0
+       (PKGVERSION)     1.3.0
+ 535  multimedia/libdvdcss; DISTBASE (libdvdcss)
+ 606  multimedia/libdvdcss; DISTBASE (libdvdcss)
+ 773       (META_PACKAGE)  
+ 773       (MASTER_SITES)  /1.3.0/
+ 691  (PKGNAME) libdvdcss --> DISTBASE (libdvdcss)
+ 464 (Q)  libdvdcss    -1 333  hostname -> /1.3.0
+ 346  DNS query failed
+1642  (PKGBASE) libdvdcss --> http: (DNS)Now: 1.3.0 $available: 
+ 903  ${LIBDVDCSS_HOMEPAGE}   
+ 906 curl -k -s -l  ${LIBDVDCSS_HOMEPAGE}
+curl: no URL specified!
+curl: try 'curl --help' or 'curl --manual' for more information
+ 903  ${LIBDVDCSS_HOMEPAGE}   
+
+----------
+(cd multimedia/libdvdcss; make distclean && make fetch)
+ERROR: Please define LIBDVDCSS_MASTER_SITES in mk.conf.
+----------
+
+output:
+------------
+ <a href="/">/</a><a class="rev" href="/1.3.0/">1.3.0/</a>
+------------
+
+(Problem)
+devel/py-ipython010 has alt=" ....long stiring ..."
