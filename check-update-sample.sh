@@ -44,7 +44,7 @@ else
   (cd ${TMP_PKGSRC};    time -c cvs -Q update -dPA . )
 fi
 
-if [ -f ${SITE_PATCH} 
+if [ -f ${SITE_PATCH} ] ; then
 echo ' *** (4) Applying mk/fetch/sites.mk patch'
 (cd ${TMP_PKGSRC} ; patch -s -N -p0 < ${SITE_PATCH} )
 fi
