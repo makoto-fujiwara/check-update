@@ -1,7 +1,7 @@
 (TODO)
+  - indivisual package
     * security/py-certbot is not listed on Web Page, while command line says:
          py27- =>       (certbot) (4598 ) Now:   0.11.1 ->    1824 Todo:
-  - indivisual package
     * mail/elm DISTNAME is elm258 (no hyphen), should be automatically processed
     * chat/anope  'Download anope-2.0.1-source.tar.gz (1.8 MB) ' -> 2.0.1-
     * (www/ruby-jquery-rails) pick 4.6.1 for jquery-rails (should be 4.2.2)
