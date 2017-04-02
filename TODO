@@ -21,6 +21,15 @@
     * biology/cdhit 4.6.4 -> 454 EDITversion does not give any effect (?)
     * misc/goffice0{6,8} maybe on MaturedList (?)
     * graphics/clutter is upto date (1.22.2) but unable to find the version
+    * (www/opera) seems up to date, but not pick up it.
+    * editors/texmaker is upto date (as of 20150721)
+
+    * databases/postgresql-postgis stays intentionally v1. don't flag please
+    * devel/fann is actually up to date.  source tarball has a goofy name
+    * geography/proj is also up to date
+      (thanks gdt@)
+    * sysutils/entr  no list by curl but list by wget (?)
+
   - If EMACS_TYPE=emacs26 (in /etc/mk.conf), 
      which is not ususally defined, in module.mk, some variables won't be defined. 
      Probably, nice to ignore /etc/mk.conf
@@ -56,31 +65,14 @@
   - audio/audacious-plugin, don't pick audacious-plugins-3.8-beta2.tar.bz2  (as 3.8.2)
   - (99 or 90) may be development version and nice not to list gdt@
   -  (done) Avoid to show 1.[odd number].x for sysutils/dbus. It is unstable branch
-  - (www/opera) seems up to date, but not pick up it.
   - filesystems/fuse-ntfs-3g	fuse-ntfs-3g	2014.2.15 ->0.0	32015.3.14
   - diff links in devel? need to be adjusted
   - MaturedList path is not good for standalone execution
-  - editors/texmaker is upto date (as of 20150721)
-  - databases/postgresql-postgis stays intentionally v1. don't flag please
-  - devel/fann is actually up to date.  source tarball has a goofy name
-  - geography/proj is also up to date
-    (thanks gdt@)
-  - sysutils/entr  no list by curl but list by wget (?)
   
   - Issue for */*-devel package. Some 53 are listed now
   - sentinel (watch timeout of curl process)
     misc/py-stdnum
   - Taking care math/R-* package
-  - README.md
-     * Prerequisite
-     * setup
-     * first trial
-     * tuning
-     * debugging
-     * FAQ
-
-  - If no argument, take current directory as category/package
-    (In that case, no html output will generated)
 
    * If the (last) argument, say @ARGV has shape categery/package
     take it as it is.
@@ -113,8 +105,6 @@
     * Catetory mode (output is by category name for whole tree)
     * Exclude wip in the list, but add wip column
     * check the version at wip
-    * If the directory (of MASTER_SITES) contains pure digit element
-      say, /0.5/ etc, check upper directory
     * log by classification (say PROBLEM.log etc)
     * sub main ()
     * if the new version > 10, dont make it the number as regular #
