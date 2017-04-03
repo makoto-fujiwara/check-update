@@ -2614,7 +2614,7 @@ sub GitHubSpecial($$$$){
 	    m|/([0-9.]+)\.tar\.gz|      ||
 	    m|^([0-9.]+)\.zip|		||		# avoid jawbreaker-20121016 for hackrf
 	    m|.*mame([0-9.]+)s\.zip|	||		# emulators/mame
-	    m,data-name=\"v*([0-9.]+)\",||
+	    m,data-name=\"v*([0-9]\.[0-9.]+)\",||
 	    m,release-([0-9.]+)\",	||   # sysutils/WCMcommander
 	    m,releases/tag/([0-9.]+),	||   # sysutils/erlang-goldrush
 	    m,^V([0-9.]+),		||   # biology/cdhit
@@ -2622,7 +2622,7 @@ sub GitHubSpecial($$$$){
 	    $cand = $1;
 	    $cand =~ s/(2[0-9]+)-([01][0-9])-([0-9]+)/$1$2$3/; # devel/re2 2016-08-01
 
-	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> ', $cand, ' :: ', $_, "\n" if $DEBUG_GITHUB;
+  	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> ', $cand, ' :: ', $_, "\n" if $DEBUG_GITHUB;
 	    if ($distbase eq 'uhd' || $distbase eq 'mame' || $distbase eq 'cdhit'
 		) {  $cand = EditVersion($distbase,$cand); }
 	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> ', $cand, ' :: ', $_, "\n" if $DEBUG_GITHUB;
@@ -3315,6 +3315,7 @@ print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[3], '> (distbase) ', $distb
     print STDERR sprintf("%4d ", __LINE__ ), '==> curl_lines: ', $curl_lines, "\n" if $DEBUG_DISTBASE;
     if ($curl_lines == 0 ) { $returnCode = -1; };
 
+	print ' --------------- '. $MASTER_SITE . ' --------------- '."\n"                  if $DEBUG_CANDIDATE ;
 print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' (', $caller.') : (distbase) ', $distbase,' (version) ', $version, 
 ' returnCode ', $returnCode, ' @candidate: ', "\n------------------\n",join ("\n". __LINE__.' ', @candidate), "\n" if $DEBUG_CANDIDATE || $DEBUG_VERSION_DIR ;
 #      foreach my $c (@candidate) {
@@ -4535,6 +4536,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	    @CANDIDATE = ();
 	    ($returnCode, @CANDIDATE) = GitHubSpecial($DISTBASE, $MASTER_SITE, $dir, $PackageName);
 	    push(@candidate, @CANDIDATE);
+	    print ' --------------- '. $MASTER_SITE . ' --------------- '."\n"                  if $DEBUG_CANDIDATE ;
 	    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ': ', "\n",join ("\n", @candidate),"\n" if $DEBUG_CANDIDATE ;
 	}
 	if ($HOMEPAGE =~ m|github.com/| ) {				# MAJOR_IF_THEN_ELSE
@@ -4552,13 +4554,14 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	    ($returnCode, @CANDIDATE) = pypiSpecial($DISTBASE, $HOMEPAGE, $dir, $PackageName);
 	    push(@candidate,@CANDIDATE);
 	}
+	print ' --------------- '. $MASTER_SITE . ' --------------- '."\n"                  if $DEBUG_CANDIDATE ;
         print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], "-------------\n",
 	    join "\n", @candidate, "\n" if $DEBUG_PYPI || $DEBUG_CANDIDATE ;
         if ($MASTER_SITE =~ m|https://files.pythonhosted.org/|) {
 	    @CANDIDATE = ();
 	    ($returnCode, @CANDIDATE) = pypiSpecial($DISTBASE, $MASTER_SITE, $dir, $PackageName);
 	    push(@candidate, @CANDIDATE); }
-
+	print ' --------------- '. $MASTER_SITE . ' --------------- '."\n"                  if $DEBUG_CANDIDATE ;
 	print STDERR sprintf("%4d ", __LINE__ ), join "\n", @candidate, "\n" if $DEBUG_PYPI || $DEBUG_CANDIDATE ;
 	print STDERR sprintf("%4d ", __LINE__ ), 'MASTER_SITE ', $MASTER_SITE, ' DISTBASE ', $DISTBASE, "\n" if $DEBUG_DISTBASE;
 	print STDERR sprintf("%4d ", __LINE__ ),  $DownLoadAlternative{$DISTBASE}, "\n" if $DEBUG_ALTERNATIVE;
@@ -4599,6 +4602,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
 print STDERR sprintf("%4d ", __LINE__ ), 
     ' (SimpleFallBack) master_site(', $MASTER_SITE, ') returnCode('. $returnCode.") -> available(". $available.")\n"  if $DEBUG_FALLBACK_SIMPLE;
 
+	print ' --------------- '. $MASTER_SITE . ' --------------- '."\n"                  if $DEBUG_CANDIDATE ;
 print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], 'available: ', $available, ' returnCode: ', $returnCode,
 ' @candidate: ', "\n------------------\n", join("\n", @candidate),"\n" if $DEBUG_CANDIDATE;
 
