@@ -2614,12 +2614,18 @@ sub GitHubSpecial($$$$){
 	    m|/([0-9.]+)\.tar\.gz|      ||
 	    m|^([0-9.]+)\.zip|		||		# avoid jawbreaker-20121016 for hackrf
 	    m|.*mame([0-9.]+)s\.zip|	||		# emulators/mame
-	    m,data-name=\"v*([0-9]\.[0-9.]+)\",||
+	    m,data-name=\"v*([0-9.]+)\",||
 	    m,release-([0-9.]+)\",	||   # sysutils/WCMcommander
 	    m,releases/tag/([0-9.]+),	||   # sysutils/erlang-goldrush
 	    m,^V([0-9.]+),		||   # biology/cdhit
 	    0 ) {
 	    $cand = $1;
+	    # security/py-certbot bad  -> 1824
+            #                     good -> 0.11.1
+            # security/argon2     bad  -> 108
+	    #                     goot -> 2016xxxx
+	    if ( $PackageName eq 'py-certbot' && 1000 < $cand) {next;}
+	    if ( $PackageName eq 'argon2'     && $cand< 2000 ) {next;}
 	    $cand =~ s/(2[0-9]+)-([01][0-9])-([0-9]+)/$1$2$3/; # devel/re2 2016-08-01
 
   	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> ', $cand, ' :: ', $_, "\n" if $DEBUG_GITHUB;
