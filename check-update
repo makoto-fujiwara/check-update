@@ -445,6 +445,7 @@ my (%SpecialPattern) = (
     'plib',    		'$line =~ s|The latest stable version of PLIB is ([0-9.]+) .*|$1|;',
     'mad_fcl',		'$line =~ s|.*MAD-FCL \(v_([0-9.]+)\).*|$1|;',
     'sgb',		'$line =~ s|.*sgb-([0-9]+)-([0-9]+)-([0-9]+)\.tar\.gz.*|$1$2$3|;',
+    'libedit',		'$line =~ s|.*libedit-([0-9]+)-([0-9.]+)\.tar\.gz.*|$2.$1|;',
     );
    # sgb does not work yet
    #http://prdownloads.sourceforge.jp/lha/11617/lha-1.14i-ac20040929.tar.gz
@@ -467,6 +468,7 @@ my(%SourceForgeAlternative) = qw (
 #  --- HARDCODE TABLES --- ( to ease accessing tables )
 # PKGBASE to $DISTBASE association Special (ending digit is main customer)
 my(%DISTBASE) = qw (
+    editline	libedit
     imp		imp-h3
     awhois	awhois.sh
     mad-flute	mad_fcl
