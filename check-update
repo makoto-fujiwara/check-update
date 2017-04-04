@@ -256,6 +256,7 @@ my (@SkipTooOld)
 # Simple means $distbase-([0-9.]+)-(extran string not necessary)..
 my ($SimplePattern); # dynamically set to 1 if @SimplePattern equivalent
 my (@SimplePattern)  = qw(
+john
 Regina-REXX
 CRF++
 Coin
