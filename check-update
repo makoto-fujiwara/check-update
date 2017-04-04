@@ -698,6 +698,9 @@ visualvm
 pscpug
 mlvwm
 );
+# 004 -> 0.4
+my (@DOT20) = qw (rc5-mlg);
+
 # 1.1103  -> 1.11.03
 # IO-CaptureOutput
 # 	p5-sybperl 	2.16 	->	2.171	2.18
@@ -1487,6 +1490,7 @@ print STDERR "\n", sprintf("%4d ", __LINE__ ), '<', (caller 0) [3],'>:', (caller
 	if (grep (/^$distbase$/, @VER22)	> 0 ) { $version = Two($version);}
 print STDERR sprintf("%4d ", __LINE__ ), ' (3) <', (caller 0)[3] ,'> ', $version, ' --> '  if $DEBUG_EDITVersion;
 	if (grep (/^$distbase$/, @DOT2)		> 0 ) { $version = InsertDot($version, 2);}
+	if (grep (/^$distbase$/, @DOT20)	> 0 ) { $version = InsertDot($version, -2);} # 004 -> 0.4
 	if (grep (/^$distbase$/, @qkcc)		> 0 ) { $version =~ s|([0-9])([0-9])([0-9])|$1.$2|; }
 	if (grep (/^$distbase$/, @DOT3)		> 0 ) { $version = InsertDot($version, 3);}
 	if (grep (/^$distbase$/, @xtimer)	> 0 ) { $version = InsertDot($version, -1);}
@@ -3747,6 +3751,7 @@ sub InsertDot($$){
     # 0.341 -> 0.34 but 0.42 -> 0.42 (not 0.42.) ($digit == 3, graphics/p5-SWF-File)
 #    print STDERR '(',sprintf("%4d ", __LINE__ ), ')  ', $version, ' --> ', $digit,"\n";
     if ($digit == -1 ) { return '0.'.$version;}
+    if ($digit == -2 ) { my $v = $version + 0 ; return '0.'.$v} # 004 -> 0.4
 #    print STDERR '(',sprintf("%4d ", __LINE__ ), ')  ', $version, ' --> ', $digit,"\n";
     if ($digit == 3 && length($version) == 4 ) {return $result;}
 #print STDERR '(',sprintf("%4d ", __LINE__ ), ')  ', $version, ' --> ', $digit,"\n" if $DEBUG_DISTBASE;    
