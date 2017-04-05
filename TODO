@@ -1,4 +1,5 @@
 (TODO)
+  - Automatic @SimplePattern
   - help message (-h option) is innacurate
   - Man page missing 
   - make check-update-depends 
