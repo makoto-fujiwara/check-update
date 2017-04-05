@@ -1,4 +1,6 @@
 (TODO)
+  - help message (-h option) is innacurate
+  - Man page missing 
   - make check-update-depends 
     (like make clean-depends, but not really inside of this developement)
   - report option, to report the results to maintainer
@@ -29,6 +31,11 @@
     * geography/proj is also up to date
       (thanks gdt@)
     * sysutils/entr  no list by curl but list by wget (?)
+    * audio/audacious-plugin, don't pick audacious-plugins-3.8-beta2.tar.bz2  (as 3.8.2)
+    * (Special Master site for SF) sysutils/heirloom-basename 	heirloom-basename
+    *** 217: audio/amarok-kde3 -> amarok
+     123: w3m -dump ftp://ftp.kde.org/pub/kde/stable/amarok/1.4.10/src/
+     228: available: 1.4.10 PKGVERSION: 1.4.10 amarok  OK
 
   - If EMACS_TYPE=emacs26 (in /etc/mk.conf), 
      which is not ususally defined, in module.mk, some variables won't be defined. 
@@ -45,11 +52,10 @@
     Difference is firm (confident) and the receiver wants, mail report
     on every Friday or on the update (?)
   - Introduce DISTPATTERN or DISTREGEXP (Regular Expression for DISTBASE + VERSION)
-  - Stablize gnome
   - If VERSION is written in Makefile.common, share it and skip the referer (py-objc-*)
-  - Stablize sourceforge (and gnome)
   - Take care github stuff but no release, ex sysutils/rkflashtool
-  - Develop branch is not good to appear in the table 
+  - Alpha version or Develop branch / unstable version
+    Don't pick alpha version of devel/rdp
     perl (with odd number version or _xx for Perl module)
     dbus
     gnome stuff
@@ -60,16 +66,15 @@
     rdiff-backup
     webkit (gnome)
     (Thanks Thomas wiz@)
-  - (alpha)  audacious 3.7 is not release, but alpha or beta
-  - Don't pick alpha version of devel/rdp
-  - audio/audacious-plugin, don't pick audacious-plugins-3.8-beta2.tar.bz2  (as 3.8.2)
-  - (99 or 90) may be development version and nice not to list gdt@
+    audacious 3.7 is not release, but alpha or beta
+    (99 or 90) may be development version and nice not to list gdt@
+  - Issue for */*-devel package. Some 53 are listed now  
+  
   -  (done) Avoid to show 1.[odd number].x for sysutils/dbus. It is unstable branch
   - filesystems/fuse-ntfs-3g	fuse-ntfs-3g	2014.2.15 ->0.0	32015.3.14
   - diff links in devel? need to be adjusted
   - MaturedList path is not good for standalone execution
   
-  - Issue for */*-devel package. Some 53 are listed now
   - sentinel (watch timeout of curl process)
     misc/py-stdnum
   - Taking care math/R-* package
@@ -91,7 +96,6 @@
       $STATS{$PackagStatus}++;
        (MASTER_SITE, HOMEPAGE, PATTERN problem = site was found but not find the string)
 
-    * (Special Master site for SF) sysutils/heirloom-basename 	heirloom-basename
     * Customized list. Every developer can check his/her own list
       or -M maintainer option 
     * Two level candidates
@@ -134,10 +138,6 @@ GC Warning: Out of Memory! Heap size: 247 MiB. Returning NULL!
      225: available: 0.0 PKGVERSION: 0.3 
      # ----------------------------
                     http://sourceforge.net/projects/amaroc/files/amaroc/0.3/
-
- *** 217: audio/amarok-kde3 -> amarok
-     123: w3m -dump ftp://ftp.kde.org/pub/kde/stable/amarok/1.4.10/src/
-     228: available: 1.4.10 PKGVERSION: 1.4.10 amarok  OK
 
 (Problem)
     * available is empty -> not listed now (example arp-scan)  see $curl_lines
