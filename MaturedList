@@ -33,6 +33,7 @@ net/ser
 net/socks4
 net/sharity-light
 net/ttt
+security/libdes
 sysutils/acpidump
 textproc/biblook
 textproc/convertlit

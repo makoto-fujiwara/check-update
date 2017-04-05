@@ -520,6 +520,8 @@ my(%DISTBASE) = qw (
     );
    
 my(%DownLoadAlternative) = qw (
+    libprelude	https://www.prelude-siem.org/projects/prelude/files
+    libpreludedb https://www.prelude-siem.org/projects/prelude/files
     dcsharp	https://code.google.com/archive/p/dcsharp/downloads
     dante	http://www.inet.no/dante/download.html
     moneyguru	https://download.hardcoded.net/
