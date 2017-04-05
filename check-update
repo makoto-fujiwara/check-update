@@ -468,6 +468,7 @@ my(%SourceForgeAlternative) = qw (
 #  --- HARDCODE TABLES --- ( to ease accessing tables )
 # PKGBASE to $DISTBASE association Special (ending digit is main customer)
 my(%DISTBASE) = qw (
+    tidy	tidy-html5
     editline	libedit
     imp		imp-h3
     awhois	awhois.sh
