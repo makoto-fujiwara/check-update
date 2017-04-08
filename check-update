@@ -90,6 +90,7 @@ my ($DEBUG_CURL_LISTING);
 my ($DEBUG_DIGIT);
 my ($DEBUG_DISTBASE);
 my ($DEBUG_DISTBASE_EXTRACT);
+my ($DEBUG_DISTBASE_SHUFFLE);
 my ($DEBUG_DIVIDE_DEVEL) = 0;
 my ($DEBUG_EVAL_PATTERN);
 my ($DEBUG_EDITVersion);
@@ -136,7 +137,7 @@ my(%LongName)  = (
    'H',  'HTTP Header Summary',
    'k',  'DISTBASE Extract special to SimplePatternY',
    'l',  'Curl Listing',
-   'L',	 'Skipping - Looking for - message at soureforge',
+   'L',	 'DistBaseShuffle',
    'm',	 'MASTER_SITES_LISTING',
    'M',	 'MASTER_SITE',
    'n',  'CountNumber (not implemented yet)',
@@ -1542,6 +1543,22 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (3) <', (caller 0)[3] ,'> ', $version
     return $version;
 }
 
+sub GetDistBaseShuffle($$$$$$){
+    my ($dir) = shift;		# category
+    my ($PackageName) = shift;	# leaf
+    my ($PKGBASE)	= shift;
+    my ($PKGVERSION)	= shift;
+    my ($PKGNAME)	= shift;
+    my ($DISTBASE)	= shift;
+
+print STDERR sprintf("%4d ", __LINE__ ),
+         "  (PKGNAME)\t", $PKGNAME,        "\n",
+    "       (PKGBASE)\t", $PKGBASE,      "\n",
+    "       (DISTBASE)\t", $DISTBASE,      "\n",
+    "       (PKGVERSION)\t", $PKGVERSION , "\n",
+    "       (\@SimplePattern)\t", scalar(grep (/$PKGBASE/, @SimplePattern)) , "\n"
+    if $DEBUG_DISTBASE_SHUFFLE ;
+}
 #  ----------------------------------------------------------------------
 # This routine to find the Base name of distribution file.
 # It will be used to separate the version portion from distribution file.
@@ -1778,6 +1795,8 @@ print STDERR sprintf("%4d ", __LINE__ ),
      'BASE: ', $PKGBASE .'-'. $PKGVERSION, ' DISTNAME: ', $DISTBASE, "\n" if $DEBUG_DISTBASE;
     $SimplePattern = 0; # initialize to none
 
+    $DISTBASE	= GetDistBaseShuffle($dir, $PackageName, $PKGBASE, $PKGVERSION, $PKGNAME, $DISTBASE);
+    exit if $DEBUG_DISTBASE_SHUFFLE;
     # GetDistBase (2) --------------------------------------
     if (($MASTER_SITE_bis =~ /GNOME/) ||
 	($PKGBASE .'-'. $PKGVERSION eq $DISTBASE  || scalar(grep (/$PKGBASE/,@SimplePattern) ))) {
@@ -2890,29 +2909,30 @@ sub ParseDebug($){
     $DEBUG_CURL			= $DEBUG{'C'} + $DEBUG{'a'} ;
     $DEBUG_CURL_CACHE		= $DEBUG{'x'} + $DEBUG{'a'} ;
     $DEBUG_CURL_LISTING		= $DEBUG{'l'} + $DEBUG{'a'} ;
-    $DEBUG_DIGIT		= $DEBUG{'D'} + $DEBUG{'a'} ; 
+    $DEBUG_DIGIT		= $DEBUG{'D'} + $DEBUG{'a'} ;
     $DEBUG_DISTBASE		= $DEBUG{'d'} + $DEBUG{'a'} ;
     $DEBUG_DISTBASE_EXTRACT	= $DEBUG{'k'} + $DEBUG{'a'} ;
+    $DEBUG_DISTBASE_SHUFFLE	= $DEBUG{'L'} + $DEBUG{'a'} ;
     $DEBUG_EDITVersion		= $DEBUG{'E'} + $DEBUG{'a'} ;
     $DEBUG_EVAL_PATTERN		= $DEBUG{'e'} + $DEBUG{'a'} ;
     $DEBUG_FALLBACK_SIMPLE	= $DEBUG{'F'} + $DEBUG{'a'} ;
     $DEBUG_FAMILY		= $DEBUG{'f'} + $DEBUG{'a'} ;
-    $DEBUG_FORK			= $DEBUG{'z'} + $DEBUG{'a'} ;    
+    $DEBUG_FORK			= $DEBUG{'z'} + $DEBUG{'a'} ;
     $DEBUG_FORK_QUIET		= $DEBUG{'Z'} + $DEBUG{'a'} ;
     $DEBUG_GITHUB		= $DEBUG{'g'} + $DEBUG{'a'} ;
     $DEBUG_GNOME		= $DEBUG{'G'} + $DEBUG{'a'} ;
     $DEBUG_HTTP_HEADER		= $DEBUG{'h'} + $DEBUG{'a'} ;
     $DEBUG_MASTER_SITES_LISTING = $DEBUG{'m'} + $DEBUG{'a'} ;
-    $DEBUG_MASTER_SITE		= $DEBUG{'M'} + $DEBUG{'a'} ;	 
+    $DEBUG_MASTER_SITE		= $DEBUG{'M'} + $DEBUG{'a'} ;
     $DEBUG_NCAND		= $DEBUG{'N'} + $DEBUG{'a'} ;
-    $DEBUG_PYPI			= $DEBUG{'y'} + $DEBUG{'a'} ;    
+    $DEBUG_PYPI			= $DEBUG{'y'} + $DEBUG{'a'} ;
     $DEBUG_RUBYGEM		= $DEBUG{'r'} + $DEBUG{'a'} ;
     $DEBUG_REDIRECT		= $DEBUG{'R'} + $DEBUG{'a'} ;
     $DEBUG_SPECIAL_PATTERN	= $DEBUG{'p'} + $DEBUG{'a'} ;
     $DEBUG_SIMPLE_PATTERN	= $DEBUG{'P'} + $DEBUG{'a'} ;
-    $DEBUG_SITE_HEADER		= $DEBUG{'H'} + $DEBUG{'a'} ;    
+    $DEBUG_SITE_HEADER		= $DEBUG{'H'} + $DEBUG{'a'} ;
     $DEBUG_SF			= $DEBUG{'s'} + $DEBUG{'a'} ;
-    $DEBUG_SF_LOOKING_FOR	= $DEBUG{'L'} + $DEBUG{'a'} ;
+#   $DEBUG_SF_LOOKING_FOR	= $DEBUG{'L'} + $DEBUG{'a'} ;
     $DEBUG_STATS		= $DEBUG{'S'} + $DEBUG{'a'} ;
     $DEBUG_URL			= $DEBUG{'U'} + $DEBUG{'a'} ;
     $DEBUG_VERSION_DIR		= $DEBUG{'V'} + $DEBUG{'a'} ;
