@@ -1549,15 +1549,28 @@ sub GetDistBaseShuffle($$$$$$){
     my ($PKGBASE)	= shift;
     my ($PKGVERSION)	= shift;
     my ($PKGNAME)	= shift;
-    my ($DISTBASE)	= shift;
+    my ($DISTNAME)	= shift;
+    my ($DISTBASE)	= '';
 
 print STDERR sprintf("%4d ", __LINE__ ),
          "  (PKGNAME)\t", $PKGNAME,        "\n",
     "       (PKGBASE)\t", $PKGBASE,      "\n",
-    "       (DISTBASE)\t", $DISTBASE,      "\n",
+    "       (DISTBASE)\t", $DISTNAME,      "\n",
     "       (PKGVERSION)\t", $PKGVERSION , "\n",
     "       (\@SimplePattern)\t", scalar(grep (/$PKGBASE/, @SimplePattern)) , "\n"
     if $DEBUG_DISTBASE_SHUFFLE ;
+    my(@names) = sort split '-', $PKGNAME;
+    my(@dists) = sort split '-', $DISTNAME;
+    if ($names[1] eq $dists[1] &&
+        $names[2] eq $dists[2] &&
+	$dists[3] =~ /^py/ ) {  $DISTBASE = $dists[1].'-'.$dists[2];}
+    if ($DEBUG_DISTBASE_SHUFFLE) {
+	print STDERR sprintf("%4d ", __LINE__ ), 'DISTNAME (',$DISTNAME, ') PKGNAME (',$PKGNAME,")\n";
+	print STDERR sprintf("%4d names:", __LINE__ ), join ('::',@names),"\n" ;
+	print STDERR sprintf("%4d dists:", __LINE__ ), join ('::',@dists),"\n" ;
+	print STDERR sprintf("%4d ", __LINE__ ), 'DISTBASE (',$DISTBASE, ') PKGNAME (',$PKGNAME,")\n";
+    }
+    return $DISTBASE
 }
 #  ----------------------------------------------------------------------
 # This routine to find the Base name of distribution file.
@@ -1796,7 +1809,8 @@ print STDERR sprintf("%4d ", __LINE__ ),
     $SimplePattern = 0; # initialize to none
 
     $DISTBASE	= GetDistBaseShuffle($dir, $PackageName, $PKGBASE, $PKGVERSION, $PKGNAME, $DISTBASE);
-    exit if $DEBUG_DISTBASE_SHUFFLE;
+    return $DISTBASE if $DISTBASE;
+#    exit if $DEBUG_DISTBASE_SHUFFLE;
     # GetDistBase (2) --------------------------------------
     if (($MASTER_SITE_bis =~ /GNOME/) ||
 	($PKGBASE .'-'. $PKGVERSION eq $DISTBASE  || scalar(grep (/$PKGBASE/,@SimplePattern) ))) {
