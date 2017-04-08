@@ -1543,35 +1543,35 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (3) <', (caller 0)[3] ,'> ', $version
     return $version;
 }
 
-sub GetDistBaseShuffle($$$$$$){
-    my ($dir) = shift;		# category
-    my ($PackageName) = shift;	# leaf
-    my ($PKGBASE)	= shift;
-    my ($PKGVERSION)	= shift;
-    my ($PKGNAME)	= shift;
-    my ($DISTNAME)	= shift;
-    my ($DISTBASE)	= '';
-
-print STDERR sprintf("%4d ", __LINE__ ),
-         "  (PKGNAME)\t", $PKGNAME,        "\n",
-    "       (PKGBASE)\t", $PKGBASE,      "\n",
-    "       (DISTBASE)\t", $DISTNAME,      "\n",
-    "       (PKGVERSION)\t", $PKGVERSION , "\n",
-    "       (\@SimplePattern)\t", scalar(grep (/$PKGBASE/, @SimplePattern)) , "\n"
-    if $DEBUG_DISTBASE_SHUFFLE ;
-    my(@names) = sort split '-', $PKGNAME;
-    my(@dists) = sort split '-', $DISTNAME;
-    if ($names[1] eq $dists[1] &&
-        $names[2] eq $dists[2] &&
-	$dists[3] =~ /^py/ ) {  $DISTBASE = $dists[1].'-'.$dists[2];}
-    if ($DEBUG_DISTBASE_SHUFFLE) {
-	print STDERR sprintf("%4d ", __LINE__ ), 'DISTNAME (',$DISTNAME, ') PKGNAME (',$PKGNAME,")\n";
-	print STDERR sprintf("%4d names:", __LINE__ ), join ('::',@names),"\n" ;
-	print STDERR sprintf("%4d dists:", __LINE__ ), join ('::',@dists),"\n" ;
-	print STDERR sprintf("%4d ", __LINE__ ), 'DISTBASE (',$DISTBASE, ') PKGNAME (',$PKGNAME,")\n";
-    }
-    return $DISTBASE
-}
+#sub GetDistBaseShuffle($$$$$$){
+#    my ($dir) = shift;		# category
+#    my ($PackageName) = shift;	# leaf
+#    my ($PKGBASE)	= shift;
+#    my ($PKGVERSION)	= shift;
+#    my ($PKGNAME)	= shift;
+#    my ($DISTNAME)	= shift;
+#    my ($DISTBASE)	= '';
+#
+#print STDERR sprintf("%4d ", __LINE__ ),
+#         "  (PKGNAME)\t", $PKGNAME,        "\n",
+#    "       (PKGBASE)\t", $PKGBASE,      "\n",
+#    "       (DISTBASE)\t", $DISTNAME,      "\n",
+#    "       (PKGVERSION)\t", $PKGVERSION , "\n",
+#    "       (\@SimplePattern)\t", scalar(grep (/$PKGBASE/, @SimplePattern)) , "\n"
+#    if $DEBUG_DISTBASE_SHUFFLE ;
+#    my(@names) = sort split '-', $PKGNAME;
+#    my(@dists) = sort split '-', $DISTNAME;
+#    if ($names[1] eq $dists[1] &&
+#        $names[2] eq $dists[2] &&
+#	$dists[3] =~ /^py/ ) {  $DISTBASE = $dists[1].'-'.$dists[2];}
+#    if ($DEBUG_DISTBASE_SHUFFLE) {
+#	print STDERR sprintf("%4d ", __LINE__ ), 'DISTNAME (',$DISTNAME, ') PKGNAME (',$PKGNAME,")\n";
+#	print STDERR sprintf("%4d names:", __LINE__ ), join ('::',@names),"\n" ;
+#	print STDERR sprintf("%4d dists:", __LINE__ ), join ('::',@dists),"\n" ;
+#	print STDERR sprintf("%4d ", __LINE__ ), 'DISTBASE (',$DISTBASE, ') PKGNAME (',$PKGNAME,")\n";
+#    }
+#    return $DISTBASE
+#}
 #  ----------------------------------------------------------------------
 # This routine to find the Base name of distribution file.
 # It will be used to separate the version portion from distribution file.
