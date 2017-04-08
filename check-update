@@ -1902,9 +1902,9 @@ my ($numeric_no_delim_variation) =  $numeric_no_delim . '[0]+';
 
     # GetDistBase (3) ------------------------------------------
     if (
-        $DISTBASE  =~ /([a-zA-Z]+[0-9]+)([-])$PKGVERSION([-])([a-zA-Z]+)/ ||
-        $DISTBASE  =~      /([a-zA-Z-]+)([_.-])$PKGVERSION([_.-])([a-zA-Z]+)/ ||   #    py27-pslib (python-pslib_0.2.0.orig)
-        $DISTBASE  =~ /([a-zA-Z]+[0-9])([-])[0-9.]+([-])([a-zA-Z]+)/      ||   # games/nethack-lib
+        $DISTBASE  =~ /([a-zA-Z]+[0-9]+)([-])$PKGVERSION([-])([a-zA-Z]+)/ || # GetDistBase (3) ---------------
+        $DISTBASE  =~ /([a-zA-Z-]+)([_.-])$PKGVERSION([_.-])([a-zA-Z]+)/  || # GetDistBase (3) py27-pslib (python-pslib_0.2.0.orig)
+        $DISTBASE  =~ /([a-zA-Z]+[0-9])([-])[0-9.]+([-])([a-zA-Z]+)/      || # GetDistBase (3) games/nethack-lib
 	0
 	) {
 	my ($former) = $1;
@@ -1923,11 +1923,8 @@ my ($numeric_no_delim_variation) =  $numeric_no_delim . '[0]+';
 	    if ($DEBUG_DISTBASE || $DEBUG_SPECIAL_PATTERN || $DEBUG_DISTBASE_EXTRACT);
 	return $PKGBASE ;}
 
-
-    #   compat15-extras-i386-1.5.3.tar.bz2 
-    # GetDistBase (4) ------------------------------------------
-    if ($DISTBASE  =~      /([a-zA-Z-]+[0-9]*)(-extras-)(i386|x86_64)-([0-9.]+)$/ ||
-	$DISTBASE  =~             /([a-zA-Z-]+[0-9]*)(-)(i386|x86_64)-([0-9.]+)$/ ){
+    if ($DISTBASE  =~ /([a-zA-Z-]+[0-9]*)(-extras-)(i386|x86_64)-([0-9.]+)$/ || # GetDistBase (4) -- compat15-extras-i386-1.5.3.tar.bz2 
+        $DISTBASE  =~ /([a-zA-Z-]+[0-9]*)(-)(i386|x86_64)-([0-9.]+)$/ ){ # GetDistBase (4) -- compat15-extras-i386-1.5.3.tar.bz2 
 	my ($distbase) = $1;
 	my ($extra) = $2;	
 	my ($arch) = $3;
@@ -1939,9 +1936,7 @@ my ($numeric_no_delim_variation) =  $numeric_no_delim . '[0]+';
 	    if ($DEBUG_DISTBASE || $DEBUG_SPECIAL_PATTERN || $DEBUG_DISTBASE_EXTRACT);
     return $PKGBASE ;}
 
-
-    # GetDistBase (5) ------------------------------------------
-    if ($DISTBASE  =~      /^([a-zA-Z-]+_*)([0-9])([0-9])([0-9])$/ ) {
+    if ($DISTBASE  =~ /^([a-zA-Z-]+_*)([0-9])([0-9])([0-9])$/ ) {	# GetDistBase (5) -----------------
 	my ($distbase) = $1;
 	my ($a) = $2;
 	my ($b) = $3;
@@ -1955,8 +1950,8 @@ my ($numeric_no_delim_variation) =  $numeric_no_delim . '[0]+';
 	    "     (PKGVERSION)\t", $PKGVERSION , "\n" 
 	    if ($DEBUG_DISTBASE || $DEBUG_SPECIAL_PATTERN || $DEBUG_DISTBASE_EXTRACT);
     return $PKGBASE ;}
-    # GetDistBase (6) ------------------------------------------
-    if ($DISTBASE  =~      /([a-zA-Z-]+)([0-9])([0-9])$/ ) {
+
+    if ($DISTBASE  =~ /([a-zA-Z-]+)([0-9])([0-9])$/ ) {		# GetDistBase (6) -----------------
 	my ($distbase) = $1;
 	my ($a) = $2;
 	my ($b) = $3;
