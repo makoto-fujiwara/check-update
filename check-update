@@ -1860,7 +1860,7 @@ my ($numeric_no_delim_variation) =  $numeric_no_delim . '[0]+';
 	    if ($DEBUG_DISTBASE || $DEBUG_DISTBASE_EXTRACT);
 	return $distbase ;
     }
-# GetDistBase (2) not matched
+    # GetDistBase (2) not matched
 # set    $SpecialPatternY  by looking at DISTBASE and PKGVERSION relation
   print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ------------------',"\n",
     "    (PackageName)\t", $PackageName,"\n",
@@ -1883,23 +1883,6 @@ my ($numeric_no_delim_variation) =  $numeric_no_delim . '[0]+';
 	    if ($DEBUG_DISTBASE || $DEBUG_SPECIAL_PATTERN || $DEBUG_DISTBASE_EXTRACT);
     	return $DISTBASE;
     }
-##      # GetDistBase (2-3) ------------------------------------------  x11/py-qt4 -> PyQt-x11-gpl-4.11.4
-##      if (
-##          $DISTBASE  =~ /^([a-zA-Z]+)([-])([a-zA-Z0-9]+)([-])([a-zA-Z]+)([-])$PKGVERSION$/ ) {
-##  	$DISTBASE = $1.$2.$3.$4.$5;
-##  	if (! $SpecialPattern{$PKGBASE}) {
-##  	    $SimplePattern = 1;
-##  	}
-##  	$SpecialPatternY = 'm|.*' . $DISTBASE.'-([0-9.]+)\..*|; $version = $1; ' ;	    
-##    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ------------------',"\n",
-##  #    "    (PackageName)\t", $PackageName,"\n",
-##      "       (DISTBASE)\t", $DISTBASE,      "\n",
-##  	    "(SpecialPatternY)\t", $SpecialPatternY,      "\n",
-##  	    if ($DEBUG_DISTBASE || $DEBUG_SPECIAL_PATTERN || $DEBUG_DISTBASE_EXTRACT);
-##      	return $DISTBASE;
-##      }
-##  
-
     # GetDistBase (2-3) ------------------------------------------  x11/tk -> tk8.6.5-src  ( Ref Family )
     if (
         $DISTBASE  =~ /^([a-zA-Z]+)$PKGVERSION-(src)/ ) {
