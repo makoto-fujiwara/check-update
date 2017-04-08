@@ -67,6 +67,26 @@
        VERS=      2.7.13
        DISTNAME=  python-${VERS}-docs-html
        PKGNAME=   py27-html-docs-${VERS}
+    * (GetDistBase issue)
+       ---------------------------------
+          grep ^sub check-update|grep -i distbase
+          sub DistbaseCacheUpdate($$$);
+          sub DistbaseCacheQuery($$);
+          sub GetDistBase($$$$$);
+          sub DistbaseCacheUpdate($$$) {
+          sub DistbaseCacheQuery($$) {
+          sub GetDistBaseAdjust($$$) {
+          sub GetDistBaseSimple($$){      # <- GetDistBase
+          sub GetDistBasePerlModule($$$){
+          sub GetDistBasePythonModule($$$){
+          sub GetDistBaseReduce($$$$){
+          sub GetDistBaseSwap($$$){
+          sub GetDistBasePwlib($$$$){
+          sub GetDistBaseNoHyphen($$$$){
+          sub GetDistBaseOneHyphen($$$$){
+          sub GetDistBaseMercury($$$$){
+          sub GetDistBase($$$$$) {        # <- Main       DISTBASEDISTBASE
+       ---------------------------------
   - If VERSION is written in Makefile.common, share it and skip the referer (py-objc-*)
   - Take care github stuff but no release, ex sysutils/rkflashtool
   - Alpha version or Develop branch / unstable version
