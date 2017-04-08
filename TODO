@@ -1,6 +1,6 @@
 (TODO)
   - Automatic @SimplePattern
-  - help message (-h option) is innacurate
+  - help message (-h option) is inaccurate
   - Man page missing 
   - make check-update-depends 
     (like make clean-depends, but not really inside of this developement)
