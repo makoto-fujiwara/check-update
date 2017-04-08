@@ -2039,7 +2039,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	print STDERR sprintf("%4d ", __LINE__ ), '(DISTBASE) ', $PKGBASE,"\n" if $DEBUG_DISTBASE;
 	return $PKGBASE;}
 
-    my ($thisreturn) =  GetDistBasePythonModule($PKGBASE, $PKGNAME, $DISTBASE);
+    my ($thisreturn)= GetDistBasePythonModule($PKGBASE, $PKGNAME, $DISTBASE);
     if ($thisreturn) { return $thisreturn; }
 print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], '> ',"\n" if $DEBUG_DISTBASE;
 
@@ -2051,50 +2051,42 @@ print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], '> ',"\n" if $DEBUG_
     #   (PKGVERSION)     3.1.2
     #  --------------------------------------
     # GetDistBase (11) -------------------------------------------------------
-        $thisreturn =	GetDistBaseSwap($PKGNAME, $PKGBASE, $DISTBASE);
+        $thisreturn = GetDistBaseSwap($PKGNAME, $PKGBASE, $DISTBASE);
     if ($thisreturn) { return $thisreturn }
 
     print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ',
 	'(PKGNAME) ', $PKGNAME, ' (PKGBASE) ', $PKGBASE, ' (DISTNAME) ', $DISTBASE
 ,"\n" if $DEBUG_DISTBASE;
 
-     $thisreturn = GetDistBaseMercury($PKGBASE, $PKGNAME, $PKGVERSION, $DISTBASE);
+        $thisreturn = GetDistBaseMercury($PKGBASE, $PKGNAME, $PKGVERSION, $DISTBASE);
 print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], '> ',"\n" if $DEBUG_DISTBASE;
-     if ($thisreturn) { return $thisreturn; }
+    if ($thisreturn) { return $thisreturn; }
 
-             $thisreturn = GetDistBaseNoHyphen($PKGBASE, $PKGNAME, $PKGVERSION, $DISTBASE);
+        $thisreturn = GetDistBaseNoHyphen($PKGBASE, $PKGNAME, $PKGVERSION, $DISTBASE);
 print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], '> return(', $thisreturn, ")\n" if $DEBUG_DISTBASE;
-     if ($thisreturn) { return $thisreturn; }
+    if ($thisreturn) { return $thisreturn; }
 
-             $thisreturn = GetDistBaseOneHyphen($PKGBASE, $PKGNAME, $PKGVERSION, $DISTBASE);
+        $thisreturn = GetDistBaseOneHyphen($PKGBASE, $PKGNAME, $PKGVERSION, $DISTBASE);
 print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], '> return(', $thisreturn, ")\n" if $DEBUG_DISTBASE;
-     if ($thisreturn) { return $thisreturn; }
-
-    $thisreturn =  GetDistBasePerlModule($PKGBASE, $PKGNAME, $DISTBASE);
+    if ($thisreturn) { return $thisreturn; }
+        $thisreturn = GetDistBasePerlModule($PKGBASE, $PKGNAME, $DISTBASE);
     if ($thisreturn) { return $thisreturn; }
 print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], '> ',"\n" if $DEBUG_DISTBASE;
 
-         $thisreturn = GetDistBasePwlib($PKGBASE, $PKGNAME, $PKGVERSION, $DISTBASE);
+        $thisreturn = GetDistBasePwlib($PKGBASE, $PKGNAME, $PKGVERSION, $DISTBASE);
 print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], '> ',"\n" if $DEBUG_DISTBASE;
-##
-##     if ($thisreturn) { return $thisreturn; }
-## print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], '> ',"\n" if $DEBUG_DISTBASE;
-##
-##          $thisreturn = GetDistBaseAdjust($PKGBASE, $PKGNAME, $DISTBASE);
-## print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], '> ',"\n" if $DEBUG_DISTBASE;
-##
      if ($thisreturn) { return $thisreturn; }
 
     #  --------------------------------------
     #      0-2. if (-) is onlye one in PKGNAME, remove - and after
     #      if resultant string in DISTNAME, take it as DISTBASE
     #  --------------------------------------
-    $thisreturn = GetDistBaseSimple($PKGNAME, $DISTBASE);
+        $thisreturn = GetDistBaseSimple($PKGNAME, $DISTBASE);
     if ($thisreturn) { return $thisreturn; }
 print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], '> ',"\n" if $DEBUG_DISTBASE;
 
     # (distname) ast-ksh-2012-08-01 -> (pkgname) ast-ksh-20120801
-    $thisreturn = GetDistBaseReduce($PKGBASE, $PKGNAME, $PKGVERSION, $DISTBASE);
+        $thisreturn = GetDistBaseReduce($PKGBASE, $PKGNAME, $PKGVERSION, $DISTBASE);
     if ($thisreturn) { return $thisreturn; }
 print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], '> ',"\n" if $DEBUG_DISTBASE;
 
