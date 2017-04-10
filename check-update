@@ -448,6 +448,7 @@ my (%SpecialPattern) = (
     'mad_fcl',		'$line =~ s|.*MAD-FCL \(v_([0-9.]+)\).*|$1|;',
     'sgb',		'$line =~ s|.*sgb-([0-9]+)-([0-9]+)-([0-9]+)\.tar\.gz.*|$1$2$3|;',
     'libedit',		'$line =~ s|.*libedit-([0-9]+)-([0-9.]+)\.tar\.gz.*|$2.$1|;',
+    'egenix-mx-base',	'$line =~ s|.*Version: ([0-9.]+).*|$1|;',
     );
    # sgb does not work yet
    #http://prdownloads.sourceforge.jp/lha/11617/lha-1.14i-ac20040929.tar.gz
@@ -521,6 +522,7 @@ my(%DISTBASE) = qw (
     );
    
 my(%DownLoadAlternative) = qw (
+    egenix-mx-base	http://www.egenix.com/products/python/mxBase/mxDateTime/
     libprelude	https://www.prelude-siem.org/projects/prelude/files
     libpreludedb https://www.prelude-siem.org/projects/prelude/files
     dcsharp	https://code.google.com/archive/p/dcsharp/downloads
