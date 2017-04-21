@@ -65,12 +65,11 @@
        VERS=      2.7.13
        DISTNAME=  python-${VERS}-docs-html
        PKGNAME=   py27-html-docs-${VERS}
-    * (GetDistBase issue)
+    *  py-expect: DISTNAME= ExpectPy-1.9b1 -> 1.8.3 (reversed)
+    * (GetDistBase issue), See DISTBASE file
        ---------------------------------
           grep ^sub check-update|grep -i distbase
-          sub DistbaseCacheUpdate($$$);
-          sub DistbaseCacheQuery($$);
-          sub GetDistBase($$$$$);
+              (manually removed for prototype)
           sub DistbaseCacheUpdate($$$) {
           sub DistbaseCacheQuery($$) {
           sub GetDistBaseAdjust($$$) {
