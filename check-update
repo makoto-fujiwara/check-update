@@ -494,6 +494,7 @@ my(%DISTBASE) = qw (
     p5-IPC-Run	IPC-Run
     p5-App-Prove-Plugin-ProgressBar App-Prove-Plugin-ProgressBar
     p5-Term-ReadLine-Perl Term-ReadLine-Perl
+    p5-GitLab-API-v3	GitLab-API-v3
     fixesproto4 fixesproto4
     gr-fcdproplus gr-fcdproplus
     swi-prolog	pl
