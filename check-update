@@ -740,9 +740,12 @@ my (@DOT3) = qw (
     flow-tools
     Mojo-IOLoop-ForkCall
     Test-File
+    Test-Output
+    MooseX-App
     Text-Diff-Parser
     Log-Any
     Text-Autoformat
+    File-HomeDir
     );
 
 # 633 -> 6.33.0 InsertDot
