@@ -1,3 +1,8 @@
+CF-SX2@makoto 08:23:38/170422(..git-work/check-update)%
+foreach i (`grep ^sub check-update|grep -i distbase | awk '{print $2}' | sed 's/(.*//'`) ;
+grep -n $i check-update ;
+end | sort -n | uniq
+
 853:sub DistbaseCacheUpdate($$$);
 854:sub DistbaseCacheQuery($$);
 855:sub GetDistBase($$$$$);
