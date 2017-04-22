@@ -1,58 +1,53 @@
-CF-SX2@makoto 08:23:38/170422(..git-work/check-update)%
-foreach i (`grep ^sub check-update|grep -i distbase | awk '{print $2}' | sed 's/(.*//'`) ;
-grep -n $i check-update ;
-end | sort -n | uniq
-
- 855:sub DistbaseCacheUpdate($$$);
- 856:sub DistbaseCacheQuery($$);
- 857:sub GetDistBase($$$$$);
-1462:sub DistbaseCacheUpdate($$$) {
-1479:sub DistbaseCacheQuery($$) {
-1552:#sub GetDistBaseShuffle($$$$$$){
-1589:sub GetDistBaseAdjust($$$) {
-1590:#1061 <main::GetDistBaseSwap> (pkgname) aspell-ast-0.01
-1605:    # above line is too late to set ;-(, not set in line 2073, Main (3022) -> GetDistBase (1161) ->  here
-1609:sub GetDistBaseSimple($$){ # <- GetDistBase
-1627:sub GetDistBasePerlModule($$$){
-1641:sub GetDistBasePythonModule($$$){
-1657:sub GetDistBaseReduce($$$$){
-1681:# GetDistBase ->
-1682:sub GetDistBaseSwap($$$){
-1708:sub GetDistBasePwlib($$$$){
-1721:sub GetDistBaseNoHyphen($$$$){
-1736:sub GetDistBaseOneHyphen($$$$){
-1755:sub GetDistBaseMercury($$$$){
-1776:sub GetDistBase($$$$$) {   # <- Main       DISTBASEDISTBASE
-1801:   GetDistBaseAdjust($PKGNAME, $PKGBASE, $DISTBASE);
-1809:    # GetDistBase (1) kde4-i10n-.. special ------------------
-1817:    # GetDistBase (2) --------------------------------------
-1842:    # GetDistBase (2) not matched --------non conditional print ----------------------
-1850:    # GetDistBase (2-1) 
-1899:    # GetDistBase (2) not matched
-1907:    # GetDistBase (2-2) ------------------------------------------  textproc/dbtoepub
-1922:    # GetDistBase (2-3) ------------------------------------------  x11/tk -> tk8.6.5-src  ( Ref Family )
-1939:    # GetDistBase (3) ------------------------------------------
-1941:        $DISTBASE  =~ /([a-zA-Z]+[0-9]+)([-])$PKGVERSION([-])([a-zA-Z]+)/ || # GetDistBase (3) ---------------
-1942:        $DISTBASE  =~ /([a-zA-Z-]+)([_.-])$PKGVERSION([_.-])([a-zA-Z]+)/  || # GetDistBase (3) py27-pslib (python-pslib_0.2.0.orig)
-1943:        $DISTBASE  =~ /([a-zA-Z]+[0-9])([-])[0-9.]+([-])([a-zA-Z]+)/      || # GetDistBase (3) games/nethack-lib
-1962:    if ($DISTBASE  =~ /([a-zA-Z-]+[0-9]*)(-extras-)(i386|x86_64)-([0-9.]+)$/ || # GetDistBase (4) -- compat15-extras-i386-1.5.3.tar.bz2 
-1963:        $DISTBASE  =~ /([a-zA-Z-]+[0-9]*)(-)(i386|x86_64)-([0-9.]+)$/ ){ # GetDistBase (4) -- compat15-extras-i386-1.5.3.tar.bz2 
-1975:    if ($DISTBASE  =~ /^([a-zA-Z-]+_*)([0-9])([0-9])([0-9])$/ ) {  # GetDistBase (5) -----------------
-1990:    if ($DISTBASE  =~ /([a-zA-Z-]+)([0-9])([0-9])$/ ) {            # GetDistBase (6) -----------------
-2011:    # GetDistBase (7) ------------------------------------------
-2030:    # GetDistBase (8) ------------------------------------------
-2052:    # GetDistBase (9) -------------------------------------------------------
-2068:    # GetDistBase (10) -------------------------------------------------------
-2073:    my ($thisreturn)= GetDistBasePythonModule($PKGBASE, $PKGNAME, $DISTBASE);
-2084:    # GetDistBase (11) -------------------------------------------------------
-2085:        $thisreturn = GetDistBaseSwap($PKGNAME, $PKGBASE, $DISTBASE);
-2092:        $thisreturn = GetDistBaseMercury($PKGBASE, $PKGNAME, $PKGVERSION, $DISTBASE);
-2096:        $thisreturn = GetDistBaseNoHyphen($PKGBASE, $PKGNAME, $PKGVERSION, $DISTBASE);
-2100:        $thisreturn = GetDistBaseOneHyphen($PKGBASE, $PKGNAME, $PKGVERSION, $DISTBASE);
-2103:        $thisreturn = GetDistBasePerlModule($PKGBASE, $PKGNAME, $DISTBASE);
-2107:        $thisreturn = GetDistBasePwlib($PKGBASE, $PKGNAME, $PKGVERSION, $DISTBASE);
-2115:        $thisreturn = GetDistBaseSimple($PKGNAME, $DISTBASE);
-2120:        $thisreturn = GetDistBaseReduce($PKGBASE, $PKGNAME, $PKGVERSION, $DISTBASE);
-4425:   $DISTBASE       = GetDistBase($dir, $PackageName, $PKGBASE, $PKGVERSION, $PKGNAME);
-4483:    if (($version = DistbaseCacheQuery($DISTBASE, $master_site)) > 0 ){ 
-4686:    DistbaseCacheUpdate($DISTBASE, $URL, $available);
+853:sub DistbaseCacheUpdate($$$);
+854:sub DistbaseCacheQuery($$);
+855:sub GetDistBase($$$$$);
+1460:sub DistbaseCacheUpdate($$$) {
+1477:sub DistbaseCacheQuery($$) {
+1558:sub GetDistBaseAdjust($$$) {
+1559:#1061 <main::GetDistBaseSwap> (pkgname) aspell-ast-0.01
+1574:    # above line is too late to set ;-(, not set in line 2073, Main (3022) -> GetDistBase (1161) ->  here
+1578:sub GetDistBaseSimple($$){	# <- GetDistBase
+1596:sub GetDistBasePerlModule($$$){
+1610:sub GetDistBasePythonModule($$$){
+1626:sub GetDistBaseReduce($$$$){
+1650:# GetDistBase ->
+1651:sub GetDistBaseSwap($$$){
+1677:sub GetDistBasePwlib($$$$){
+1690:sub GetDistBaseNoHyphen($$$$){
+1705:sub GetDistBaseOneHyphen($$$$){
+1724:sub GetDistBaseMercury($$$$){
+1745:sub GetDistBase($$$$$) {	# <- Main       DISTBASEDISTBASE
+1770:	GetDistBaseAdjust($PKGNAME, $PKGBASE, $DISTBASE);
+1778:    # GetDistBase (1) kde4-i10n-.. special ------------------
+1786:    # GetDistBase (2) --------------------------------------
+1811:    # GetDistBase (2) not matched --------non conditional print ----------------------
+1820:    if ($DISTBASE =~ /$PKGBASE-(v*)$PKGVERSION$/ ||	# GetDistBase (2-1)
+1822:        $DISTBASE =~ /$PKGBASE-$PKGVERSION$/i) {		# GetDistBase (2-1)
+1868:    # GetDistBase (2) not matched
+1878:        $DISTBASE  =~ /^([a-zA-Z]+[0-9]*)([-])([a-zA-Z]+)([-])$PKGVERSION$/ ) {	# GetDistBase (2-2) --  textproc/dbtoepub
+1892:        $DISTBASE  =~ /^([a-zA-Z]+)$PKGVERSION-(src)/ ) {	# GetDistBase (2-3)--  x11/tk -> tk8.6.5-src  ( Ref Family
+1909:        $DISTBASE  =~ /([a-zA-Z]+[0-9]+)([-])$PKGVERSION([-])([a-zA-Z]+)/ || # GetDistBase (3) ---------------
+1910:        $DISTBASE  =~ /([a-zA-Z-]+)([_.-])$PKGVERSION([_.-])([a-zA-Z]+)/  || # GetDistBase (3) py27-pslib (python-pslib_0.2.0.orig)
+1911:        $DISTBASE  =~ /([a-zA-Z]+[0-9])([-])[0-9.]+([-])([a-zA-Z]+)/      || # GetDistBase (3) games/nethack-lib
+1930:    if ($DISTBASE  =~ /([a-zA-Z-]+[0-9]*)(-extras-)(i386|x86_64)-([0-9.]+)$/ || # GetDistBase (4) -- compat15-extras-i386-1.5.3.tar.bz2 
+1931:        $DISTBASE  =~ /([a-zA-Z-]+[0-9]*)(-)(i386|x86_64)-([0-9.]+)$/ ){ # GetDistBase (4) -- compat15-extras-i386-1.5.3.tar.bz2 
+1943:    if ($DISTBASE  =~ /^([a-zA-Z-]+_*)([0-9])([0-9])([0-9])$/ ) {		# GetDistBase (5) -----------------
+1958:    if ($DISTBASE  =~ /([a-zA-Z-]+)([0-9])([0-9])$/ ) {				# GetDistBase (6) -----------
+1976:    if ($DISTBASE  =~ /^$PKGBASE.$PKGVERSION$/i ) { # ------- GetDistBase (7)
+1993:    if ($DISTBASE  =~  /([a-zA-Z-]+)-([0-9.]+)-p([0-9])/  # GetDistBase (8) devel/automake14 automake-1.4-p6
+2013:    # GetDistBase (9)   # Get several value to do very simple logic for the very first 'if' line below.
+2019:    $VERSION_CANDIDATE =  MonthToDigit($VERSION_CANDIDATE);	# GetDistBase (10) ----------
+2029:    if ($testA.'-'.$VERSION_CANDIDATE eq $PKGNAME ) {		# GetDistBase (10) ----------
+2033:    my ($thisreturn)= GetDistBasePythonModule($PKGBASE, $PKGNAME, $DISTBASE);
+2044:    # GetDistBase (11) ---------------- external sub routine ---------------------------------------
+2045:        $thisreturn = GetDistBaseSwap($PKGNAME, $PKGBASE, $DISTBASE);
+2052:        $thisreturn = GetDistBaseMercury($PKGBASE, $PKGNAME, $PKGVERSION, $DISTBASE);
+2056:        $thisreturn = GetDistBaseNoHyphen($PKGBASE, $PKGNAME, $PKGVERSION, $DISTBASE);
+2060:        $thisreturn = GetDistBaseOneHyphen($PKGBASE, $PKGNAME, $PKGVERSION, $DISTBASE);
+2063:        $thisreturn = GetDistBasePerlModule($PKGBASE, $PKGNAME, $DISTBASE);
+2067:        $thisreturn = GetDistBasePwlib($PKGBASE, $PKGNAME, $PKGVERSION, $DISTBASE);
+2075:        $thisreturn = GetDistBaseSimple($PKGNAME, $DISTBASE);
+2080:        $thisreturn = GetDistBaseReduce($PKGBASE, $PKGNAME, $PKGVERSION, $DISTBASE);
+4386:	$DISTBASE	= GetDistBase($dir, $PackageName, $PKGBASE, $PKGVERSION, $PKGNAME);
+4444:    if (($version = DistbaseCacheQuery($DISTBASE, $master_site)) > 0 ){ 
+4647:    DistbaseCacheUpdate($DISTBASE, $URL, $available);

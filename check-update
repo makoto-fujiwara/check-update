@@ -1543,7 +1543,7 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (3) <', (caller 0)[3] ,'> ', $version
         if (   $distbase =~ m|^xpdf-| )		      { $version = MonthToDigit($version); }
         if ( $distbase =~ m|^euler$| )                { $version = substr($version, 0, 4); }
     print STDERR sprintf("%4d ", __LINE__ ), ' (4) ', $version, "\n" if $DEBUG_EDITVersion;
-#	print STDERR sprintf("%4d ", __LINE__ ), ' ', $_, "\n", $distbase, ' --> ', $version,"\n";
+
     return $version;
 }
 
@@ -1970,10 +1970,10 @@ my ($numeric_no_delim_variation) =  $numeric_no_delim . '[0]+';
 	    if ($DEBUG_DISTBASE || $DEBUG_SPECIAL_PATTERN || $DEBUG_DISTBASE_EXTRACT);
     return $PKGBASE ;}
 
-    # GetDistBase (7) ------------------------------------------
+    #  (7) ------------------------------------------
 # delimiter is perid(.)  rtf2LaTeX.1.5
 #   if ($PKGBASE .'.'. $PKGVERSION =~ /$DISTBASE$/i ) {
-    if ($DISTBASE =~ /^$PKGBASE.$PKGVERSION$/i ) {
+    if ($DISTBASE  =~ /^$PKGBASE.$PKGVERSION$/i ) { # ------- GetDistBase (7)
  my($distbase) = $DISTBASE ;
  $distbase =~ s/\.$PKGVERSION//;
 	if (! $SpecialPattern{$PKGBASE}) {
@@ -1988,10 +1988,9 @@ my ($numeric_no_delim_variation) =  $numeric_no_delim . '[0]+';
 	    if ($DEBUG_DISTBASE || $DEBUG_DISTBASE_EXTRACT);
 	return $distbase ;
     }
-
-    # GetDistBase (8) ------------------------------------------
+    #  (8) ------------------------------------------
     my($concatVersion) = '';
-    if ($DISTBASE  =~      /([a-zA-Z-]+)-([0-9.]+)-p([0-9])/    # devel/automake14 automake-1.4-p6    
+    if ($DISTBASE  =~  /([a-zA-Z-]+)-([0-9.]+)-p([0-9])/  # GetDistBase (8) devel/automake14 automake-1.4-p6
 	) {
 	my($pkgname) = $1;
 	my($major) =   $2;
@@ -2011,14 +2010,13 @@ my ($numeric_no_delim_variation) =  $numeric_no_delim . '[0]+';
 	    if ($DEBUG_DISTBASE || $DEBUG_SPECIAL_PATTERN || $DEBUG_DISTBASE_EXTRACT);
 	return $PKGBASE ;}
     }
-    # GetDistBase (9) -------------------------------------------------------
-    # Get several value to do very simple logic for the very first 'if' line below.
+    # GetDistBase (9)   # Get several value to do very simple logic for the very first 'if' line below.
     my($PKGBODY) = $DISTBASE;	# For Substracting $PKGVERSION from $PKGNAME
     				# This variable appears only these several lines, to pickup $VERSION_CANDIDATE
 
     my($VERSION_CANDIDATE) = $DISTBASE;
     $VERSION_CANDIDATE =~ s/$PKGBASE-//;
-    $VERSION_CANDIDATE =  MonthToDigit($VERSION_CANDIDATE);
+    $VERSION_CANDIDATE =  MonthToDigit($VERSION_CANDIDATE);	# GetDistBase (10) ----------
 print STDERR sprintf("%4d ", __LINE__ ), '(PKGBODY) ', $PKGBODY,' (CAND) ', $VERSION_CANDIDATE,"\n" if $DEBUG_DISTBASE;
     my($testA) = $PKGBASE;
     my($testB) = $DISTBASE;
@@ -2027,8 +2025,8 @@ print STDERR sprintf("%4d ", __LINE__ ),
     ' (VERSION_CANDIDATE) ', $VERSION_CANDIDATE,
     ' (PKGNAME) ', $PKGNAME,
     ' (PKGBASE) ', $PKGBASE,   "\n" if $DEBUG_DISTBASE;    
-    # GetDistBase (10) -------------------------------------------------------
-    if ($testA.'-'.$VERSION_CANDIDATE eq $PKGNAME ) {
+
+    if ($testA.'-'.$VERSION_CANDIDATE eq $PKGNAME ) {		# GetDistBase (10) ----------
 	print STDERR sprintf("%4d ", __LINE__ ), '(DISTBASE) ', $PKGBASE,"\n" if $DEBUG_DISTBASE;
 	return $PKGBASE;}
 
