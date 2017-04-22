@@ -1767,7 +1767,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
 
     if  ($PKGBASE =~ m|aspell|) {
 	my ($distbase) =
-	GetDistBaseAdjust($PKGNAME, $PKGBASE, $DISTBASE);
+	GetDistBaseAdjust($PKGNAME, $PKGBASE, $DISTBASE); # (0) -- only for aspell
 
 	if ($distbase) {return $distbase;}
     }
@@ -1783,7 +1783,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
      'BASE: ', $PKGBASE .'-'. $PKGVERSION, ' DISTNAME: ', $DISTBASE, "\n" if $DEBUG_DISTBASE;
     $SimplePattern = 0; # initialize to none
 
-    # GetDistBase (2) --------------------------------------
+    # GetDistBase (2) ------------------------ GNOME only -----
     if (($MASTER_SITE_bis =~ /GNOME/) ||
 	($PKGBASE .'-'. $PKGVERSION eq $DISTBASE  || scalar(grep (/$PKGBASE/,@SimplePattern) ))) {
         if ($PKGBASE =~ /[0-9]/) {  # games/4stAttack 
