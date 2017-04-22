@@ -4319,11 +4319,12 @@ print STDERR sprintf("%4d ", __LINE__ ),
     my($thispwd) = `pwd`;    # not really effectively used
     $thispwd =~ chomp($thispwd);
 #    print STDERR '   ***', __FILE__ , ' -> ', (caller 0)[3], ': ',  sprintf("%4d ", __LINE__ )," " ;
-    if ( ! -d $this_PackageDir ) { print STDERR sprintf("%4d ", __LINE__ ), "Not directory: $thispwd -> $this_PackageDir\n"; next;}
+    if ( ! -d $this_PackageDir && $verbose ) { print STDERR sprintf("%4d ", __LINE__ ), "Not directory: $thispwd -> $this_PackageDir\n"; next;}
 
     my ($Makefile) = $this_PackageDir.'/Makefile';
-    if ( ! -f "$Makefile")        { 
-	print STDERR ColorString( 'yellow', '          '. $this_PackageDir . "\tMakefile does not exist or is not file\n"); next;}
+    if ( ! -f "$Makefile" ) { 
+	if ($verbose) {  print STDERR sprintf("%04d ", __LINE__) . ColorString( 'yellow', '          '. $this_PackageDir . "\tMakefile does not exist or is not file\n"); }
+	next;}
 	# ----------- I M P O R T A N T    S T A T I S T I C S   V A L U E -------------
     $TotalChecked++;			# becoming serial so on (to count)
     #  ----------------------------------------------------------------------------
