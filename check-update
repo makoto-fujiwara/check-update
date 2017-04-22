@@ -90,7 +90,6 @@ my ($DEBUG_CURL_LISTING);
 my ($DEBUG_DIGIT);
 my ($DEBUG_DISTBASE);
 my ($DEBUG_DISTBASE_EXTRACT);
-my ($DEBUG_DISTBASE_SHUFFLE);
 my ($DEBUG_DIVIDE_DEVEL) = 0;
 my ($DEBUG_EVAL_PATTERN);
 my ($DEBUG_EDITVersion);
@@ -137,7 +136,6 @@ my(%LongName)  = (
    'H',  'HTTP Header Summary',
    'k',  'DISTBASE Extract special to SimplePatternY',
    'l',  'Curl Listing',
-   'L',	 'DistBaseShuffle',
    'm',	 'MASTER_SITES_LISTING',
    'M',	 'MASTER_SITE',
    'n',  'CountNumber (not implemented yet)',
@@ -1549,35 +1547,6 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (3) <', (caller 0)[3] ,'> ', $version
     return $version;
 }
 
-#sub GetDistBaseShuffle($$$$$$){
-#    my ($dir) = shift;		# category
-#    my ($PackageName) = shift;	# leaf
-#    my ($PKGBASE)	= shift;
-#    my ($PKGVERSION)	= shift;
-#    my ($PKGNAME)	= shift;
-#    my ($DISTNAME)	= shift;
-#    my ($DISTBASE)	= '';
-#
-#print STDERR sprintf("%4d ", __LINE__ ),
-#         "  (PKGNAME)\t", $PKGNAME,        "\n",
-#    "       (PKGBASE)\t", $PKGBASE,      "\n",
-#    "       (DISTBASE)\t", $DISTNAME,      "\n",
-#    "       (PKGVERSION)\t", $PKGVERSION , "\n",
-#    "       (\@SimplePattern)\t", scalar(grep (/$PKGBASE/, @SimplePattern)) , "\n"
-#    if $DEBUG_DISTBASE_SHUFFLE ;
-#    my(@names) = sort split '-', $PKGNAME;
-#    my(@dists) = sort split '-', $DISTNAME;
-#    if ($names[1] eq $dists[1] &&
-#        $names[2] eq $dists[2] &&
-#	$dists[3] =~ /^py/ ) {  $DISTBASE = $dists[1].'-'.$dists[2];}
-#    if ($DEBUG_DISTBASE_SHUFFLE) {
-#	print STDERR sprintf("%4d ", __LINE__ ), 'DISTNAME (',$DISTNAME, ') PKGNAME (',$PKGNAME,")\n";
-#	print STDERR sprintf("%4d names:", __LINE__ ), join ('::',@names),"\n" ;
-#	print STDERR sprintf("%4d dists:", __LINE__ ), join ('::',@dists),"\n" ;
-#	print STDERR sprintf("%4d ", __LINE__ ), 'DISTBASE (',$DISTBASE, ') PKGNAME (',$PKGNAME,")\n";
-#    }
-#    return $DISTBASE
-#}
 #  ----------------------------------------------------------------------
 # This routine to find the Base name of distribution file.
 # It will be used to separate the version portion from distribution file.
@@ -2938,7 +2907,6 @@ sub ParseDebug($){
     $DEBUG_DIGIT		= $DEBUG{'D'} + $DEBUG{'a'} ;
     $DEBUG_DISTBASE		= $DEBUG{'d'} + $DEBUG{'a'} ;
     $DEBUG_DISTBASE_EXTRACT	= $DEBUG{'k'} + $DEBUG{'a'} ;
-    $DEBUG_DISTBASE_SHUFFLE	= $DEBUG{'L'} + $DEBUG{'a'} ;
     $DEBUG_EDITVersion		= $DEBUG{'E'} + $DEBUG{'a'} ;
     $DEBUG_EVAL_PATTERN		= $DEBUG{'e'} + $DEBUG{'a'} ;
     $DEBUG_FALLBACK_SIMPLE	= $DEBUG{'F'} + $DEBUG{'a'} ;
@@ -3465,8 +3433,8 @@ sub ReadTodo($){
     my($pkgsrc) = shift;
     my($TODO)   = $pkgsrc.'/doc/TODO';
     if ( open(TODO, $TODO) == 0 ) {
-	print STDERR " **(EE) Problem reading $TODO: $!\n";
-	print STDERR " **(EE) -p option correct ?\n"; exit 24;
+	print STDERR sprintf("%04d ", __LINE__) . " **(EE) Problem reading $TODO: $!\n";
+	print STDERR sprintf("%04d ", __LINE__) . " **(EE) -p option correct ?\n"; exit 24;
     }
     while(<TODO>) {
 	if (/^[ \t]+o ([a-zA-Z0-9_-]+)-([0-9.a-z]+)/ ) {
@@ -3885,11 +3853,12 @@ sub Delete02($) {
     }
     return $result;
 }
-sub AddSpecialPattern(){
+sub AddSpecialPattern($){
+    my ($pkgsrc) = shift;
 ## https://pythonhosted.org/pyobjc/core/changelog.html
 ##  <h2>Version 3.2</h2>  
     opendir(my $dh, $pkgsrc.'/devel') ||
-	printf STDERR sprintf("%4d ", __LINE__ ), "Problem on AddSpecialPattern(),\n";
+	printf STDERR sprintf("%04d ", __LINE__ ). "Problem on AddSpecialPattern(), on $pkgsrc\n";
     while (readdir $dh ) {
 	chomp();
 #	printf STDERR sprintf("%4d ", __LINE__ ). ' -> '. $_."\n";
@@ -4214,8 +4183,9 @@ my(%DIVIDE_DEVEL) = ( 1, '[A-Za-o].*',
 		      2, 'p.*',
 		      3, '[q-z].*' );
 
+#print STDERR sprintf("%4d ", __LINE__ ), 'chdir to '. $pkgsrc ."\n";
 chdir $pkgsrc;
-AddSpecialPattern();
+AddSpecialPattern($pkgsrc);
 
 if ( $summary_tmp ne '/dev/null') {
 print STDERR sprintf("%4d ", __LINE__ ), 'output directory is '. $output_directory ."\n";
