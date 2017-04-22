@@ -13,6 +13,7 @@ audio/akode-plugins-pulseaudio
 audio/akode-plugins-resampler
 audio/akode-plugins-sun
 audio/akode-plugins-xiph  
+cad/xchiplogo
 databases/rrdtool12
 devel/papaya
 devel/p5-Term-ReadLine-Perl
@@ -33,6 +34,7 @@ net/ser
 net/socks4
 net/sharity-light
 net/ttt
+security/libdes
 sysutils/acpidump
 textproc/biblook
 textproc/convertlit

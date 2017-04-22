@@ -136,7 +136,6 @@ my(%LongName)  = (
    'H',  'HTTP Header Summary',
    'k',  'DISTBASE Extract special to SimplePatternY',
    'l',  'Curl Listing',
-   'L',	 'Skipping - Looking for - message at soureforge',
    'm',	 'MASTER_SITES_LISTING',
    'M',	 'MASTER_SITE',
    'n',  'CountNumber (not implemented yet)',
@@ -256,6 +255,7 @@ my (@SkipTooOld)
 # Simple means $distbase-([0-9.]+)-(extran string not necessary)..
 my ($SimplePattern); # dynamically set to 1 if @SimplePattern equivalent
 my (@SimplePattern)  = qw(
+webalizer
 ddd
 cmocka
 libsodium
@@ -446,6 +446,7 @@ my (%SpecialPattern) = (
     'mad_fcl',		'$line =~ s|.*MAD-FCL \(v_([0-9.]+)\).*|$1|;',
     'sgb',		'$line =~ s|.*sgb-([0-9]+)-([0-9]+)-([0-9]+)\.tar\.gz.*|$1$2$3|;',
     'libedit',		'$line =~ s|.*libedit-([0-9]+)-([0-9.]+)\.tar\.gz.*|$2.$1|;',
+    'egenix-mx-base',	'$line =~ s|.*Version: ([0-9.]+).*|$1|;',
     );
    # sgb does not work yet
    #http://prdownloads.sourceforge.jp/lha/11617/lha-1.14i-ac20040929.tar.gz
@@ -468,6 +469,7 @@ my(%SourceForgeAlternative) = qw (
 #  --- HARDCODE TABLES --- ( to ease accessing tables )
 # PKGBASE to $DISTBASE association Special (ending digit is main customer)
 my(%DISTBASE) = qw (
+    tidy	tidy-html5
     editline	libedit
     imp		imp-h3
     awhois	awhois.sh
@@ -490,6 +492,7 @@ my(%DISTBASE) = qw (
     p5-IPC-Run	IPC-Run
     p5-App-Prove-Plugin-ProgressBar App-Prove-Plugin-ProgressBar
     p5-Term-ReadLine-Perl Term-ReadLine-Perl
+    p5-GitLab-API-v3	GitLab-API-v3
     fixesproto4 fixesproto4
     gr-fcdproplus gr-fcdproplus
     swi-prolog	pl
@@ -518,6 +521,9 @@ my(%DISTBASE) = qw (
     );
    
 my(%DownLoadAlternative) = qw (
+    egenix-mx-base	http://www.egenix.com/products/python/mxBase/mxDateTime/
+    libprelude	https://www.prelude-siem.org/projects/prelude/files
+    libpreludedb https://www.prelude-siem.org/projects/prelude/files
     dcsharp	https://code.google.com/archive/p/dcsharp/downloads
     dante	http://www.inet.no/dante/download.html
     moneyguru	https://download.hardcoded.net/
@@ -733,9 +739,12 @@ my (@DOT3) = qw (
     flow-tools
     Mojo-IOLoop-ForkCall
     Test-File
+    Test-Output
+    MooseX-App
     Text-Diff-Parser
     Log-Any
     Text-Autoformat
+    File-HomeDir
     );
 
 # 633 -> 6.33.0 InsertDot
@@ -1158,7 +1167,7 @@ sub ClassifyPackage(@) {
 	} elsif ($p =~ /py([0-9])([0-9])-html-docs$/) {
 	    my ($major) = $1;
 	    my ($minor) = $2;
-	    $FAMILY{$p} = '$version =~ s/.*python-('.$major.'\.'.$minor.'\.[0-9]+)-docs-html.*/$1/' ;
+	    $FAMILY{$p} = '$version = $_ ; $version =~ s/.*python-('.$major.'\.'.$minor.'\.[0-9]+)-docs-html\..*/$1/' ;
 	# (9) postgresql
 	} elsif ($p =~ /(postgresql|mysql)([0-9])([0-9])-.*$/) {
 	    my ($distbase) = $1;
@@ -1856,7 +1865,7 @@ my ($numeric_no_delim_variation) =  $numeric_no_delim . '[0]+';
 	    if ($DEBUG_DISTBASE || $DEBUG_DISTBASE_EXTRACT);
 	return $distbase ;
     }
-# GetDistBase (2) not matched
+    # GetDistBase (2) not matched
 # set    $SpecialPatternY  by looking at DISTBASE and PKGVERSION relation
   print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ------------------',"\n",
     "    (PackageName)\t", $PackageName,"\n",
@@ -1879,23 +1888,6 @@ my ($numeric_no_delim_variation) =  $numeric_no_delim . '[0]+';
 	    if ($DEBUG_DISTBASE || $DEBUG_SPECIAL_PATTERN || $DEBUG_DISTBASE_EXTRACT);
     	return $DISTBASE;
     }
-##      # GetDistBase (2-3) ------------------------------------------  x11/py-qt4 -> PyQt-x11-gpl-4.11.4
-##      if (
-##          $DISTBASE  =~ /^([a-zA-Z]+)([-])([a-zA-Z0-9]+)([-])([a-zA-Z]+)([-])$PKGVERSION$/ ) {
-##  	$DISTBASE = $1.$2.$3.$4.$5;
-##  	if (! $SpecialPattern{$PKGBASE}) {
-##  	    $SimplePattern = 1;
-##  	}
-##  	$SpecialPatternY = 'm|.*' . $DISTBASE.'-([0-9.]+)\..*|; $version = $1; ' ;	    
-##    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ------------------',"\n",
-##  #    "    (PackageName)\t", $PackageName,"\n",
-##      "       (DISTBASE)\t", $DISTBASE,      "\n",
-##  	    "(SpecialPatternY)\t", $SpecialPatternY,      "\n",
-##  	    if ($DEBUG_DISTBASE || $DEBUG_SPECIAL_PATTERN || $DEBUG_DISTBASE_EXTRACT);
-##      	return $DISTBASE;
-##      }
-##  
-
     # GetDistBase (2-3) ------------------------------------------  x11/tk -> tk8.6.5-src  ( Ref Family )
     if (
         $DISTBASE  =~ /^([a-zA-Z]+)$PKGVERSION-(src)/ ) {
@@ -1915,9 +1907,9 @@ my ($numeric_no_delim_variation) =  $numeric_no_delim . '[0]+';
 
     # GetDistBase (3) ------------------------------------------
     if (
-        $DISTBASE  =~ /([a-zA-Z]+[0-9]+)([-])$PKGVERSION([-])([a-zA-Z]+)/ ||
-        $DISTBASE  =~      /([a-zA-Z-]+)([_.-])$PKGVERSION([_.-])([a-zA-Z]+)/ ||   #    py27-pslib (python-pslib_0.2.0.orig)
-        $DISTBASE  =~ /([a-zA-Z]+[0-9])([-])[0-9.]+([-])([a-zA-Z]+)/      ||   # games/nethack-lib
+        $DISTBASE  =~ /([a-zA-Z]+[0-9]+)([-])$PKGVERSION([-])([a-zA-Z]+)/ || # GetDistBase (3) ---------------
+        $DISTBASE  =~ /([a-zA-Z-]+)([_.-])$PKGVERSION([_.-])([a-zA-Z]+)/  || # GetDistBase (3) py27-pslib (python-pslib_0.2.0.orig)
+        $DISTBASE  =~ /([a-zA-Z]+[0-9])([-])[0-9.]+([-])([a-zA-Z]+)/      || # GetDistBase (3) games/nethack-lib
 	0
 	) {
 	my ($former) = $1;
@@ -1936,11 +1928,8 @@ my ($numeric_no_delim_variation) =  $numeric_no_delim . '[0]+';
 	    if ($DEBUG_DISTBASE || $DEBUG_SPECIAL_PATTERN || $DEBUG_DISTBASE_EXTRACT);
 	return $PKGBASE ;}
 
-
-    #   compat15-extras-i386-1.5.3.tar.bz2 
-    # GetDistBase (4) ------------------------------------------
-    if ($DISTBASE  =~      /([a-zA-Z-]+[0-9]*)(-extras-)(i386|x86_64)-([0-9.]+)$/ ||
-	$DISTBASE  =~             /([a-zA-Z-]+[0-9]*)(-)(i386|x86_64)-([0-9.]+)$/ ){
+    if ($DISTBASE  =~ /([a-zA-Z-]+[0-9]*)(-extras-)(i386|x86_64)-([0-9.]+)$/ || # GetDistBase (4) -- compat15-extras-i386-1.5.3.tar.bz2 
+        $DISTBASE  =~ /([a-zA-Z-]+[0-9]*)(-)(i386|x86_64)-([0-9.]+)$/ ){ # GetDistBase (4) -- compat15-extras-i386-1.5.3.tar.bz2 
 	my ($distbase) = $1;
 	my ($extra) = $2;	
 	my ($arch) = $3;
@@ -1952,9 +1941,7 @@ my ($numeric_no_delim_variation) =  $numeric_no_delim . '[0]+';
 	    if ($DEBUG_DISTBASE || $DEBUG_SPECIAL_PATTERN || $DEBUG_DISTBASE_EXTRACT);
     return $PKGBASE ;}
 
-
-    # GetDistBase (5) ------------------------------------------
-    if ($DISTBASE  =~      /^([a-zA-Z-]+_*)([0-9])([0-9])([0-9])$/ ) {
+    if ($DISTBASE  =~ /^([a-zA-Z-]+_*)([0-9])([0-9])([0-9])$/ ) {	# GetDistBase (5) -----------------
 	my ($distbase) = $1;
 	my ($a) = $2;
 	my ($b) = $3;
@@ -1968,8 +1955,8 @@ my ($numeric_no_delim_variation) =  $numeric_no_delim . '[0]+';
 	    "     (PKGVERSION)\t", $PKGVERSION , "\n" 
 	    if ($DEBUG_DISTBASE || $DEBUG_SPECIAL_PATTERN || $DEBUG_DISTBASE_EXTRACT);
     return $PKGBASE ;}
-    # GetDistBase (6) ------------------------------------------
-    if ($DISTBASE  =~      /([a-zA-Z-]+)([0-9])([0-9])$/ ) {
+
+    if ($DISTBASE  =~ /([a-zA-Z-]+)([0-9])([0-9])$/ ) {		# GetDistBase (6) -----------------
 	my ($distbase) = $1;
 	my ($a) = $2;
 	my ($b) = $3;
@@ -2052,7 +2039,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	print STDERR sprintf("%4d ", __LINE__ ), '(DISTBASE) ', $PKGBASE,"\n" if $DEBUG_DISTBASE;
 	return $PKGBASE;}
 
-    my ($thisreturn) =  GetDistBasePythonModule($PKGBASE, $PKGNAME, $DISTBASE);
+    my ($thisreturn)= GetDistBasePythonModule($PKGBASE, $PKGNAME, $DISTBASE);
     if ($thisreturn) { return $thisreturn; }
 print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], '> ',"\n" if $DEBUG_DISTBASE;
 
@@ -2064,50 +2051,42 @@ print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], '> ',"\n" if $DEBUG_
     #   (PKGVERSION)     3.1.2
     #  --------------------------------------
     # GetDistBase (11) -------------------------------------------------------
-        $thisreturn =	GetDistBaseSwap($PKGNAME, $PKGBASE, $DISTBASE);
+        $thisreturn = GetDistBaseSwap($PKGNAME, $PKGBASE, $DISTBASE);
     if ($thisreturn) { return $thisreturn }
 
     print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ',
 	'(PKGNAME) ', $PKGNAME, ' (PKGBASE) ', $PKGBASE, ' (DISTNAME) ', $DISTBASE
 ,"\n" if $DEBUG_DISTBASE;
 
-     $thisreturn = GetDistBaseMercury($PKGBASE, $PKGNAME, $PKGVERSION, $DISTBASE);
+        $thisreturn = GetDistBaseMercury($PKGBASE, $PKGNAME, $PKGVERSION, $DISTBASE);
 print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], '> ',"\n" if $DEBUG_DISTBASE;
-     if ($thisreturn) { return $thisreturn; }
+    if ($thisreturn) { return $thisreturn; }
 
-             $thisreturn = GetDistBaseNoHyphen($PKGBASE, $PKGNAME, $PKGVERSION, $DISTBASE);
+        $thisreturn = GetDistBaseNoHyphen($PKGBASE, $PKGNAME, $PKGVERSION, $DISTBASE);
 print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], '> return(', $thisreturn, ")\n" if $DEBUG_DISTBASE;
-     if ($thisreturn) { return $thisreturn; }
+    if ($thisreturn) { return $thisreturn; }
 
-             $thisreturn = GetDistBaseOneHyphen($PKGBASE, $PKGNAME, $PKGVERSION, $DISTBASE);
+        $thisreturn = GetDistBaseOneHyphen($PKGBASE, $PKGNAME, $PKGVERSION, $DISTBASE);
 print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], '> return(', $thisreturn, ")\n" if $DEBUG_DISTBASE;
-     if ($thisreturn) { return $thisreturn; }
-
-    $thisreturn =  GetDistBasePerlModule($PKGBASE, $PKGNAME, $DISTBASE);
+    if ($thisreturn) { return $thisreturn; }
+        $thisreturn = GetDistBasePerlModule($PKGBASE, $PKGNAME, $DISTBASE);
     if ($thisreturn) { return $thisreturn; }
 print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], '> ',"\n" if $DEBUG_DISTBASE;
 
-         $thisreturn = GetDistBasePwlib($PKGBASE, $PKGNAME, $PKGVERSION, $DISTBASE);
+        $thisreturn = GetDistBasePwlib($PKGBASE, $PKGNAME, $PKGVERSION, $DISTBASE);
 print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], '> ',"\n" if $DEBUG_DISTBASE;
-##
-##     if ($thisreturn) { return $thisreturn; }
-## print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], '> ',"\n" if $DEBUG_DISTBASE;
-##
-##          $thisreturn = GetDistBaseAdjust($PKGBASE, $PKGNAME, $DISTBASE);
-## print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], '> ',"\n" if $DEBUG_DISTBASE;
-##
      if ($thisreturn) { return $thisreturn; }
 
     #  --------------------------------------
     #      0-2. if (-) is onlye one in PKGNAME, remove - and after
     #      if resultant string in DISTNAME, take it as DISTBASE
     #  --------------------------------------
-    $thisreturn = GetDistBaseSimple($PKGNAME, $DISTBASE);
+        $thisreturn = GetDistBaseSimple($PKGNAME, $DISTBASE);
     if ($thisreturn) { return $thisreturn; }
 print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], '> ',"\n" if $DEBUG_DISTBASE;
 
     # (distname) ast-ksh-2012-08-01 -> (pkgname) ast-ksh-20120801
-    $thisreturn = GetDistBaseReduce($PKGBASE, $PKGNAME, $PKGVERSION, $DISTBASE);
+        $thisreturn = GetDistBaseReduce($PKGBASE, $PKGNAME, $PKGVERSION, $DISTBASE);
     if ($thisreturn) { return $thisreturn; }
 print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], '> ',"\n" if $DEBUG_DISTBASE;
 
@@ -2595,6 +2574,8 @@ sub GitHubSpecial($$$$){
     #   https://github.com/jberger/Mojo-IOLoop-ForkCall/release
     #   https://github.com/jberger/Mojo-IOLoop-ForkCall/releases
 
+    my($no_release) = 0;
+    my(@fifo_three) = ();;  # store three consecutive lines  0 </span> relasess -> no_release
  foreach  my $target  (
 		       "$master_site"."$GITHUB_PROJECT".'/releases',
 		       "$master_site",
@@ -2616,6 +2597,13 @@ sub GitHubSpecial($$$$){
 	if         (m,release-([0-9.]+)-(pre|alpha|rc).*,) { next;}
 	if    (m,releases/tag/([0-9.]+)-(pre|alpha|rc).*,) { next;}  # not to pick audio/ardour-5.0pre0
 
+	chomp();
+	push(@fifo_three, $_); if ($#fifo_three > 2) { shift(@fifo_three);}
+	my $zero_release_string = join '',@fifo_three;
+        if (  $zero_release_string =~ m,\s+0\s+</span>\s+releases$, ) {
+	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], $zero_release_string,"\n" if $DEBUG_GITHUB;
+	    $no_release++;
+	}
 	if (
 	    m,data-name=\"(2[0-9]+-[01][0-9]-[0-9]+),	||   # devel/re2 2016-08-01
 	    m,/$distbase-([0-9.]+),	||
@@ -2635,6 +2623,7 @@ sub GitHubSpecial($$$$){
             # security/argon2     bad  -> 108
 	    #                     goot -> 2016xxxx
 	    if ( $PackageName eq 'py-certbot' && 1000 < $cand) {next;}
+	    if ( $PackageName eq 'py-acme' && 1000 < $cand) {next;}
 	    if ( $PackageName eq 'argon2'     && $cand< 2000 ) {next;}
 	    $cand =~ s/(2[0-9]+)-([01][0-9])-([0-9]+)/$1$2$3/; # devel/re2 2016-08-01
 
@@ -2649,7 +2638,7 @@ sub GitHubSpecial($$$$){
     } # foreach 
 # ------ End special
 	print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> ', join (" -- ", sort @candidate),"\n" if $DEBUG_GITHUB;
-    return ( 200, @candidate)
+    return ( $no_release, 200, @candidate)
 }
 #  -------------------------------------------------------------
 # line 2983 (or around)
@@ -2915,29 +2904,29 @@ sub ParseDebug($){
     $DEBUG_CURL			= $DEBUG{'C'} + $DEBUG{'a'} ;
     $DEBUG_CURL_CACHE		= $DEBUG{'x'} + $DEBUG{'a'} ;
     $DEBUG_CURL_LISTING		= $DEBUG{'l'} + $DEBUG{'a'} ;
-    $DEBUG_DIGIT		= $DEBUG{'D'} + $DEBUG{'a'} ; 
+    $DEBUG_DIGIT		= $DEBUG{'D'} + $DEBUG{'a'} ;
     $DEBUG_DISTBASE		= $DEBUG{'d'} + $DEBUG{'a'} ;
     $DEBUG_DISTBASE_EXTRACT	= $DEBUG{'k'} + $DEBUG{'a'} ;
     $DEBUG_EDITVersion		= $DEBUG{'E'} + $DEBUG{'a'} ;
     $DEBUG_EVAL_PATTERN		= $DEBUG{'e'} + $DEBUG{'a'} ;
     $DEBUG_FALLBACK_SIMPLE	= $DEBUG{'F'} + $DEBUG{'a'} ;
     $DEBUG_FAMILY		= $DEBUG{'f'} + $DEBUG{'a'} ;
-    $DEBUG_FORK			= $DEBUG{'z'} + $DEBUG{'a'} ;    
+    $DEBUG_FORK			= $DEBUG{'z'} + $DEBUG{'a'} ;
     $DEBUG_FORK_QUIET		= $DEBUG{'Z'} + $DEBUG{'a'} ;
     $DEBUG_GITHUB		= $DEBUG{'g'} + $DEBUG{'a'} ;
     $DEBUG_GNOME		= $DEBUG{'G'} + $DEBUG{'a'} ;
     $DEBUG_HTTP_HEADER		= $DEBUG{'h'} + $DEBUG{'a'} ;
     $DEBUG_MASTER_SITES_LISTING = $DEBUG{'m'} + $DEBUG{'a'} ;
-    $DEBUG_MASTER_SITE		= $DEBUG{'M'} + $DEBUG{'a'} ;	 
+    $DEBUG_MASTER_SITE		= $DEBUG{'M'} + $DEBUG{'a'} ;
     $DEBUG_NCAND		= $DEBUG{'N'} + $DEBUG{'a'} ;
-    $DEBUG_PYPI			= $DEBUG{'y'} + $DEBUG{'a'} ;    
+    $DEBUG_PYPI			= $DEBUG{'y'} + $DEBUG{'a'} ;
     $DEBUG_RUBYGEM		= $DEBUG{'r'} + $DEBUG{'a'} ;
     $DEBUG_REDIRECT		= $DEBUG{'R'} + $DEBUG{'a'} ;
     $DEBUG_SPECIAL_PATTERN	= $DEBUG{'p'} + $DEBUG{'a'} ;
     $DEBUG_SIMPLE_PATTERN	= $DEBUG{'P'} + $DEBUG{'a'} ;
-    $DEBUG_SITE_HEADER		= $DEBUG{'H'} + $DEBUG{'a'} ;    
+    $DEBUG_SITE_HEADER		= $DEBUG{'H'} + $DEBUG{'a'} ;
     $DEBUG_SF			= $DEBUG{'s'} + $DEBUG{'a'} ;
-    $DEBUG_SF_LOOKING_FOR	= $DEBUG{'L'} + $DEBUG{'a'} ;
+#   $DEBUG_SF_LOOKING_FOR	= $DEBUG{'L'} + $DEBUG{'a'} ;
     $DEBUG_STATS		= $DEBUG{'S'} + $DEBUG{'a'} ;
     $DEBUG_URL			= $DEBUG{'U'} + $DEBUG{'a'} ;
     $DEBUG_VERSION_DIR		= $DEBUG{'V'} + $DEBUG{'a'} ;
@@ -3444,8 +3433,8 @@ sub ReadTodo($){
     my($pkgsrc) = shift;
     my($TODO)   = $pkgsrc.'/doc/TODO';
     if ( open(TODO, $TODO) == 0 ) {
-	print STDERR " **(EE) Problem reading $TODO: $!\n";
-	print STDERR " **(EE) -p option correct ?\n"; exit 24;
+	print STDERR sprintf("%04d ", __LINE__) . " **(EE) Problem reading $TODO: $!\n";
+	print STDERR sprintf("%04d ", __LINE__) . " **(EE) -p option correct ?\n"; exit 24;
     }
     while(<TODO>) {
 	if (/^[ \t]+o ([a-zA-Z0-9_-]+)-([0-9.a-z]+)/ ) {
@@ -3864,11 +3853,12 @@ sub Delete02($) {
     }
     return $result;
 }
-sub AddSpecialPattern(){
+sub AddSpecialPattern($){
+    my ($pkgsrc) = shift;
 ## https://pythonhosted.org/pyobjc/core/changelog.html
 ##  <h2>Version 3.2</h2>  
     opendir(my $dh, $pkgsrc.'/devel') ||
-	printf STDERR sprintf("%4d ", __LINE__ ), "Problem on AddSpecialPattern(),\n";
+	printf STDERR sprintf("%04d ", __LINE__ ). "Problem on AddSpecialPattern(), on $pkgsrc\n";
     while (readdir $dh ) {
 	chomp();
 #	printf STDERR sprintf("%4d ", __LINE__ ). ' -> '. $_."\n";
@@ -4193,8 +4183,9 @@ my(%DIVIDE_DEVEL) = ( 1, '[A-Za-o].*',
 		      2, 'p.*',
 		      3, '[q-z].*' );
 
+#print STDERR sprintf("%4d ", __LINE__ ), 'chdir to '. $pkgsrc ."\n";
 chdir $pkgsrc;
-AddSpecialPattern();
+AddSpecialPattern($pkgsrc);
 
 if ( $summary_tmp ne '/dev/null') {
 print STDERR sprintf("%4d ", __LINE__ ), 'output directory is '. $output_directory ."\n";
@@ -4305,6 +4296,7 @@ foreach my $dir (@categories) {  # major loop to the line 3261 ... some 400 line
 	if ($PackageName =~ /$opts{'s'}/ ) { $skip_until_match = 0; }
 	else { next;}
     }
+	my($Github_no_release) = 0;
      # ------------------------------------------------------------------------
      ## ---------------  D I V I D E    pkgsrc/devel  Special  (skip if matched)
      #  If category is devel, check if it is in the particular part of three parts.
@@ -4551,7 +4543,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	if ($MASTER_SITE =~ m|github.com/| ) {				# MAJOR_IF_THEN_ELSE
 	 # ------------------ GitHubSpecial (3352)
 	    @CANDIDATE = ();
-	    ($returnCode, @CANDIDATE) = GitHubSpecial($DISTBASE, $MASTER_SITE, $dir, $PackageName);
+	    ($Github_no_release, $returnCode, @CANDIDATE) = GitHubSpecial($DISTBASE, $MASTER_SITE, $dir, $PackageName);
 	    push(@candidate, @CANDIDATE);
 	    print ' --------------- '. $MASTER_SITE . ' --------------- '."\n"                  if $DEBUG_CANDIDATE ;
 	    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ': ', "\n",join ("\n", @candidate),"\n" if $DEBUG_CANDIDATE ;
@@ -4559,8 +4551,11 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	if ($HOMEPAGE =~ m|github.com/| ) {				# MAJOR_IF_THEN_ELSE
 	    # ------------------ GitHubSpecial on HOMEPAGE
 	    @CANDIDATE = ();
-	    ($returnCode, @CANDIDATE) = GitHubSpecial($DISTBASE, $HOMEPAGE, $dir, $PackageName);
+	    ($Github_no_release, $returnCode, @CANDIDATE) = GitHubSpecial($DISTBASE, $HOMEPAGE, $dir, $PackageName);
 	    push(@candidate, @CANDIDATE);
+	    if ($Github_no_release) {
+		    push(@candidate, $PKGVERSION); # add current version onto @candidate, if no release on github
+	    }
 	    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', " -------------\n", (caller 0)[2], ': ', "\n",join ("\n", @candidate),"\n" if $DEBUG_CANDIDATE ;
 	}
 	    ## http://pypi.python.org/pypi/zope.interface
