@@ -3464,6 +3464,7 @@ sub ShowVersion(){
 sub SkipTooOld($){
     my($MaturedList) = shift;
     my ($count) = 0;
+    print STDERR ' ', sprintf("%4d ", __LINE__ ), 'Reading MaturedList: ', $MaturedList, "\n" if $verbose;
     open(TOO_OLD, " $MaturedList ") || print STDERR sprintf("%4d <"), (caller 0)[3], '> Problem reading ', $MaturedList, ' ', $!,"\n";
     while(<TOO_OLD>) {
 	chomp;
@@ -4166,8 +4167,10 @@ if ($gems_name eq '')  { die "Please install misc/rubygems\n" ;}
 if (CheckEnvironment() == -1) { die "Please install necessary package(s).\n" ;}
 
 if ( -f $MaturedList) {
-    print STDERR sprintf("%4d ", __LINE__ ), " *** Reading filename: ", $MaturedList," -> ";
+    print STDERR sprintf("%4d ", __LINE__ ), " *** Reading filename: ", $MaturedList," -> " if $verbose;
     printf STDERR "%d lines read\n", SkipTooOld($MaturedList);
+} else {
+    print STDERR sprintf("%4d ", __LINE__ ), 'MaturedList not found: ', $MaturedList, "\n"  if $verbose;
 }
 
 my(%DIVIDE_DEVEL) = ( 1, '[A-Za-o].*',
@@ -4328,7 +4331,9 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	# ----------- I M P O R T A N T    S T A T I S T I C S   V A L U E -------------
     $TotalChecked++;			# becoming serial so on (to count)
     #  ----------------------------------------------------------------------------
+#	printf STDERR sprintf("%04d ", __LINE__). 'PackageName: '. $PackageName. "\n";
 	if ( grep (/^$PackageName$/, @SkipTooOld) > 0 ) { $SkipTooOld++; next; }
+#	printf STDERR sprintf("%04d ", __LINE__). 'PackageName: '. $PackageName. "\n";
 	# ------------- P a c k a g e  n a m e ---------
 	# -------------------
 	## Read Makefile and get several VALUES
