@@ -1,6 +1,6 @@
 CF-SX2@makoto 08:23:38/170422(..git-work/check-update)%
-foreach i (`grep ^sub check-update|grep -i distbase | awk '{print $2}' | sed 's/(.*//'`)
-grep -n $i check-update
+foreach i (`grep ^sub check-update|grep -i distbase | awk '{print $2}' | sed 's/(.*//'`) ;
+grep -n $i check-update ;
 end | sort -n | uniq
 
  855:sub DistbaseCacheUpdate($$$);

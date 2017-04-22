@@ -1816,10 +1816,10 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	if ($DEBUG_DISTBASE || $DEBUG_DISTBASE_EXTRACT) ;
     # delimiter is (-) 
 
-    # GetDistBase (2-1) 
-    if ($DISTBASE =~ /$PKGBASE-(v*)$PKGVERSION$/ ||
+    #  ------------------------------------- (2-1)
+    if ($DISTBASE =~ /$PKGBASE-(v*)$PKGVERSION$/ ||	# GetDistBase (2-1)
 #	$PKGBASE .'-'. $PKGVERSION =~ /$DISTBASE/i
-        $DISTBASE =~ /$PKGBASE-$PKGVERSION$/i) {
+        $DISTBASE =~ /$PKGBASE-$PKGVERSION$/i) {		# GetDistBase (2-1)
  my ($prefix) = $1; # this is not effective for devel/p5-Algorithm-CheckDigits
  my($distbase) = $DISTBASE ;
 
@@ -1873,9 +1873,9 @@ my ($numeric_no_delim_variation) =  $numeric_no_delim . '[0]+';
     "     (PKGVERSION)\t", $PKGVERSION , "\n" 
 	    if ($DEBUG_DISTBASE || $DEBUG_SPECIAL_PATTERN || $DEBUG_DISTBASE_EXTRACT);
 
-    # GetDistBase (2-2) ------------------------------------------  textproc/dbtoepub
+    # (2-2) ------------------------------------------  textproc/dbtoepub
     if (
-        $DISTBASE  =~ /^([a-zA-Z]+[0-9]*)([-])([a-zA-Z]+)([-])$PKGVERSION$/ ) {
+        $DISTBASE  =~ /^([a-zA-Z]+[0-9]*)([-])([a-zA-Z]+)([-])$PKGVERSION$/ ) {	# GetDistBase (2-2) --  textproc/dbtoepub
 	$DISTBASE = $1.$2.$3;
 
 	if (! $SpecialPattern{$PKGBASE}) {
@@ -1888,9 +1888,8 @@ my ($numeric_no_delim_variation) =  $numeric_no_delim . '[0]+';
 	    if ($DEBUG_DISTBASE || $DEBUG_SPECIAL_PATTERN || $DEBUG_DISTBASE_EXTRACT);
     	return $DISTBASE;
     }
-    # GetDistBase (2-3) ------------------------------------------  x11/tk -> tk8.6.5-src  ( Ref Family )
     if (
-        $DISTBASE  =~ /^([a-zA-Z]+)$PKGVERSION-(src)/ ) {
+        $DISTBASE  =~ /^([a-zA-Z]+)$PKGVERSION-(src)/ ) {	# GetDistBase (2-3)--  x11/tk -> tk8.6.5-src  ( Ref Family
 	$DISTBASE = $1;
  	my($post) = $2;
 	if (! $SpecialPattern{$PKGBASE}) {
@@ -1905,7 +1904,7 @@ my ($numeric_no_delim_variation) =  $numeric_no_delim . '[0]+';
     	return $DISTBASE;
     }
 
-    # GetDistBase (3) ------------------------------------------
+    # (3) ------------------------------------------
     if (
         $DISTBASE  =~ /([a-zA-Z]+[0-9]+)([-])$PKGVERSION([-])([a-zA-Z]+)/ || # GetDistBase (3) ---------------
         $DISTBASE  =~ /([a-zA-Z-]+)([_.-])$PKGVERSION([_.-])([a-zA-Z]+)/  || # GetDistBase (3) py27-pslib (python-pslib_0.2.0.orig)
@@ -1941,7 +1940,7 @@ my ($numeric_no_delim_variation) =  $numeric_no_delim . '[0]+';
 	    if ($DEBUG_DISTBASE || $DEBUG_SPECIAL_PATTERN || $DEBUG_DISTBASE_EXTRACT);
     return $PKGBASE ;}
 
-    if ($DISTBASE  =~ /^([a-zA-Z-]+_*)([0-9])([0-9])([0-9])$/ ) {	# GetDistBase (5) -----------------
+    if ($DISTBASE  =~ /^([a-zA-Z-]+_*)([0-9])([0-9])([0-9])$/ ) {		# GetDistBase (5) -----------------
 	my ($distbase) = $1;
 	my ($a) = $2;
 	my ($b) = $3;
@@ -1956,7 +1955,7 @@ my ($numeric_no_delim_variation) =  $numeric_no_delim . '[0]+';
 	    if ($DEBUG_DISTBASE || $DEBUG_SPECIAL_PATTERN || $DEBUG_DISTBASE_EXTRACT);
     return $PKGBASE ;}
 
-    if ($DISTBASE  =~ /([a-zA-Z-]+)([0-9])([0-9])$/ ) {		# GetDistBase (6) -----------------
+    if ($DISTBASE  =~ /([a-zA-Z-]+)([0-9])([0-9])$/ ) {				# GetDistBase (6) -----------
 	my ($distbase) = $1;
 	my ($a) = $2;
 	my ($b) = $3;
@@ -1971,12 +1970,6 @@ my ($numeric_no_delim_variation) =  $numeric_no_delim . '[0]+';
 	    if ($DEBUG_DISTBASE || $DEBUG_SPECIAL_PATTERN || $DEBUG_DISTBASE_EXTRACT);
     return $PKGBASE ;}
 
-  # print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], "\n",
-  # "\t".'$DISTBASE'."\t".  $DISTBASE, "\n",
-  # "\t".'$PKGBASE'."\t".   $PKGBASE   , "\n",
-  # "\t".'$PKGVERSION'."\t".$PKGVERSION, "\n"
-  # if $DEBUG_DISTBASE || $DEBUG_DISTBASE_EXTRACT;	
-  #     if ($DISTBASE =~ /$PKGBASE.$PKGVERSION/i ) { print STDERR "        ==> match\n";}
     # GetDistBase (7) ------------------------------------------
 # delimiter is perid(.)  rtf2LaTeX.1.5
 #   if ($PKGBASE .'.'. $PKGVERSION =~ /$DISTBASE$/i ) {
@@ -2050,7 +2043,7 @@ print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], '> ',"\n" if $DEBUG_
     #   (DISTNAME)       libarchive-3.1.2
     #   (PKGVERSION)     3.1.2
     #  --------------------------------------
-    # GetDistBase (11) -------------------------------------------------------
+    # GetDistBase (11) ---------------- external sub routine ---------------------------------------
         $thisreturn = GetDistBaseSwap($PKGNAME, $PKGBASE, $DISTBASE);
     if ($thisreturn) { return $thisreturn }
 
