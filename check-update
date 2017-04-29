@@ -1401,7 +1401,6 @@ sub CompareVersion_make_equal_length($$) {
     my $a = shift;
     my $b = shift;
     my $diff = length($a) - length($b);
-    if (grep /\./, $a && grep /\./, $b ) {
     if ($diff == 0) {}
     elsif ($diff > 0 ) {
 	while ($diff--) {
@@ -1412,7 +1411,6 @@ sub CompareVersion_make_equal_length($$) {
 	    $a .='0';
 	}
     }
-    }
     return ($a, $b);
 }
 
@@ -1422,15 +1420,12 @@ sub CompareVersion($$){
     my ($b) = shift;
     $a =~ s/pre/\./;
     $b =~ s/pre/\./;
-    ($a, $b) = CompareVersion_make_equal_length($a, $b);
+
     # get the number of digit split by '.'
     my (@a) = split '\.', $a;
     my (@b) = split '\.', $b;
-# get bigger count  of '.', in $a or $b
-    my ($max_count) = $#a + 1;
-    if ($#b + 1 > $max_count) { $max_count = $#b + 1 ;}
 
-# Following two lines are devel/py-mock special :-)
+# Following two lines are for devel/py-mock special :-)
     if ($a eq '1.0.1' && $b eq '1.0b1') { return 1; }
     if ($a eq '1.0b1' && $b eq '1.0.1') { return -1; }
     #    for my $i ( 0 .. $max_count - 1 ) {
@@ -1438,6 +1433,7 @@ sub CompareVersion($$){
     if ($a[0] < $b[0]) { return -1;}
     if ($a[0] == $b[0]) {
 #	if ( $max_count = 1 ) {return 0;}
+       ($a[1], $b[1]) = CompareVersion_make_equal_length($a[1], $b[1]); # 0.043 > 0.0301
 	if ($a[1] > $b[1])    { return  1;}
 	if ($a[1] < $b[1])    { return -1;}
 	if ($a[1] ne $b[1])   { 
