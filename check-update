@@ -2591,6 +2591,7 @@ sub GitHubSpecial($$$$){
 	chomp();
 	push(@fifo_three, $_); if ($#fifo_three > 2) { shift(@fifo_three);}
 	my $zero_release_string = join '',@fifo_three;
+	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], $zero_release_string,"\n" if $DEBUG_GITHUB;
         if (  $zero_release_string =~ m,\s+0\s+</span>\s+releases$, ) {
 	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], $zero_release_string,"\n" if $DEBUG_GITHUB;
 	    $no_release++;
@@ -4551,6 +4552,8 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	    ($Github_no_release, $returnCode, @CANDIDATE) = GitHubSpecial($DISTBASE, $HOMEPAGE, $dir, $PackageName);
 	    push(@candidate, @CANDIDATE);
 	    if ($Github_no_release) {
+		print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ': ', "\n",join ("\n", @candidate ), "\n";
+		print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ': ', $PKGVERSION,"\n";
 		    push(@candidate, $PKGVERSION); # add current version onto @candidate, if no release on github
 	    }
 	    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', " -------------\n", (caller 0)[2], ': ', "\n",join ("\n", @candidate),"\n" if $DEBUG_CANDIDATE ;
