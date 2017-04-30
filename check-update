@@ -834,12 +834,13 @@ my (@swap4) = qw (bib2xml);
 # Term-ReadLine-Perl5
 my (@DIGIT_IN_NAME) = qw(cal3d emacs-w3m x2x w3m nec2c xnec2c asn1c py34-unittest2py3k p5-GD-Graph3d popa3d tex-algorithm2e sqlalchemy-i18n hdf5-c++ );
 #
-my (@DISTBASE_DIGIT) = qw(perl5 hdf5 libosip2 xfwm4 Catalyst-View-Mason2);
+#y (@DISTBASE_DIGIT) = qw(perl5 hdf5 libosip2 xfwm4 Catalyst-View-Mason2);
 
 # 8089 -> 0.8089
 my (@xtimer) = qw(xtimer);
 # 1.61.0 -> 1.61
-my (@euler)  = qw(euler);
+#y (@euler)  = qw(euler);
+my (@RmLeadingZero) = qw (remind);
 ##    -------------------------
 ##    P R O T O T Y P E S
 ##    -------------------------
@@ -1564,7 +1565,10 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (3) <', (caller 0)[3] ,'> ', $version
 	if (grep (/^$distbase$/, 'eredis')	> 0 ) { $version =~ s/1\.0\.8/1.0.8.20150910/;}
         if (   $distbase =~ m|^xpdf-| )		      { $version = MonthToDigit($version); }
         if ( $distbase =~ m|^euler$| )                { $version = substr($version, 0, 4); }
-    print STDERR sprintf("%4d ", __LINE__ ), ' (4) ', $version, "\n" if $DEBUG_EDITVersion;
+	if (grep (/^$distbase$/,@RmLeadingZero)> 0 ) {
+print STDERR sprintf("%4d ", __LINE__ ), ' (4) <', (caller 0)[3] ,'> ', 'distbase (', $distbase, ') ', $version, ' --> ',"\n" if $DEBUG_EDITVersion;
+	    $version = RmLeadingZero($version, 2);}
+    print STDERR sprintf("%4d ", __LINE__ ), ' (5) ', $version, "\n" if $DEBUG_EDITVersion;
 
     return $version;
 }
@@ -3333,8 +3337,8 @@ print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[3], '> (distbase) ', $distb
     my ($returnCode) = 0;
     print STDERR sprintf("%4d ", __LINE__ ), '==> curl_lines: ', $curl_lines, "\n" if $DEBUG_DISTBASE;
     if ($curl_lines == 0 ) { $returnCode = -1; };
-
-	print ' --------------- '. $MASTER_SITE . ' --------------- '."\n"                  if $DEBUG_CANDIDATE ;
+    push(@candidate, $version);
+	print STDERR sprintf("%04d ". __LINE__), ' --------------- '. $MASTER_SITE . ' --------------- '."\n"   if $DEBUG_CANDIDATE ;
 print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' (', $caller.') : (distbase) ', $distbase,' (version) ', $version, 
 ' returnCode ', $returnCode, ' @candidate: ', "\n------------------\n",join ("\n". __LINE__.' ', @candidate), "\n" if $DEBUG_CANDIDATE || $DEBUG_VERSION_DIR ;
 #      foreach my $c (@candidate) {
@@ -4063,6 +4067,16 @@ print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[3], '> ', $version, ' --> '
 	$version =~  s/([0-9]+)-[jfmasond][a-z][a-z]-([0-9]+)/$1$digit$2/;
     }
 print STDERR  $version,"\n" if $DEBUG_DISTBASE;
+    return $version;
+}
+sub RmLeadingZero($$) {
+    my ($version, $count ) = shift;
+    my @fragment = split ('\.', $version);
+    print STDERR sprintf("%04d ", __LINE__), $version, "\n" if $DEBUG_EDITVersion;
+    for my $i ( 0 ..$#fragment ) {
+	$fragment[$i] =~ s/^0//;
+    }
+    $version = join ('.', @fragment);
     return $version;
 }
 sub VersionedDirectory ($$){

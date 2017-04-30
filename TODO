@@ -10,6 +10,7 @@
     (like make clean-depends, but not really inside of this developement)
   - report option, to report the results to maintainer
   - individual package
+    * time/remind  3.1.15 -> 03.01.15
     * lang/py..-html-docs does not find upper numeric-name-folder (3.6.0 -> 3.6.1)
     * mail/elm DISTNAME is elm258 (no hyphen), should be automatically processed
     * (www/ruby-jquery-rails) pick 4.6.1 for jquery-rails (should be 4.2.2)
