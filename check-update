@@ -471,6 +471,7 @@ my(%SourceForgeAlternative) = qw (
 #  --- HARDCODE TABLES --- ( to ease accessing tables )
 # PKGBASE to $DISTBASE association Special (ending digit is main customer)
 my(%DISTBASE) = qw (
+    dnsperf	dnsperf-src
     tidy	tidy-html5
     editline	libedit
     imp		imp-h3
@@ -2441,7 +2442,11 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (PKGNAME) ', $PKGNAME, ' --> DISTBASE
 print STDERR sprintf("%4d ", __LINE__ ), ' (PKGNAME) ', $PKGNAME, ' --> master_site = ', $master_site,"\n" if $DEBUG_DISTBASE;
 	}
 	else {   
-	($HomePageStat, $location) =  CheckHeader($home_page);
+	    if ($home_page eq '') {
+		print STDERR sprintf("%4d ", __LINE__ ), ' home_page is empty -> (PKGNAME) ', $PKGNAME, ' --> master_site = ', $home_page, ' status: ', $HomePageStat,"\n";
+	    } else {
+		($HomePageStat, $location) =  CheckHeader($home_page);
+	    }
 print STDERR sprintf("%4d ", __LINE__ ), ' (PKGNAME) ', $PKGNAME, ' --> master_site = ', $home_page, ' status: ', $HomePageStat,"\n" if $DEBUG_DISTBASE;
 	if ($HomePageStat == 404 || $HomePageStat == 'DNS' ) { return ($HomePageStat, '0.0');}
 	if ($Dont_check_homepage{$DISTBASE} != 1 ) {
@@ -3047,8 +3052,9 @@ sub ParseDirectory($$$$$$){   # 2564  to 2825 lines (260 lines
 	    '> distbase (', $distbase, ') ', $master_site, "   \n" if $DEBUG_DISTBASE ;
 	if ($master_site eq '') { print STDERR sprintf("%4d ", __LINE__ ), " \$master_site is empty\n"; return -1;}
 	if ($master_site =~/^[0-9.]+$/ )
-	{ print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[3], '> :', (caller 0)[2], ': ', $caller, ' ',$master_site,  ' (', $master_site, ') is strange. PackageName: '. $PackageName, "\n";
+	{ print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[3], '> :', (caller 0)[2], ': ', $caller, ' repeat: ',$repeat, ' master_site (', $master_site, ') is strange. PackageName: '. $PackageName, "\n";
 #	  $LastCurl = ''; # invalidate @CurlCache
+	  $repeat = 1;
 	  next;}
 	# $master_site sometimes holds version number only, strange
 	my ($curl_command) = "$curl_list_secure $sslv3 $master_site";
