@@ -449,6 +449,7 @@ my (%SpecialPattern) = (
     'sgb',		'$line =~ s|.*sgb-([0-9]+)-([0-9]+)-([0-9]+)\.tar\.gz.*|$1$2$3|;',
     'libedit',		'$line =~ s|.*libedit-([0-9]+)-([0-9.]+)\.tar\.gz.*|$2.$1|;',
     'egenix-mx-base',	'$line =~ s|.*Version: ([0-9.]+).*|$1|;',
+    'dnsperf-src',	'$line =~ s|.*$distbase-([0-9.]+)-[0-9].*|$1|;',
     );
    # sgb does not work yet
    #http://prdownloads.sourceforge.jp/lha/11617/lha-1.14i-ac20040929.tar.gz
