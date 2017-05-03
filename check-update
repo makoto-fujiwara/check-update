@@ -402,7 +402,7 @@ my (%SpecialPattern) = (
     'Text-Tabs+Wrap',	'$line =~ s|.*Text-Tabs.*-([0-9.]+).*|$1|;',
 #    'CRF++',		'$line =~ s|.*CRF\+\+-([0-9.]+[0-9]).*|$1|;',
     'eagle-lin32',	'$line =~ s|.*eagle-lin32-([0-9.]+)\.run.*|$1|;',
-    'bonnie.+',		'$line =~ s|.*bonnie\+\+-([0-9.a-z]+)\.tgz.*|$1|;',
+    'bonnie.+',		'$line =~ s|.*bonnie\+\+-([0-9.]+[a-z]*)\.tgz.*|$1|;',
 				     #bonnie++-1.03e.tgz
     'iozone_430',	'$line =~ s|.*iozone([0-9])_([0-9]+).*|$1.$2|;',
     'cherokee',		'$line =~ s|.*Download Cherokee ([0-9.]+).*|$1|;',
@@ -660,9 +660,9 @@ sub SpecialPattern($$){
     my($line) = shift;
     print STDERR sprintf("%4d ", __LINE__ ), ' ', $line, ' --> Pattern --> ', $SpecialPattern{$distbase}, "\n" if $DEBUG_EVAL_PATTERN ;
     eval $SpecialPattern{$distbase} ;
-    print STDERR sprintf("%4d ", __LINE__ ), ' === >', ' (', $line,")\n" if $DEBUG_EVAL_PATTERN ;
+    print STDERR sprintf("%4d ", __LINE__ ), ' === >', ' (', $line,")\n" if $DEBUG_EVAL_PATTERN || $DEBUG_SPECIAL_PATTERN;
     # not to return garbage
-    if ( !($line =~ m|^[0-9._-]+$| ) ){  $line = '';}
+    if ( !($line =~ m|^[0-9._-]+[a-z]*$| ) ){  $line = '';}  # bonnie++-1.03e special for [a-z]*
     $line =~ y|_|.|;
     print STDERR sprintf("%4d ", __LINE__ ), ' === >', ' (', $line,")\n" if $DEBUG_EVAL_PATTERN ;
     return $line;
@@ -3220,7 +3220,7 @@ print STDERR sprintf("%4d ", __LINE__ ), '($version) ', $version, "\n" if   ($DE
 	    print STDERR sprintf("%4d ", __LINE__ ), '(', $distbase,') ', $_,"\n" if $DEBUG_EVAL_PATTERN;
 	    #  E V A L U A T E SpecialPattern
 	    $version = SpecialPattern($distbase, $_);
-	    print STDERR sprintf("%4d ", __LINE__ ), '(', $distbase,') ', $_,'--> ', $version,"\n" if $DEBUG_EVAL_PATTERN  || $DEBUG_SPECIAL_PATTERN ;
+	    print STDERR sprintf("%4d ", __LINE__ ), '(', $distbase,') ', $_,'*** --> ', $version,"\n" if $DEBUG_EVAL_PATTERN  || $DEBUG_SPECIAL_PATTERN ;
 	} elsif ( $distbase eq 'Unicode-Map' && 			# MAJOR_IF_THEN_ELSE
 		$_ =~ /Unicode-Map8(.*)/ ) { 
 print STDERR sprintf("%4d ", __LINE__ ), ' (1a)', $distbase, ' --> ', $version,"\n" if $DEBUG_DISTBASE;
