@@ -4599,6 +4599,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
 #		print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ': ', "\n",join ("\n", @candidate ), "\n";
 #		print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ': ', $PKGVERSION,"\n";
 		    push(@candidate, $PKGVERSION); # add current version onto @candidate, if no release on github
+		    @candidate = ( $PKGVERSION );
 	    }
 	    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', " -------------\n", (caller 0)[2], ': ', "\n",join ("\n", @candidate),"\n" if $DEBUG_CANDIDATE ;
 	}
