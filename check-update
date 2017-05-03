@@ -112,6 +112,7 @@ my ($DEBUG_SIMPLE_PATTERN);
 my ($DEBUG_SITE_HEADER);
 my ($DEBUG_SPECIAL_PATTERN);
 my ($DEBUG_STATS);
+my ($DEBUG_SUFFIX_INFO);
 my ($DEBUG_URL);
 my ($DEBUG_VER_PATTERN) = 0;
 my ($DEBUG_VERSION_DIR);
@@ -133,6 +134,7 @@ my(%LongName)  = (
    'g',  'Github',
    'G',  'Gnome',
    'h',  'HTTP Header',
+   'i',  'Version Suffix Info',
    'H',  'HTTP Header Summary',
    'k',  'DISTBASE Extract special to SimplePatternY',
    'l',  'Curl Listing',
@@ -1447,20 +1449,16 @@ sub CompareVersion($$){
 	if ($a[1] > $b[1])    { return  1;}
 	if ($a[1] < $b[1])    { return -1;}
 	if ($a[1] ne $b[1])   { 
-#	    print STDERR sprintf("%4d ", __LINE__ ), ' ', '$a[1]: ', $a[1], ' $b[1]: ', $b[1], "\n";
 	    return $a[1] cmp $b[1];}  # arc-5.21[op]
 	if ($a[1] == $b[1]) {
 #	    if ( $max_count == 1 ) { return 0;}
 	    if ($a[2] =~ /rc/ )   {$a[2] =~ s/rc.*//;}
 	    if ($b[2] =~ /rc/ )   {$b[2] =~ s/rc.*//;}
-#	    print STDERR sprintf("%4d ", __LINE__ ), ' ', '$a[2]: ', $a[2], ' $b[2]: ', $b[2], "\n";
 	    if ($a[2] eq '' and $b[2] == 0 || $a[2] eq 0 and $b[2] eq '' ) { return 0;}
-#	    print STDERR sprintf("%4d ", __LINE__ ), ' ', '$a[2]: ', $a[2], ' $b[2]: ', $b[2], "\n";
 	    if ($a[2] > $b[2] )    { return  1;}
 	    if ($a[2] < $b[2] )    { return -1;}
 	    if ($a[2] ne $b[2])    { return $a[2] cmp $b[2];}
 	    if ($a[2] == $b[2] )   {
-#		print STDERR sprintf("%4d ", __LINE__ ), ' ', '$a[3]: ', $a[3], ' $b[3]: ', $b[3], "\n";
 #		if ($a[3] eq '' && $b[3] eq '' ) { return 0;}
 		if ($a[3] =~ /rc/ )   {$a[3] =~ s/rc.*//;}
 		if ($b[3] =~ /rc/ )   {$b[3] =~ s/rc.*//;}
@@ -2940,6 +2938,7 @@ sub ParseDebug($){
     $DEBUG_MASTER_SITES_LISTING = $DEBUG{'m'} + $DEBUG{'a'} ;
     $DEBUG_MASTER_SITE		= $DEBUG{'M'} + $DEBUG{'a'} ;
     $DEBUG_NCAND		= $DEBUG{'N'} + $DEBUG{'a'} ;
+    $DEBUG_SUFFIX_INFO		= $DEBUG{'i'} + $DEBUG{'a'} ;
     $DEBUG_PYPI			= $DEBUG{'y'} + $DEBUG{'a'} ;
     $DEBUG_RUBYGEM		= $DEBUG{'r'} + $DEBUG{'a'} ;
     $DEBUG_REDIRECT		= $DEBUG{'R'} + $DEBUG{'a'} ;
