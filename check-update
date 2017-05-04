@@ -3053,9 +3053,7 @@ sub ParseDirectory($$$$$$){   # 2564  to 2825 lines (260 lines
 	    '> distbase (', $distbase, ') ', $master_site, "   \n" if $DEBUG_DISTBASE ;
 	if ($master_site eq '') { print STDERR sprintf("%4d ", __LINE__ ), " \$master_site is empty\n"; return -1;}
 	if ($master_site =~/^[0-9.]+$/ )
-	{ print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[3], '> :', (caller 0)[2], ': ', $caller, ' repeat: ',$repeat, ' master_site (', $master_site, ') is strange. PackageName: '. $PackageName, "\n";
-#	  $LastCurl = ''; # invalidate @CurlCache
-	  $repeat = 1;
+	{   $repeat = 1;
 	  next;}
 	# $master_site sometimes holds version number only, strange
 	my ($curl_command) = "$curl_list_secure $sslv3 $master_site";
