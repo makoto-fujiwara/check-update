@@ -112,7 +112,6 @@ my ($DEBUG_SIMPLE_PATTERN);
 my ($DEBUG_SITE_HEADER);
 my ($DEBUG_SPECIAL_PATTERN);
 my ($DEBUG_STATS);
-my ($DEBUG_SUFFIX_INFO);
 my ($DEBUG_URL);
 my ($DEBUG_VER_PATTERN) = 0;
 my ($DEBUG_VERSION_DIR);
@@ -134,7 +133,6 @@ my(%LongName)  = (
    'g',  'Github',
    'G',  'Gnome',
    'h',  'HTTP Header',
-   'i',  'Version Suffix Info',
    'H',  'HTTP Header Summary',
    'k',  'DISTBASE Extract special to SimplePatternY',
    'l',  'Curl Listing',
@@ -402,7 +400,7 @@ my (%SpecialPattern) = (
     'Text-Tabs+Wrap',	'$line =~ s|.*Text-Tabs.*-([0-9.]+).*|$1|;',
 #    'CRF++',		'$line =~ s|.*CRF\+\+-([0-9.]+[0-9]).*|$1|;',
     'eagle-lin32',	'$line =~ s|.*eagle-lin32-([0-9.]+)\.run.*|$1|;',
-    'bonnie.+',		'$line =~ s|.*bonnie\+\+-([0-9.]+[a-z]*)\.tgz.*|$1|;',
+    'bonnie.+',		'$line =~ s|.*bonnie\+\+-([0-9.a-z]+)\.tgz.*|$1|;',
 				     #bonnie++-1.03e.tgz
     'iozone_430',	'$line =~ s|.*iozone([0-9])_([0-9]+).*|$1.$2|;',
     'cherokee',		'$line =~ s|.*Download Cherokee ([0-9.]+).*|$1|;',
@@ -449,7 +447,6 @@ my (%SpecialPattern) = (
     'sgb',		'$line =~ s|.*sgb-([0-9]+)-([0-9]+)-([0-9]+)\.tar\.gz.*|$1$2$3|;',
     'libedit',		'$line =~ s|.*libedit-([0-9]+)-([0-9.]+)\.tar\.gz.*|$2.$1|;',
     'egenix-mx-base',	'$line =~ s|.*Version: ([0-9.]+).*|$1|;',
-    'dnsperf-src',	'$line =~ s|.*$distbase-([0-9.]+)-[0-9].*|$1|;',
     );
    # sgb does not work yet
    #http://prdownloads.sourceforge.jp/lha/11617/lha-1.14i-ac20040929.tar.gz
@@ -472,7 +469,6 @@ my(%SourceForgeAlternative) = qw (
 #  --- HARDCODE TABLES --- ( to ease accessing tables )
 # PKGBASE to $DISTBASE association Special (ending digit is main customer)
 my(%DISTBASE) = qw (
-    dnsperf	dnsperf-src
     tidy	tidy-html5
     editline	libedit
     imp		imp-h3
@@ -662,9 +658,9 @@ sub SpecialPattern($$){
     my($line) = shift;
     print STDERR sprintf("%4d ", __LINE__ ), ' ', $line, ' --> Pattern --> ', $SpecialPattern{$distbase}, "\n" if $DEBUG_EVAL_PATTERN ;
     eval $SpecialPattern{$distbase} ;
-    print STDERR sprintf("%4d ", __LINE__ ), ' === >', ' (', $line,")\n" if $DEBUG_EVAL_PATTERN || $DEBUG_SPECIAL_PATTERN;
+    print STDERR sprintf("%4d ", __LINE__ ), ' === >', ' (', $line,")\n" if $DEBUG_EVAL_PATTERN ;
     # not to return garbage
-    if ( !($line =~ m|^[0-9._-]+[a-z]*$| ) ){  $line = '';}  # bonnie++-1.03e special for [a-z]*
+    if ( !($line =~ m|^[0-9._-]+$| ) ){  $line = '';}
     $line =~ y|_|.|;
     print STDERR sprintf("%4d ", __LINE__ ), ' === >', ' (', $line,")\n" if $DEBUG_EVAL_PATTERN ;
     return $line;
@@ -1405,8 +1401,6 @@ sub CompareVersion_make_equal_length($$) {
     my $a = shift;
     my $b = shift;
     my $diff = length($a) - length($b);
-    if (grep '/[a-z]/', $a > 0 )   { return ($a, $b);}
-    if (grep '/[a-z]/', $b > 0 )   { return ($a, $b);}
     if (substr($a, 0, 1 ) ne '0' ) { return ($a, $b);}
     if (substr($b, 0, 1 ) ne '0' ) { return ($a, $b);}
     if ($diff == 0) {}
@@ -1423,20 +1417,11 @@ sub CompareVersion_make_equal_length($$) {
     }
     return ($a, $b);
 }
-sub CompareDigit($$){
-	my ($a) = shift;
-	my ($b) = shift;
-	if ($a > $b )    { return  1;}
-	if ($a < $b )    { return -1;}
-	if ($a eq $b )   { return  0;}
-	return CompareDigit($a, $b);
-}
+
 sub CompareVersion($$){
-    # return 1 if $a is bigger,  0 if equal,  -1 if $a is smaller.
+    # return 1 if big, 0 if equal, -1 if small.
     my ($a) = shift;
     my ($b) = shift;
-    if ($a eq $b) { return 0;}
-
     $a =~ s/pre/\./;
     $b =~ s/pre/\./;
 
@@ -1454,18 +1439,28 @@ sub CompareVersion($$){
     if ($a[0] > $b[0]) { return  1;}
     if ($a[0] < $b[0]) { return -1;}
     if ($a[0] == $b[0]) {
-	if ($a[1] > $b[1]) { return  1;}
-	if ($a[1] < $b[1]) { return -1;}
-	if ($a[1] ne $b[1])  { return $a[1] cmp $b[1];}
-	else {
+#	if ( $max_count == 1 ) {return 0;}
+	if ( $max_count == 2 ) {
+#	    print STDERR sprintf("%4d ", __LINE__), 'max count: ', $max_count, 'a: ', $a, '  b: ',$b,"\n";
+	    ($a[1], $b[1]) = CompareVersion_make_equal_length($a[1], $b[1]); # 0.043 > 0.0301
+	}
+	if ($a[1] > $b[1])    { return  1;}
+	if ($a[1] < $b[1])    { return -1;}
+	if ($a[1] ne $b[1])   { 
+#	    print STDERR sprintf("%4d ", __LINE__ ), ' ', '$a[1]: ', $a[1], ' $b[1]: ', $b[1], "\n";
+	    return $a[1] cmp $b[1];}  # arc-5.21[op]
+	if ($a[1] == $b[1]) {
 #	    if ( $max_count == 1 ) { return 0;}
 	    if ($a[2] =~ /rc/ )   {$a[2] =~ s/rc.*//;}
 	    if ($b[2] =~ /rc/ )   {$b[2] =~ s/rc.*//;}
+#	    print STDERR sprintf("%4d ", __LINE__ ), ' ', '$a[2]: ', $a[2], ' $b[2]: ', $b[2], "\n";
 	    if ($a[2] eq '' and $b[2] == 0 || $a[2] eq 0 and $b[2] eq '' ) { return 0;}
+#	    print STDERR sprintf("%4d ", __LINE__ ), ' ', '$a[2]: ', $a[2], ' $b[2]: ', $b[2], "\n";
 	    if ($a[2] > $b[2] )    { return  1;}
 	    if ($a[2] < $b[2] )    { return -1;}
 	    if ($a[2] ne $b[2])    { return $a[2] cmp $b[2];}
 	    if ($a[2] == $b[2] )   {
+#		print STDERR sprintf("%4d ", __LINE__ ), ' ', '$a[3]: ', $a[3], ' $b[3]: ', $b[3], "\n";
 #		if ($a[3] eq '' && $b[3] eq '' ) { return 0;}
 		if ($a[3] =~ /rc/ )   {$a[3] =~ s/rc.*//;}
 		if ($b[3] =~ /rc/ )   {$b[3] =~ s/rc.*//;}
@@ -2346,7 +2341,7 @@ sub GetGemVersion($$){		# <- Main
 }
 sub PickFromCandidate(@) {
     my (@CANDIDATE) = @_;
-    my ($max_version) = $CANDIDATE[0];
+    my ($max_version);
 	    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ': ', "\n",join ("\n", @CANDIDATE),"\n" if $DEBUG_CANDIDATE ;
 
 #  --- HARDCODE TABLES --- ( to ease accessing tables )
@@ -2378,16 +2373,10 @@ sub PickFromCandidate(@) {
 
 # following line is so harmfull ... potrace-1.1.linux-amd64.tar.gz -> 1.1.64 graphics/potrace
 	$ver =~ s/\.[a-z]{2,}//;	#
+	print STDERR sprintf("%4d ", __LINE__ ), 'ver (', $ver,') max_version (',$max_version,")\n" if $DEBUG_VER_PATTERN;
 #	    $ver = EditVersion($DISTBASE, $ver);
-	my($a);
-	if (($a = CompareVersion($ver, $max_version)) > 0) { # $ver is bigger than $max_version
-	    print STDERR sprintf("%4d ", __LINE__ ), '-> result: ', $a, ' ver (', $ver,') max_version (',$max_version,")\n" if $DEBUG_VER_PATTERN;
-	$max_version = $ver;  # $ver is bigger, update
-	print STDERR sprintf("%4d ", __LINE__ ), '   result: ', $a, ' ver (', $ver,') max_version (',$max_version,")\n" if $DEBUG_VER_PATTERN;
-	}
-
-    } # foreach
-	print STDERR sprintf("%4d ", __LINE__ ), 'max_version (', $max_version,")\n" if $DEBUG_VER_PATTERN;
+	if (CompareVersion($ver, $max_version) > 0) { $max_version = $ver;}
+    }
     if ( ! $max_version ) { $max_version = '0.0';}
     return $max_version;
 }
@@ -2448,11 +2437,7 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (PKGNAME) ', $PKGNAME, ' --> DISTBASE
 print STDERR sprintf("%4d ", __LINE__ ), ' (PKGNAME) ', $PKGNAME, ' --> master_site = ', $master_site,"\n" if $DEBUG_DISTBASE;
 	}
 	else {   
-	    if ($home_page eq '') {
-		print STDERR sprintf("%4d ", __LINE__ ), ' home_page is empty -> (PKGNAME) ', $PKGNAME, ' --> master_site = ', $home_page, ' status: ', $HomePageStat,"\n";
-	    } else {
-		($HomePageStat, $location) =  CheckHeader($home_page);
-	    }
+	($HomePageStat, $location) =  CheckHeader($home_page);
 print STDERR sprintf("%4d ", __LINE__ ), ' (PKGNAME) ', $PKGNAME, ' --> master_site = ', $home_page, ' status: ', $HomePageStat,"\n" if $DEBUG_DISTBASE;
 	if ($HomePageStat == 404 || $HomePageStat == 'DNS' ) { return ($HomePageStat, '0.0');}
 	if ($Dont_check_homepage{$DISTBASE} != 1 ) {
@@ -2955,7 +2940,6 @@ sub ParseDebug($){
     $DEBUG_MASTER_SITES_LISTING = $DEBUG{'m'} + $DEBUG{'a'} ;
     $DEBUG_MASTER_SITE		= $DEBUG{'M'} + $DEBUG{'a'} ;
     $DEBUG_NCAND		= $DEBUG{'N'} + $DEBUG{'a'} ;
-    $DEBUG_SUFFIX_INFO		= $DEBUG{'i'} + $DEBUG{'a'} ;
     $DEBUG_PYPI			= $DEBUG{'y'} + $DEBUG{'a'} ;
     $DEBUG_RUBYGEM		= $DEBUG{'r'} + $DEBUG{'a'} ;
     $DEBUG_REDIRECT		= $DEBUG{'R'} + $DEBUG{'a'} ;
@@ -3058,7 +3042,8 @@ sub ParseDirectory($$$$$$){   # 2564  to 2825 lines (260 lines
 	    '> distbase (', $distbase, ') ', $master_site, "   \n" if $DEBUG_DISTBASE ;
 	if ($master_site eq '') { print STDERR sprintf("%4d ", __LINE__ ), " \$master_site is empty\n"; return -1;}
 	if ($master_site =~/^[0-9.]+$/ )
-	{   $repeat = 1;
+	{ print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[3], '> :', (caller 0)[2], ': ', $caller, ' ',$master_site,  ' (', $master_site, ') is strange. PackageName: '. $PackageName, "\n";
+#	  $LastCurl = ''; # invalidate @CurlCache
 	  next;}
 	# $master_site sometimes holds version number only, strange
 	my ($curl_command) = "$curl_list_secure $sslv3 $master_site";
@@ -3236,7 +3221,7 @@ print STDERR sprintf("%4d ", __LINE__ ), '($version) ', $version, "\n" if   ($DE
 	    print STDERR sprintf("%4d ", __LINE__ ), '(', $distbase,') ', $_,"\n" if $DEBUG_EVAL_PATTERN;
 	    #  E V A L U A T E SpecialPattern
 	    $version = SpecialPattern($distbase, $_);
-	    print STDERR sprintf("%4d ", __LINE__ ), '(', $distbase,') ', $_,'*** --> ', $version,"\n" if $DEBUG_EVAL_PATTERN  || $DEBUG_SPECIAL_PATTERN ;
+	    print STDERR sprintf("%4d ", __LINE__ ), '(', $distbase,') ', $_,'--> ', $version,"\n" if $DEBUG_EVAL_PATTERN  || $DEBUG_SPECIAL_PATTERN ;
 	} elsif ( $distbase eq 'Unicode-Map' && 			# MAJOR_IF_THEN_ELSE
 		$_ =~ /Unicode-Map8(.*)/ ) { 
 print STDERR sprintf("%4d ", __LINE__ ), ' (1a)', $distbase, ' --> ', $version,"\n" if $DEBUG_DISTBASE;
@@ -4608,8 +4593,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	    if ($Github_no_release) {
 #		print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ': ', "\n",join ("\n", @candidate ), "\n";
 #		print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ': ', $PKGVERSION,"\n";
-#		    push(@candidate, $PKGVERSION); # add current version onto @candidate, if no release on github
-		    @candidate = ( $PKGVERSION );
+		    push(@candidate, $PKGVERSION); # add current version onto @candidate, if no release on github
 	    }
 	    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', " -------------\n", (caller 0)[2], ': ', "\n",join ("\n", @candidate),"\n" if $DEBUG_CANDIDATE ;
 	}
@@ -4672,14 +4656,14 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	print ' --------------- '. $MASTER_SITE . ' --------------- '."\n"                  if $DEBUG_CANDIDATE ;
 print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], 'available: ', $available, ' returnCode: ', $returnCode,
 ' @candidate: ', "\n------------------\n", join("\n", @candidate),"\n" if $DEBUG_CANDIDATE;
-#	if ($#candidate == -1 ) {
+
 	if (( $available eq '0.0' || $available eq '' || $returnCode == -1 ) && $#candidate == -1 && ! $candidate[0] ne '0.0' ) {
 	    ($returnCode, @candidate) =  ParseDirectory($MASTER_SITE, $DISTBASE, $SimpleFallBackYes, $PackageName, $R_Package, (caller 0)[3] );
-	}
 	    $available = PickFromCandidate(@candidate);
 print STDERR sprintf("%4d ", __LINE__ ), 
     ' (SimpleFallBack) master_site(', $MASTER_SITE, ') returnCode('. $returnCode.") -> available(". $available.")\n"  if $DEBUG_FALLBACK_SIMPLE;
-#	}
+
+	}
 	# ------------------------------------------------------------
 	##   F I N D   T H E   C O N D I T I O N   T O   L I S T (404/403/550/DNS)
 	# ------------------------------------------------------------

@@ -16,8 +16,7 @@
   - (family) TODO lists security/libassuan for 2.2.1 but it is NOT for libassuan (1.0.5)
   - (family) www/drupal{6,7}  drupal itself is empty, 6 is in production and 7 is new ?
   - (family) www/librest and www/librest07
-  - misc/yelp  -> 2.31.7
-    misc/yelp3 -> 3.22.0
+  
 
 Two path strategy
 

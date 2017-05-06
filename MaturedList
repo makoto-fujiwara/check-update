@@ -13,7 +13,6 @@ audio/akode-plugins-pulseaudio
 audio/akode-plugins-resampler
 audio/akode-plugins-sun
 audio/akode-plugins-xiph  
-benchmarks/bytebench
 cad/xchiplogo
 databases/rrdtool12
 devel/papaya
