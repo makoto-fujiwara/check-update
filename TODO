@@ -19,6 +19,7 @@
   - make check-update-depends 
     (like make clean-depends, but not really inside of this developement)
   - individual package
+    * pdf-parser_V0_3_9  0.3.9 -> ??
     * time/remind  3.1.15 -> 03.01.15
     * lang/py..-html-docs does not find upper numeric-name-folder (3.6.0 -> 3.6.1)
     * mail/elm DISTNAME is elm258 (no hyphen), should be automatically processed

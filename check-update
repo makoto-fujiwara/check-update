@@ -448,6 +448,7 @@ my (%SpecialPattern) = (
     'libedit',		'$line =~ s|.*libedit-([0-9]+)-([0-9.]+)\.tar\.gz.*|$2.$1|;',
     'egenix-mx-base',	'$line =~ s|.*Version: ([0-9.]+).*|$1|;',
     'dnsperf-src',	'$line =~ s|.*$distbase-([0-9.]+)-[0-9].*|$1|;',
+    'pdf-parser',	'$line =~ s|.*pdf-parser_V([0-9_]+)\..*|$1|; $line =~y|_|.|;',
     );
    # sgb does not work yet
    #http://prdownloads.sourceforge.jp/lha/11617/lha-1.14i-ac20040929.tar.gz
@@ -521,9 +522,11 @@ my(%DISTBASE) = qw (
     boa-constructor	boa-constructor
     caff	signing-party
     nagi	nagi_src
+    py27-pdf-parser	pdf-parser
     );
    
 my(%DownLoadAlternative) = qw (
+    pdf-parser	https://blog.didierstevens.com/programs/pdf-tools/
     egenix-mx-base	http://www.egenix.com/products/python/mxBase/mxDateTime/
     libprelude	https://www.prelude-siem.org/projects/prelude/files
     libpreludedb https://www.prelude-siem.org/projects/prelude/files
@@ -663,7 +666,7 @@ sub SpecialPattern($$){
     eval $SpecialPattern{$distbase} ;
     print STDERR sprintf("%4d ", __LINE__ ), ' === >', ' (', $line,")\n" if $DEBUG_EVAL_PATTERN ;
     # not to return garbage
-    if ( !($line =~ m|^[0-9._-]+$| ) ){  $line = '';}
+    if ( !($line =~ m|^[0-9._-]+[a-z]*$| ) ){  $line = '';} # bonnie++-1.03e should return 1.03e
     $line =~ y|_|.|;
     print STDERR sprintf("%4d ", __LINE__ ), ' === >', ' (', $line,")\n" if $DEBUG_EVAL_PATTERN ;
     return $line;
@@ -1431,7 +1434,7 @@ sub CompareDigit($$){
     if ($a < $b )    { return -1;}
     if ($a eq $b )   { return  0;}
     if ($a eq '' and $b == 0 ||
-        $a eq == 0  and $b eq '' ) { return 0;}
+        $a eq 0  and $b eq '' ) { return 0;}
     return $a cmp $b;
 }
 sub CompareVersion($$){
@@ -1457,45 +1460,13 @@ sub CompareVersion($$){
 # Following two lines are for devel/py-mock special :-)
     if ($a eq '1.0.1' && $b eq '1.0b1') { return 1; }
     if ($a eq '1.0b1' && $b eq '1.0.1') { return -1; }
-    #    for my $i ( 0 .. $max_count - 1 ) {
-    if ($a[0] > $b[0]) { return  1;}
-    if ($a[0] < $b[0]) { return -1;}
-    if ($a[0] == $b[0]) {
-#	if ( $max_count == 1 ) {return 0;}
-	if ( $max_count == 2 ) {
-#	    print STDERR sprintf("%4d ", __LINE__), 'max count: ', $max_count, 'a: ', $a, '  b: ',$b,"\n";
-	    ($a[1], $b[1]) = CompareVersion_make_equal_length($a[1], $b[1]); # 0.043 > 0.0301
-	}
-	if ($a[1] > $b[1])    { return  1;}
-	if ($a[1] < $b[1])    { return -1;}
-	if ($a[1] ne $b[1])   { 
-#	    print STDERR sprintf("%4d ", __LINE__ ), ' ', '$a[1]: ', $a[1], ' $b[1]: ', $b[1], "\n";
-	    return $a[1] cmp $b[1];}  # arc-5.21[op]
-	if ($a[1] == $b[1]) {
-#	    if ( $max_count == 1 ) { return 0;}
-	    if ($a[2] =~ /rc/ )   {$a[2] =~ s/rc.*//;}
-	    if ($b[2] =~ /rc/ )   {$b[2] =~ s/rc.*//;}
-#	    print STDERR sprintf("%4d ", __LINE__ ), ' ', '$a[2]: ', $a[2], ' $b[2]: ', $b[2], "\n";
-	    if ($a[2] eq '' and $b[2] == 0 || $a[2] eq 0 and $b[2] eq '' ) { return 0;}
-#	    print STDERR sprintf("%4d ", __LINE__ ), ' ', '$a[2]: ', $a[2], ' $b[2]: ', $b[2], "\n";
-	    if ($a[2] > $b[2] )    { return  1;}
-	    if ($a[2] < $b[2] )    { return -1;}
-	    if ($a[2] ne $b[2])    { return $a[2] cmp $b[2];}
-	    if ($a[2] == $b[2] )   {
-#		print STDERR sprintf("%4d ", __LINE__ ), ' ', '$a[3]: ', $a[3], ' $b[3]: ', $b[3], "\n";
-#		if ($a[3] eq '' && $b[3] eq '' ) { return 0;}
-		if ($a[3] =~ /rc/ )   {$a[3] =~ s/rc.*//;}
-		if ($b[3] =~ /rc/ )   {$b[3] =~ s/rc.*//;}
-		if ($a[3] > $b[3] )    { return  1;}
-		if ($a[3] < $b[3] )    { return -1;}
-		if ($a[3] eq '' and $b[3] == 0 || $a[3] eq 0 and $b[3] eq '' ) { return 0;}
-#		print STDERR sprintf("%4d ", __LINE__ ), ' >', $a, '< ?= >', $b, '< $a[3]: ', $a[3], ' $b[3]: ', $b[3], "\n";
-		if ($a[3] == $b[3] )   { return  $a cmp $b ;}
-        }
-	}
+    my($ret) = 0;
+    for my $i ( 0 .. $max_count - 1 ) {
+	my $ret = CompareDigit($a[$i], $b[$i]);
+	if ($ret != 0) { return $ret }
     }
+    return CompareDigit($a[$max_count], $b[$max_count]);
 }
-
 # Now for maintainer only, not used for now
 sub CountPeriod($){
     my ($string) = shift;
