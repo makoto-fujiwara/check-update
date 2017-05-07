@@ -1195,9 +1195,13 @@ sub ClassifyPackage(@) {
 	    # (12) gdb{,3}
 	# (11-2) bugzilla
 	} elsif ($p =~ /^(bugzilla)([0-9])$/ ) {
+            # https://www.bugzilla.org/status/changes.html
 	    my ($lang)  = $1;
-	    my ($major) = $2; if ($major eq '') { $major = 5;}
-	    my ($pattern) = '$_ =~ m|.*'. $lang .'-('.$major.'\.[0-9.]+)\.tar\..*|; $version = $1;' ;
+	    my ($major) = $2;
+	    my ($minor) = '';
+	                      if ($major eq '')  { $major = 5;}
+                              if ($major eq '3') { $minor = '.6';}
+	    my ($pattern) = '$_ =~ m|.*'. $lang .'-('.$major.$minor.'\.[0-9.]+)\.tar\..*|; $version = $1;' ;
 	    $FAMILY{$p} = $pattern;
 	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1a) family: ', $p,' -> ', $pattern,"\n" if $DEBUG_FAMILY;
 	    # (12) gdb{,3}
@@ -1422,12 +1426,18 @@ sub CompareVersion($$){
     # return 1 if big, 0 if equal, -1 if small.
     my ($a) = shift;
     my ($b) = shift;
+    if ($a eq $b) {return 0;}
+
     $a =~ s/pre/\./;
     $b =~ s/pre/\./;
 
     # get the number of digit split by '.'
     my (@a) = split '\.', $a;
     my (@b) = split '\.', $b;
+
+    # avoid 4.6.7 < 451 # biology/cdhit
+    if ($a[0] < 9 && 100 < $b[0] ) { return  1;}
+    if ($b[0] < 9 && 100 < $a[0] ) { return -1;}
 
 # get bigger count  of '.', in $a or $b
     my ($max_count) = $#a + 1;
@@ -2605,7 +2615,7 @@ sub GitHubSpecial($$$$){
 		       "$master_site"."$GITHUB_PROJECT".'/releases/tag',
      ) {
      my ($curl_command) = "$curl_list_secure $target";
-        print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> curl_command: ', $curl_command, "\n" if $DEBUG_GITHUB;
+        print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> curl_command: ', $curl_command, "\n" if $DEBUG_GITHUB || $DEBUG_HTTP_HEADER ;
     open(CURL,  "$curl_command 2>&1|") ||
 	print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> Problem for curl', "$!\n";
      my ($cand);
@@ -2636,7 +2646,8 @@ sub GitHubSpecial($$$$){
 	    m,data-name=\"v*([0-9.]+)\",||
 	    m,release-([0-9.]+)\",	||   # sysutils/WCMcommander
 	    m,releases/tag/([0-9.]+),	||   # sysutils/erlang-goldrush
-	    m,^V([0-9.]+),		||   # biology/cdhit
+	    m,releases/tag/V*([0-9]\.[0-9.]+),	||    # biology/cdhit    releases/tag/V4.6.7"> and avoid to pick 454.
+	    m,V([0-9]+\.[0-9.]+\.[0-9]+),||   # biology/cdhit
 	    0 ) {
 	    $cand = $1;
 	    # security/py-certbot bad  -> 1824
@@ -2649,7 +2660,7 @@ sub GitHubSpecial($$$$){
 	    $cand =~ s/(2[0-9]+)-([01][0-9])-([0-9]+)/$1$2$3/; # devel/re2 2016-08-01
 
   	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> ', $cand, ' :: ', $_, "\n" if $DEBUG_GITHUB;
-	    if ($distbase eq 'uhd' || $distbase eq 'mame' || $distbase eq 'cdhit'
+	    if ($distbase eq 'uhd' || $distbase eq 'mame' 
 		) {  $cand = EditVersion($distbase,$cand); }
 	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> ', $cand, ' :: ', $_, "\n" if $DEBUG_GITHUB;
 	    push(@candidate, $cand);
