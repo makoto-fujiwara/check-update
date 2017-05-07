@@ -1,17 +1,23 @@
 (TODO)
+   - help message (-h option) is inaccurate
+     * -h output is too long
+     * -V option works correctly ?
+   - Version Issue
+    *  benchmarks/bonnie++  1.03e > 1.03   ( flags as alphabetical suffix favorable ?)
+    *  should provide debugging easily
+  - Statistics count seems to have minor error, (0,0) is not correctly counted ?
   - honor (or utilize) the time stamp shown on directory if ftp listing
-    ftp://ftp.gnupg.org/gcrypt/libgpg-error/
+    * ftp://ftp.gnupg.org/gcrypt/libgpg-error/
+    * p5-Shell-Perl 0.009 > 0.07
   - Automatic Add 0, example: time/p5-DateTime-Format-ISO8601, PKGNAME= p5-${DISTNAME}00
-  - Tells Now:    0.043 ->  0.0301 for textproc/p5-POD2-Base, is 0.0301 > 0.43 ?
+  - Automatic @SimplePattern
   - no_release for github implemented,
     p5-App-Prove-Plugin-ProgressBar      OK
     p5-App-Prove-Plugin-ProgressBar-Each NG
-  - Automatic @SimplePattern
-  - help message (-h option) is inaccurate
+  - Take care github stuff but no release, ex sysutils/rkflashtool
   - Man page missing 
   - make check-update-depends 
     (like make clean-depends, but not really inside of this developement)
-  - report option, to report the results to maintainer
   - individual package
     * time/remind  3.1.15 -> 03.01.15
     * lang/py..-html-docs does not find upper numeric-name-folder (3.6.0 -> 3.6.1)

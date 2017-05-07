@@ -447,6 +447,7 @@ my (%SpecialPattern) = (
     'sgb',		'$line =~ s|.*sgb-([0-9]+)-([0-9]+)-([0-9]+)\.tar\.gz.*|$1$2$3|;',
     'libedit',		'$line =~ s|.*libedit-([0-9]+)-([0-9.]+)\.tar\.gz.*|$2.$1|;',
     'egenix-mx-base',	'$line =~ s|.*Version: ([0-9.]+).*|$1|;',
+    'dnsperf-src',	'$line =~ s|.*$distbase-([0-9.]+)-[0-9].*|$1|;',
     );
    # sgb does not work yet
    #http://prdownloads.sourceforge.jp/lha/11617/lha-1.14i-ac20040929.tar.gz
@@ -464,11 +465,13 @@ my(%SourceForgeAlternative) = qw (
     plib	http://plib.sourceforge.net/download.html
     docbook-xsl	https://sourceforge.net/projects/docbook/files/docbook-xsl/
     PyQt-x11-gpl https://sourceforge.net/projects/pyqt/files/PyQt4/
+    ghdl	https://sourceforge.net/projects/ghdl-updates/files/Source/
 ); #'
 
 #  --- HARDCODE TABLES --- ( to ease accessing tables )
 # PKGBASE to $DISTBASE association Special (ending digit is main customer)
 my(%DISTBASE) = qw (
+    dnsperf	dnsperf-src
     tidy	tidy-html5
     editline	libedit
     imp		imp-h3
