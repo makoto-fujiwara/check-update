@@ -1424,7 +1424,16 @@ sub CompareVersion_make_equal_length($$) {
     }
     return ($a, $b);
 }
-
+sub CompareDigit($$){
+    my ($a) = shift;
+    my ($b) = shift;
+    if ($a > $b )    { return  1;}
+    if ($a < $b )    { return -1;}
+    if ($a eq $b )   { return  0;}
+    if ($a eq '' and $b == 0 ||
+        $a eq == 0  and $b eq '' ) { return 0;}
+    return $a cmp $b;
+}
 sub CompareVersion($$){
     # return 1 if big, 0 if equal, -1 if small.
     my ($a) = shift;
