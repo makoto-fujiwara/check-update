@@ -1601,15 +1601,28 @@ sub GetDistBaseAutomatic($$$){
     my @NULL;
     $#NULL = -1;
     
-    if ($DISTNAME eq $distname) { $distbase = $PKGBASE; $SimplePattern = 1; $OK++;}
-    print STDERR sprintf("%4d ", __LINE__ ), '$DISTNAME: ', $DISTNAME, ' $distname: ', $distname, "\n" if $DEBUG_AUTOMATIC_DISTBASE;
-    print "($DISTNAME =~ /^$distname-[0-9]/ ) \n" if $DEBUG_AUTOMATIC_DISTBASE;
-    if ("$DISTNAME" =~ /$distname-[0-9]/ ) { 
+    if     ('p5-'.$DISTNAME eq $distname) { 
+	$distbase = $PKGBASE; $distbase =~ s/^p5-//;
+	$SimplePattern = 1; $OK++;
+	print STDERR sprintf("%4d ", __LINE__ ),"\n";
+	$SpecialPatternY = 'm|.*'.$distbase.'-([0-9.]+)(-[0-9])*\..*|; $version = $1;';
+    }
+    elsif        ($DISTNAME eq $distname) { $distbase = $PKGBASE; $SimplePattern = 1; $OK++;
+					    print STDERR sprintf("%4d ", __LINE__ ),"\n";}
+    elsif ("$DISTNAME" =~ /$distname-[0-9]/ ) {
+    print "($DISTNAME =~ /^$distname-[0-9]/ ) \n" if $DEBUG_AUTOMATIC_DISTBASE;	
 	$distbase = $PKGBASE;
 	$SpecialPatternY = 'm|.*'.$distbase.'-([0-9.]+)-[0-9]\..*|; $version = $1;';
 	$OK++;
     print STDERR sprintf("%4d ", __LINE__ ), '$pattern: ', $pattern, ' $distname: ', $distname, "\n" if $DEBUG_AUTOMATIC_DISTBASE;
     }
+    print STDERR sprintf("%4d ", __LINE__ ), 
+	'$DISTNAME: ', $DISTNAME, 
+	' $distname: ', $distname,
+	' $SpecialPatternY: ', $SpecialPatternY,
+	"\n" if $DEBUG_AUTOMATIC_DISTBASE;
+    print "($DISTNAME =~ /^$distname-[0-9]/ ) \n" if $DEBUG_AUTOMATIC_DISTBASE;
+
     if ($OK) {
 	print STDERR sprintf("%4d ", __LINE__ ), "\n" if $DEBUG_AUTOMATIC_DISTBASE;
 	return($distbase, $pattern, $SimplePattern);}
