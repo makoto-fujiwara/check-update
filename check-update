@@ -81,6 +81,7 @@ my ($summary_leaf);	# only for stats output, not used now
 
 # debugging flags, see ParseDebug
 my ($DEBUG_ALTERNATIVE);
+my ($DEBUG_AUTOMATIC_DISTBASE);
 my ($DEBUG_CACHE);
 my ($DEBUG_CANDIDATE);
 my ($DEBUG_COUNT);
@@ -122,6 +123,7 @@ my ($SINGLE_PACKAGE) = 0;
 my(%LongName)  = (
    'A',  'Alternative master site',
    'a',  'enable_All',
+   'b',  'Automatic distbase',
    'c',  'Cache',
    'C',  'Curl Command',
    'd',  'Distbase Pattern',
@@ -1577,6 +1579,42 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (4) <', (caller 0)[3] ,'> ', 'distbas
     #      0-1. if (-) is onlye one in PKGNAME, remove - and after
     #      if resultant string in DISTNAME, take it as DISTBASE
     #  --------------------------------------
+sub GetDistBaseAutomatic($$$){
+
+##  CF-SX2@makoto 22:05:33/170508(..math/extcalc)% make show-var VARNAME=PKGVERSION_NOREV
+##  0.9.3
+##  CF-SX2@makoto 22:05:44/170508(..math/extcalc)% make show-var VARNAME=PKGBASE
+##  extcalc
+##  CF-SX2@makoto 22:05:49/170508(..math/extcalc)% make show-var VARNAME=DISTNAME
+##  extcalc-0.9.3-1
+##  CF-SX2@makoto 22:06:00/170508(..math/extcalc)% make show-var VARNAME=EXTRACT_SUFX
+##  .tar.gz
+    my ($PKGVERSION) = shift;
+    my ($PKGBASE) = shift;
+    my ($DISTNAME) = shift;
+
+    my ($distname) = $PKGBASE .'-'.$PKGVERSION;
+    my ($distbase);
+    my ($pattern);
+    my ($SimplePattern);
+    my ($OK) = 0;
+    my @NULL;
+    $#NULL = -1;
+    
+    if ($DISTNAME eq $distname) { $distbase = $PKGBASE; $SimplePattern = 1; $OK++;}
+    print STDERR sprintf("%4d ", __LINE__ ), '$DISTNAME: ', $DISTNAME, ' $distname: ', $distname, "\n" if $DEBUG_AUTOMATIC_DISTBASE;
+    print "($DISTNAME =~ /^$distname-[0-9]/ ) \n" if $DEBUG_AUTOMATIC_DISTBASE;
+    if ("$DISTNAME" =~ /$distname-[0-9]/ ) { 
+	$distbase = $PKGBASE;
+	$SpecialPatternY = 'm|.*'.$distbase.'-([0-9.]+)-[0-9]\..*|; $version = $1;';
+	$OK++;
+    print STDERR sprintf("%4d ", __LINE__ ), '$pattern: ', $pattern, ' $distname: ', $distname, "\n" if $DEBUG_AUTOMATIC_DISTBASE;
+    }
+    if ($OK) {
+	print STDERR sprintf("%4d ", __LINE__ ), "\n" if $DEBUG_AUTOMATIC_DISTBASE;
+	return($distbase, $pattern, $SimplePattern);}
+    else     {return (@NULL)}
+}
 sub GetDistBaseAdjust($$$) {
 #1061 <main::GetDistBaseSwap> (pkgname) aspell-ast-0.01
 #                             (pkgbase) aspell-ast
@@ -1775,6 +1813,20 @@ sub GetDistBase($$$$$) {	# <- Main       DISTBASEDISTBASE
     my ($DISTBASE)	= GetVariableValue($dir, $PackageName, 'DISTNAME');
     my ($EXTRACT_SUFX)	= GetVariableValue($dir, $PackageName, 'EXTRACT_SUFX');
     $EXTRACT_SUFX =~ s/\./\\\./; # escape leading . to \.
+
+    my (@return) = GetDistBaseAutomatic($PKGVERSION, $PKGBASE, $DISTBASE);
+    my ($pattern, $SimplePattern);
+
+    if (@return) {
+	print STDERR sprintf("%4d ", __LINE__ )," Automatic Found\n" if $DEBUG_AUTOMATIC_DISTBASE;
+	($DISTBASE, $pattern, $SimplePattern) = @return;
+	push(@SimplePattern, $SimplePattern);
+	return $DISTBASE;
+    } else {
+	print STDERR sprintf("%4d ", __LINE__ )," Automatic Failed\n" if $DEBUG_AUTOMATIC_DISTBASE;
+    }
+
+
 print STDERR sprintf("%4d ", __LINE__ ),
          "  (PKGNAME)\t", $PKGNAME,        "\n",
     "       (PKGBASE)\t", $PKGBASE,      "\n",
@@ -1782,6 +1834,8 @@ print STDERR sprintf("%4d ", __LINE__ ),
     "       (PKGVERSION)\t", $PKGVERSION , "\n",
     "       (\@SimplePattern)\t", scalar(grep (/$PKGBASE/, @SimplePattern)) , "\n"
     if $DEBUG_DISTBASE || $DEBUG_DISTBASE_EXTRACT ;
+
+
 #  %DISTBASE special
     if  (my $distbase = $DISTBASE{$PKGBASE}) {
 	print STDERR sprintf("%4d ", __LINE__ ),"\n" if $DEBUG_DISTBASE_EXTRACT;
@@ -2900,7 +2954,7 @@ print STDERR sprintf("%4d ", __LINE__ ).' location: ', $location,"\n" if  $DEBUG
 sub ParseDebug($){
     my ($pattern) = shift;
     my %DEBUG;
-    my $char_list = 'aAcCdDEegFfGhHklLmMnNpPrRsSUVxXyzZ';
+    my $char_list = 'aAbcCdDEegFfGhHklLmMnNpPrRsSUVxXyzZ';
 
     if ( $pattern =~ /a/ ) { $pattern = $char_list  }
     print STDERR sprintf("%4d ", __LINE__ ), ' DEBUG pattern (',  $pattern,  ')',"\n";
@@ -2913,6 +2967,7 @@ sub ParseDebug($){
 	}
 
     $DEBUG_ALTERNATIVE		= $DEBUG{'A'} + $DEBUG{'a'} ;
+    $DEBUG_AUTOMATIC_DISTBASE	= $DEBUG{'b'} + $DEBUG{'a'} ;    
     $DEBUG_CACHE		= $DEBUG{'c'} + $DEBUG{'a'} ;
     $DEBUG_COUNT		= $DEBUG{'n'} + $DEBUG{'a'} ;
     $DEBUG_CANDIDATE		= $DEBUG{'X'} + $DEBUG{'a'} ;
