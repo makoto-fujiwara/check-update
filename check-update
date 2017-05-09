@@ -3189,6 +3189,7 @@ print STDERR sprintf("%4d ** ", __LINE__ ), (caller 0)[3], ' (', $distbase,') :'
 #  --- HARDCODE TABLES --- ( to ease accessing tables )
 print STDERR sprintf("%4d ** ", __LINE__ ), '(', $distbase,') $_(', $_,')',"\n" if $DEBUG_EVAL_PATTERN ;
 print STDERR sprintf("%4d ** ", __LINE__ ), '$SpecialPatternY: ', $SpecialPatternY,"\n" if $DEBUG_SPECIAL_PATTERN && $SpecialPatternY ; 
+        if ( /<!--.*>/ ){next;}
 	if ( /[0-9._]+[-_]rc/ )	{next;}
 	if ( /[0-9._]+-beta/ )	{next;}
 	if ( /[0-9._]+-alpha/ )	{next;}
