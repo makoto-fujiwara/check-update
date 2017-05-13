@@ -1330,7 +1330,15 @@ sub ClassifyPackage(@) {
 	    $FAMILY{$p} = $pattern;
 	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1i) family: ', $p, ' -> ', $FAMILY{$p},
 "\n" if $DEBUG_FAMILY;
-
+	    # (25) xf86-video-ati(6)
+	}  elsif ($p =~ /^(xf86-video-ati)(\d*)$/) {
+	    my ($pkg)  = $1;
+	    my ($major) = $2;
+	    if ($major == '') { $major = '[78]';}
+	    my ($pattern) ;
+	    $pattern  = '$_ =~ m|.*xf86-video-ati-('. $major.'.[0-9.]+)\.tar\..*|; $version = $1; ';
+	    $FAMILY{$p} = $pattern;
+	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1b) family: ', $p, ' -> '. $pattern."\n" if $DEBUG_FAMILY;
 	# normal numbering
 	} elsif ($p =~ /(.*)([0-9]+)$/) {
 	    my ($pybody) = $1 ;
