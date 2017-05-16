@@ -1,4 +1,6 @@
 (TODO)
+   - $SimplePattern logic is wrong, even after Automatic DISTBASE set $SimplePattern,
+     it does not work, while adding @SimplePattern works (emulator/bochs)
    - help message (-h option) is inaccurate
      * -h output is too long
      * -V option works correctly ?

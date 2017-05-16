@@ -257,6 +257,7 @@ my (@SkipTooOld)
 # Simple means $distbase-([0-9.]+)-(extran string not necessary)..
 my ($SimplePattern); # dynamically set to 1 if @SimplePattern equivalent
 my (@SimplePattern)  = qw(
+bochs
 webalizer
 ddd
 cmocka
@@ -1611,28 +1612,30 @@ sub GetDistBaseAutomatic($$$){
     
     if     ('p5-'.$DISTNAME eq $distname) { 
 	$distbase = $PKGBASE; $distbase =~ s/^p5-//;
-	$SimplePattern = 1; $OK++;
+	$SimplePattern = 1; $OK = 1;
 	print STDERR sprintf("%4d ", __LINE__ ),"\n";
 	$SpecialPatternY = 'm|.*'.$distbase.'-([0-9.]+)(-[0-9])*\..*|; $version = $1;';
     }
-    elsif        ($DISTNAME eq $distname) { $distbase = $PKGBASE; $SimplePattern = 1; $OK++;
+    elsif        ($DISTNAME eq $distname) { $distbase = $PKGBASE; $SimplePattern = 1; $OK = 2;
 					    print STDERR sprintf("%4d ", __LINE__ ),"\n";}
     elsif ("$DISTNAME" =~ /$distname-[0-9]/ ) {
     print "($DISTNAME =~ /^$distname-[0-9]/ ) \n" if $DEBUG_AUTOMATIC_DISTBASE;	
 	$distbase = $PKGBASE;
 	$SpecialPatternY = 'm|.*'.$distbase.'-([0-9.]+)-[0-9]\..*|; $version = $1;';
-	$OK++;
+	$OK = 3;
     print STDERR sprintf("%4d ", __LINE__ ), '$pattern: ', $pattern, ' $distname: ', $distname, "\n" if $DEBUG_AUTOMATIC_DISTBASE;
-    }
+    } 
+
     print STDERR sprintf("%4d ", __LINE__ ), 
 	'$DISTNAME: ', $DISTNAME, 
 	' $distname: ', $distname,
 	' $SpecialPatternY: ', $SpecialPatternY,
 	"\n" if $DEBUG_AUTOMATIC_DISTBASE;
-    print "($DISTNAME =~ /^$distname-[0-9]/ ) \n" if $DEBUG_AUTOMATIC_DISTBASE;
+#    print "($DISTNAME =~ /^$distname-[0-9]/ ) \n" if $DEBUG_AUTOMATIC_DISTBASE;
 
     if ($OK) {
-	print STDERR sprintf("%4d ", __LINE__ ), "\n" if $DEBUG_AUTOMATIC_DISTBASE;
+	print STDERR sprintf("%4d ", __LINE__ ), "OK: $OK \n" if $DEBUG_AUTOMATIC_DISTBASE;
+	print STDERR sprintf("%4d ", __LINE__ ), "$SpecialPatternY\n" if $DEBUG_AUTOMATIC_DISTBASE;
 	return($distbase, $pattern, $SimplePattern);}
     else     {return (@NULL)}
 }
