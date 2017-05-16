@@ -257,7 +257,6 @@ my (@SkipTooOld)
 # Simple means $distbase-([0-9.]+)-(extran string not necessary)..
 my ($SimplePattern); # dynamically set to 1 if @SimplePattern equivalent
 my (@SimplePattern)  = qw(
-bochs
 webalizer
 ddd
 cmocka
@@ -1617,7 +1616,7 @@ sub GetDistBaseAutomatic($$$){
 	$SpecialPatternY = 'm|.*'.$distbase.'-([0-9.]+)(-[0-9])*\..*|; $version = $1;';
     }
     elsif        ($DISTNAME eq $distname) { $distbase = $PKGBASE; $SimplePattern = 1; $OK = 2;
-					    print STDERR sprintf("%4d ", __LINE__ ),"\n";}
+    }
     elsif ("$DISTNAME" =~ /$distname-[0-9]/ ) {
     print "($DISTNAME =~ /^$distname-[0-9]/ ) \n" if $DEBUG_AUTOMATIC_DISTBASE;	
 	$distbase = $PKGBASE;
@@ -1839,7 +1838,7 @@ sub GetDistBase($$$$$) {	# <- Main       DISTBASEDISTBASE
     $EXTRACT_SUFX =~ s/\./\\\./; # escape leading . to \.
 
     my (@return) = GetDistBaseAutomatic($PKGVERSION, $PKGBASE, $DISTBASE);
-    my ($pattern, $SimplePattern);
+    my ($pattern);
 
     if (@return) {
 	print STDERR sprintf("%4d ", __LINE__ )," Automatic Found\n" if $DEBUG_AUTOMATIC_DISTBASE;
