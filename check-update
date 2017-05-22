@@ -1453,8 +1453,8 @@ sub CompareVersion($$){
     my ($b) = shift;
     if ($a eq $b) {return 0;}
 
-    $a =~ s/pre/\./;
-    $b =~ s/pre/\./;
+ #  $a =~ s/pre/\./;
+ #   $b =~ s/pre/\./;
 
     # get the number of digit split by '.'
     my (@a) = split '\.', $a;
@@ -3259,6 +3259,7 @@ print STDERR sprintf("%4d ** ", __LINE__ ), '$SpecialPatternY: ', $SpecialPatter
 	if ( /[0-9._]+-os-x/ )	{next;}
 	if ( /[0-9._]+-install/ )	{next;}
 	if ( /[0-9._]+pr1/ )	{next;}
+	if ( /[0-9._]+pre[0-9]/ )	{next;}
 	if ( /[0-9._]+-TRIAL/ )	{next;}
 
 	if (0) { # dummy for ease to swap sequence below		# MAJOR_IF_THEN_ELSE
