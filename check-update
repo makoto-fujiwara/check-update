@@ -451,6 +451,8 @@ my (%SpecialPattern) = (
     'egenix-mx-base',	'$line =~ s|.*Version: ([0-9.]+).*|$1|;',
     'dnsperf-src',	'$line =~ s|.*$distbase-([0-9.]+)-[0-9].*|$1|;',
     'pdf-parser',	'$line =~ s|.*pdf-parser_V([0-9_]+)\..*|$1|; $line =~y|_|.|;',
+    'makeztxt',		'$line =~ s|.*<td>makeztxt</td><td>([0-9.]+)</td><td>source.*|$1|;',
+
     );
    # sgb does not work yet
    #http://prdownloads.sourceforge.jp/lha/11617/lha-1.14i-ac20040929.tar.gz
@@ -474,6 +476,7 @@ my(%SourceForgeAlternative) = qw (
 #  --- HARDCODE TABLES --- ( to ease accessing tables )
 # PKGBASE to $DISTBASE association Special (ending digit is main customer)
 my(%DISTBASE) = qw (
+    makeztxt	makeztxt
     dnsperf	dnsperf-src
     tidy	tidy-html5
     editline	libedit
@@ -528,6 +531,7 @@ my(%DISTBASE) = qw (
     );
    
 my(%DownLoadAlternative) = qw (
+    makeztxt	http://gutenpalm.sourceforge.net/download.php
     pdf-parser	https://blog.didierstevens.com/programs/pdf-tools/
     egenix-mx-base	http://www.egenix.com/products/python/mxBase/mxDateTime/
     libprelude	https://www.prelude-siem.org/projects/prelude/files
