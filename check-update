@@ -2708,6 +2708,7 @@ sub GitHubSpecial($$$$){
 	    m,releases/tag/([0-9.]+),	||   # sysutils/erlang-goldrush
 	    m,releases/tag/V*([0-9]\.[0-9.]+),	||    # biology/cdhit    releases/tag/V4.6.7"> and avoid to pick 454.
 	    m,V([0-9]+\.[0-9.]+\.[0-9]+),||   # biology/cdhit
+	    m,rel_([0-9.]+),		||   # textproc/lucene++
 	    0 ) {
 	    $cand = $1;
 	    # security/py-certbot bad  -> 1824
