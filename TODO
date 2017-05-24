@@ -1,4 +1,6 @@
 (TODO)
+   - github: if release page (ex: https://github.com/hughsie/appdata-tools/releases)
+     it has priority
    - $SimplePattern logic is wrong, even after Automatic DISTBASE set $SimplePattern,
      it does not work, while adding @SimplePattern works (emulator/bochs)
    - help message (-h option) is inaccurate
