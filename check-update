@@ -962,7 +962,7 @@ sub CheckRubyGems($){
     my($no_rubygems) = 1;
 
     # --------------  looking for old rubygems  or just gem ------------------
-    open(PKG_INFO, "pkg_info|") || print STDERR sprintf("%4d ", __LINE__), "Failed for pkg_info\n";
+    open(PKG_INFO, "/usr/pkg/sbin/pkg_info|") || print STDERR sprintf("%4d ", __LINE__), "Failed for pkg_info\n";
     while(<PKG_INFO>) {
 	if (/^(.*rubygems-.*[0-9.]+)/ )	{ $gems_package = $1;   $no_rubygems = 0; last;}
 	if (/^ruby22-[a-z]*/ )		{ $gems_name = 'gem22'; $no_rubygems = 0; last;}  # hard code for ruby2.*
