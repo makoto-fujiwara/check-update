@@ -155,6 +155,7 @@ my(%LongName)  = (
    'y',	 'pypi special',
    'z',  'Fork',
    'Z',  'Fork quit',
+   '1',  'Ver debug (PickfromCandidate)',
 );
 
 # Skip the guide saying "Looking for the latest version ?"
@@ -1460,10 +1461,16 @@ sub CompareVersion($$){
  #  $a =~ s/pre/\./;
  #   $b =~ s/pre/\./;
 
+    if ($a eq '0.0' && $b ne '0.0') {return -1;} # base line
+    if ($a ne '0.0' && $b eq '0.0') {return  1;} # base line ( p5-Canary-Stability 2012)
+
     # get the number of digit split by '.'
     my (@a) = split '\.', $a;
     my (@b) = split '\.', $b;
 
+    if ($#a == -1 && $#b == -1 ) { # no dot included, 
+	return $a <=> $b ;
+    }
     # avoid 4.6.7 < 451 # biology/cdhit
     if ($a[0] < 9 && 100 < $b[0] ) { return  1;}
     if ($b[0] < 9 && 100 < $a[0] ) { return -1;}
@@ -1616,8 +1623,12 @@ sub GetDistBaseAutomatic($$$){
     if     ('p5-'.$DISTNAME eq $distname) { 
 	$distbase = $PKGBASE; $distbase =~ s/^p5-//;
 	$SimplePattern = 1; $OK = 1;
-	print STDERR sprintf("%4d ", __LINE__ ),"\n";
+	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '> called from: ', (caller 0)[2], "\n";
+	if ($PKGVERSION =~ /\./) {
 	$SpecialPatternY = 'm|.*'.$distbase.'-([0-9.]+)(-[0-9])*\..*|; $version = $1;';
+	} else {
+	$SpecialPatternY = 'm|.*'.$distbase.'-([0-9]+)\..*|; $version = $1;';
+	}
     }
     elsif        ($DISTNAME eq $distname) { $distbase = $PKGBASE; $SimplePattern = 1; $OK = 2;
     }
@@ -2415,13 +2426,14 @@ sub GetGemVersion($$){		# <- Main
 }
 sub PickFromCandidate(@) {
     my (@CANDIDATE) = @_;
-    my ($max_version);
+    my ($max_version) = '0.0';
 	    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ': ', "\n",join ("\n", @CANDIDATE),"\n" if $DEBUG_CANDIDATE ;
 
 #  --- HARDCODE TABLES --- ( to ease accessing tables )
     foreach  my $i ( 0.. $#CANDIDATE ) {
 	my($ver) = $CANDIDATE[$i];
-	print STDERR sprintf("%4d ", __LINE__ ), 'ver (', $ver,') max_version (',$max_version,")\n" if $DEBUG_VER_PATTERN;
+	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>: ', (caller 0)[2], 
+						 ' ver (', $ver,') max_version (',$max_version,")\n" if $DEBUG_VER_PATTERN;
 	$ver =~ s/\.linux.*//;	# editors/ted linux.i386
 	$ver =~ s/\.i386.*//;	# editors/ted linux.i386
 	$ver =~ s/\.i686.*//;	#
@@ -2447,9 +2459,13 @@ sub PickFromCandidate(@) {
 
 # following line is so harmfull ... potrace-1.1.linux-amd64.tar.gz -> 1.1.64 graphics/potrace
 	$ver =~ s/\.[a-z]{2,}//;	#
-	print STDERR sprintf("%4d ", __LINE__ ), 'ver (', $ver,') max_version (',$max_version,")\n" if $DEBUG_VER_PATTERN;
+	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>: ', (caller 0)[2], 	
+						 ' ver (', $ver,') max_version (',$max_version,")\n" if $DEBUG_VER_PATTERN;
 #	    $ver = EditVersion($DISTBASE, $ver);
+
 	if (CompareVersion($ver, $max_version) > 0) { $max_version = $ver;}
+	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>: ', (caller 0)[2], 	
+						 ' ver (', $ver,') max_version (',$max_version,")\n" if $DEBUG_VER_PATTERN;
     }
     if ( ! $max_version ) { $max_version = '0.0';}
     return $max_version;
@@ -2982,7 +2998,7 @@ print STDERR sprintf("%4d ", __LINE__ ).' location: ', $location,"\n" if  $DEBUG
 sub ParseDebug($){
     my ($pattern) = shift;
     my %DEBUG;
-    my $char_list = 'aAbcCdDEegFfGhHklLmMnNpPrRsSUVxXyzZ';
+    my $char_list = 'aAbcCdDEegFfGhHklLmMnNpPrRsSUVxXyzZ1';
 
     if ( $pattern =~ /a/ ) { $pattern = $char_list  }
     print STDERR sprintf("%4d ", __LINE__ ), ' DEBUG pattern (',  $pattern,  ')',"\n";
@@ -3028,7 +3044,7 @@ sub ParseDebug($){
     $DEBUG_STATS		= $DEBUG{'S'} + $DEBUG{'a'} ;
     $DEBUG_URL			= $DEBUG{'U'} + $DEBUG{'a'} ;
     $DEBUG_VERSION_DIR		= $DEBUG{'V'} + $DEBUG{'a'} ;
-    print STDERR "\n";
+    $DEBUG_VER_PATTERN		= $DEBUG{'1'} + $DEBUG{'a'} ;
 }
 #  ----------------------------------------------------
 # Called three times:
@@ -4740,9 +4756,12 @@ print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], '
 	    ($returnCode, @candidate) =  ParseDirectory($MASTER_SITE, $DISTBASE, $SimpleFallBackYes, $PackageName, $R_Package, (caller 0)[3] );
 	    $available = PickFromCandidate(@candidate);
 print STDERR sprintf("%4d ", __LINE__ ), 
-    ' (SimpleFallBack) master_site(', $MASTER_SITE, ') returnCode('. $returnCode.") -> available(". $available.")\n"  if $DEBUG_FALLBACK_SIMPLE;
-
+    ' (SimpleFallBack) master_site(', $MASTER_SITE, ') returnCode('. $returnCode.") -> available(". $available.")\n"  
+								  if $DEBUG_FALLBACK_SIMPLE || $DEBUG_CANDIDATE;
 	}
+print STDERR sprintf("%4d ", __LINE__ ), 
+    ' (SimpleFallBack) master_site(', $MASTER_SITE, ') returnCode('. $returnCode.") -> available(". $available.")\n"  
+								  if $DEBUG_FALLBACK_SIMPLE || $DEBUG_CANDIDATE;
 	# ------------------------------------------------------------
 	##   F I N D   T H E   C O N D I T I O N   T O   L I S T (404/403/550/DNS)
 	# ------------------------------------------------------------
