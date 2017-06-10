@@ -1623,7 +1623,7 @@ sub GetDistBaseAutomatic($$$){
     if     ('p5-'.$DISTNAME eq $distname) { 
 	$distbase = $PKGBASE; $distbase =~ s/^p5-//;
 	$SimplePattern = 1; $OK = 1;
-	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '> called from: ', (caller 0)[2], "\n";
+	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '> called from: ', (caller 0)[2], "\n"  if $DEBUG_AUTOMATIC_DISTBASE;	
 	if ($PKGVERSION =~ /\./) {
 	$SpecialPatternY = 'm|.*'.$distbase.'-([0-9.]+)(-[0-9])*\..*|; $version = $1;';
 	} else {
