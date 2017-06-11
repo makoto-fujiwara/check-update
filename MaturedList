@@ -14,6 +14,7 @@ audio/akode-plugins-resampler
 audio/akode-plugins-sun
 audio/akode-plugins-xiph  
 cad/xchiplogo
+comms/asterisk18
 databases/rrdtool12
 devel/papaya
 devel/p5-Term-ReadLine-Perl

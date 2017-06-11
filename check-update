@@ -1344,6 +1344,18 @@ sub ClassifyPackage(@) {
 	    $pattern  = '$_ =~ m|.*xf86-video-ati-('. $major.'.[0-9.]+)\.tar\..*|; $version = $1; ';
 	    $FAMILY{$p} = $pattern;
 	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1b) family: ', $p, ' -> '. $pattern."\n" if $DEBUG_FAMILY;
+	    # (26) asterisk
+	}  elsif ($p =~ /^(asterisk)(\d)(\d)$/ || $p =~ /^(asterisk)$/ ) {
+	    my ($pkg)  = $1;
+	    my ($major) = $2;
+	    my ($minor) = $3;
+	    if    ( $major eq ''  && $minor eq ''  ) { $major = 11}
+	    elsif ( $major eq '1' && $minor eq '8' ) { $major = "1.8"}
+	    else                                     { $major = $major.$minor;}
+	    my ($pattern) ;
+	    $pattern  = '$_ =~ m|.*asterisk-('. $major.'.[0-9.]+)\.tar\..*|; $version = $1; ';
+	    $FAMILY{$p} = $pattern;
+	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1b) family: ', $p, ' -> '. $pattern."\n" if $DEBUG_FAMILY;
 	# normal numbering
 	} elsif ($p =~ /(.*)([0-9]+)$/) {
 	    my ($pybody) = $1 ;
