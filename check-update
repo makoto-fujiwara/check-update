@@ -1461,8 +1461,8 @@ sub CompareVersion($$){
  #  $a =~ s/pre/\./;
  #   $b =~ s/pre/\./;
 
-    if ($a eq '0.0' && $b ne '0.0') {return -1;} # base line
-    if ($a ne '0.0' && $b eq '0.0') {return  1;} # base line ( p5-Canary-Stability 2012)
+    if ($a eq '0.0' && $b =~ m|^[0-9.]+| && $b ne '0.0') {return -1;} # base line
+    if ($a ne '0.0' && $a =~ m|^[0-9.]+| && $b eq '0.0') {return  1;} # base line ( p5-Canary-Stability 2012)
 
     # get the number of digit split by '.'
     my (@a) = split '\.', $a;
@@ -2473,6 +2473,7 @@ sub PickFromCandidate(@) {
 						 ' ver (', $ver,') max_version (',$max_version,")\n" if $DEBUG_VER_PATTERN;
     }
     if ( ! $max_version ) { $max_version = '0.0';}
+    if (  $max_version =~ m|<| ||  $max_version =~ m|>| ) { $max_version = '0.0';}
     return $max_version;
 }
 sub GetMasterSiteCandidate($$$) {
