@@ -1628,8 +1628,10 @@ sub GetDistBaseAutomatic($$$){
     my ($PKGBASE)	= shift;
     my ($DISTNAME)	= shift;
 
-    my ($PKGNAME) = $PKGBASE .'-'.$PKGVERSION;
-    my ($distbase);
+    my ($pkgname) = $PKGBASE .'-'.$PKGVERSION;
+    my ($distbase) = $DISTNAME;
+        $distbase  =~ s/([-_])[0-9.]+$//;
+    my $connection = $1;
     my ($pattern);
     my ($SimplePattern);
     my ($OK) = 0;
@@ -1637,17 +1639,18 @@ sub GetDistBaseAutomatic($$$){
     $#NULL = -1;
 
         print STDERR sprintf("%4d ", __LINE__ ), 
-	"\t",'$DISTNAME: ',	"\t",$DISTNAME, "\n",
-	"\t",'$PKGNAME: ',	"\t",$PKGNAME,  "\t", '$PKGNAME = $PKGBASE-$PKGVERSION',"\n",
+	"\t",'$DISTNAME: ',	"\t",$DISTNAME, "\n",	
 	"\t",'$PKGBASE: ',	"\t",$PKGBASE,"\n",
-	"\t",'$SpecialPatternY: ', "\t",$SpecialPatternY,"\n"
+	"\t",'$PKGVERSION: ',	"\t",$PKGVERSION, "\n",
+	"\t",'$distbase: ',	"\t",$distbase,"\n",
+	"\t",'$connection: ',	"\t",$connection,"\n",
+	"\t",'$pkgname: ',	"\t",$pkgname,  "\t", '$pkgname = $PKGBASE-$PKGVERSION',"\n",
 	if $DEBUG_AUTOMATIC_DISTBASE;
 #     if ($DISTNAME =~ /([0-9.]+)-pre/ )    {  # sysutils/dmsdos-0.9.2.3pre2
 # 	$DISTNAME =~ s/-pre.*//;
-# 	$PKGNAME =~ s/[-]*pre.*//;
+# 	$pkgname =~ s/[-]*pre.*//;
 #     }
-
-    if     ('p5-'.$DISTNAME eq $PKGNAME) {
+    if     ('p5-'.$DISTNAME eq $pkgname) {
 	$distbase = $PKGBASE; $distbase =~ s/^p5-//;
 	$SimplePattern = 1; $OK = 1;
 	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '> called from: ', (caller 0)[2], "\n"  if $DEBUG_AUTOMATIC_DISTBASE;	
@@ -1656,27 +1659,31 @@ sub GetDistBaseAutomatic($$$){
 	} else {
 	$SpecialPatternY = 'm|.*'.$distbase.'-([0-9]+)\..*|; $version = $1;';		# has no dot
 	}
-    } elsif ( $DISTNAME eq $PKGNAME) { $distbase = $PKGBASE; $SimplePattern = 1; $OK = 2;
-    } elsif ("$DISTNAME" =~ /$PKGNAME-[0-9]/ ) {
-    print "($DISTNAME =~ /^$PKGNAME-[0-9]/ ) \n" if $DEBUG_AUTOMATIC_DISTBASE;	
+    } elsif (                             $DISTNAME eq $pkgname ) {  $SimplePattern = 1; $OK = 2;
+    } elsif (      $PKGBASE.$connection.$PKGVERSION eq $pkgname ) {  $SimplePattern = 1; $OK = 2; # devel/gettext-asprintf
+    } elsif (      $PKGBASE.'-'.        $PKGVERSION eq $pkgname ) {  # devel/Rcpp_0.12.8
+	$distbase = $PKGBASE; $distbase =~ s/^R-//; $SimplePattern = 1; $OK = 1;
+    } elsif ("$DISTNAME" =~ /$pkgname-[0-9]/ ) {
+    print "($DISTNAME =~ /^$pkgname-[0-9]/ ) \n" if $DEBUG_AUTOMATIC_DISTBASE;	
 	$distbase = $PKGBASE;
 	$SpecialPatternY = 'm|.*'.$distbase.'-([0-9.]+)-[0-9]\..*|; $version = $1;';
 	$OK = 3;
-    print STDERR sprintf("%4d ", __LINE__ ), '$pattern: ', $pattern, ' $PKGNAME: ', $PKGNAME, "\n" if $DEBUG_AUTOMATIC_DISTBASE;
+    print STDERR sprintf("%4d ", __LINE__ ), '$pattern: ', $pattern, ' $pkgname: ', $pkgname, "\n" if $DEBUG_AUTOMATIC_DISTBASE;
     } else {
 	my $deviation = $DISTNAME; $deviation =~ s/-[0-9.]+-([a-z]+)//; my $suffix = $1;
     print STDERR sprintf("%4d ", __LINE__ ), "\t",'$deviation: ', $deviation, ' $suffix: ', $suffix, "\n" if $DEBUG_AUTOMATIC_DISTBASE;
 	if ("$DISTNAME" =~ /$deviation-[0-9.]+-$suffix/ ) {
-	    $PKGNAME = $deviation;
+	    $pkgname = $deviation;
 	$SpecialPatternY = 'm|.*'.$deviation.'-([0-9.]+)-[a-z]+\..*|; $version = $1;';
-    print STDERR sprintf("%4d ", __LINE__ ), '$SpecialPatternY: ', $SpecialPatternY, ' $PKGNAME: ', $PKGNAME, "\n" if $DEBUG_AUTOMATIC_DISTBASE;
+    print STDERR sprintf("%4d ", __LINE__ ), '$SpecialPatternY: ', $SpecialPatternY, ' $pkgname: ', $pkgname, "\n" if $DEBUG_AUTOMATIC_DISTBASE;
 	$OK = 4;
 	}
     }
     print STDERR sprintf("%4d ", __LINE__ ), 
+	"\t",'$distbase: ',	"\t",$distbase,"\n",
 	"\t",'$SpecialPatternY: ', "\t",$SpecialPatternY,"\n" 
 	if $DEBUG_AUTOMATIC_DISTBASE;
-#    print "($PKGNAME =~ /^$distname-[0-9]/ ) \n" if $DEBUG_AUTOMATIC_DISTBASE;
+#    print "($pkgname =~ /^$distname-[0-9]/ ) \n" if $DEBUG_AUTOMATIC_DISTBASE;
 
     if ($OK) {
 	print STDERR sprintf("%4d ", __LINE__ ), "OK: $OK \n" if $DEBUG_AUTOMATIC_DISTBASE;
