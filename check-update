@@ -1206,7 +1206,7 @@ sub ClassifyPackage(@) {
 	    my ($pattern) = '$_ =~ m|.*'. $lang .'-('.$major.'\.[0-9.]+)\.tar\..*|; $version = $1;' ;
 	    $FAMILY{$p} = $pattern;
 	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1a) family: ', $p,' -> ', $pattern,"\n" if $DEBUG_FAMILY;
-	    # (12) gdb{,3}
+	    # (12) bugzilla
 	# (11-2) bugzilla
 	} elsif ($p =~ /^(bugzilla)([0-9])$/ ) {
             # https://www.bugzilla.org/status/changes.html
@@ -1224,9 +1224,9 @@ sub ClassifyPackage(@) {
 	    my ($major) = $2;
 	    my ($pattern) ;
 	    if ($major eq '') {
-		$pattern  = '$_ =~ m|.*'. $pkg. '-(7\.[0-9.]+)\.tar\..*|; $version = $1';}
+		$pattern  = '$_ =~ m|.*'. $pkg. '-(8\.[0-9.]+)\.tar\..*|; $version = $1';}
 	    else {
-		$pattern  = '$_ =~ m|.*'. $pkg. '-('. $major.'\.[0-9.]+)\.tar\..*|; $version = $1; ';}
+		$pattern  = '$_ =~ m|.*'. $pkg. '-('. $major.'\.[0-9.a]+)\.tar\..*|; $version = $1; ';}
 	    $FAMILY{$p} = $pattern;
 	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1b) family: ', $p, ' -> '. $pattern."\n" if $DEBUG_FAMILY;
 	 # (13) libwnck{,3}
