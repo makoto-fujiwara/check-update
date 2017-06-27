@@ -1650,8 +1650,8 @@ sub GetDistBaseAutomatic($$$){
 # 	$DISTNAME =~ s/-pre.*//;
 # 	$pkgname =~ s/[-]*pre.*//;
 #     }
-    if     ('p5-'.$DISTNAME eq $pkgname) {
-	$distbase = $PKGBASE; $distbase =~ s/^p5-//;
+    if     ($pkgname =~/^(p5|R|py)-$DISTNAME$/ ) { my $pref = $1;
+	$distbase = $PKGBASE; $distbase =~ s/^$pref-//;
 	$SimplePattern = 1; $OK = 1;
 	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '> called from: ', (caller 0)[2], "\n"  if $DEBUG_AUTOMATIC_DISTBASE;	
 	if ($PKGVERSION =~ /\./) {
@@ -1659,7 +1659,7 @@ sub GetDistBaseAutomatic($$$){
 	} else {
 	$SpecialPatternY = 'm|.*'.$distbase.'-([0-9]+)\..*|; $version = $1;';		# has no dot
 	}
-    } elsif (                             $DISTNAME eq $pkgname ) {  $SimplePattern = 1; $OK = 2;
+    } elsif (                             $DISTNAME eq $pkgname ) {  $SimplePattern = 1; $OK = 2; $distbase = $PKGBASE;
     } elsif (      $PKGBASE.$connection.$PKGVERSION eq $pkgname ) {  $SimplePattern = 1; $OK = 2; # devel/gettext-asprintf
     } elsif (      $PKGBASE.'-'.        $PKGVERSION eq $pkgname ) {  # devel/Rcpp_0.12.8
 	$distbase = $PKGBASE; $distbase =~ s/^R-//; $SimplePattern = 1; $OK = 1;
