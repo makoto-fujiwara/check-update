@@ -257,6 +257,7 @@ my (@SkipTooOld)
 
 # Simple means $distbase-([0-9.]+)-(extran string not necessary)..
 my ($SimplePattern); # dynamically set to 1 if @SimplePattern equivalent
+my ($MajorMinor); 	# mainly for Versioned directory
 my (@SimplePattern)  = qw(
 webalizer
 ddd
@@ -1662,6 +1663,9 @@ sub GetDistBaseAutomatic($$$){
     } elsif (      $PKGBASE =~ /automake.*[0-9][0-9]$/)               { # devel/automake14
 	$distbase = $PKGBASE; $distbase =~ s/([0-9])([0-9])$//; my $major = $1; my $minor= $2; $OK = __LINE__;
 	$SpecialPatternY = 'm|.*'.$distbase.'-('.$major.'.'.$minor.')-p([0-9])*\.tar.*|; $version = $1.\'.\'.$2;';
+    } elsif (      $PKGBASE.$connection.$PKGVERSION eq $pkgname &&     $PKGBASE =~ /([0-9])([0-9])$/ ) { 
+	$OK = __LINE__ ; # devel/gettext-asprintf
+	$MajorMinor = $1.'.'.$2;
     } elsif (                             $DISTNAME eq $pkgname ) {  $SimplePattern = 1; $OK = __LINE__ ; $distbase = $PKGBASE;
     } elsif (      $PKGBASE.$connection.$PKGVERSION eq $pkgname ) {  $SimplePattern = 1; $OK = __LINE__ ; # devel/gettext-asprintf
     } elsif (      $PKGBASE.'-'.        $PKGVERSION eq $pkgname && $distbase =~ /^R-/ ) {  # devel/Rcpp_0.12.8 (bicom hooked 2017/6/27)
@@ -1689,8 +1693,8 @@ sub GetDistBaseAutomatic($$$){
 #    print "($pkgname =~ /^$distname-[0-9]/ ) \n" if $DEBUG_AUTOMATIC_DISTBASE;
 
     if ($OK) {
-	print STDERR sprintf("%4d ", __LINE__ ), "OK: $OK \n" if $DEBUG_AUTOMATIC_DISTBASE;
-	print STDERR sprintf("%4d ", __LINE__ ), "$SpecialPatternY\n" if $DEBUG_AUTOMATIC_DISTBASE;
+	print STDERR sprintf("%4d ", __LINE__ ), "    OK found at: $OK \n" if $DEBUG_AUTOMATIC_DISTBASE;
+	print STDERR sprintf("%4d ", __LINE__ ), "SpecialPatternY: $SpecialPatternY\n" if $DEBUG_AUTOMATIC_DISTBASE;
 	return($distbase, $pattern, $SimplePattern);}
     else     {return (@NULL)}
     }
@@ -4149,8 +4153,10 @@ sub GetSFProjectCandidate($$$$) {  # line 2922 to 2979
 	print STDERR sprintf("%4d ", __LINE__ ), 
 	    ' (ParseDir) master_site(', $site, ') status('. $status. ') '. 'candidate('.$#candidate.') -> '. join (' ', @candidate), "\n"  if $DEBUG_SF;
 # 2. Add (push) Looking for the Latest Version info
+	if ($MajorMinor eq ''){
 	my ($candidate) = FindLookingForTheLatestVersion($site, $DISTBASE);
 	if ( $candidate != '0.0') {push(@candidate, $candidate); }# last;}
+	}
 # 3. Try Versioned Directory
 	my ($dir) = VersionedDirectory($DISTBASE, $site);
 	if ($SITE_CACHE{$dir}) {
@@ -4244,14 +4250,17 @@ sub VersionedDirectory ($$){
 
     open(W3M, "perl $fork_w3m -t $W3MTimeout $w3m_command 2>&1 |") ||
 	print STDERR sprintf("%4d   <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' Problem opening external cmd.',"\n";
+    my $majorminor = '[0-9.]+';
+    if ($MajorMinor) { $majorminor = $MajorMinor.'.[0-9.]+';}
+    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' majorminor(', $majorminor, ') <- ', $_ if $DEBUG_VERSION_DIR || $DEBUG_URL;
     while(<W3M>) {
 	print STDERR sprintf("%4d   <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ', $_  if $DEBUG_CURL_LISTING;
-	if (                   /^([\t ]+)([0-9.]+a*)[\t ]+/  ||		# cad/gplcvar wants (a) .. 2.12(a)
-			       /^[\t ]*($distbase[-]*)([0-9.]+)[\t ]+/ ||
-			       /^[\t ]*($distbase[-]*)([0-9.]+)\S*/ ||
-			       /^[\t ]*($distbase[-]*) ([0-9.]+)\S*/ ||
-			       /($distbase[-]*)([0-9.]+)\.tar.gz/ ||
-			       m|.(DIR).\s+([0-9.]+)/| ) {
+	if (                   /^([\t ]+)($majorminor.a*)[\t ]+/  ||		# cad/gplcvar wants (a) .. 2.12(a)
+			       /^[\t ]*($distbase[-]*)($majorminor)[\t ]+/ ||
+			       /^[\t ]*($distbase[-]*)($majorminor)\S*/ ||
+			       /^[\t ]*($distbase[-]*) ($majorminor)\S*/ ||
+			       /($distbase[-]*)($majorminor)\.tar.gz/ ||
+			       m|.(DIR).\s+($majorminor)/| ) {
 	    $name = $1; # pick prefix
 	    $ver = $2;
 #	    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ver(', $ver,') <- ', $_ if $DEBUG_VERSION_DIR;
