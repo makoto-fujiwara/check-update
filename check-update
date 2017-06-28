@@ -1652,7 +1652,7 @@ sub GetDistBaseAutomatic($$$){
 #     }
     if     ($pkgname =~/^(p5|R|py)-$DISTNAME$/ ) { my $pref = $1;
 	$distbase = $PKGBASE; $distbase =~ s/^$pref-//;
-	$SimplePattern = 1; $OK = 1;
+	$SimplePattern = 1; $OK = __LINE__;
 	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '> called from: ', (caller 0)[2], "\n"  if $DEBUG_AUTOMATIC_DISTBASE;	
 	if ($PKGVERSION =~ /\./) {
 	$SpecialPatternY = 'm|.*'.$distbase.'-([0-9.]+)(-[0-9])*\..*|; $version = $1;';	# has dot
@@ -1660,17 +1660,17 @@ sub GetDistBaseAutomatic($$$){
 	$SpecialPatternY = 'm|.*'.$distbase.'-([0-9]+)\..*|; $version = $1;';		# has no dot
 	}
     } elsif (      $PKGBASE =~ /automake.*[0-9][0-9]$/)               { # devel/automake14
-	$distbase = $PKGBASE; $distbase =~ s/([0-9])([0-9])$//; my $major = $1; my $minor= $2; $OK = 5;
+	$distbase = $PKGBASE; $distbase =~ s/([0-9])([0-9])$//; my $major = $1; my $minor= $2; $OK = __LINE__;
 	$SpecialPatternY = 'm|.*'.$distbase.'-('.$major.'.'.$minor.')-p([0-9])*\.tar.*|; $version = $1.\'.\'.$2;';
-    } elsif (                             $DISTNAME eq $pkgname ) {  $SimplePattern = 1; $OK = 6; $distbase = $PKGBASE;
-    } elsif (      $PKGBASE.$connection.$PKGVERSION eq $pkgname ) {  $SimplePattern = 1; $OK = 2; # devel/gettext-asprintf
-    } elsif (      $PKGBASE.'-'.        $PKGVERSION eq $pkgname ) {  # devel/Rcpp_0.12.8
-	$distbase = $PKGBASE; $distbase =~ s/^R-//; $SimplePattern = 1; $OK = 1;
+    } elsif (                             $DISTNAME eq $pkgname ) {  $SimplePattern = 1; $OK = __LINE__ ; $distbase = $PKGBASE;
+    } elsif (      $PKGBASE.$connection.$PKGVERSION eq $pkgname ) {  $SimplePattern = 1; $OK = __LINE__ ; # devel/gettext-asprintf
+    } elsif (      $PKGBASE.'-'.        $PKGVERSION eq $pkgname && $distbase =~ /^R-/ ) {  # devel/Rcpp_0.12.8 (bicom hooked 2017/6/27)
+	$distbase = $PKGBASE; $distbase =~ s/^R-//; $SimplePattern = 1; $OK = __LINE__ ;
     } elsif ("$DISTNAME" =~ /$pkgname-[0-9]/ ) {
     print "($DISTNAME =~ /^$pkgname-[0-9]/ ) \n" if $DEBUG_AUTOMATIC_DISTBASE;	
 	$distbase = $PKGBASE;
 	$SpecialPatternY = 'm|.*'.$distbase.'-([0-9.]+)-[0-9]\..*|; $version = $1;';
-	$OK = 3;
+	$OK = __LINE__;
     print STDERR sprintf("%4d ", __LINE__ ), '$pattern: ', $pattern, ' $pkgname: ', $pkgname, "\n" if $DEBUG_AUTOMATIC_DISTBASE;
     } else {
 	my $deviation = $DISTNAME; $deviation =~ s/-[0-9.]+-([a-z]+)//; my $suffix = $1;
@@ -1679,7 +1679,7 @@ sub GetDistBaseAutomatic($$$){
 	    $pkgname = $deviation;
 	$SpecialPatternY = 'm|.*'.$deviation.'-([0-9.]+)-[a-z]+\..*|; $version = $1;';
     print STDERR sprintf("%4d ", __LINE__ ), '$SpecialPatternY: ', $SpecialPatternY, ' $pkgname: ', $pkgname, "\n" if $DEBUG_AUTOMATIC_DISTBASE;
-	$OK = 4;
+	$OK = __LINE__;
 	}
     }
     print STDERR sprintf("%4d ", __LINE__ ), 
