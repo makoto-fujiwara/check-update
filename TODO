@@ -1,4 +1,5 @@
 (TODO)
+   - devel/adacurses defines (just one) DISTFILES = AdaCurses-${ACVERSION}.tgz, should pick it
    - github: if release page (ex: https://github.com/hughsie/appdata-tools/releases)
      it has priority
    - $SimplePattern logic is wrong, even after Automatic DISTBASE set $SimplePattern,
