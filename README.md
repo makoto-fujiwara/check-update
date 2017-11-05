@@ -35,7 +35,8 @@ README.md	      |   [Markdown](https://help.github.com/articles/markdown-basics/
   - lang/ruby
   - rubygems (only if ruby is old one, modern ruby already has 'gem')
   - security/mozilla-rootcerts OR security/p5-Mozilla-CA
-  
+  - www/w3m
+
 ### Setup
   - copy environment-sample.mk to environment.mk
 
