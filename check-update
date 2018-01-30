@@ -411,6 +411,7 @@ my (%SpecialPattern) = (
     'Apache-Gallery',	'$line =~ s|.*Apache-Gallery-([0-9.]+)-.*|$1|;',
     'bind',		'$line =~ s|.*bind-([0-9.Ppl]+).*|$1|;',
     'wmii',		'$line =~ s|.*wmii-([0-9]\.[0-9]+)\.tar.*|$1|;',  # force having period in pattern
+#    'ibniz',		'$line =~ s|.*ibniz-([0-9]+\.[0-9]+)\.tar\.gz.*|$1|;',  # force having period in pattern
     'xz',		'$line =~   s|.*xz-([0-9]\.[0-9.]+)\.tar.*|$1|;',	# force having period in pattern
 #    'dact',		'$line =~ s|.*dact-([0-9]\.[0-9.]+)\.tar\.gz|$1|;',	# force having period in pattern
     'multitail',	'$line =~ s|.* stable version .*>([0-9.]+)</A.*|$1|;', 
@@ -2459,13 +2460,14 @@ sub GetGemVersion($$){		# <- Main
 	    push(@candidate, $available); }
     }
     close(GEM);
-    $available = PickFromCandidate(@candidate);
+    $available = PickFromCandidate('',@candidate);
     print STDERR sprintf("%4d ", __LINE__ ), ' GetGemVersion: ', $dist_name, ' -> ', $available, "\n" if $DEBUG_RUBYGEM;
 
     if ( $available )	{ return $available;}
     else  		{ return '(0.0)';}
 }
-sub PickFromCandidate(@) {
+sub PickFromCandidate($@) {
+    my ($DISTBASE)  = shift;
     my (@CANDIDATE) = @_;
     my ($max_version) = '0.0';
 	    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ': ', "\n",join ("\n", @CANDIDATE),"\n" if $DEBUG_CANDIDATE ;
@@ -2473,6 +2475,11 @@ sub PickFromCandidate(@) {
 #  --- HARDCODE TABLES --- ( to ease accessing tables )
     foreach  my $i ( 0.. $#CANDIDATE ) {
 	my($ver) = $CANDIDATE[$i];
+	if ($DISTBASE ne '' ) {
+	    if ($DISTBASE =~ /ibniz/ ) { if ($ver =~ /\./ ) { } else {
+	        print STDERR sprintf("%4d ", __LINE__ ), ' ', $DISTBASE, ' -> skipping: ', $ver, "\n";
+		    next;}}
+	}
 	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>: ', (caller 0)[2], 
 						 ' ver (', $ver,') max_version (',$max_version,")\n" if $DEBUG_VER_PATTERN;
 	$ver =~ s/\.linux.*//;	# editors/ted linux.i386
@@ -4134,7 +4141,7 @@ sub GetSFProjectCandidate($$$$) {  # line 2922 to 2979
 			    next;}
 	($status, $location) = CheckHeader($site);
 	print STDERR sprintf("%4d ", __LINE__ ), '(',$iteration  ,') ', $site, ') status('. $status.") ncand (",$#candidate,') -> ',
-	PickFromCandidate(@candidate), "\n"  if $DEBUG_HTTP_HEADER || $DEBUG_NCAND ;
+	PickFromCandidate($DISTBASE,@candidate), "\n"  if $DEBUG_HTTP_HEADER || $DEBUG_NCAND ;
 
 	if ($status != 200 ) { next; }
 	if ($SITE_CACHE{$site}) {
@@ -4166,7 +4173,7 @@ sub GetSFProjectCandidate($$$$) {  # line 2922 to 2979
 	my(@versionedCadidate);
 	my($returnCode, @versionedCandidate) = ParseDirectory($dir, $DISTBASE, $SimpleFallBackNo, $PackageName, $R_Package, (caller 0)[3]);
 	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' -> ',
-	    PickFromCandidate(@versionedCandidate), "\n" if $DEBUG_VERSION_DIR;
+	    PickFromCandidate($DISTBASE,@versionedCandidate), "\n" if $DEBUG_VERSION_DIR;
 	push(@candidate,@versionedCandidate);
     }    # end foreach
 
@@ -4771,7 +4778,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
 
 	    push(@CANDIDATE, @candidate);
 	print STDERR sprintf("%4d ", __LINE__ ), join "\n", @CANDIDATE, "\n" if $DEBUG_CANDIDATE ;
-	    $available = PickFromCandidate(@CANDIDATE);
+	    $available = PickFromCandidate($DISTBASE,@CANDIDATE);
 print STDERR sprintf("%4d ", __LINE__ ), 
 ' (PKGBASE) ', $PKGBASE, ' --> http: ', $http_code, 'Now: ', $PKGVERSION, ' $available: ', $available,"\n" if $DEBUG_DISTBASE;        
 
@@ -4803,7 +4810,7 @@ print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], '
 
 	if (( $available eq '0.0' || $available eq '' || $returnCode == -1 ) && $#candidate == -1 && ! $candidate[0] ne '0.0' ) {
 	    ($returnCode, @candidate) =  ParseDirectory($MASTER_SITE, $DISTBASE, $SimpleFallBackYes, $PackageName, $R_Package, (caller 0)[3] );
-	    $available = PickFromCandidate(@candidate);
+	    $available = PickFromCandidate($DISTBASE,@candidate);
 print STDERR sprintf("%4d ", __LINE__ ), 
     ' (SimpleFallBack) master_site(', $MASTER_SITE, ') returnCode('. $returnCode.") -> available(". $available.")\n"  
 								  if $DEBUG_FALLBACK_SIMPLE || $DEBUG_CANDIDATE;
