@@ -92,6 +92,7 @@ my ($DEBUG_DIGIT);
 my ($DEBUG_DISTBASE);
 my ($DEBUG_DISTBASE_EXTRACT);
 my ($DEBUG_DIVIDE_DEVEL) = 0;
+my ($DEBUG_DOT_IN_VERSION) = 0;
 my ($DEBUG_EVAL_PATTERN);
 my ($DEBUG_EDITVersion);
 my ($DEBUG_FAMILY) = 0;
@@ -124,6 +125,7 @@ my(%LongName)  = (
    'A',  'Alternative master site',
    'a',  'enable_All',
    'b',  'Automatic distbase',
+   'B',  'Force Dot in version',
    'c',  'Cache',
    'C',  'Curl Command',
    'd',  'Distbase Pattern',
@@ -2476,8 +2478,8 @@ sub PickFromCandidate($@) {
     foreach  my $i ( 0.. $#CANDIDATE ) {
 	my($ver) = $CANDIDATE[$i];
 	if ($DISTBASE ne '' ) {
-	    if ($DISTBASE =~ /ibniz/ ) { if ($ver =~ /\./ ) { } else {
-	        print STDERR sprintf("%4d ", __LINE__ ), ' ', $DISTBASE, ' -> skipping: ', $ver, "\n";
+	    if ($DISTBASE =~ /ibniz/ ) { if ( !($ver =~ /\./ )) {
+	        print STDERR sprintf("%4d ", __LINE__ ), ' ', $DISTBASE, ' -> skipping: ', $ver, "\n" if $DEBUG_DOT_IN_VERSION;
 		    next;}}
 	}
 	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>: ', (caller 0)[2], 
@@ -3047,7 +3049,7 @@ print STDERR sprintf("%4d ", __LINE__ ).' location: ', $location,"\n" if  $DEBUG
 sub ParseDebug($){
     my ($pattern) = shift;
     my %DEBUG;
-    my $char_list = 'aAbcCdDEegFfGhHklLmMnNpPrRsSUVxXyzZ1';
+    my $char_list = 'aAbBcCdDEegFfGhHklLmMnNpPrRsSUVxXyzZ1';
 
     if ( $pattern =~ /a/ ) { $pattern = $char_list  }
     print STDERR sprintf("%4d ", __LINE__ ), ' DEBUG pattern (',  $pattern,  ')',"\n";
@@ -3094,6 +3096,7 @@ sub ParseDebug($){
     $DEBUG_URL			= $DEBUG{'U'} + $DEBUG{'a'} ;
     $DEBUG_VERSION_DIR		= $DEBUG{'V'} + $DEBUG{'a'} ;
     $DEBUG_VER_PATTERN		= $DEBUG{'1'} + $DEBUG{'a'} ;
+    $DEBUG_DOT_IN_VERSION	= $DEBUG{'B'} + $DEBUG{'a'} ;    
 }
 #  ----------------------------------------------------
 # Called three times:
