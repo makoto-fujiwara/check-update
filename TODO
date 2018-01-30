@@ -1,4 +1,5 @@
 (TODO)
+   - net/cmu-dhcpd -> CMU-dhcp-3.3.7+PU
    - archivers/unalz now 0.65 -> found 0.23 (?)
    - leave older version of 00.Summary.html (by two weeks ?)
    - pkg_info is not always in PATH, for example execution from crontab

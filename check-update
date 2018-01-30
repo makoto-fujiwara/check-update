@@ -2482,7 +2482,10 @@ sub PickFromCandidate($@) {
     foreach  my $i ( 0.. $#CANDIDATE ) {
 	my($ver) = $CANDIDATE[$i];
 	if ($DISTBASE ne '' ) {
-	    if ($DISTBASE =~ /ibniz/ ) { if ( !($ver =~ /\./ )) {
+	    if ($DISTBASE =~ /ibniz/ ||
+		$DISTBASE =~ /cmu-dhcpd/ ||
+		0 )
+	    { if ( !($ver =~ /\./ )) {
 	        print STDERR sprintf("%4d ", __LINE__ ), ' ', $DISTBASE, ' -> skipping: ', $ver, "\n" if $DEBUG_DOT_IN_VERSION;
 		    next;}}
 	}
