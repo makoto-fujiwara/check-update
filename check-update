@@ -84,6 +84,7 @@ my ($DEBUG_ALTERNATIVE);
 my ($DEBUG_AUTOMATIC_DISTBASE);
 my ($DEBUG_CACHE);
 my ($DEBUG_CANDIDATE);
+my ($DEBUG_COMPARE_VERSION);
 my ($DEBUG_COUNT);
 my ($DEBUG_CURL);
 my ($DEBUG_CURL_CACHE);
@@ -122,8 +123,8 @@ my ($SINGLE_PACKAGE) = 0;
 
 # Debug letters for command line, See Also ParseDebug
 my(%LongName)  = (
-   'A',  'Alternative master site',
    'a',  'enable_All',
+   'A',  'Alternative master site',
    'b',  'Automatic distbase',
    'B',  'Force Dot in version',
    'c',  'Cache',
@@ -158,6 +159,7 @@ my(%LongName)  = (
    'z',  'Fork',
    'Z',  'Fork quit',
    '1',  'Ver debug (PickfromCandidate)',
+   '2',  'CompareVersion',
 );
 
 # Skip the guide saying "Looking for the latest version ?"
@@ -1459,6 +1461,7 @@ sub CompareVersion_make_equal_length($$) {
 	    }
 	}
     }
+	print STDERR sprintf("%4d a: %s b: %s\n", __LINE__, $a, $b) if $DEBUG_COMPARE_VERSION ;
     return ($a, $b);
 }
 sub CompareDigit($$){
@@ -1490,12 +1493,20 @@ sub CompareVersion($$){
     my (@a) = split '\.', $a;
     my (@b) = split '\.', $b;
 
-    if ($#a == -1 && $#b == -1 ) { # no dot included, 
+    if ($#a == -1 && $#b == -1 ) { # both does dot include dot
 	return $a <=> $b ;
     }
     # avoid 4.6.7 < 451 # biology/cdhit
     if ($a[0] < 9 && 100 < $b[0] ) { return  1;}
     if ($b[0] < 9 && 100 < $a[0] ) { return -1;}
+
+#   devel/p5-App-CLI 0.48 > 0.313
+    if ($a =~ /^[0-9]+\.[0-9]+$/ &&
+        $b =~ /^[0-9]+\.[0-9]+$/ ) {
+	print STDERR sprintf("%4d a: %s b: %s\n", __LINE__, $a, $b) if $DEBUG_COMPARE_VERSION ;
+	($a, $b) = CompareVersion_make_equal_length($a, $b);
+	return $a cmp $b;
+    }
 
 # get bigger count  of '.', in $a or $b
     my ($max_count) = $#a + 1;
@@ -3056,7 +3067,7 @@ print STDERR sprintf("%4d ", __LINE__ ).' location: ', $location,"\n" if  $DEBUG
 sub ParseDebug($){
     my ($pattern) = shift;
     my %DEBUG;
-    my $char_list = 'aAbBcCdDEegFfGhHklLmMnNpPrRsSUVxXyzZ1';
+    my $char_list = 'aAbBcCdDEegFfGhHklLmMnNpPrRsSUVxXyzZ12';
 
     if ( $pattern =~ /a/ ) { $pattern = $char_list  }
     print STDERR sprintf("%4d ", __LINE__ ), ' DEBUG pattern (',  $pattern,  ')',"\n";
@@ -3103,7 +3114,8 @@ sub ParseDebug($){
     $DEBUG_URL			= $DEBUG{'U'} + $DEBUG{'a'} ;
     $DEBUG_VERSION_DIR		= $DEBUG{'V'} + $DEBUG{'a'} ;
     $DEBUG_VER_PATTERN		= $DEBUG{'1'} + $DEBUG{'a'} ;
-    $DEBUG_DOT_IN_VERSION	= $DEBUG{'B'} + $DEBUG{'a'} ;    
+    $DEBUG_COMPARE_VERSION	= $DEBUG{'2'} + $DEBUG{'a'} ;
+    $DEBUG_DOT_IN_VERSION	= $DEBUG{'B'} + $DEBUG{'a'} ;
 }
 #  ----------------------------------------------------
 # Called three times:
