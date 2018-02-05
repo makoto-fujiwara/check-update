@@ -1500,9 +1500,9 @@ sub CompareVersion($$){
     if ($a[0] < 9 && 100 < $b[0] ) { return  1;}
     if ($b[0] < 9 && 100 < $a[0] ) { return -1;}
 
-#   devel/p5-App-CLI 0.48 > 0.313
-    if ($a =~ /^[0-9]+\.[0-9]+$/ &&
-        $b =~ /^[0-9]+\.[0-9]+$/ ) {
+    #   devel/p5-App-CLI 0.48 > 0.313, both two or more digit beyond period to the right
+    #   rescue devel/aegis 4.24.2 -> 4.25, instead of 4.24.2 -> 4.9
+    if ($a =~ /^[0-9]+\.[0-9][0-9]+$/ && $b =~ /^[0-9]+\.[0-9][0-9]+$/ ) {
 	print STDERR sprintf("%4d a: %s b: %s\n", __LINE__, $a, $b) if $DEBUG_COMPARE_VERSION ;
 	($a, $b) = CompareVersion_make_equal_length($a, $b);
 	return $a cmp $b;
