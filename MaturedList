@@ -30,6 +30,7 @@ editors/emacs23-nox11
 editors/mule
 editors/xcoral
 games/gnuchess4
+ham/xnec2c
 mail/gmime24
 net/dnsdoctor
 net/ser
