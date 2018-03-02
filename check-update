@@ -687,6 +687,7 @@ sub SpecialPattern($$){
 my (@CANDIDATE);	# collecting candidate of the version
 my (%DISTBASE_CACHE);   # push(@DISTBASE_CACHE, \[$distbase, $version, $timestamp, $refcount]);
 
+my (@TrailingZeroSuppress) = qw (IO-AIO);  # devel/p5-IO-AIO
 my (@DontSkipEndingDigit)  = qw (eric4 fltk2);
 # 100 -> 1.0.0 type
 my (@THREE) = qw(gtkglarea falcons-eye quakedata abcde binkd bwwtex cryptopp dirb sr-examples pscpug DatLib DatUtil ROMbuild xzip libdsk libgeotiff ploticus-examples shapelib proj vs mlvwm lwm biew proxytunnel visualvm_);
@@ -1447,8 +1448,8 @@ sub CompareVersion_make_equal_length($$) {
     my $a = shift;
     my $b = shift;
     my $diff = length($a) - length($b);
-    if (substr($a, 0, 1 ) ne '0' ) { return ($a, $b);}
-    if (substr($b, 0, 1 ) ne '0' ) { return ($a, $b);}
+#    if (substr($a, 0, 1 ) ne '0' ) { return ($a, $b);}
+#    if (substr($b, 0, 1 ) ne '0' ) { return ($a, $b);}
     if ($diff == 0) {}
     else {
 	if ($diff > 0 ) {
@@ -1467,6 +1468,11 @@ sub CompareVersion_make_equal_length($$) {
 sub CompareDigit($$){
     my ($a) = shift;
     my ($b) = shift;
+    if (length($a) != length($b)) {
+#       accessing global variable ;-)
+	if (grep /$DISTBASE/,@TrailingZeroSuppress) {
+	    return CompareVersion_make_equal_length($a,$b)}
+	}
     if ($a > $b )    { return  1;}
     if ($a < $b )    { return -1;}
     if ($a eq $b )   { return  0;}
