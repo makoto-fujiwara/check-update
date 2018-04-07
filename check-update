@@ -803,7 +803,7 @@ my (@ADDZERO2) = qw(Convert-BER Spreadsheet-ParseExcel Test-Reporter Curses-UI-P
 
 my (@DELETE02) = qw(Class-C3-Componentised);
 
-# 325 -> 3.2.5
+# 325 -> 3.2.5  070 -> 0.7.0
 my (@ThreeSingle) = qw(nulib nethack);
 
 # 1.001002 -> 1.1.2
