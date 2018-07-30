@@ -417,6 +417,7 @@ my (%SpecialPattern) = (
     'wmii',		'$line =~ s|.*wmii-([0-9]\.[0-9]+)\.tar.*|$1|;',  # force having period in pattern
 #    'ibniz',		'$line =~ s|.*ibniz-([0-9]+\.[0-9]+)\.tar\.gz.*|$1|;',  # force having period in pattern
     'xz',		'$line =~   s|.*xz-([0-9]\.[0-9.]+)\.tar.*|$1|;',	# force having period in pattern
+    'dateparser',	'$line =~   s|.*dateparser-([0-9]\.[0-9]\.[0-9.]+)\.tar\.gz.*|$1|;',# force having period in pattern
 #    'dact',		'$line =~ s|.*dact-([0-9]\.[0-9.]+)\.tar\.gz|$1|;',	# force having period in pattern
     'multitail',	'$line =~ s|.* stable version .*>([0-9.]+)</A.*|$1|;', 
     'xcdroast',		'$line =~ s|.*xcdroast/([0-9.a]+)lpha([0-9]+).*|$1$2|;', 
