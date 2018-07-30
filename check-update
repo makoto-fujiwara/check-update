@@ -4586,7 +4586,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	$DISTBASE = GetVariableValue ($dir, $PackageName, 'DISTNAME');
 	$available = GetGemFamilyVersion($PackageName, $gems_name);
 
-    } elsif ($GEM_PACKAGE) {   # MAJOR_IF_THEN_ELSE
+    } elsif (0 && $GEM_PACKAGE) {   # MAJOR_IF_THEN_ELSE
 	$DISTBASE = GetVariableValue ($dir, $PackageName, 'DISTNAME');
 	$DISTBASE =~ s/-[0-9.-]+//;
 	$available = GetGemVersion($DISTBASE, $gems_name);
