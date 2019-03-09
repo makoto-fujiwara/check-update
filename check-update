@@ -1,6 +1,7 @@
 #!/usr/pkg/bin/perl
 
 use strict;
+#use warnings;
 use Net::DNS;	# net/p5-Net-DNS
 use Getopt::Std;
 use v5.16;
@@ -896,6 +897,17 @@ sub StripLeaf($);
 ##    -------------------------
 ##    S U B R O U T I N E S
 ##    -------------------------
+sub help() {
+    print <<SHORT_HELP;
+check-update:
+  Checks the packages follow upstream version
+  No output is good news. (No update yet at upstream)
+  Type 
+    check-update -H 
+  for longer help, or try
+    cd /usr/pkgsrc/category/package; check-update
+SHORT_HELP
+}
 sub Usage($$) {
     my($summary) = shift;
     my($output_directory) = shift;
@@ -906,7 +918,7 @@ sub Usage($$) {
     print <<HELP;
 Check the version is current
 Synopsis:
-   check-update	[-D] [-f] [-h] [-i] [-r] [-R] [-t] [-u] [-v] [-V] [-w] [-W]
+   check-update	[-D] [-f] [-h] [-H] [-i] [-r] [-R] [-t] [-u] [-v] [-V] [-w] [-W]
 		[ -c category] 
 		[ -d directory-to-output ]
 		[ -p pkgsrc-directory ]	 
@@ -922,7 +934,8 @@ Where:
    -D : Skip ending digit package (default: don't skip) #'
    -f : (full) output Recent-version-unavailable too.
         (default: output that part to different file)
-   -h : (help) show this message (putting after options may show default value)
+   -h : (help) simple help
+   -H : (help) show this message (putting after options may show default value)
    -i : inform to update info (maintainer, or id\@domain, not implemented yet)
    -P : check particular package
    -p : pkgsrc directory (default /usr/pkgsrc)
@@ -4316,7 +4329,7 @@ my ($PackageStart);	# For timing, not used for now
 my ($PackageEnd);
 
 my ($argv)    = join ' ', @ARGV;	# to show at Stats()
-getopts( 'c:Dd:fFhM:mP:p:rRs:S:tT:uvVwWx:y:', \%opts);
+getopts( 'c:Dd:fFhHM:mP:p:rRs:S:tT:uvVwWx:y:', \%opts);
 
 if ($opts{'b'}) { $option_batch++;}	# used be default, not implemented
 if ($opts{'c'}) { $category = $opts{'c'}; $full_list++;}
@@ -4339,7 +4352,8 @@ if ($opts{'x'}) {
 
 if ($opts{'y'}) { $divide_devel = $opts{'y'};}# (ad-hoc :-) '': none,  1: [A-Za-o]*,  2: p*,  3: [q-z]*
     SummaryName();  # should be before Usage() is called, and after opts c, x, S, C 
-if ($opts{'h'}) { Usage($summary, $output_directory); exit 0; }
+if ($opts{'h'}) { help(); exit 0; }
+if ($opts{'H'}) { Usage($summary, $output_directory); exit 0; }
 
 if ($opts{'t'}) { $MeasureTime++; }	# not implemented yet
 if ($opts{'T'}) { $LimitedList = $opts{'T'};}	# ditto
