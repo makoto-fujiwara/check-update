@@ -119,6 +119,7 @@ my ($DEBUG_STATS);
 my ($DEBUG_URL);
 my ($DEBUG_VER_PATTERN) = 0;
 my ($DEBUG_VERSION_DIR);
+my ($DEBUG);
 
 my ($SINGLE_PACKAGE) = 0;
 
@@ -161,6 +162,7 @@ my(%LongName)  = (
    'Z',  'Fork quit',
    '1',  'Ver debug (PickfromCandidate)',
    '2',  'CompareVersion',
+   '9',  'Debug',
 );
 
 # Skip the guide saying "Looking for the latest version ?"
@@ -1078,6 +1080,7 @@ sub CheckHeader($) {
 }
 sub CheckDNS($) {
     my ($hostname) = shift;
+    if ( $hostname =~ /sourceforge/) { return 0;}
     $hostname =~ s,-https://,,;
     $hostname =~ s,http://,,;
     $hostname =~ s,https://,,;
@@ -3087,7 +3090,7 @@ print STDERR sprintf("%4d ", __LINE__ ).' location: ', $location,"\n" if  $DEBUG
 sub ParseDebug($){
     my ($pattern) = shift;
     my %DEBUG;
-    my $char_list = 'aAbBcCdDEegFfGhHklLmMnNpPrRsSUVxXyzZ12';
+    my $char_list = 'aAbBcCdDEegFfGhHklLmMnNpPrRsSUVxXyzZ129';
 
     if ( $pattern =~ /a/ ) { $pattern = $char_list  }
     print STDERR sprintf("%4d ", __LINE__ ), ' DEBUG pattern (',  $pattern,  ')',"\n";
@@ -3136,6 +3139,7 @@ sub ParseDebug($){
     $DEBUG_VER_PATTERN		= $DEBUG{'1'} + $DEBUG{'a'} ;
     $DEBUG_COMPARE_VERSION	= $DEBUG{'2'} + $DEBUG{'a'} ;
     $DEBUG_DOT_IN_VERSION	= $DEBUG{'B'} + $DEBUG{'a'} ;
+    $DEBUG			= $DEBUG{'9'} + $DEBUG{'a'} ;
 }
 #  ----------------------------------------------------
 # Called three times:
@@ -4362,6 +4366,7 @@ if ($opts{'v'}) { $verbose++;}
 if ($opts{'V'}) { ShowVersion(); exit;}
 if ($opts{'w'}) { $include_wip++};	# not implemented yet
 if ($opts{'W'}) { $update_wip++};	# not implemented yet
+   print STDERR sprintf("%4d pkgsrc: %s\n", __LINE__, $pkgsrc ) if $DEBUG;
 
 #  ------ Setup (Adjust) execution mode  ---------
 if (($category eq '' ) && ($selected =~ m|(.*)/(.*)| ) ||
