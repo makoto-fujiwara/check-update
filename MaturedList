@@ -17,6 +17,7 @@ cad/xchiplogo
 comms/asterisk18
 databases/rrdtool12
 devel/papaya
+devel/p5-File-Flock
 devel/p5-Term-ReadLine-Perl
 devel/py-expect
 editors/emacs20

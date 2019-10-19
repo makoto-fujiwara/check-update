@@ -767,7 +767,6 @@ my (@DOT3) = qw (
     Text-Diff-Parser
     Log-Any
     Text-Autoformat
-    File-HomeDir
     Carp
     );
 
