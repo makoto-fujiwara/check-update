@@ -1021,6 +1021,7 @@ sub CheckRubyGems($){
     if ( $#result < 5 ) {
 	print STDERR  sprintf("%4d <", __LINE__), (caller 0)[3],
 	"> *** rubygems won't pull remote info.\n",
+	"command -> $gems_name list -r -q libarchive|\n",
 	"  Network Problem ? or please install security/mozilla-rootcerts OR p5-Mozilla-CA.\n",
 	"  Following command is supposed to return serveral lines. Try it on your shell\n",
 	"     $gems_name list -r -q libarchive\n";
