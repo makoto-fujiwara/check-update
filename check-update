@@ -841,7 +841,7 @@ my (@bash) = qw (bash);
 my (@uhd) = qw (uhd);
 
 # 0.002005 -> 0.2.5   www/p5-Reaction 	p5-Reaction
-my (@SPRINTF) = qw (Reaction);
+my (@SPRINTF) = qw (Reaction FindBin-libs);
 
 # devel/p5-enum 1.016 -> 1.016, 1.10 -> 1.100
 my (@V1000) = qw (enum);
