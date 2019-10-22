@@ -850,7 +850,7 @@ my (@V1000) = qw (enum);
 my (@SingleDigit) = qw(HTTP-Request-Form);
 
 # archivers/hpack 79 -> 0.79
-my (@ZeroDot) = qw (hpack umefont_);
+my (@ZeroDot) = qw (hpack umefont_ mypy);
 
 # hyperestraier Add 1.0.0
 my (@hyperestraier) = qw (hyperestraier);
@@ -2787,10 +2787,9 @@ sub pypiSpecial($$$$){
     return ($returnCode, @candidate);
 }
 sub EggSpecial($$$){
-    my $PKGNAME = shift;
-    my $PIP_EXECUTABLE     = shift;
-    my $PIP_NAME = shift;
-
+    my $PKGNAME 	= shift;
+    my $PIP_EXECUTABLE	= shift;
+    my $PIP_NAME	= shift;
 
     my $version;
     my $string = "$PIP_EXECUTABLE search $PIP_NAME|";
@@ -4829,11 +4828,14 @@ print STDERR sprintf("%4d ", __LINE__ ),
 
         if ( $EggProject) {  #  MAJOR_IF_THEN_ELSE
 	    ($returnCode, @candidate) =   EggSpecial($PKGNAME, 'pip3.7', $EggProject);
-	    }
+	} else {
+
 	if ( $MASTER_SITE  =~ m|http://pypi.python.org/| ) {		# MAJOR_IF_THEN_ELSE
-	    print STDERR sprintf("%4d ", __LINE__ ), 'MASTER_SITE ', $MASTER_SITE if $DEBUG_DISTBASE || $DEBUG_PYPI ;
+	    print STDERR sprintf("%4d ", __LINE__ ),
+		'MASTER_SITE ', $MASTER_SITE if $DEBUG_DISTBASE || $DEBUG_PYPI ;
 	    ($returnCode, @CANDIDATE) = ParseDirectory(
 		"https://pypi.python.org/pypi/".$DISTBASE, $DISTBASE, $SimpleFallBackNo, $PackageName, $R_Package, (caller 0)[3] );}
+	}
 	    push(@candidate, @CANDIDATE);
 
 #	if ($#candidate == -1  && $EGG_PACKAGE) {						# MAJOR_IF_THEN_ELSE
