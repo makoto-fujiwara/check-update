@@ -366,7 +366,7 @@ my (%SpecialPattern) = (
     'CPAN',		'$line =~ s/.*CPAN-([0-9_.]+)\.tar.*/$1/;',
     'pyproj',		'$line =~ s/.*v([0-9_.]+)rel/$1/;',
     'picprg',		'$line =~ s/.*picprg([0-9.]+)\.tgz/$1/;',
-    'IPC-Run',		'$line =~ s/.*IPC-Run-([0-9.]+)\.tar.gz/$1/;',
+    'IPC-Run',		'$line =~ s/.*IPC-Run-([2-9.]+)\.tar.gz/$1/;',
     'Term-ReadLine-Perl','$line =~ s/.*Term-ReadLine-Perl5-([0-9.]+)\.tar.gz/$1/;',#
     'acmesrc',		'$line =~ s/.*acme([0-9.]+)src\.tar\.gz.*/$1/;',
     'gr-fcdproplus',	'$line =~ s/.*gr-fcdproplus_([0-9.]+)\.orig\.tar.*/$1/;',
@@ -1723,15 +1723,36 @@ sub GetDistBaseAutomatic($$$){
 	$OK = __LINE__;
 	}
     }
-    print STDERR sprintf("%4d ", __LINE__ ), 
+##  (cd /export/CHROOT/usr/pkgsrc/devel/p5-IPC-Run; /export/git-work/check-update/check-update -xb )
+##  does not work at all ;-)
+    my $tmp_SpecialPattern = $SpecialPattern{$distbase};
+    print STDERR sprintf("%4d ", __LINE__ ).
+	"\t".'(tmp) %specialPattern: '.	"\t".$tmp_SpecialPattern."\n"
+	if $DEBUG_AUTOMATIC_DISTBASE;
+
+    print STDERR sprintf("%4d ", __LINE__ ), '  (before edit) ',
 	"\t",'$distbase: ',	"\t",$distbase,"\n",
-	"\t",'$SpecialPatternY: ', "\t",$SpecialPatternY,"\n" 
+	"\t",'$SpecialPatternY: ', "\t",$SpecialPatternY,"\n"
+	if $DEBUG_AUTOMATIC_DISTBASE;
+    if ($tmp_SpecialPattern) {
+	$tmp_SpecialPattern =~ s|\$line =~ s|m|;
+	$tmp_SpecialPattern =~ s|/\$1/|/; \$version = \$1|;
+	$tmp_SpecialPattern =~ s$/$|$g;
+	$SpecialPatternY = $tmp_SpecialPattern;
+	$SimplePattern = 1;
+	$pattern = $tmp_SpecialPattern;
+    }
+    print STDERR sprintf("%4d ", __LINE__ ), '  (after edit) ',
+	"\t",'$distbase: ',	"\t",$distbase,"\n",
+	"\t",'$SpecialPatternY: ', "\t",$SpecialPatternY,"\n"
 	if $DEBUG_AUTOMATIC_DISTBASE;
 #    print "($pkgname =~ /^$distname-[0-9]/ ) \n" if $DEBUG_AUTOMATIC_DISTBASE;
 
     if ($OK) {
-	print STDERR sprintf("%4d ", __LINE__ ), "OK: $OK \n" if $DEBUG_AUTOMATIC_DISTBASE;
+	print STDERR sprintf("%4d ", __LINE__ ).
+	    "OK: " . $OK . ' called from <'. (caller 0)[3] . '>: ' . (caller 0)[2]."\n" if $DEBUG_AUTOMATIC_DISTBASE;
 	print STDERR sprintf("%4d ", __LINE__ ), "$SpecialPatternY\n" if $DEBUG_AUTOMATIC_DISTBASE;
+
 	return($distbase, $pattern, $SimplePattern);}
     else     {return (@NULL)}
     }
@@ -1940,6 +1961,11 @@ sub GetDistBase($$$$$) {	# <- Main       DISTBASEDISTBASE
     if (@return) {
 	print STDERR sprintf("%4d ", __LINE__ )," Automatic Found\n" if $DEBUG_AUTOMATIC_DISTBASE;
 	($DISTBASE, $pattern, $SimplePattern) = @return;
+
+	print STDERR sprintf("%4d ", __LINE__ );
+	print STDERR sprintf("\$DISTBASE: %s, \$pattern: %s, \$SimplePattern: %s\n",
+			     $DISTBASE, $pattern, $SimplePattern);
+
 	push(@SimplePattern, $SimplePattern);
 	return $DISTBASE;
     } else {
