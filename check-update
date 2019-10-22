@@ -31,6 +31,10 @@ $fork_w3m = $directory.'/fork-w3m';
 # ----------------------------------------------------
 
 # prototype for subroutine called very early stage :-)
+sub line_num   { ( caller(0) )[2] } # __LINE__ if main
+sub whoami  { ( caller(1) )[3] }
+sub whowasi { ( caller(2) )[3] }
+
 sub GetSystemURL($);
 
 # For emacs setup, see the bottom of this file (or evaluate them)
@@ -1519,9 +1523,20 @@ sub CompareVersion($$){
     if ($#a == -1 && $#b == -1 ) { # both does dot include dot
 	return $a <=> $b ;
     }
+    print STDERR sprintf("%4d a: %s b: %s\n", __LINE__,
+			 $a[0], $b[0])
+			 if $DEBUG_COMPARE_VERSION ;
+
     # avoid 4.6.7 < 451 # biology/cdhit
+    if ($#a == -1  ||  $#b == -1 ) {
+	# only apply both has dot(.)  # devel/p5-IPC-Run 0.99 and 20180523.0)
     if ($a[0] < 9 && 100 < $b[0] ) { return  1;}
     if ($b[0] < 9 && 100 < $a[0] ) { return -1;}
+	}
+
+    print STDERR sprintf("%4d a: %s b: %s\n", __LINE__,
+			 $a[0], $b[0])
+			 if $DEBUG_COMPARE_VERSION ;
 
     #   devel/p5-App-CLI 0.48 > 0.313, both two or more digit beyond period to the right
     #   rescue devel/aegis 4.24.2 -> 4.25, instead of 4.24.2 -> 4.9
@@ -1646,7 +1661,9 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (4) <', (caller 0)[3] ,'> ', 'distbas
 
     return $version;
 }
-
+sub GetDistBaseAutomatic($$$){
+# to debug, use -x b
+#       b Automatic distbase
 #  ----------------------------------------------------------------------
 # This routine to find the Base name of distribution file.
 # It will be used to separate the version portion from distribution file.
@@ -1655,7 +1672,6 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (4) <', (caller 0)[3] ,'> ', 'distbas
     #      0-1. if (-) is onlye one in PKGNAME, remove - and after
     #      if resultant string in DISTNAME, take it as DISTBASE
     #  --------------------------------------
-sub GetDistBaseAutomatic($$$){
 
 ##  CF-SX2@makoto 22:05:33/170508(..math/extcalc)% make show-var VARNAME=PKGVERSION_NOREV
 ##  0.9.3
@@ -1694,7 +1710,7 @@ sub GetDistBaseAutomatic($$$){
     if     ($pkgname =~/^(p5|R|py)-$DISTNAME$/ ) { my $pref = $1;
 	$distbase = $PKGBASE; $distbase =~ s/^$pref-//;
 	$SimplePattern = 1; $OK = __LINE__;
-	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '> called from: ', (caller 0)[2], "\n"  if $DEBUG_AUTOMATIC_DISTBASE;	
+	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '> called from: ', line_num(), "\n"  if $DEBUG_AUTOMATIC_DISTBASE;	
 	if ($PKGVERSION =~ /\./) {
 	$SpecialPatternY = 'm|.*'.$distbase.'-([0-9.]+)(-[0-9])*\..*|; $version = $1;';	# has dot
 	} else {
@@ -1742,8 +1758,8 @@ sub GetDistBaseAutomatic($$$){
 	$SimplePattern = 1;
 	$pattern = $tmp_SpecialPattern;
     }
-    print STDERR sprintf("%4d ", __LINE__ ), '  (after edit) ',
-	"\t",'$distbase: ',	"\t",$distbase,"\n",
+    print STDERR sprintf("%4d %s -> %s", __LINE__, whowasi, whoami),
+	'  (after edit) ',"\t",'$distbase: ',	"\t",$distbase,"\n",
 	"\t",'$SpecialPatternY: ', "\t",$SpecialPatternY,"\n"
 	if $DEBUG_AUTOMATIC_DISTBASE;
 #    print "($pkgname =~ /^$distname-[0-9]/ ) \n" if $DEBUG_AUTOMATIC_DISTBASE;
@@ -4911,7 +4927,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
     ' (SimpleFallBack) master_site(', $MASTER_SITE, ') returnCode('. $returnCode.") -> available(". $available.")\n"  if $DEBUG_FALLBACK_SIMPLE;
 
 	print ' --------------- '. $MASTER_SITE . ' --------------- '."\n"                  if $DEBUG_CANDIDATE ;
-print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], 'available: ', $available, ' returnCode: ', $returnCode,
+print STDERR sprintf("%4d <", __LINE__ ),  whowasi, '>:', whoami, ': ', line_num , ': available: ', $available, ' returnCode: ', $returnCode,
 ' @candidate: ', "\n------------------\n", join("\n", @candidate),"\n" if $DEBUG_CANDIDATE;
 
 	if (( $available eq '0.0' || $available eq '' || $returnCode == -1 ) && $#candidate == -1 && ! $candidate[0] ne '0.0' ) {
