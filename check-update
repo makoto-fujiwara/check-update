@@ -1977,11 +1977,6 @@ sub GetDistBase($$$$$) {	# <- Main       DISTBASEDISTBASE
     if (@return) {
 	print STDERR sprintf("%4d ", __LINE__ )," Automatic Found\n" if $DEBUG_AUTOMATIC_DISTBASE;
 	($DISTBASE, $pattern, $SimplePattern) = @return;
-
-	print STDERR sprintf("%4d ", __LINE__ );
-	print STDERR sprintf("\$DISTBASE: %s, \$pattern: %s, \$SimplePattern: %s\n",
-			     $DISTBASE, $pattern, $SimplePattern);
-
 	push(@SimplePattern, $SimplePattern);
 	return $DISTBASE;
     } else {
