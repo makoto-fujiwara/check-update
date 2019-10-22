@@ -2790,13 +2790,14 @@ sub EggSpecial($$$){
     my $PKGNAME 	= shift;
     my $PIP_EXECUTABLE	= shift;
     my $PIP_NAME	= shift;
+       $PIP_NAME	=~ s/_/-/;
 
     my $version;
     my $string = "$PIP_EXECUTABLE search $PIP_NAME|";
+    
     print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' '. $string."\n"  if $DEBUG_PYPI; 
     open(PIP, $string) || die "problem opening $PIP_NAME: $!\n";
     while (<PIP>) {
-
 	if (/^$PIP_NAME \(([0-9.]+)\)\s*- / ) {
 	    $version = $1;
 	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ' , $_, ' -> ', $version, "\n" if $DEBUG_PYPI; 
@@ -3694,6 +3695,7 @@ sub ReadMakefile($$)  {		# <- Main
 	   #        MASTER_SITES=     ${MASTER_SITE_SOURCEFORGE:=modauthkerb/}
 	    if ( m|^MASTER_SITES=\s+\$\{MASTER_SITE_SOURCEFORGE:=(.*)/|) { $SFProject = $1;}
 	    if ( m|^MASTER_SITES=\s+\$\{MASTER_SITE_PYPI:=p\/(.*)/|)     { $EggProject = $1;}
+	    if ( m|^MASTER_SITES=\s+\$\{MASTER_SITE_PYPI:=m\/(.*)/|)     { $EggProject = $1;}
 	}
 	close(MAKEFILE);
 	if ($SFProject eq '' ) {
@@ -4642,6 +4644,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	($MAINTAINER, $HOMEPAGE, $GEM_PACKAGE, $PEAR_PACKAGE, $HS_PACKAGE,
 	 $R_Package, $SFProject, $TEXLIVE, $EggProject)
 	= ReadMakefile($dir, $PackageName);
+	print STDERR sprintf("%4d \$EggProject: %s\n", __LINE__ , $EggProject) if $DEBUG_PYPI ;
 	$PKGVERSION		= GetVariableValue ($dir, $PackageName, 'PKGVERSION_NOREV');
 	if ($PKGVERSION =~ m|^[0-9]+\.|) { $NeedsDot++;}
 	my ($location); # destination to be directed
@@ -4826,6 +4829,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
     join (' ', @candidate) ,"\n" if $DEBUG_DISTBASE || $DEBUG_PYPI ;
 	    my(@CANDIDATE);
 
+	    print STDERR sprintf("%4d \$EggProject: %d\n", __LINE__ , $EggProject) if $DEBUG_PYPI ;
         if ( $EggProject) {  #  MAJOR_IF_THEN_ELSE
 	    ($returnCode, @candidate) =   EggSpecial($PKGNAME, 'pip3.7', $EggProject);
 	} else {
