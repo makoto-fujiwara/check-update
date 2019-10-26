@@ -240,7 +240,7 @@ if ($opts{'u'}) { $URL = $opts{'u'};}
 else            { $URL = 'http://www.ki.nu/~makoto/pkgsrc/check-update/';}
 
 if ($opts{'d'}) { $DIR = $opts{'d'};}
-else            { $DIR = $ENV{'HOME'}.'/public_html/pkgsrc/check-update/';}
+else            { $DIR = $ENV{'HOME'}.'/public_html/pkgsrc/check-update';}
 
 my($directory) = $DIR;
 

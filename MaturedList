@@ -14,9 +14,12 @@ audio/akode-plugins-resampler
 audio/akode-plugins-sun
 audio/akode-plugins-xiph  
 cad/xchiplogo
+comms/asterisk18
 databases/rrdtool12
 devel/papaya
+devel/p5-File-Flock
 devel/p5-Term-ReadLine-Perl
+devel/py-expect
 editors/emacs20
 editors/leim20
 editors/emacs21
@@ -28,6 +31,7 @@ editors/emacs23-nox11
 editors/mule
 editors/xcoral
 games/gnuchess4
+ham/xnec2c
 mail/gmime24
 net/dnsdoctor
 net/ser

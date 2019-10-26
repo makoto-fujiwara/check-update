@@ -16,7 +16,7 @@ JOBS=36
 # Check if required packages installed
 FAIL=0
 echo ' *** (1) Checking packages required'
-for p in httping curl git-base p5-Net-DNS p5-Algorithm-Diff mozilla-rootcerts w3m; do
+for p in httping curl git-base p5-Net-DNS p5-Algorithm-Diff mozilla-rootcerts w3m ruby py-pip; do
    NOT_EXIST=0
    pkg_info -q -c $p  > /dev/null 2>&1
    RC=$?
@@ -32,7 +32,6 @@ if [ -d .git ] ; then
 echo ' *** (2) Updating from git repository'
 
 git pull
-git checkout release
 HASH=`git log --format="%H" -1`
 export HASH
 fi
@@ -44,10 +43,11 @@ else
   (cd ${TMP_PKGSRC};    time -c cvs -Q update -dPA . )
 fi
 
-if [ -f ${SITE_PATCH} ] ; then
+if [ -f ${SITE_PATCH} 
 echo ' *** (4) Applying mk/fetch/sites.mk patch'
-(cd ${TMP_PKGSRC} ; patch -s -N -p0 < ${SITE_PATCH} )
 fi
+
+(cd ${TMP_PKGSRC} ; patch -s -N -p0 < ${SITE_PATCH} )
 
 echo ' *** (5) copy environment-sample.mk if environment.mk not found '
 

@@ -1,7 +1,6 @@
 
-CHECK_UPDATE=	/usr/pkg/sbin/check-update
-MERGE=		/usr/pkg/share/check-update/merge-check-update
-COLLECT_STATS=	/usr/pkg/share/check-update/collect-stats
-SUMMARY_DIFF=	/usr/pkg/share/check-update/summary-diff
+CHECK_UPDATE=	/export/git-work/check-update/check-update
+MERGE=		/export/git-work/check-update/merge-check-update
+COLLECT_STATS=	/export/git-work/check-update/collect-stats
 
-DIRECTORY=	/var/check-update/htdocs
+DIRECTORY=	${HOME}/public_html/pkgsrc/check-update
