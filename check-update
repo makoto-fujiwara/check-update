@@ -2896,6 +2896,8 @@ sub GitHubSpecial($$$$){
 	    if ( $PackageName eq 'py-certbot' && 1000 < $cand) {next;}
 	    if ( $PackageName eq 'py-acme' && 1000 < $cand) {next;}
 	    if ( $PackageName eq 'argon2'     && $cand< 2000 ) {next;}
+# should skip libretro-2048
+	    if ( $PackageName =~ /libretro-/  && $cand>2000 ) {next;}
 	    $cand =~ s/(2[0-9]+)-([01][0-9])-([0-9]+)/$1$2$3/; # devel/re2 2016-08-01
 
   	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> ', $cand, ' :: ', $_, "\n" if $DEBUG_GITHUB;
