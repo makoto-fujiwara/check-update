@@ -3455,6 +3455,7 @@ print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '> called from: ', (ca
 print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', 'PackageName (', $PackageName, ') pattern (', $pattern, ') ',$_,"\n" if   ($DEBUG_FAMILY);
 	    eval $pattern;
 print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', 'PackageName (', $PackageName, ') version (', $version, ') ',$_,"\n" if   ($DEBUG_FAMILY);
+print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', 'PackageName (', $PackageName, ') version (', $version, ') ',$_,"\n" if   ($DEBUG_CANDIDATE);
           if ($version ) {push(@candidate, $version);};
 	} elsif (my $pattern = $SEARCH_STRINGS{$distbase} ) {		# MAJOR_IF_THEN_ELSE
 	    eval $pattern;
@@ -3519,6 +3520,7 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (3) ', $distbase, ' --> ', $version,"
 		}
 #  --- HARDCODE TABLES --- ( to ease accessing tables )
 	    } else { # not xpdf
+#print STDERR sprintf("%4d ", __LINE__ ), ' (3) ', $distbase, ' --> ', $version,"\n" if (1) ; #($DEBUG_DISTBASE || $DEBUG_CANDIDATE);
 	    $version =~ s/-vax-//;	# compat30-extras-sparc-3.1.tar.bz2  S T R I P
 	    $version =~ s/-i386-//;	#
 	    $version =~ s/(\d+)B(\d+)/$1.$2/;  # erlang otp_src_R16B02 -> 16.02
@@ -4268,6 +4270,7 @@ sub GetSFProjectCandidate($$$$) {  # line 2922 to 2979
 # 1. Do the first level
 	($returnCode, @candidateLocal) = ParseDirectory($site, $DISTBASE, $SimpleFallBackNo, $PackageName, $R_Package, (caller 0)[3] );
 	push(@candidate,@candidateLocal);
+	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', " -------------\n", (caller 0)[2], ': ', "\n",join ("\n", @candidate),"\n" if $DEBUG_CANDIDATE ;	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], '------- '. $MASTER_SITE . ' --------------- '."\n"                  if $DEBUG_CANDIDATE ;
 	print STDERR sprintf("%4d ", __LINE__ ), 
 	    ' (ParseDir) master_site(', $site, ') status('. $status. ') '. 'candidate('.$#candidate.') -> '. join (' ', @candidate), "\n"  if $DEBUG_SF;
 # 2. Add (push) Looking for the Latest Version info
@@ -4275,18 +4278,24 @@ sub GetSFProjectCandidate($$$$) {  # line 2922 to 2979
 	if ( $candidate != '0.0') {push(@candidate, $candidate); }# last;}
 # 3. Try Versioned Directory
 	my ($dir) = VersionedDirectory($DISTBASE, $site);
+ print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', 'dir (', $dir, ')', "\n" if $DEBUG_CANDIDATE;
+#print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', 'dir (', $dir, ') ', join("\n", @candidate), "\n" if $DEBUG_CANDIDATE;
+
 	if ($SITE_CACHE{$dir}) {
 	    print STDERR sprintf("%4d ", __LINE__ ), ' *** (',$iteration  ,') dir (', $dir, ') status('. $status.") ncand (",$#candidate,') -> '
             if $DEBUG_VERSION_DIR;
 	    next;}
 	($SITE_CACHE{$dir})++;
+	print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', 'dir (', $dir, ')', "\n" if $DEBUG_CANDIDATE;
 	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ': dir (', $dir, ')',"\n" if $DEBUG_VERSION_DIR;
 	if ($dir == -1) { next;}
 	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ': dir (', $dir, ')',"\n" if $DEBUG_VERSION_DIR;
 	if ( $dir =~ m|\/([0-9.]+)$| ) { $dir =~ s|$1||; }
 	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ': dir (', $dir, ')',"\n" if $DEBUG_VERSION_DIR;
 	my(@versionedCadidate);
+print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', 'dir (', $dir, ') ', join("\n", @candidate), "\n" if $DEBUG_CANDIDATE;	
 	my($returnCode, @versionedCandidate) = ParseDirectory($dir, $DISTBASE, $SimpleFallBackNo, $PackageName, $R_Package, (caller 0)[3]);
+print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', 'dir (', $dir, ') ', join("\n", @versionedCandidate), "\n" if $DEBUG_CANDIDATE;	
 	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' -> ',
 	    PickFromCandidate($DISTBASE,@versionedCandidate), "\n" if $DEBUG_VERSION_DIR;
 	push(@candidate,@versionedCandidate);
@@ -4367,6 +4376,9 @@ sub VersionedDirectory ($$){
     open(W3M, "perl $fork_w3m -t $W3MTimeout $w3m_command 2>&1 |") ||
 	print STDERR sprintf("%4d   <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' Problem opening external cmd.',"\n";
     while(<W3M>) {
+	# should skip if the line looks like:
+	#  360 Degree Feedback Human Resource Management Employee Engagement Applicant
+	if (/360 Degree Feedback Human/) {next;}
 	print STDERR sprintf("%4d   <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ', $_  if $DEBUG_CURL_LISTING;
 	if (                   /^([\t ]+)([0-9.]+a*)[\t ]+/  ||		# cad/gplcvar wants (a) .. 2.12(a)
 			       /^[\t ]*($distbase[-]*)([0-9.]+)[\t ]+/ ||
@@ -4376,7 +4388,7 @@ sub VersionedDirectory ($$){
 			       m|.(DIR).\s+([0-9.]+)/| ) {
 	    $name = $1; # pick prefix
 	    $ver = $2;
-#	    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ver(', $ver,') <- ', $_ if $DEBUG_VERSION_DIR;
+	    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' name(', $name, ') ver(', $ver,') <- ', $_ if $DEBUG_VERSION_DIR;
 	    if (CompareVersion($ver, $max_version) > 0) { $max_version = $ver;}
 	    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' max_ver(', $max_version,') <- ', $_ if $DEBUG_VERSION_DIR || $DEBUG_URL;
 	    if ($name eq 'DIR')		{ $name ='';}  # discard if meaningless converters/librevenge
