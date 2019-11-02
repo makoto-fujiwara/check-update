@@ -467,7 +467,7 @@ my (%SpecialPattern) = (
     'dnsperf-src',	'$line =~ s|.*$distbase-([0-9.]+)-[0-9].*|$1|;',
     'pdf-parser',	'$line =~ s|.*pdf-parser_V([0-9_]+)\..*|$1|; $line =~y|_|.|;',
     'makeztxt',		'$line =~ s|.*<td>makeztxt</td><td>([0-9.]+)</td><td>source.*|$1|;',
-
+    'xdebug',		'$line =~ s|.*Xdebug ([0-9.]+) is out|$1|i;'
     );
    # sgb does not work yet
    #http://prdownloads.sourceforge.jp/lha/11617/lha-1.14i-ac20040929.tar.gz
@@ -3362,6 +3362,8 @@ sub ParseDirectory($$$$$$){   # 2564  to 2825 lines (260 lines
 	if ( m|/hercules-390"| )		{ next;}
 	if ( m| hercules-390 | )		{ next;}
 	#  -----------  emulators/hercules --------------
+	if ( m|xdebug-26.html| )		{ next;} # devel/php-xdebug
+
 	if ( $distbase eq 'libXaw' && /libXaw3d/ )	{ next;}
 
 	# ----- textproc/aspell special ----------
