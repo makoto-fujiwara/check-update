@@ -111,6 +111,7 @@ my ($DEBUG_HTTP_HEADER);
 my ($DEBUG_MASTER_SITES_LISTING);
 my ($DEBUG_MASTER_SITE);  # $master_site get strange  with previous version #
 my ($DEBUG_NCAND);		# Number of Candidate (summary)
+my ($DEBUG_NEEDS_DOT);
 my ($DEBUG_PYPI);
 my ($DEBUG_REDIRECT);
 my ($DEBUG_RUBYGEM);
@@ -166,6 +167,7 @@ my(%LongName)  = (
    'Z',  'Fork quit',
    '1',  'Ver debug (PickfromCandidate)',
    '2',  'CompareVersion',
+   '3',  'NeedsDot',
    '9',  'Debug',
 );
 
@@ -879,7 +881,7 @@ sub Usage($$);
 sub CheckHeader($);
 sub CheckDNS($);
 sub ColorUrlDigit($);
-sub CompareVersion($$);
+sub CompareVersion($$$);
 sub CountPeriod($);
 sub DistbaseCacheUpdate($$$);
 sub DistbaseCacheQuery($$);
@@ -1502,10 +1504,19 @@ sub CompareDigit($$){
         $a eq 0  && $b eq '' ) { return 0;}  # empty is lower than 0
     return $a cmp $b;
 }
-sub CompareVersion($$){
+sub CompareVersion($$$){
     # return 1 if big, 0 if equal, -1 if small.
     my ($a) = shift;
     my ($b) = shift;
+    my ($NeedsDot) = shift;
+    if ($NeedsDot) {
+	if (!($a =~ /\./) && ($b =~ /\./)) {
+	    return -1;
+	    }
+	if (($a =~ /\./) && !($b =~ /\./)) {
+	    return 1;
+	}
+    }
     if ($a eq $b) {return 0;}
     if (0) { # temporarily disable
     if ($a + 0  >= 0 && $b !=~ /^[0-9]/) {  return -1}
@@ -2501,7 +2512,7 @@ sub GetGemFamilyVersion($$){		# <- Main
 	$c =~ s/ //;
 #	print STDERR sprintf("%4d ", __LINE__ ), 'm: ', $major, ' a :', $available, ' c: ', $c, "\n"if $DEBUG_RUBYGEM;
 	if (  ( $c =~  /^$major\.$minor/            ) &&
-	      (CompareVersion($c, $available) > 0 ) ) { $available = $c;}
+	      (CompareVersion($c, $available, $NeedsDot) > 0 ) ) { $available = $c;}
     }
 
     print STDERR sprintf("%4d ", __LINE__ ), 'major(', $major,') minor(', $minor, ') GetGemVersion: ', $dist_name, ' -> ', $available, "\n" if $DEBUG_RUBYGEM;
@@ -2592,7 +2603,7 @@ sub PickFromCandidate($@) {
 						 ' ver (', $ver,') max_version (',$max_version,")\n" if $DEBUG_VER_PATTERN;
 #	    $ver = EditVersion($DISTBASE, $ver);
 
-	if (CompareVersion($ver, $max_version) > 0) { $max_version = $ver;}
+	if (CompareVersion($ver, $max_version, $NeedsDot) > 0) { $max_version = $ver;}
 	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>: ', (caller 0)[2], 	
 						 ' ver (', $ver,') max_version (',$max_version,")\n" if $DEBUG_VER_PATTERN;
     }
@@ -2938,7 +2949,7 @@ sub GitHubChanges($$){
     while(<CURL>) {
 	my ($ver);
 	if (/([0-9.]+)\s/ )  { $ver = $1;}
-	if (CompareVersion($ver, $max_version) > 0) { $max_version = $ver;}
+	if (CompareVersion($ver, $max_version, $NeedsDot) > 0) { $max_version = $ver;}
     }
     close(CURL);
     return (200, $max_version);
@@ -2975,7 +2986,7 @@ sub ParseUpperDirectory($$){
 	    $ver = $1;
 	    print $ver , ' <- ', $_ if $DEBUG_DIGIT;
 	    push(@list, $ver);
-	    if (CompareVersion($ver, $candidate) > 0 ) { $candidate = $ver;}
+	    if (CompareVersion($ver, $candidate, $NeedsDot) > 0 ) { $candidate = $ver;}
 	}			   
     }
     close(CURL);
@@ -3062,7 +3073,7 @@ sub SFSubDirectory($$){
 	    $ver = $1;
 	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], $_ ,' ->', $ver, "\n" if $DEBUG_SF;
 #	    push(@list, $ver);
-	    if (CompareVersion($ver, $candidate) > 0 ) { $candidate = $ver;}
+	    if (CompareVersion($ver, $candidate, $NeedsDot) > 0 ) { $candidate = $ver;}
 	}
     }
     close(CURL);
@@ -3157,7 +3168,7 @@ print STDERR sprintf("%4d ", __LINE__ ).' location: ', $location,"\n" if  $DEBUG
 sub ParseDebug($){
     my ($pattern) = shift;
     my %DEBUG;
-    my $char_list = 'aAbBcCdDEegFfGhHklLmMnNpPrRsSUVxXyzZ129';
+    my $char_list = 'aAbBcCdDEegFfGhHklLmMnNpPrRsSUVxXyzZ1239';
 
     if ( $pattern =~ /a/ ) { $pattern = $char_list  }
     print STDERR sprintf("%4d ", __LINE__ ), ' DEBUG pattern (',  $pattern,  ')',"\n";
@@ -3248,7 +3259,7 @@ sub ParseDirectorySmall($$){
 	    $ver = $1;
 		print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> ', $ver, ' > ', $ver_max,"\n" 
 		    if $DEBUG_GNOME || $DEBUG_SF || $DEBUG_DIGIT ;
-	    if (CompareVersion($ver, $ver_max) > 0 ) {
+	    if (CompareVersion($ver, $ver_max, $NeedsDot) > 0 ) {
 		print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> ', $ver, ' > ', $ver_max,"\n" 
 		    if $DEBUG_GNOME || $DEBUG_SF || $DEBUG_DIGIT ;
 		$ver_max = $ver;
@@ -4401,7 +4412,7 @@ sub VersionedDirectory ($$){
 	    $name = $1; # pick prefix
 	    $ver = $2;
 	    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' name(', $name, ') ver(', $ver,') <- ', $_ if $DEBUG_VERSION_DIR;
-	    if (CompareVersion($ver, $max_version) > 0) { $max_version = $ver;}
+	    if (CompareVersion($ver, $max_version, $NeedsDot) > 0) { $max_version = $ver;}
 	    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' max_ver(', $max_version,') <- ', $_ if $DEBUG_VERSION_DIR || $DEBUG_URL;
 	    if ($name eq 'DIR')		{ $name ='';}  # discard if meaningless converters/librevenge
 	    if ($name =~ /[\t ]+/ )	{ $name ='';}
@@ -4674,7 +4685,9 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	= ReadMakefile($dir, $PackageName);
 	print STDERR sprintf("%4d \$EggProject: %s\n", __LINE__ , $EggProject) if $DEBUG_PYPI ;
 	$PKGVERSION		= GetVariableValue ($dir, $PackageName, 'PKGVERSION_NOREV');
-	if ($PKGVERSION =~ m|^[0-9]+\.|) { $NeedsDot++;}
+	if ($PKGVERSION =~ m|^[0-9]+\.|) { $NeedsDot++;
+print STDERR sprintf("%4d ", __LINE__ ), ' Automatic NeedsDot ' if $DEBUG_NEEDS_DOT;
+	}
 	my ($location); # destination to be directed
 	my ($dist_name) = GetVariableValue ($dir, $PackageName, 'DISTNAME');
         $dist_name .= GetVariableValue ($dir, $PackageName, 'EXTRACT_SUFX');
@@ -4973,11 +4986,11 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	##   F I N D   T H E   C O N D I T I O N   T O   L I S T (404/403/550/DNS)
 	# ------------------------------------------------------------
     print STDERR sprintf("%4d ", __LINE__ ). ' '. $DISTBASE. ' -> '. $available. "\n" if $DEBUG_CACHE;
-    if      ( CompareVersion( $available, $PKGVERSION) >  0 )		{ $Found++; $console_color = 'black'; # for stats and just below # MAJOR_IF_THEN_ELSE 
+    if      ( CompareVersion( $available, $PKGVERSION, $NeedsDot) >  0 )		{ $Found++; $console_color = 'black'; # for stats and just below # MAJOR_IF_THEN_ELSE 
     } elsif ( $TODO{$PKGBASE} &&
-	      CompareVersion( $TODO{$PKGBASE}, $PKGVERSION) != 0 )	{ $TODO_LIST++; $to_list = 1; $console_color = 'green';
-    } elsif ( CompareVersion( $available, $PKGVERSION) == 0 )		{ $to_list = 0;	 $OK++; $console_color = 'blue'; # OK, disable to list
-    } elsif ( CompareVersion( EditVersion($DISTBASE, $available), $PKGVERSION) == 0 ) { $to_list = 0;	 $OK++; $console_color = 'blue'; # OK, disable to list
+	      CompareVersion( $TODO{$PKGBASE}, $PKGVERSION, $NeedsDot) != 0 )	{ $TODO_LIST++; $to_list = 1; $console_color = 'green';
+    } elsif ( CompareVersion( $available, $PKGVERSION, $NeedsDot) == 0 )		{ $to_list = 0;	 $OK++; $console_color = 'blue'; # OK, disable to list
+    } elsif ( CompareVersion( EditVersion($DISTBASE, $available), $PKGVERSION, $NeedsDot) == 0 ) { $to_list = 0;	 $OK++; $console_color = 'blue'; # OK, disable to list
     } elsif ( $available eq '0.0' || $available eq '') {
 	$console_color = 'magenta';
 	if    ($MasterSiteStat == 404 )	{ $NotFound++; }
@@ -4988,7 +5001,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
 
 	else				{ $NotAvailable++ ; }
 	if ( $full_list == 0 ) { $to_list = 0; $NotListed++;} # Unable to find recent version
-    } elsif ( CompareVersion( $available, $PKGVERSION) < 0 )    	{
+    } elsif ( CompareVersion( $available, $PKGVERSION, $NeedsDot) < 0 )    	{
 	if ($include_reverse == 0 ) { $to_list = 1; }
 	$Reverse++; $reverse++; 
     } else {
