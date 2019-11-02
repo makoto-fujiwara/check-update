@@ -751,7 +751,6 @@ my (@DOT3) = qw (
     ExtUtils-ModuleMaker
     File-Temp
     FreezeThaw
-    IO-CaptureOutput
     Module-CPANTS-Analyse
     Net-DHCP
     Role-Basic
