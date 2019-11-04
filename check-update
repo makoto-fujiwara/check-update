@@ -855,7 +855,7 @@ my (@SingleDigit) = qw(HTTP-Request-Form);
 my (@ZeroDot) = qw (hpack umefont_ mypy);
 
 # hyperestraier Add 1.0.0
-my (@hyperestraier) = qw (hyperestraier);
+my (@hyperestraier) = qw (hyperestraier qdbm);
 
 # converters/bib2xml 10162002 -> 20021016
 my (@swap4) = qw (bib2xml);
