@@ -2868,7 +2868,7 @@ sub GitHubSpecial($$$$){
 	print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> Problem for curl', "$!\n";
      my ($cand);
     while(<CURL>) {
-	print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> (',$distbase, ' / ', $target.') ', $_,"\n" if $DEBUG_GITHUB;
+#	print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> (',$distbase, ' / ', $target.') ', $_,"\n" if $DEBUG_GITHUB;
 	$distbase =~ s/-[a-z]+//;
 	if       (m,$distbase-([0-9.]+)-(pre|alpha|rc).*,) { next;}
 	if (m,archive/release_([0-9_]+)-(pre|alpha|rc).*,) { next;}
@@ -2878,7 +2878,7 @@ sub GitHubSpecial($$$$){
 	chomp();
 	push(@fifo_three, $_); if ($#fifo_three > 2) { shift(@fifo_three);}
 	my $zero_release_string = join '',@fifo_three;
-	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], $zero_release_string,"\n" if $DEBUG_GITHUB;
+#	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], $zero_release_string,"\n" if $DEBUG_GITHUB;
         if (  $zero_release_string =~ m,\s+0\s+</span>\s+releases$, ) {
 	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], $zero_release_string,"\n" if $DEBUG_GITHUB;
 	    $no_release++;
@@ -2894,6 +2894,7 @@ sub GitHubSpecial($$$$){
 	    m,data-name=\"v*([0-9.]+)\",||
 	    m,release-([0-9.]+)\",	||   # sysutils/WCMcommander
 	    m,releases/tag/([0-9.]+),	||   # sysutils/erlang-goldrush
+            m,releases/tag/v([0-9.]+),  ||   # sysutils/ioping
 	    m,releases/tag/V*([0-9]\.[0-9.]+),	||    # biology/cdhit    releases/tag/V4.6.7"> and avoid to pick 454.
 	    m,V([0-9]+\.[0-9.]+\.[0-9]+),||   # biology/cdhit
 	    m,rel_([0-9.]+),		||   # textproc/lucene++
