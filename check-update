@@ -3391,6 +3391,11 @@ sub ParseDirectory($$$$$$){   # 2564  to 2825 lines (260 lines
 print STDERR sprintf("%4d ** ", __LINE__ ), (caller 0)[3], ' (', $distbase,') ', $SpecialPattern{$distbase},': ', $_, ' ---: ',
 	    grep (/$distbase/, keys %SpecialPattern)," :---\n" if
 	    ($DEBUG_CURL_LISTING || $DEBUG_MASTER_SITES_LISTING);
+       if (($distbase eq 'Cookie-XS')  && ($_ =~ /CGI-Cookie/)) {  
+  print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ',
+                                                        ' (-) ', $_,"\n" if $DEBUG_DISTBASE || $DEBUG_VERSION_DIR ;
+      next; # Avoid to pick CGI-Cookie-XS-0.18.tar.gz for Cookie-XS
+	}
 #	if ( ! /$distbase/ ) { next;}
 print STDERR sprintf("%4d ** ", __LINE__ ), (caller 0)[3], ' (', $distbase,') ', $SpecialPattern{$distbase},': ', $_, ' ---: ',
 	    grep (/$distbase/, keys %SpecialPattern)," :---\n" if
@@ -3523,10 +3528,6 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (01)', $distbase,' version-> ', $vers
 		/(.*\b)$distbase.v([0-9.]+)/ ||
 		0 ) {  #  line 3089/3155
 	    my $pattern = $1;
-	    if ($pattern =~ /-$/) { 
-  print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ',
-							 ' (-) ', $_,"\n" if $DEBUG_DISTBASE || $DEBUG_VERSION_DIR ;
-		next;}  # Avoid to pick CGI-Cookie-XS-0.18.tar.gz for Cookie-XS
 	    $version =	$2; $version =~ s/^[-]//;  # www-VRML-1.10.tar.gz -> -1.10 -> 1.10
 	    print STDERR sprintf("%4d ", __LINE__ ), ' (0) >', $pattern, '< ', $_,"\n" if ($DEBUG_DISTBASE||$DEBUG_EVAL_PATTERN);
 print STDERR sprintf("%4d ", __LINE__ ), ' (1) ', $distbase, ' --> ', $version,"\n" if $DEBUG_DISTBASE;
