@@ -57,7 +57,7 @@ my (%NoDot)    = qw (
  newmat  1
     );
 # PKGVERSION should include dot, say, avoid picking amavisd-new-20040701 etc
-# should automatically detecated from PKGVERSION ?
+# should automatically detected from PKGVERSION ?
 my (%NeedsDot) = qw (amavisd-new);
 my ($NeedsDot) = 0; # activated automatically if PKGVERSION has dot.
 
