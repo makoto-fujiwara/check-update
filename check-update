@@ -3726,6 +3726,7 @@ sub ReadMakefile($$)  {		# <- Main
 	    if ( m|^MASTER_SITES=\s+\$\{MASTER_SITE_SOURCEFORGE:=(.*)/|) { $SFProject = $1;}
 	    if ( m|^MASTER_SITES=\s+\$\{MASTER_SITE_PYPI:=p\/(.*)/|)     { $EggProject = $1;}
 	    if ( m|^MASTER_SITES=\s+\$\{MASTER_SITE_PYPI:=m\/(.*)/|)     { $EggProject = $1;}
+	    if ( m|^MASTER_SITES=\s+\$\{MASTER_SITE_PYPI:=g\/(.*)/|)     { $EggProject = $1;}
 	}
 	close(MAKEFILE);
 	if ($SFProject eq '' ) {
