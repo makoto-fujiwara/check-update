@@ -2883,7 +2883,11 @@ sub GitHubSpecial($$$$){
 	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], $zero_release_string,"\n" if $DEBUG_GITHUB;
 	    $no_release++;
 	}
-	if (
+	if    ( m,SPECTRWM_([0-9_]+),)  {
+		$cand = $1; $cand =~ s|_|.|g;
+	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], $cand,"\n" if $DEBUG_GITHUB;
+	}
+	elsif (
 	    m,data-name=\"(2[0-9]+-[01][0-9]-[0-9]+),	||   # devel/re2 2016-08-01
 	    m,/$distbase-([0-9.]+),	||
 	    m,archive/release_([0-9_]+)\.,	||   # ham/uhd
@@ -3724,9 +3728,7 @@ sub ReadMakefile($$)  {		# <- Main
 
 	   #        MASTER_SITES=     ${MASTER_SITE_SOURCEFORGE:=modauthkerb/}
 	    if ( m|^MASTER_SITES=\s+\$\{MASTER_SITE_SOURCEFORGE:=(.*)/|) { $SFProject = $1;}
-	    if ( m|^MASTER_SITES=\s+\$\{MASTER_SITE_PYPI:=p\/(.*)/|)     { $EggProject = $1;}
-	    if ( m|^MASTER_SITES=\s+\$\{MASTER_SITE_PYPI:=m\/(.*)/|)     { $EggProject = $1;}
-	    if ( m|^MASTER_SITES=\s+\$\{MASTER_SITE_PYPI:=g\/(.*)/|)     { $EggProject = $1;}
+	    if ( m|^MASTER_SITES=\s+\$\{MASTER_SITE_PYPI:=[a-z]\/(.*)/|)     { $EggProject = $1;}
 	}
 	close(MAKEFILE);
 	if ($SFProject eq '' ) {
