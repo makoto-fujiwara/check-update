@@ -1,7 +1,7 @@
 .include "environment.mk"
 
 PKGSRC?=	/usr/pkgsrc
-DIRECTORY=	${HOME}/public_html/pkgsrc/check-update
+DIRECTORY?=	${HOME}/public_html/pkgsrc/check-update
 URL?=		http://www.ki.nu/~makoto/pkgsrc/check-update/
 
 GIT_WORK?=	/export/git-work/check-update
