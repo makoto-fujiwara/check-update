@@ -341,6 +341,7 @@ ldg-SVN
 mintbin-CVS
 mintlib-CVS
 pml-CVS
+Cookie-XS
 );
 
 # DISTBASE to pattern
@@ -871,7 +872,7 @@ my (@xtimer) = qw(xtimer);
 #y (@euler)  = qw(euler);
 my (@RmLeadingZero) = qw (remind);
 # security/sslwrap 2.0.6 (dist) -> 206 (pkgsrc)
-my (@nodot) = qw(sslwap);
+#my (@nodot) = qw(sslwap mbmon); # see the line around 1669
 
 ##    -------------------------
 ##    P R O T O T Y P E S
@@ -1666,6 +1667,7 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (3) <', (caller 0)[3] ,'> ', $version
 	if (   $distbase =~ m|^xpdf-| )		      { $version = MonthToDigit($version); }
 	if ( $distbase =~ m|^euler$| )		      { $version = substr($version, 0, 4); }
 	if ( $distbase =~ m|^sslwrap$| )	      { $version =~ s/\.//g ; }
+	if ( $distbase =~ m|^mbmon$| )		      { $version =~ s/\.//g ; }
 	if (grep (/^$distbase$/,@RmLeadingZero)> 0 ) {
 print STDERR sprintf("%4d ", __LINE__ ), ' (4) <', (caller 0)[3] ,'> ', 'distbase (', $distbase, ') ', $version, ' --> ',"\n" if $DEBUG_EDITVersion;
 	    $version = RmLeadingZero($version, 2);}
@@ -2838,14 +2840,15 @@ sub GitHubSpecial($$$$){
 # devel/pcre-ocaml has GITHUB_TAG ocaml-pcre-ocaml (ocaml- is too much). To manage that case:
   print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' master_site (', $master_site, ,")\n" if $DEBUG_GITHUB;
 
-    if ($GITHUB_TAG) {
+        $GITHUB_PROJECT	= GetVariableValue($dir, $PackageName, 'GITHUB_PROJECT');
+	print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> ', $distbase, ' P(', $GITHUB_PROJECT, ")\n" if $DEBUG_DISTBASE || $DEBUG_GITHUB;	
+
+    if ($GITHUB_PROJECT eq '') {
 	$GITHUB_PROJECT	= $PackageName;
 	$GITHUB_PROJECT	=~ s/^py-//;
 	print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> ', $distbase, ' P(', $GITHUB_PROJECT, ")\n" if $DEBUG_DISTBASE || $DEBUG_GITHUB;	
-    } else {
-        $GITHUB_PROJECT	= GetVariableValue($dir, $PackageName, 'GITHUB_PROJECT');
-	print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> ', $distbase, ' P(', $GITHUB_PROJECT, ")\n" if $DEBUG_DISTBASE || $DEBUG_GITHUB;	
-    }
+    } 
+
     print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> ', $distbase, ' P(', $GITHUB_PROJECT, ")\n" if $DEBUG_DISTBASE || $DEBUG_GITHUB;
     #   https://github.com/jberger/Mojo-IOLoop-ForkCall/archive/
     #   https://github.com/jberger/Mojo-IOLoop-ForkCall/archive/0.16.tar.gz
@@ -2854,6 +2857,9 @@ sub GitHubSpecial($$$$){
 
     my($no_release) = 0;
     my(@fifo_three) = ();;  # store three consecutive lines  0 </span> relasess -> no_release
+    if ( ! ($master_site =~ m|/$|) ) { $master_site .= '/';}
+
+        print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> $GITHUB_PROJECT: ', $GITHUB_PROJECT, "\n" if $DEBUG_GITHUB || $DEBUG_HTTP_HEADER ;
  foreach  my $target  (
 		       "$master_site"."$GITHUB_PROJECT".'/releases',
 		       "$master_site",
@@ -2883,11 +2889,8 @@ sub GitHubSpecial($$$$){
 	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], $zero_release_string,"\n" if $DEBUG_GITHUB;
 	    $no_release++;
 	}
-	if    ( m,SPECTRWM_([0-9_]+),)  {
-		$cand = $1; $cand =~ s|_|.|g;
-	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], $cand,"\n" if $DEBUG_GITHUB;
-	}
-	elsif (
+
+	if (
 	    m,data-name=\"(2[0-9]+-[01][0-9]-[0-9]+),	||   # devel/re2 2016-08-01
 	    m,/$distbase-([0-9.]+),	||
 	    m,archive/release_([0-9_]+)\.,	||   # ham/uhd
@@ -3606,10 +3609,11 @@ print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], ">\t:", (caller 0)[2],
 	if ($version =~ /^[0-9_]+$/ ) { $version =~ s|_|.|g;} # contao 3_2_44 -> 3.2.44
 print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> (distbase) ', $distbase,' (version) ', $version, "\n" if ($DEBUG_DISTBASE || $DEBUG_EVAL_PATTERN);
 
-print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> distbase: ', $distbase,' (version) ', $version, "\n" if $DEBUG_EDITVersion;
-
 print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', 'distbase (', $distbase, ') version (', $version, ') ',$_,"\n" if   ($DEBUG_SIMPLE_PATTERN );	
 	if ($version eq '') { next;}
+#	if (! ($version =~ '/[0-9]/') ) { next;}
+# print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> distbase: ', $distbase,' (version) ', $version, "\n" if $DEBUG_EDITVersion;
+
 	if ( ! ($version =~ /[0-9]/ )) { next; } # need at least one digit
 	# 552 -> 5.5.2, 2.1.3 -> 213 (nkf) etc
 	#	if ($version =~ /1-bit ui/) { next;} # security sign pecuriarity
