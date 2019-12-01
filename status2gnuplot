@@ -1,0 +1,335 @@
+#!/usr/pkg/bin/perl
+use strict;
+use Getopt::Std;
+
+sub usage{
+    print <<HELP;
+$0 
+   Collect check-update status number and issue gnuplot command
+Synopsys:
+   $0 [-a] [-b branch] [-h] [-p] [-r days] [-u] [x]
+  -a         all  (plot total number also)
+  -b branch  PATH extention to collect status (example: HEAD)
+  -h         help
+  -p         percent (ratio to total count)
+  -r days   (default 3650 days = 10 years)
+  -u         Omit up-to-date (OK) value  (default plot it)
+  -x         debug
+HELP
+};
+sub GenerateXtics ($@){
+    my $range = shift;
+    my @xtics  = @_;
+
+    my $xtics;
+    my $segment = int ($range/10);
+    if ( $range < 370) {
+	foreach my $i ( 0 .. 9) {
+	    my $index = $i * $segment;
+	    $xtics .= "\'". substr($xtics[$index]->[1], 4, 2) . '/'
+		          . substr($xtics[$index]->[1], 6, 2) . "\' " 
+		          . substr($xtics[$index]->[0], 0, 4) .', ' ;
+	}
+    } # elsif ( $range < 180) {
+   # } else {
+#	$xtics = "'2015/01' 1, '2015/05' 100, '2015/10' 200, '2016/01' 300, '2016/05' 400, '2016/08' 500, '2016/12' 600, '2017/03' 690";
+#    }
+    return $xtics;
+}
+sub ReadFile($$@) {
+    my ($summary) = shift;
+    my ($dir)     = shift;
+    my (@ITEM)    = shift;
+
+my ($Found, $TODO, $UptoDate, $NA, $NoMaster, $NotFound, $Forbidden, $NotinDNS, 
+    $Texlive, $META, $confusing, $NotListed, $Checked, $Total);
+# row layout varies before and after 20150505-17 .. 20150507-00 .. 20170308
+    my ($summary_date) = $summary;
+    my ($row_shifted) = 0;
+    $summary_date =~ m|/(\d{8})-\d{2}/00|; $summary_date = $1;
+    if ($summary_date <= 20150505  ||
+        20170308      <=  $summary_date ) {
+	$row_shifted = 1;
+    }
+#    print STDERR sprintf("%04d ", __LINE__), 'row_shifted: ', $row_shifted, "\n";
+	    my ($date) = $dir;
+	    $date =~ s/(\d{8})-\d{2}/$1/;
+    # collect column
+    if ($row_shifted) {
+	    open(FILE, $summary) || print STDERR sprintf("%04d ", __LINE__). 'problem opening file'. "$!\n";
+	    while (<FILE>) {
+		if    (/Found:\s*([0-9]+) /)		{ $Found = $1;}
+		elsif (/TODO flags:\s*([0-9]+) /)	{ $TODO = $1;}
+		elsif (/Up-to-date:\s*([0-9]+) /)	{ $UptoDate = $1;}
+		elsif (/Not Available:\s*([0-9]+) /)	{ $NA = $1;}
+		elsif (/No Master Sites:\s*([0-9]+) /)	{ $NoMaster = $1;}
+		elsif (/NotFound \(404\):\s*([0-9]+) /)	{ $NotFound = $1;}
+		elsif (m|Forbidden\(403/550\):\s*([0-9]+)|){ $Forbidden = $1;}
+		elsif (/Site not in DNS:\s*([0-9]+) /)	{ $NotinDNS = $1;}
+		elsif (/Texlive:\s*([0-9]+) /)		{ $Texlive = $1;}
+		elsif (/META_PACKAGE:\s*([0-9]+) /)	{ $META = $1;}
+		elsif (/Confusing:\s*([0-9]+) /)	{ $confusing = $1;}
+		elsif (/Not Listed:\s*([0-9]+) /)	{ $NotListed = $1;}
+#Sum of Above:             0 
+	#Total Checked:        13658
+		elsif (/Sum of Above:\s*([0-9]+) /)	{ $Checked = $1;}
+		elsif (/Total Checked:\s*([0-9]+) /)	{ $Total = $1;}
+	    }
+	    close(FILE);
+    # row shifted 2015/05/08 -- 2017/03.07
+    } else {
+	    open(FILE, $summary) || print STDERR sprintf("%04d ", __LINE__). 'problem opening file'. "$!\n";
+	    while (<FILE>) {
+		if    (/Found:\s*([0-9]+) /)		{ $Found = $1;}
+		elsif (/TODO flags:\s*([0-9]+) /)	{ $TODO = $1;}
+		elsif (/Up-to-date:\s*([0-9]+) /)	{ $UptoDate = $1;}
+		elsif (/Not Available:\s*([0-9]+) /)	{ $NA = $1;}
+		elsif (/No Master Sites:\s*([0-9]+) /)	{ $NoMaster = $1;}
+		elsif (/NotFound \(404\):\s*([0-9]+) /)	{ $NotFound = $1;}
+		elsif (m|Forbidden\(403/550\):\s*([0-9]+)|){ $Forbidden = $1;}
+		elsif (/Site not in DNS:\s*([0-9]+) /)	{ $NotinDNS = $1;}
+		elsif (/Texlive:\s*([0-9]+) /)		{ ;}
+
+		elsif (/META_PACKAGE:\s*([0-9]+) /)	{ $Texlive = $1;}
+		elsif (/Confusing:\s*([0-9]+) /)	{ $META = $1;}
+		elsif (/Not Listed:\s*([0-9]+) /)	{ $confusing = $1;}
+		elsif (/Sum of Above:\s*([0-9]+) /)	{ $NotListed = $1;}
+#Total Checked:        13658 
+		elsif (/Total Checked:\s*([0-9]+) /)	{ $Checked = $1;}
+		elsif (/                    \s+([0-9]+) /)	{ $Total = $1;}
+	    }
+	    close(FILE);
+    }
+return (
+$date,
+$Found,
+$TODO,
+$UptoDate,
+$NA,
+$NoMaster,
+$NotFound,
+$Forbidden,
+$NotinDNS,
+$Texlive,
+$META,
+$confusing,
+$NotListed,
+$Checked,
+$Total,
+);
+
+#Sum of Above:             0 
+
+}
+# --- S T A R T   M A I N --- start main
+our(%opts);
+our(%ARGV);
+
+my($DIR) = $ENV{'HOME'}. '/public_html/pkgsrc/check-update';
+my($branch);
+
+my(@ITEM);
+# temporary file for passing to gnuplot
+my($GNUPLOT) = '/tmp/.' .$0;
+
+my($GNUPLOT_FILE) = $GNUPLOT. '_file';
+my($GNUPLOT_CMD)  = $GNUPLOT. '_cmd';
+
+my($GNUPLOT_OUT)  = '/tmp/check-update-trend';
+my($DEBUG)  = 0;
+
+getopts('ab:hr:upx',\%opts);
+    
+if ($opts{'b'}) { $branch = $opts{'b'};}
+if ($opts{'a'}) { $GNUPLOT_OUT .= '-a';}
+if ($opts{'u'}) { $GNUPLOT_OUT .= '-u';}
+if ($opts{'p'}) { $GNUPLOT_OUT .= '-percent';}
+if ($opts{'h'}) { usage(); exit}
+
+if ($opts{'x'}) { $DEBUG++;}
+
+my ($recent) = 3650;
+if ($opts{'r'}){
+    $recent = $opts{'r'} + 0;
+    $GNUPLOT_OUT .= '-r';    
+}
+
+$GNUPLOT_OUT .= '.png';
+if ($recent < 10 ) { 
+    print STDERR sprintf("%04d ", __LINE__). " You need how many date for recent --> "; die }
+
+if ($branch) { $DIR .= '/'. $branch;}
+print sprintf("%04d ", __LINE__) . '      branch: ' . $branch,     "\n";
+print sprintf("%04d ", __LINE__) . '         dir: ' . $DIR,        "\n";
+print sprintf("%04d ", __LINE__) . ' output file: ' . $GNUPLOT_OUT,"\n";
+if ( ! -d $DIR ) { die sprintf("%04d ", __LINE__) . ' *** No directory ***  ' . $DIR, "\n";}
+
+# now we have two directories, current (.) and old (./d2015). Do each
+opendir (DIR, $DIR);
+while (my $dir = readdir(DIR)){
+#    print $opts{'r'} .' - '.  $dir . ' -> ' . (stat($DIR.'/'.$dir))[9] .' : ' . time() . ';  '. 90*24*60*60 .  "+\n" ;
+    if ($recent && ((stat($DIR.'/'.$dir))[9] < time() - $recent*24*60*60 ) ) { next;}
+    if ($dir =~ /^20/) { 
+#	print $dir,"\n";
+	my ($summary) = $DIR.'/'.$dir. '/00_Stats.html';
+	if ( -f $summary) {
+	    push(@ITEM, [ReadFile($summary, $dir)]);
+	}
+	}
+} # end while
+closedir(DIR);
+
+$DIR = $DIR.'/d2015';
+opendir (DIR, $DIR);
+while (my $dir = readdir(DIR)){
+#	    print $dir,"\n";
+    if ( $recent && ((stat($DIR.'/'.$dir))[9] < time() - $recent*24*60*60 ))  { next;}
+    if ($dir =~ /^20/) { 
+	my ($summary) = $DIR.'/'.$dir. '/00_Stats.html';
+#	    print $summary,"\n";	
+	if ( -f $summary) {
+	    push(@ITEM, [ReadFile($summary, $dir)]);
+	}
+	}
+} # end while
+closedir(DIR);
+
+my(@XTICS);
+my(@SORTED);
+@SORTED = sort { $a->[0] <=> $b ->[0] } @ITEM;
+
+open(GNUPLOT_FILE, "> $GNUPLOT_FILE" ) || print STDERR sprintf("%04d ", __LINE__). 'problem opening file: '. $GNUPLOT_FILE. " $!\n";
+my ($serial) = 1;
+while (my $ptr = shift @SORTED) {
+    push(@XTICS,[$serial, $ptr ->[0] ]);
+    print  GNUPLOT_FILE $serial++ . ' '; 
+    foreach my $i (0..14) {print  GNUPLOT_FILE $ptr -> [$i]. ' ';  }
+    print GNUPLOT_FILE "\n";
+}
+close(GNUPLOT_FILE);
+# collect xtic information from serial and date
+foreach my $i ( 0.. $#XTICS){
+    print sprintf("%04d ", __LINE__). $XTICS[$i] ->[0] .' -> '. $XTICS[$i] ->[1]. "\n" if $DEBUG;
+}
+
+open(GNUPLOT_CMD, "> $GNUPLOT_CMD")|| print STDERR sprintf("%04d ", __LINE__). 'problem opening file: '. $GNUPLOT_CMD . " $!\n";
+#print join "\n", @list, "\n";
+
+
+my ($xtics);
+$xtics  = "'2015/01' 1, '2015/05' 100, '2015/10' 200, '2016/01' 300, '2016/05' 400, '2016/08' 500, '2016/12' 600, '2017/03' 690";
+
+#foreach my $i ( 0.. $#XTICS) {
+#    print $XTICS[$i]->[0], "\t",  $XTICS[$i]->[1], "\n";
+
+
+#print STDERR sprintf("%04d ", __LINE__) 
+
+$xtics  = GenerateXtics($recent, @XTICS);
+print STDERR sprintf("%04d ", __LINE__) . $xtics. "\n";
+
+if ($opts{'p'}) {
+    print GNUPLOT_CMD <<CMD_PER_CENT;
+set term png
+set out "/dev/null"
+set out "$GNUPLOT_OUT"
+set xtics ( $xtics)
+;
+plot \\
+    "/tmp/.status2gnuplot_file"  using 1:(\$3/\$16\*100)  title "To Be Updated" w linespoints, \\
+    "/tmp/.status2gnuplot_file"  using 1:(\$5/\$16\*100)  title "OK" w linespoints, \\
+CMD_PER_CENT
+} else {
+print GNUPLOT_CMD <<CMD_HEAD;
+set term png
+set out "/dev/null"
+set out "$GNUPLOT_OUT"
+set xtics ( $xtics)
+plot \\
+    "$GNUPLOT_FILE" using 1:3  title "To Be Updated" w linespoints, \\
+    "$GNUPLOT_FILE" using 1:4  title "TODO" w linespoints, \\
+CMD_HEAD
+
+    if ( ! $opts{'u'}) {
+print GNUPLOT_CMD <<CMD_UTD;
+    "$GNUPLOT_FILE" using 1:5  title "OK" w linespoints, \\
+CMD_UTD
+}
+
+print GNUPLOT_CMD <<CMD_HEAD2;
+    "$GNUPLOT_FILE" using 1:6  title "N/A" w linespoints, \\
+    "$GNUPLOT_FILE" using 1:7  title "No-Master" w linespoints, \\
+    "$GNUPLOT_FILE" using 1:8  title "Not-Found" w linespoints, \\
+    "$GNUPLOT_FILE" using 1:9  title "Forbidden" w linespoints, \\
+    "$GNUPLOT_FILE" using 1:10  title "Not-in- DNS" w linespoints, \\
+    "$GNUPLOT_FILE" using 1:11  title "TexLive" w linespoints, \\
+    "$GNUPLOT_FILE" using 1:12  title "Meta" w linespoints, \\
+    "$GNUPLOT_FILE" using 1:13  title "confusing" w linespoints, \\
+    "$GNUPLOT_FILE" using 1:14  title "NotListed" w linespoints, \\
+CMD_HEAD2
+
+    if ($opts{'a'}) {
+	print GNUPLOT_CMD <<GNUPLOT_CMD_ALL;
+    "$GNUPLOT_FILE" using 1:15  title "Checked" w linespoints, \\
+    "$GNUPLOT_FILE" using 1:16  title "Total" w linespoints
+GNUPLOT_CMD_ALL
+	}
+close(GNUPLOT_CMD);
+}
+system("/usr/pkg/bin/gnuplot $GNUPLOT_CMD");
+
+
+__END__
+<body>
+<pre>
+<span class="brown">Found:                 2117 These packages are to be updated</span>
+<span class="brown">TODO flags:             507 (More to be updated, by TODO)</span>
+Up-to-date:            5544 OK, Already up-to-date
+Not Available:          739 Failed to get update info (indicated as 0.0)
+No Master Sites:          0 (usually in files directory)
+NotFound (404):         788 MASTER_SITES returns 404, and no recovery
+Forbidden(403/550):     282 
+Site not in DNS:       1400 
+Name ends with digit:      0 (The name ends with digits, may give false version)
+Texlive:                131 (Texlive is skipped for now)
+META_PACKAGE:          1862 (Other than meta-pkgs category)
+Confusing:               42 <span class="reverse">(Found version wrong, hilighted, only for debug purpose)</span>
+Not Listed:             246 
+Sum of Above:             0 
+Total Checked:        13658 
+                      13950 
+Started:         Thu May 12 17:32:40 2016 UTC
+Ended:           Fri May 13 02:53:01 2016 UTC
+Elapsed:                    09:20:21
+
+
+#!/usr/local/bin/gnuplot -persist
+# set terminal postscript landscape noenhanced monochrome \
+#              dashed defaultplex "Helvetica" 14
+# set output 'output.ps'
+#set xrange [ 0 : 2 ] noreverse nowriteback
+#set yrange [ 0 : 1 ] noreverse nowriteback
+#set mxtics 5.000000
+#set mytics 5.000000
+#set xtics border mirror norotate 1
+#set ytics border mirror norotate 0.5
+set term png
+set out "/dev/null"
+set out '2012-arrl-cw.png'
+
+# plot "2011-xpo" using 1:2 title "2010" w boxes, \
+#      "2011-xpo" using 1:3 title "2011" w boxes
+
+plot \
+     "~/prep/arrl-2012-cw" using 1:3  title "2012-1" w linespoints,\
+     "~/prep/arrl-2012-cw" using 1:5  title "2012-2" w linespoints,\
+     "~/prep/arrl-2012-cw" using 1:4  title "2011-2" w lines,\
+     "~/prep/arrl-2012-cw" using 1:2  title "2011-1" w lines\
+
+#    EOF
+
+# expecting 'lines', 'points', 'linespoints', 'dots', 'impulses',
+#         'yerrorbars', 'xerrorbars', 'xyerrorbars', 'steps', 'fs
+
+
+
