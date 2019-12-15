@@ -1061,7 +1061,7 @@ sub CheckHeader($) {
     if ($url eq '') {
 	print STDERR sprintf("%4d ", __LINE__ ), ' <', (caller 0)[3], ">\t:", (caller 0)[2], ': ', $url, " \$url is empty\n";
 	return -1;}
-    print STDERR sprintf("%4d ", __LINE__ ), ' ', $curl_head, ' ', $url,"\n"  if $DEBUG_HTTP_HEADER || $DEBUG_SITE_HEADER;
+    print STDERR sprintf("%4d ", __LINE__ ), 'CheckHeader: <', (caller 0)[3], ">\t:", (caller 0)[2], ': $url: ', $url, ' ' , $curl_head, ' ', $url,"\n"  if $DEBUG_HTTP_HEADER || $DEBUG_SITE_HEADER;
     open(CURL, "$curl_head $url 2>&1|") || print STDERR '*** ',sprintf("%4d ", __LINE__ ),' Problem on ', (caller 0)[3],"\n";
     my ($line_count) = 0;
     while (<CURL>){
@@ -1095,7 +1095,8 @@ sub CheckDNS($) {
     $hostname =~ s,ftp://,,;
     
     $hostname =~ s,([^/]+).*,$1,;
-print STDERR sprintf("%4d ", __LINE__ ), ' hostname -> ', $hostname, "\n" if $DEBUG_HTTP_HEADER ;
+print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ', 
+' hostname -> ', $hostname, "\n" if $DEBUG_HTTP_HEADER ;
     my $res   = Net::DNS::Resolver->new;
     my $query = $res->search($hostname);
 #
@@ -1989,8 +1990,10 @@ sub GetDistBase($$$$$) {	# <- Main       DISTBASEDISTBASE
     my ($pattern);
 
     if (@return) {
-	print STDERR sprintf("%4d ", __LINE__ )," Automatic Found\n" if $DEBUG_AUTOMATIC_DISTBASE;
 	($DISTBASE, $pattern, $SimplePattern) = @return;
+	print STDERR sprintf("%4d DISTBASE(%s) pattern(%s) SimplePattern(%s)",
+			     __LINE__ , $DISTBASE, $pattern, $SimplePattern ),
+	    " Automatic Found\n" if $DEBUG_AUTOMATIC_DISTBASE;
 	push(@SimplePattern, $SimplePattern);
 	return $DISTBASE;
     } else {
@@ -2648,7 +2651,8 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (PKGNAME) ', $PKGNAME, ' --> DISTBASE
     my ($version, $count);
     my ($http_code) = 200;
     my ($location);
-
+print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ',
+					 ' (PKGNAME) ', $PKGNAME, ' --> DISTBASE (', $DISTBASE,") status: ", $MasterSiteStat, "\n" if $DEBUG_HTTP_HEADER ;
     if ( ! CheckDNS($master_site) ) {
 	return ('DNS', '0.0');
     }
@@ -4701,7 +4705,8 @@ print STDERR sprintf("%4d ", __LINE__ ), ' Automatic NeedsDot ' if $DEBUG_NEEDS_
 	my ($location); # destination to be directed
 	my ($dist_name) = GetVariableValue ($dir, $PackageName, 'DISTNAME');
         $dist_name .= GetVariableValue ($dir, $PackageName, 'EXTRACT_SUFX');
-
+	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ------------- $HOMEPAGE: ', $HOMEPAGE, "\n"
+	    if $DEBUG_HTTP_HEADER || $DEBUG_SITE_HEADER;
 	if              ( $HOMEPAGE eq '')	{ $HomePageStat = '';}
 	elsif (! CheckDNS($HOMEPAGE))		{ $HomePageStat = 'DNS';}
 	else {($HomePageStat, $location) = CheckHeader($HOMEPAGE); }
