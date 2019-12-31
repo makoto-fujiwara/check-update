@@ -2673,7 +2673,7 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (PKGNAME) ', $PKGNAME, ' --> DISTBASE
 	    $master_site .= '../releases.html';
 print STDERR sprintf("%4d ", __LINE__ ), ' (PKGNAME) ', $PKGNAME, ' --> master_site = ', $master_site,"\n" if $DEBUG_DISTBASE;
 	}
-	else {   
+	else {   # not github
 	($HomePageStat, $location) =  CheckHeader($home_page);
 print STDERR sprintf("%4d ", __LINE__ ), ' (PKGNAME) ', $PKGNAME, ' --> master_site = ', $home_page, ' status: ', $HomePageStat,"\n" if $DEBUG_DISTBASE;
 	if ($HomePageStat == 404 || $HomePageStat == 'DNS' ) { return ($HomePageStat, '0.0');}
