@@ -348,6 +348,7 @@ Cookie-XS
 my (%SEARCH_STRINGS)  = (
     'txt2man',		'$_ =~ m|$distbase-([0-9.]+).*|; $version = $1;', # no .tar.gz etc suffix
     'dotfile',		'$_ =~ m| - version ([0-9.]+).*|; $version = $1;', # no .tar.gz etc suffix    
+    'later',		'$_ =~ m|[^p]later_([0-9.]+).*|;$version = $1;',	 # confusion later or plater (debug with -xp)
     );
 # Net-Libdnet is listed to avoid not to pick Net-Libdnet6-0.27 -as 6-0.27
 #my (@Debian) = qw(signing-party);
@@ -356,6 +357,7 @@ my ($SpecialPatternY);	# variable to hold by-package pattern
 #  --- HARDCODE TABLES --- ( to ease accessing tables )
 # key is DISTBASE (but please note DISTBASE itself is extracted by this script)    
 my (%SpecialPattern) = (
+    'later',		'$line =~ s/[^p]later+([0-9]+).*/$1/ ;',  # later_1.0.0 and plater_1.0.1 confusion
     'cairo',		'$line =~ s/.*$distbase(-5c){0,}-([0-9.]+[0-9]).*/$2/ ;',  # games/crimsonfields
     'potrace',		'$line =~ m|.*$distbase[_-]([0-9.]+)[.-].[a-z].*|; my($rrr) = $1 ;',
 
