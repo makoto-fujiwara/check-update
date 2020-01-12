@@ -1,5 +1,4 @@
 #!/usr/pkg/bin/perl
-
 use strict;
 #use warnings;
 use Net::DNS;	# net/p5-Net-DNS
