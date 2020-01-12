@@ -113,6 +113,7 @@ my ($DEBUG_MASTER_SITE);  # $master_site get strange  with previous version #
 my ($DEBUG_NCAND);		# Number of Candidate (summary)
 my ($DEBUG_NEEDS_DOT);
 my ($DEBUG_PYPI);
+my ($DEBUG_R_PACKAGE);
 my ($DEBUG_REDIRECT);
 my ($DEBUG_RUBYGEM);
 my ($DEBUG_SF);
@@ -154,6 +155,7 @@ my(%LongName)  = (
    'N',  'Number of candidate',
    'p',  'Special Pattern',
    'P',	 'Simple Pattern',
+   'Q',  'R package Special',
    'r',  'RubyGems',
    'R',  'Redirect',
    's',  'SourceForge',
@@ -898,6 +900,7 @@ sub GreyDigitIf00($$);
 sub Http301core($$);
 sub ParseDirectory($$$$$$);
 sub PrintHeader($);
+sub R_package_Special($$);
 sub ReadMakefile($$);
 sub ReadTodo($);
 sub RecordMaxElapsed($);
@@ -918,6 +921,7 @@ check-update:
     cd /usr/pkgsrc/category/package; check-update
 SHORT_HELP
 }
+#"
 sub Usage($$) {
     my($summary) = shift;
     my($output_directory) = shift;
@@ -3182,7 +3186,7 @@ print STDERR sprintf("%4d ", __LINE__ ).' location: ', $location,"\n" if  $DEBUG
 sub ParseDebug($){
     my ($pattern) = shift;
     my %DEBUG;
-    my $char_list = 'aAbBcCdDEegFfGhHklLmMnNpPrRsSUVxXyzZ1239';
+    my $char_list = 'aAbBcCdDEegFfGhHklLmMnNpPrQRsSUVxXyzZ1239';
 
     if ( $pattern =~ /a/ ) { $pattern = $char_list  }
     print STDERR sprintf("%4d ", __LINE__ ), ' DEBUG pattern (',  $pattern,  ')',"\n";
@@ -3219,6 +3223,7 @@ sub ParseDebug($){
     $DEBUG_NCAND		= $DEBUG{'N'} + $DEBUG{'a'} ;
     $DEBUG_PYPI			= $DEBUG{'y'} + $DEBUG{'a'} ;
     $DEBUG_RUBYGEM		= $DEBUG{'r'} + $DEBUG{'a'} ;
+    $DEBUG_R_PACKAGE		= $DEBUG{'Q'} + $DEBUG{'a'} ;
     $DEBUG_REDIRECT		= $DEBUG{'R'} + $DEBUG{'a'} ;
     $DEBUG_SPECIAL_PATTERN	= $DEBUG{'p'} + $DEBUG{'a'} ;
     $DEBUG_SIMPLE_PATTERN	= $DEBUG{'P'} + $DEBUG{'a'} ;
@@ -3488,6 +3493,7 @@ print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '> called from: ', (ca
 
 	if (0) { # dummy for ease to swap sequence below		# MAJOR_IF_THEN_ELSE
 	} elsif ($R_Package) {						# MAJOR_IF_THEN_ELSE
+	    (@candidate, $version) = R_package_Special($DISTBASE, $_);
 #	    print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', 'PackageName (', $PackageName, ') vesion (', $version, ') ',$_,"\n";
 	    if (/$distbase(_)([0-9_.-]+)\.tar./ )	{
                  #MatrixModels_0.4-1.tar.gz
@@ -3713,6 +3719,15 @@ SUMMARY
 #     print STDERR sprintf("%4d ** ", __LINE__ ), '(', $line,')',"\n";
 #     return ($master_site, $line);
 # }
+sub R_package_Special($$){
+    my $distbase = shift;
+    my $line     = shift;
+#    if ($_ =~ /$distbase/) {
+
+   print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' distbase(', $distbase, ')', $_, "\n" if $DEBUG_R_PACKAGE;
+    die;
+#    }
+}
 sub ReadMakefile($$)  {		# <- Main
     my ($category) =	shift;
     my ($directory) =	shift;
