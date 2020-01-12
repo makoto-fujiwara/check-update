@@ -3493,8 +3493,8 @@ print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '> called from: ', (ca
 
 	if (0) { # dummy for ease to swap sequence below		# MAJOR_IF_THEN_ELSE
 	} elsif ($R_Package) {						# MAJOR_IF_THEN_ELSE
-	    (@candidate, $version) = R_package_Special($DISTBASE, $_);
-#	    print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', 'PackageName (', $PackageName, ') vesion (', $version, ') ',$_,"\n";
+	    push(@candidate, R_package_Special($DISTBASE, $_));
+#	    print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', 'PackageName (', $PackageName, ') vesion (', $version, ') ',$_,"\n" if $DEBUG_R_PACKAGE;
 	    if (/$distbase(_)([0-9_.-]+)\.tar./ )	{
                  #MatrixModels_0.4-1.tar.gz
 	    $version = $2; $version =~ s/-/./;
@@ -3719,14 +3719,22 @@ SUMMARY
 #     print STDERR sprintf("%4d ** ", __LINE__ ), '(', $line,')',"\n";
 #     return ($master_site, $line);
 # }
+my $ONLY_ONCE = 0;
 sub R_package_Special($$){
-    my $distbase = shift;
+    my $distname = shift;
     my $line     = shift;
-#    if ($_ =~ /$distbase/) {
 
+    my $match = '';
+    my $distbase =  $distname;
+       $distbase =~ s/_([0-9\.]+)//;
+    if ($ONLY_ONCE-- > 0) {
    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' distbase(', $distbase, ')', $_, "\n" if $DEBUG_R_PACKAGE;
-    die;
-#    }
+    }
+    if ($_ =~ /$distbase(_[0-9\._\-]+)/) {
+	$match = $1;  $match =~ s/_//;   $match =~ s/-/./;
+   print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' distbase(', $distbase, ')', 'match(', $match, ')', $_, "\n" if $DEBUG_R_PACKAGE;
+    }
+    return ($match);
 }
 sub ReadMakefile($$)  {		# <- Main
     my ($category) =	shift;
