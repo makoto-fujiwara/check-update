@@ -1,4 +1,7 @@
 (TODO)
+   - 20200207
+     deve/R-fs        -> picks kzfs_1.5.0.2
+     sysutils/R-later -> picks plater_1.0.1
    - leave older version of 00.Summary.html (by two weeks ?)
    - pkg_info is not always in PATH, for example execution from crontab
    - devel/adacurses defines (just one) DISTFILES = AdaCurses-${ACVERSION}.tgz, should pick it

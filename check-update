@@ -113,6 +113,7 @@ my ($DEBUG_MASTER_SITE);  # $master_site get strange  with previous version #
 my ($DEBUG_NCAND);		# Number of Candidate (summary)
 my ($DEBUG_NEEDS_DOT);
 my ($DEBUG_PYPI);
+my ($DEBUG_R_PACKAGE);
 my ($DEBUG_REDIRECT);
 my ($DEBUG_RUBYGEM);
 my ($DEBUG_SF);
@@ -154,6 +155,7 @@ my(%LongName)  = (
    'N',  'Number of candidate',
    'p',  'Special Pattern',
    'P',	 'Simple Pattern',
+   'Q',  'R package Special',
    'r',  'RubyGems',
    'R',  'Redirect',
    's',  'SourceForge',
@@ -348,6 +350,7 @@ Cookie-XS
 my (%SEARCH_STRINGS)  = (
     'txt2man',		'$_ =~ m|$distbase-([0-9.]+).*|; $version = $1;', # no .tar.gz etc suffix
     'dotfile',		'$_ =~ m| - version ([0-9.]+).*|; $version = $1;', # no .tar.gz etc suffix    
+    'later',		'$_ =~ m|[^p]later_([0-9.]+).*|;$version = $1;',	 # confusion later or plater (debug with -xp)
     );
 # Net-Libdnet is listed to avoid not to pick Net-Libdnet6-0.27 -as 6-0.27
 #my (@Debian) = qw(signing-party);
@@ -356,6 +359,7 @@ my ($SpecialPatternY);	# variable to hold by-package pattern
 #  --- HARDCODE TABLES --- ( to ease accessing tables )
 # key is DISTBASE (but please note DISTBASE itself is extracted by this script)    
 my (%SpecialPattern) = (
+    'later',		'$line =~ s/[^p]later+([0-9]+).*/$1/ ;',  # later_1.0.0 and plater_1.0.1 confusion
     'cairo',		'$line =~ s/.*$distbase(-5c){0,}-([0-9.]+[0-9]).*/$2/ ;',  # games/crimsonfields
     'potrace',		'$line =~ m|.*$distbase[_-]([0-9.]+)[.-].[a-z].*|; my($rrr) = $1 ;',
 
@@ -896,6 +900,7 @@ sub GreyDigitIf00($$);
 sub Http301core($$);
 sub ParseDirectory($$$$$$);
 sub PrintHeader($);
+sub R_package_Special($$);
 sub ReadMakefile($$);
 sub ReadTodo($);
 sub RecordMaxElapsed($);
@@ -916,6 +921,7 @@ check-update:
     cd /usr/pkgsrc/category/package; check-update
 SHORT_HELP
 }
+#"
 sub Usage($$) {
     my($summary) = shift;
     my($output_directory) = shift;
@@ -1061,7 +1067,7 @@ sub CheckHeader($) {
     if ($url eq '') {
 	print STDERR sprintf("%4d ", __LINE__ ), ' <', (caller 0)[3], ">\t:", (caller 0)[2], ': ', $url, " \$url is empty\n";
 	return -1;}
-    print STDERR sprintf("%4d ", __LINE__ ), ' ', $curl_head, ' ', $url,"\n"  if $DEBUG_HTTP_HEADER || $DEBUG_SITE_HEADER;
+    print STDERR sprintf("%4d ", __LINE__ ), 'CheckHeader: <', (caller 0)[3], ">\t:", (caller 0)[2], ': $url: ', $url, ' ' , $curl_head, ' ', $url,"\n"  if $DEBUG_HTTP_HEADER || $DEBUG_SITE_HEADER;
     open(CURL, "$curl_head $url 2>&1|") || print STDERR '*** ',sprintf("%4d ", __LINE__ ),' Problem on ', (caller 0)[3],"\n";
     my ($line_count) = 0;
     while (<CURL>){
@@ -1095,7 +1101,8 @@ sub CheckDNS($) {
     $hostname =~ s,ftp://,,;
     
     $hostname =~ s,([^/]+).*,$1,;
-print STDERR sprintf("%4d ", __LINE__ ), ' hostname -> ', $hostname, "\n" if $DEBUG_HTTP_HEADER ;
+print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ', 
+' hostname -> ', $hostname, "\n" if $DEBUG_HTTP_HEADER ;
     my $res   = Net::DNS::Resolver->new;
     my $query = $res->search($hostname);
 #
@@ -1989,8 +1996,10 @@ sub GetDistBase($$$$$) {	# <- Main       DISTBASEDISTBASE
     my ($pattern);
 
     if (@return) {
-	print STDERR sprintf("%4d ", __LINE__ )," Automatic Found\n" if $DEBUG_AUTOMATIC_DISTBASE;
 	($DISTBASE, $pattern, $SimplePattern) = @return;
+	print STDERR sprintf("%4d DISTBASE(%s) pattern(%s) SimplePattern(%s)",
+			     __LINE__ , $DISTBASE, $pattern, $SimplePattern ),
+	    " Automatic Found\n" if $DEBUG_AUTOMATIC_DISTBASE;
 	push(@SimplePattern, $SimplePattern);
 	return $DISTBASE;
     } else {
@@ -2648,7 +2657,8 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (PKGNAME) ', $PKGNAME, ' --> DISTBASE
     my ($version, $count);
     my ($http_code) = 200;
     my ($location);
-
+print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ',
+					 ' (PKGNAME) ', $PKGNAME, ' --> DISTBASE (', $DISTBASE,") status: ", $MasterSiteStat, "\n" if $DEBUG_HTTP_HEADER ;
     if ( ! CheckDNS($master_site) ) {
 	return ('DNS', '0.0');
     }
@@ -2669,7 +2679,7 @@ print STDERR sprintf("%4d ", __LINE__ ), ' (PKGNAME) ', $PKGNAME, ' --> DISTBASE
 	    $master_site .= '../releases.html';
 print STDERR sprintf("%4d ", __LINE__ ), ' (PKGNAME) ', $PKGNAME, ' --> master_site = ', $master_site,"\n" if $DEBUG_DISTBASE;
 	}
-	else {   
+	else {   # not github
 	($HomePageStat, $location) =  CheckHeader($home_page);
 print STDERR sprintf("%4d ", __LINE__ ), ' (PKGNAME) ', $PKGNAME, ' --> master_site = ', $home_page, ' status: ', $HomePageStat,"\n" if $DEBUG_DISTBASE;
 	if ($HomePageStat == 404 || $HomePageStat == 'DNS' ) { return ($HomePageStat, '0.0');}
@@ -3176,7 +3186,7 @@ print STDERR sprintf("%4d ", __LINE__ ).' location: ', $location,"\n" if  $DEBUG
 sub ParseDebug($){
     my ($pattern) = shift;
     my %DEBUG;
-    my $char_list = 'aAbBcCdDEegFfGhHklLmMnNpPrRsSUVxXyzZ1239';
+    my $char_list = 'aAbBcCdDEegFfGhHklLmMnNpPrQRsSUVxXyzZ1239';
 
     if ( $pattern =~ /a/ ) { $pattern = $char_list  }
     print STDERR sprintf("%4d ", __LINE__ ), ' DEBUG pattern (',  $pattern,  ')',"\n";
@@ -3213,6 +3223,7 @@ sub ParseDebug($){
     $DEBUG_NCAND		= $DEBUG{'N'} + $DEBUG{'a'} ;
     $DEBUG_PYPI			= $DEBUG{'y'} + $DEBUG{'a'} ;
     $DEBUG_RUBYGEM		= $DEBUG{'r'} + $DEBUG{'a'} ;
+    $DEBUG_R_PACKAGE		= $DEBUG{'Q'} + $DEBUG{'a'} ;
     $DEBUG_REDIRECT		= $DEBUG{'R'} + $DEBUG{'a'} ;
     $DEBUG_SPECIAL_PATTERN	= $DEBUG{'p'} + $DEBUG{'a'} ;
     $DEBUG_SIMPLE_PATTERN	= $DEBUG{'P'} + $DEBUG{'a'} ;
@@ -3482,8 +3493,9 @@ print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '> called from: ', (ca
 
 	if (0) { # dummy for ease to swap sequence below		# MAJOR_IF_THEN_ELSE
 	} elsif ($R_Package) {						# MAJOR_IF_THEN_ELSE
-#	    print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', 'PackageName (', $PackageName, ') vesion (', $version, ') ',$_,"\n";
-	    if (/$distbase(_)([0-9_.-]+)\.tar./ )	{
+	    push(@candidate, R_package_Special($DISTBASE, $_));
+#	    print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', 'PackageName (', $PackageName, ') vesion (', $version, ') ',$_,"\n" if $DEBUG_R_PACKAGE;
+	    if (/\W$distbase(_)([0-9_.-]+)\.tar./ )	{
                  #MatrixModels_0.4-1.tar.gz
 	    $version = $2; $version =~ s/-/./;
 #	    print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ', 'PackageName (', $PackageName, ') vesion (', $version, ') ',$_,"\n";
@@ -3707,6 +3719,23 @@ SUMMARY
 #     print STDERR sprintf("%4d ** ", __LINE__ ), '(', $line,')',"\n";
 #     return ($master_site, $line);
 # }
+my $ONLY_ONCE = 0;
+sub R_package_Special($$){
+    my $distname = shift;
+    my $line     = shift;
+
+    my $match = '';
+    my $distbase =  $distname;
+       $distbase =~ s/_([0-9\.]+)//;
+    if ($ONLY_ONCE-- > 0) {
+   print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' distbase(', $distbase, ')', $_, "\n" if $DEBUG_R_PACKAGE;
+    }
+    if ($_ =~ /\W$distbase(_[0-9\._\-]+)/) {
+	$match = $1;  $match =~ s/_//;   $match =~ s/-/./;
+   print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' distbase(', $distbase, ')', 'match(', $match, ')', $_, "\n" if $DEBUG_R_PACKAGE;
+    }
+    return ($match);
+}
 sub ReadMakefile($$)  {		# <- Main
     my ($category) =	shift;
     my ($directory) =	shift;
@@ -4701,7 +4730,8 @@ print STDERR sprintf("%4d ", __LINE__ ), ' Automatic NeedsDot ' if $DEBUG_NEEDS_
 	my ($location); # destination to be directed
 	my ($dist_name) = GetVariableValue ($dir, $PackageName, 'DISTNAME');
         $dist_name .= GetVariableValue ($dir, $PackageName, 'EXTRACT_SUFX');
-
+	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ------------- $HOMEPAGE: ', $HOMEPAGE, "\n"
+	    if $DEBUG_HTTP_HEADER || $DEBUG_SITE_HEADER;
 	if              ( $HOMEPAGE eq '')	{ $HomePageStat = '';}
 	elsif (! CheckDNS($HOMEPAGE))		{ $HomePageStat = 'DNS';}
 	else {($HomePageStat, $location) = CheckHeader($HOMEPAGE); }
