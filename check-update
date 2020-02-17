@@ -2926,6 +2926,7 @@ sub GitHubSpecial($$$$){
 # should skip libretro-2048
 	    if ( $PackageName =~ /libretro-/  && $cand>2000 ) {next;}
 	    if ( $PackageName =~ /kakoune/    && $cand>201801 ) {next;}  # skip  20181001 etc,
+	    if ( $PackageName =~ /neatvi/     && $cand eq '0.0' ) {next;}  # skip  20181001 etc,
 	    $cand =~ s/(2[0-9]+)-([01][0-9])-([0-9]+)/$1$2$3/; # devel/re2 2016-08-01
 
   	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> ', $cand, ' :: ', $_, "\n" if $DEBUG_GITHUB;
