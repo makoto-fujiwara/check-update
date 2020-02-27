@@ -178,10 +178,10 @@ my (%SkipLookingForGuide) = qw(
     upx		1
     );
 
-my ($curl_head)		= 'curl -k -I --location --insecure';
-my ($curl_head_secure)	= 'curl -k -I --location --insecure -s';
-my ($curl_list)		= 'curl -k -l --location --insecure --user-agent FireFox';
-my ($curl_list_secure)	= 'curl -k -l --location --insecure --user-agent FireFox -s';
+my ($curl_head)		= 'curl -k -I --location --insecure --max-time 1800';
+my ($curl_head_secure)	= 'curl -k -I --location --insecure --max-time 1800 -s';
+my ($curl_list)		= 'curl -k -l --location --insecure --max-time 1800 --user-agent FireFox';
+my ($curl_list_secure)	= 'curl -k -l --location --insecure --max-time 1800 --user-agent FireFox -s';
 
 #    $curl_head		= 'w3m -dump_head';
 #    $curl_head_secure	= 'w3m -dump_head';
