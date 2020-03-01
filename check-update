@@ -3490,7 +3490,8 @@ print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '> called from: ', (ca
 	if ( /[0-9._]+-os-x/ )	{next;}
 	if ( /[0-9._]+-install/ )	{next;}
 	if ( /[0-9._]+pr1/ )	{next;}
-	if ( /[0-9._]+pre[0-9]/ )	{next;}
+	if ( /[0-9._][+-]pre[0-9]/ )	{next;}
+	if ( /[0-9._][+-]rc[0-9]/ )	{next;}
 	if ( /[0-9._]+-TRIAL/ )	{next;}
 
 	if (0) { # dummy for ease to swap sequence below		# MAJOR_IF_THEN_ELSE
