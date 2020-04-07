@@ -1,5 +1,4 @@
 #!/usr/pkg/bin/perl
-
 use strict;
 #use warnings;
 use Net::DNS;	# net/p5-Net-DNS
@@ -179,10 +178,10 @@ my (%SkipLookingForGuide) = qw(
     upx		1
     );
 
-my ($curl_head)		= 'curl -k -I --location --insecure';
-my ($curl_head_secure)	= 'curl -k -I --location --insecure -s';
-my ($curl_list)		= 'curl -k -l --location --insecure --user-agent FireFox';
-my ($curl_list_secure)	= 'curl -k -l --location --insecure --user-agent FireFox -s';
+my ($curl_head)		= 'curl -k -I --location --insecure --max-time 1800';
+my ($curl_head_secure)	= 'curl -k -I --location --insecure --max-time 1800 -s';
+my ($curl_list)		= 'curl -k -l --location --insecure --max-time 1800 --user-agent FireFox';
+my ($curl_list_secure)	= 'curl -k -l --location --insecure --max-time 1800 --user-agent FireFox -s';
 
 #    $curl_head		= 'w3m -dump_head';
 #    $curl_head_secure	= 'w3m -dump_head';
@@ -2926,6 +2925,9 @@ sub GitHubSpecial($$$$){
 	    if ( $PackageName eq 'argon2'     && $cand< 2000 ) {next;}
 # should skip libretro-2048
 	    if ( $PackageName =~ /libretro-/  && $cand>2000 ) {next;}
+	    if ( $PackageName =~ /kakoune/    && $cand>201801 ) {next;}  # skip  20181001 etc,
+	    if ( $PackageName =~ /neatvi/     && $cand eq '0.0' ) {next;}  # skip  20181001 etc,
+	    if ( $PackageName =~ /kilo/     && $cand eq '0.0' ) {next;}  # skip  20181001 etc,
 	    $cand =~ s/(2[0-9]+)-([01][0-9])-([0-9]+)/$1$2$3/; # devel/re2 2016-08-01
 
   	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> ', $cand, ' :: ', $_, "\n" if $DEBUG_GITHUB;
@@ -3488,7 +3490,9 @@ print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '> called from: ', (ca
 	if ( /[0-9._]+-os-x/ )	{next;}
 	if ( /[0-9._]+-install/ )	{next;}
 	if ( /[0-9._]+pr1/ )	{next;}
-	if ( /[0-9._]+pre[0-9]/ )	{next;}
+	if ( /[0-9._][+-]pre[0-9]/ )	{next;}
+	if ( /[0-9._][+-]rc[0-9]/ )	{next;}
+	if ( /[0-9._]beta/ )	{next;}
 	if ( /[0-9._]+-TRIAL/ )	{next;}
 
 	if (0) { # dummy for ease to swap sequence below		# MAJOR_IF_THEN_ELSE
