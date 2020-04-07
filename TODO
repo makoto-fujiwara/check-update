@@ -1,4 +1,8 @@
 (TODO)
+   - 20200315
+     chat/atheme 7.2.10.r2 < 7.2.9
+     chat/meanwhile found 1.2.8, but it is gaim-meanwhile
+
    - 20200207
      deve/R-fs        -> picks kzfs_1.5.0.2
      sysutils/R-later -> picks plater_1.0.1
