@@ -2931,7 +2931,7 @@ sub GitHubSpecial($$$$){
 	    $cand =~ s/(2[0-9]+)-([01][0-9])-([0-9]+)/$1$2$3/; # devel/re2 2016-08-01
 
   	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> ', $cand, ' :: ', $_, "\n" if $DEBUG_GITHUB;
-	    if ($distbase eq 'uhd' || $distbase eq 'mame' 
+	    if (		      $distbase eq 'mame'
 		) {  $cand = EditVersion($distbase,$cand); }
 	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> ', $cand, ' :: ', $_, "\n" if $DEBUG_GITHUB;
 	    push(@candidate, $cand);
