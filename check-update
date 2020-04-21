@@ -2889,7 +2889,6 @@ sub GitHubSpecial($$$$){
 	if (m,archive/release_([0-9_]+)-(pre|alpha|rc).*,) { next;}
 	if         (m,release-([0-9.]+)-(pre|alpha|rc).*,) { next;}
 	if    (m,releases/tag/([0-9.]+)-(pre|alpha|rc).*,) { next;}  # not to pick audio/ardour-5.0pre0
-
 	chomp();
 	push(@fifo_three, $_); if ($#fifo_three > 2) { shift(@fifo_three);}
 	my $zero_release_string = join '',@fifo_three;
@@ -3491,6 +3490,7 @@ print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '> called from: ', (ca
 	if ( /[0-9._]+-install/ )	{next;}
 	if ( /[0-9._]+pr1/ )	{next;}
 	if ( /[0-9._][+-]pre[0-9]/ )	{next;}
+	if ( /[0-9._]pre[0-9]/ )	{next;}
 	if ( /[0-9._][+-]rc[0-9]/ )	{next;}
 	if ( /[0-9._]beta/ )	{next;}
 	if ( /[0-9._]+-TRIAL/ )	{next;}
