@@ -83,6 +83,7 @@ my ($line); # SpecialPattern
 my ($summary_tmp);
 my ($summary_leaf);	# only for stats output, not used now
 
+my ($quiet_flag) = 1;	# ask silence, default = yes
 # debugging flags, see ParseDebug
 my ($DEBUG_ALTERNATIVE);
 my ($DEBUG_AUTOMATIC_DISTBASE);
@@ -4485,7 +4486,7 @@ my ($PackageStart);	# For timing, not used for now
 my ($PackageEnd);
 
 my ($argv)    = join ' ', @ARGV;	# to show at Stats()
-getopts( 'c:Dd:fFhHM:mnP:p:rRs:S:tT:uvVwWx:y:', \%opts);
+getopts( 'c:Dd:fFhHM:mnP:p:qrRs:S:tT:uvVwWx:y:', \%opts);
 
 if ($opts{'b'}) { $option_batch++;}	# used be default, not implemented
 if ($opts{'c'}) { $category = $opts{'c'}; $full_list++;}
@@ -4499,6 +4500,7 @@ if ($opts{'n'}) { $not_to_list++;}
 if ($opts{'p'}) { $pkgsrc = $opts{'p'};}
 if ($opts{'P'}) { $selected =  $opts{'P'}; $partial++;}
 
+if ($opts{'q'}) { $quiet_flag++};
 if ($opts{'r'}) { $include_reverse++};
 if ($opts{'R'}) { $skip_rubygems_check++};
 if ($opts{'s'}) { $starting =  $opts{'s'}; $skip_until_match++; $partial++;}
@@ -4554,7 +4556,7 @@ if (CheckEnvironment() == -1) { die "Please install necessary package(s).\n" ;}
 
 if ( -f $MaturedList) {
     print STDERR sprintf("%4d ", __LINE__ ), " *** Reading filename: ", $MaturedList," -> " if $verbose;
-    printf STDERR "%d lines read\n", SkipTooOld($MaturedList);
+    printf STDERR "%d lines read\n", SkipTooOld($MaturedList) if ($quiet_flag == 0) ;
 } else {
     print STDERR sprintf("%4d ", __LINE__ ), 'MaturedList not found: ', $MaturedList, "\n"  if $verbose;
 }
