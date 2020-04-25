@@ -2809,6 +2809,9 @@ sub pypiSpecial($$$$){
 	    if ($returnCode == 200 ) {last;}
     return ($returnCode, @candidate);
 }
+# ------------------------------------------------------
+#               called once from main
+# ------------------------------------------------------
 sub EggSpecial($$$){
     my $PKGNAME 	= shift;
     my $PIP_EXECUTABLE	= shift;
@@ -3765,7 +3768,7 @@ sub ReadMakefile($$)  {		# <- Main
 
 	   #        MASTER_SITES=     ${MASTER_SITE_SOURCEFORGE:=modauthkerb/}
 	    if ( m|^MASTER_SITES=\s+\$\{MASTER_SITE_SOURCEFORGE:=(.*)/|) { $SFProject = $1;}
-	    if ( m|^MASTER_SITES=\s+\$\{MASTER_SITE_PYPI:=[a-z]\/(.*)/|)     { $EggProject = $1;}
+	    if ( m|^MASTER_SITES=\s+\$\{MASTER_SITE_PYPI:=[a-zA-Z]\/(.*)/|)     { $EggProject = $1;}
 	}
 	close(MAKEFILE);
 	if ($SFProject eq '' ) {
