@@ -5,6 +5,7 @@ tree. Reading [whole tree](http://cvsweb.netbsd.org/bsdweb.cgi/pkgsrc/)
 and generates the list of To-Be-Updated packges.
 
 To try
+
 	cd wip/check-update;
 	make package-install;
 	cd /usr/pkgsrc/category/package;
