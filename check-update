@@ -2809,6 +2809,9 @@ sub pypiSpecial($$$$){
 	    if ($returnCode == 200 ) {last;}
     return ($returnCode, @candidate);
 }
+# ------------------------------------------------------
+#               called once from main
+# ------------------------------------------------------
 sub EggSpecial($$$){
     my $PKGNAME 	= shift;
     my $PIP_EXECUTABLE	= shift;
@@ -2889,7 +2892,6 @@ sub GitHubSpecial($$$$){
 	if (m,archive/release_([0-9_]+)-(pre|alpha|rc).*,) { next;}
 	if         (m,release-([0-9.]+)-(pre|alpha|rc).*,) { next;}
 	if    (m,releases/tag/([0-9.]+)-(pre|alpha|rc).*,) { next;}  # not to pick audio/ardour-5.0pre0
-
 	chomp();
 	push(@fifo_three, $_); if ($#fifo_three > 2) { shift(@fifo_three);}
 	my $zero_release_string = join '',@fifo_three;
@@ -2931,7 +2933,7 @@ sub GitHubSpecial($$$$){
 	    $cand =~ s/(2[0-9]+)-([01][0-9])-([0-9]+)/$1$2$3/; # devel/re2 2016-08-01
 
   	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> ', $cand, ' :: ', $_, "\n" if $DEBUG_GITHUB;
-	    if ($distbase eq 'uhd' || $distbase eq 'mame' 
+	    if (		      $distbase eq 'mame'
 		) {  $cand = EditVersion($distbase,$cand); }
 	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> ', $cand, ' :: ', $_, "\n" if $DEBUG_GITHUB;
 	    push(@candidate, $cand);
@@ -3491,6 +3493,7 @@ print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '> called from: ', (ca
 	if ( /[0-9._]+-install/ )	{next;}
 	if ( /[0-9._]+pr1/ )	{next;}
 	if ( /[0-9._][+-]pre[0-9]/ )	{next;}
+	if ( /[0-9._]pre[0-9]/ )	{next;}
 	if ( /[0-9._][+-]rc[0-9]/ )	{next;}
 	if ( /[0-9._]beta/ )	{next;}
 	if ( /[0-9._]+-TRIAL/ )	{next;}
@@ -3765,7 +3768,7 @@ sub ReadMakefile($$)  {		# <- Main
 
 	   #        MASTER_SITES=     ${MASTER_SITE_SOURCEFORGE:=modauthkerb/}
 	    if ( m|^MASTER_SITES=\s+\$\{MASTER_SITE_SOURCEFORGE:=(.*)/|) { $SFProject = $1;}
-	    if ( m|^MASTER_SITES=\s+\$\{MASTER_SITE_PYPI:=[a-z]\/(.*)/|)     { $EggProject = $1;}
+	    if ( m|^MASTER_SITES=\s+\$\{MASTER_SITE_PYPI:=[a-zA-Z]\/(.*)/|)     { $EggProject = $1;}
 	}
 	close(MAKEFILE);
 	if ($SFProject eq '' ) {
