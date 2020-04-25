@@ -5,24 +5,24 @@ tree. Reading [whole tree](http://cvsweb.netbsd.org/bsdweb.cgi/pkgsrc/)
 and generates the list of To-Be-Updated packges.
 
 To try
-######  cd wip/checkup-date;
-######  make package-install
-######  cd /usr/pkgsrc/category/package
-######  check-update
+	cd wip/check-update;
+	make package-install;
+	cd /usr/pkgsrc/category/package;
+	check-update
 
 For current statistics, see either
 
-###### [HEAD] (http://www.ki.nu/~makoto/pkgsrc/check-update/HEAD/00_Summary.html)
-###### [release] (http://www.ki.nu/~makoto/pkgsrc/check-update/00_Summary.html)
+- [HEAD] (http://www.ki.nu/~makoto/pkgsrc/check-update/HEAD/00_Summary.html)
+- [release] (http://www.ki.nu/~makoto/pkgsrc/check-update/00_Summary.html)
 
 
-##### [Presentation](http://www.ki.nu/~makoto/mef/20170310/)
+- [Presentation](http://www.ki.nu/~makoto/mef/20170310/)
 at NetBSD BoF (AsiaBSDCon 2017 at Tokyo, opera@IIJ)
 
-#####[Presentation](http://www.ki.nu/~makoto/mef/20150313/)
+- [Presentation](http://www.ki.nu/~makoto/mef/20150313/)
 at NetBSD BoF (AsiaBSDCon 2015 at Tokyo)
 
-#####[Presentation](http://www.ki.nu/~makoto/mef/20150711/)
+- [Presentation](http://www.ki.nu/~makoto/mef/20150711/)
 at NetBSD BoF (JNUG 17th Annual Meeting 2015 at Tokyo)
 
 ## Files
