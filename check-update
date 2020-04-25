@@ -912,12 +912,14 @@ sub StripLeaf($);
 sub help() {
     print <<SHORT_HELP;
 check-update:
-  Checks the packages follow upstream version
+  Checks if the package(s) follow upstream version.
   No output is good news. (No update yet at upstream)
   Type 
     check-update -H 
   for longer help, or try
     cd /usr/pkgsrc/category/package; check-update
+  See Also
+    https://github.com/makoto-fujiwara/check-update
 SHORT_HELP
 }
 #"
