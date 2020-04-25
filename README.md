@@ -6,10 +6,15 @@ and generates the list of To-Be-Updated packges.
 
 To try
 
-	cd wip/check-update;
+	cd /usr/pkgsrc/wip/check-update;
 	make package-install;
 	cd /usr/pkgsrc/category/package;
 	check-update
+
+Or
+	git clone https://github.com/makoto-fujiwara/check-update
+	./check-update -h
+	./check-update -H
 
 For current statistics, see either
 
