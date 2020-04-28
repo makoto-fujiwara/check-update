@@ -4478,6 +4478,29 @@ sub VersionedDirectory ($$){
     print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' return (', $return,')',"\n" if $DEBUG_VERSION_DIR;
     return $return;
 }
+# -------------------------------------------------------------
+#  example of invocation:  1: alive  0:no response 
+#     print site_alive(-site => "sourceforge.net", -count => 5), "\n";
+#  default: (1 second + alpha ) x 5 + beta, takes some 14 seconds
+# -------------------------------------------------------------
+sub site_alive(%) {
+    my (%args) = @_;
+    my ($site)  = $args{'-site'};
+    my ($count) = $args{'-count'};
+
+    my $return = 1;
+    my $string = '/sbin/ping -c '. $count . ' ' .  $site . ' 2>&1';
+
+    my $return = 0;
+    my $pid = open(PING, "$string |");
+    while(<PING>) {
+	if (/\d+ packets transmitted, 0 packets received, 100.0% packet loss/) {
+	    $return = 0;
+	}
+    }
+    close(PING);
+    return $return;
+}
 ## ----------------------------------------
 ##         M A I N   R o u t i n e    Main
 #  ----------------------------------------
@@ -4522,6 +4545,8 @@ if ($opts{'V'}) { ShowVersion(); exit;}
 if ($opts{'w'}) { $include_wip++};	# not implemented yet
 if ($opts{'W'}) { $update_wip++};	# not implemented yet
    print STDERR sprintf("%4d pkgsrc: %s\n", __LINE__, $pkgsrc ) if $DEBUG;
+
+my $SF_alive =  site_alive(-site => "sourceforge.net", -count => 5);
 
 #  ------ Setup (Adjust) execution mode  ---------
 if (($category eq '' ) && ($selected =~ m|(.*)/(.*)| ) ||
@@ -4815,7 +4840,7 @@ print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> (DISTBASE) ', $D
 	# ----------------------------------------------------------------
 	##            S O U R C E F O R G E   S P E C I A L
 	#  ----------------------------------------------------------------
-	if ($SFProject && $SFProject != -1 ) {			# MAJOR_IF_THEN_ELSE (1)
+	if ($SFProject && $SFProject != -1 && $SF_alive) {			# MAJOR_IF_THEN_ELSE (1)
 	    my($returnCode);
 	    ($URL, $returnCode, @candidate) = GetSFProjectCandidate($SFProject, $DISTBASE, $dist_name, $PackageName);
 	    print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[2], '> (PackageName) ', $PackageName, ' URL(', $URL, ")\n" if $DEBUG_URL;
