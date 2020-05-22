@@ -1969,12 +1969,13 @@ sub GetDistBaseMercury($$$$){
 
     my ($distbody)	=  $distname;
     $distbody =~ s/_/-/; # basic256_0.9.6.71  --> basic256-0.9.6.71 
-    
-print STDERR sprintf("%4d ", __LINE__ ), '(distbody) ',  $distbody,"\n" if $DEBUG_DISTBASE;
+    print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], 
+					     '(distbody) ',  $distbody,"\n" if $DEBUG_DISTBASE;
 	$distbody	=~ s/-$pkgversion//;
-print STDERR sprintf("%4d ", __LINE__ ), '(distbody) ',  $distbody,"\n" if $DEBUG_DISTBASE;
+    print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], 
+	'(distbody) ',  $distbody,"\n" if $DEBUG_DISTBASE;
     if ( ! ($distbody =~ /[0-9.]+/) ) {
-print STDERR sprintf("%4d ", __LINE__ ),
+    print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], 
     ' (distname) ', $distname, ' (distbody) ', $distbody, "\n" if $DEBUG_DISTBASE;
 	return $distbody;
     } else { return '';}
@@ -2308,7 +2309,7 @@ print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], '> ',"\n" if $DEBUG_
 ,"\n" if $DEBUG_DISTBASE;
 
         $thisreturn = GetDistBaseMercury($PKGBASE, $PKGNAME, $PKGVERSION, $DISTBASE);
-print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], '> ',"\n" if $DEBUG_DISTBASE;
+print STDERR sprintf("%4d ", __LINE__ ),'<'. (caller 0)[3]. '> thisreturn: ', $thisreturn, "\n" if $DEBUG_DISTBASE;
     if ($thisreturn) { return $thisreturn; }
 
         $thisreturn = GetDistBaseNoHyphen($PKGBASE, $PKGNAME, $PKGVERSION, $DISTBASE);
@@ -4811,7 +4812,8 @@ print STDERR sprintf("%4d ", __LINE__ ), ' Automatic NeedsDot ' if $DEBUG_NEEDS_
 	my($PKGNAME)	= $PKGBASE . '-'. $PKGVERSION;
 
 	$DISTBASE	= GetDistBase($dir, $PackageName, $PKGBASE, $PKGVERSION, $PKGNAME);
-print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> (DISTBASE) ', $DISTBASE, "\n" if $DEBUG_DISTBASE;
+print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> back from GetDistBase (DISTBASE) ', $DISTBASE, "\n" if $DEBUG_DISTBASE;
+	if ($DISTBASE =~ /.*-v[0-9.]+$/ ) { $DISTBASE =~ s/-v[0-9.]+$//;}  # mkcert-v1.2.0
 	if ($DISTBASE =~ /.*-$/ ) { $DISTBASE =~ s/-$//;}  # aspell6-ca- -> aspell6-ca # 20150411
 
 	$META_PACKAGE	= GetVariableValue ($dir, $PackageName, 'META_PACKAGE');
