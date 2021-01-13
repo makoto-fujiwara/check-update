@@ -147,7 +147,7 @@ my(%LongName)  = (
    'G',  'Gnome',
    'h',  'HTTP Header',
    'H',  'HTTP Header Summary',
-   'k',  'DISTBASE Extract special to SimplePatternY ($DEBUG_DISTBASE_EXTRACT)',
+   'k',  'DISTBASE Extract special to SimplePatternY',
    'l',  'Curl Listing',
    'm',	 'MASTER_SITES_LISTING',
    'M',	 'MASTER_SITE',
@@ -1710,7 +1710,7 @@ sub GetDistBaseAutomatic($$$){
 
     my ($pkgname) = $PKGBASE .'-'.$PKGVERSION;
     my ($distbase) = $DISTNAME;
-        $distbase  =~ s/([-_])[0-9.-]+$//; ## clim.pact_2.3-10  needs - in the latter part
+        $distbase  =~ s/([-_])[0-9.]+$//;
     my $connection = $1;
     my ($pattern);
     my ($SimplePattern);
@@ -2002,8 +2002,7 @@ sub GetDistBase($$$$$) {	# <- Main       DISTBASEDISTBASE
 	($DISTBASE, $pattern, $SimplePattern) = @return;
 	print STDERR sprintf("%4d DISTBASE(%s) pattern(%s) SimplePattern(%s)",
 			     __LINE__ , $DISTBASE, $pattern, $SimplePattern ),
-	    " Automatic Found\n" if $DEBUG_AUTOMATIC_DISTBASE ||
-	$DEBUG_DISTBASE || $DEBUG_DISTBASE_EXTRACT ;
+	    " Automatic Found\n" if $DEBUG_AUTOMATIC_DISTBASE;
 	push(@SimplePattern, $SimplePattern);
 	return $DISTBASE;
     } else {
@@ -2168,7 +2167,7 @@ my ($numeric_no_delim_variation) =  $numeric_no_delim . '[0]+';
     if (
         $DISTBASE  =~ /([a-zA-Z]+[0-9]+)([-])$PKGVERSION([-])([a-zA-Z]+)/ || # GetDistBase (3) ---------------
         $DISTBASE  =~ /([a-zA-Z-]+)([_.-])$PKGVERSION([_.-])([a-zA-Z]+)/  || # GetDistBase (3) py27-pslib (python-pslib_0.2.0.orig)
-        $DISTBASE  =~ /([a-zA-Z.]+[0-9])([-])[0-9.]+([-])([a-zA-Z]+)/      || # GetDistBase (3) games/nethack-lib
+        $DISTBASE  =~ /([a-zA-Z]+[0-9])([-])[0-9.]+([-])([a-zA-Z]+)/      || # GetDistBase (3) games/nethack-lib
 	0
 	) {
 	my ($former) = $1;
@@ -2214,14 +2213,13 @@ my ($numeric_no_delim_variation) =  $numeric_no_delim . '[0]+';
 	    "     (PKGVERSION)\t", $PKGVERSION , "\n" 
 	    if ($DEBUG_DISTBASE || $DEBUG_SPECIAL_PATTERN || $DEBUG_DISTBASE_EXTRACT);
     return $PKGBASE ;}
-    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' $DISTBASE: ' , $DISTBASE ,' ------------------',"\n"
-												if $DEBUG_DISTBASE_EXTRACT ;
-    if ($DISTBASE  =~ /([a-zA-Z-.]+)([0-9-_])([0-9-.]+)$/ ) {				# GetDistBase (6) -----------
+
+    if ($DISTBASE  =~ /([a-zA-Z-]+)([0-9])([0-9])$/ ) {				# GetDistBase (6) -----------
 	my ($distbase) = $1;
 	my ($a) = $2;
 	my ($b) = $3;
  if ( $NoDot{$distbase} ) { $SpecialPatternY = 'm|.*' . $distbase.'([0-9])([0-9])\..*|; $version = $1.$2;' ; }
- else                     { $SpecialPatternY = 'm|.*' . $distbase.$a.'([0-9-._]+)|; $version = $1;' ;}
+ else                     { $SpecialPatternY = 'm|.*' . $distbase.'([0-9])([0-9])\..*|; $version = $1.\'.\'.$2;' ;}
 	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2],  ' ------------------',"\n",
      "           %NoDot\t", $NoDot{$distbase},     "\n",
 	    "       (DISTNAME)\t", $DISTBASE,      "\n",
