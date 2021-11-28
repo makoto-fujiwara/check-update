@@ -83,6 +83,7 @@ my ($line); # SpecialPattern
 my ($summary_tmp);
 my ($summary_leaf);	# only for stats output, not used now
 
+my ($quiet_flag) = 1;	# ask silence, default = yes
 # debugging flags, see ParseDebug
 my ($DEBUG_ALTERNATIVE);
 my ($DEBUG_AUTOMATIC_DISTBASE);
@@ -912,12 +913,14 @@ sub StripLeaf($);
 sub help() {
     print <<SHORT_HELP;
 check-update:
-  Checks the packages follow upstream version
+  Checks if the package(s) follow upstream version.
   No output is good news. (No update yet at upstream)
   Type 
     check-update -H 
   for longer help, or try
     cd /usr/pkgsrc/category/package; check-update
+  See Also
+    https://github.com/makoto-fujiwara/check-update
 SHORT_HELP
 }
 #"
@@ -1935,7 +1938,7 @@ sub GetDistBaseNoHyphen($$$$){
 
     if ( ! ($value =~ /-/) ) {
 	print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[3], '> distbase: ', $value, "\n" if $DEBUG_DISTBASE;
-	$value =~ s/[0-9.]+//;
+	$value =~ s/-[0-9.]+$//;
     }  else { $value = '';}
     return $value;
 }
@@ -1966,12 +1969,13 @@ sub GetDistBaseMercury($$$$){
 
     my ($distbody)	=  $distname;
     $distbody =~ s/_/-/; # basic256_0.9.6.71  --> basic256-0.9.6.71 
-    
-print STDERR sprintf("%4d ", __LINE__ ), '(distbody) ',  $distbody,"\n" if $DEBUG_DISTBASE;
+    print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], 
+					     '(distbody) ',  $distbody,"\n" if $DEBUG_DISTBASE;
 	$distbody	=~ s/-$pkgversion//;
-print STDERR sprintf("%4d ", __LINE__ ), '(distbody) ',  $distbody,"\n" if $DEBUG_DISTBASE;
+    print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], 
+	'(distbody) ',  $distbody,"\n" if $DEBUG_DISTBASE;
     if ( ! ($distbody =~ /[0-9.]+/) ) {
-print STDERR sprintf("%4d ", __LINE__ ),
+    print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], 
     ' (distname) ', $distname, ' (distbody) ', $distbody, "\n" if $DEBUG_DISTBASE;
 	return $distbody;
     } else { return '';}
@@ -2305,7 +2309,7 @@ print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], '> ',"\n" if $DEBUG_
 ,"\n" if $DEBUG_DISTBASE;
 
         $thisreturn = GetDistBaseMercury($PKGBASE, $PKGNAME, $PKGVERSION, $DISTBASE);
-print STDERR sprintf("%4d ", __LINE__ ),'<', (caller 0)[3], '> ',"\n" if $DEBUG_DISTBASE;
+print STDERR sprintf("%4d ", __LINE__ ),'<'. (caller 0)[3]. '> thisreturn: ', $thisreturn, "\n" if $DEBUG_DISTBASE;
     if ($thisreturn) { return $thisreturn; }
 
         $thisreturn = GetDistBaseNoHyphen($PKGBASE, $PKGNAME, $PKGVERSION, $DISTBASE);
@@ -4475,6 +4479,29 @@ sub VersionedDirectory ($$){
     print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' return (', $return,')',"\n" if $DEBUG_VERSION_DIR;
     return $return;
 }
+# -------------------------------------------------------------
+#  example of invocation:  1: alive  0:no response 
+#     print site_alive(-site => "sourceforge.net", -count => 5), "\n";
+#  default: (1 second + alpha ) x 5 + beta, takes some 14 seconds
+# -------------------------------------------------------------
+sub site_alive(%) {
+    my (%args) = @_;
+    my ($site)  = $args{'-site'};
+    my ($count) = $args{'-count'};
+
+    my $return = 1;
+    my $string = '/sbin/ping -c '. $count . ' ' .  $site . ' 2>&1';
+
+    my $return = 0;
+    my $pid = open(PING, "$string |");
+    while(<PING>) {
+	if (/\d+ packets transmitted, 0 packets received, 100.0% packet loss/) {
+	    $return = 0;
+	}
+    }
+    close(PING);
+    return $return;
+}
 ## ----------------------------------------
 ##         M A I N   R o u t i n e    Main
 #  ----------------------------------------
@@ -4483,7 +4510,7 @@ my ($PackageStart);	# For timing, not used for now
 my ($PackageEnd);
 
 my ($argv)    = join ' ', @ARGV;	# to show at Stats()
-getopts( 'c:Dd:fFhHM:mnP:p:rRs:S:tT:uvVwWx:y:', \%opts);
+getopts( 'c:Dd:fFhHM:mnP:p:qrRs:S:tT:uvVwWx:y:', \%opts);
 
 if ($opts{'b'}) { $option_batch++;}	# used be default, not implemented
 if ($opts{'c'}) { $category = $opts{'c'}; $full_list++;}
@@ -4497,6 +4524,7 @@ if ($opts{'n'}) { $not_to_list++;}
 if ($opts{'p'}) { $pkgsrc = $opts{'p'};}
 if ($opts{'P'}) { $selected =  $opts{'P'}; $partial++;}
 
+if ($opts{'q'}) { $quiet_flag++};
 if ($opts{'r'}) { $include_reverse++};
 if ($opts{'R'}) { $skip_rubygems_check++};
 if ($opts{'s'}) { $starting =  $opts{'s'}; $skip_until_match++; $partial++;}
@@ -4518,6 +4546,8 @@ if ($opts{'V'}) { ShowVersion(); exit;}
 if ($opts{'w'}) { $include_wip++};	# not implemented yet
 if ($opts{'W'}) { $update_wip++};	# not implemented yet
    print STDERR sprintf("%4d pkgsrc: %s\n", __LINE__, $pkgsrc ) if $DEBUG;
+
+my $SF_alive =  site_alive(-site => "sourceforge.net", -count => 5);
 
 #  ------ Setup (Adjust) execution mode  ---------
 if (($category eq '' ) && ($selected =~ m|(.*)/(.*)| ) ||
@@ -4552,7 +4582,7 @@ if (CheckEnvironment() == -1) { die "Please install necessary package(s).\n" ;}
 
 if ( -f $MaturedList) {
     print STDERR sprintf("%4d ", __LINE__ ), " *** Reading filename: ", $MaturedList," -> " if $verbose;
-    printf STDERR "%d lines read\n", SkipTooOld($MaturedList);
+    printf STDERR "%d lines read\n", SkipTooOld($MaturedList) if ($quiet_flag == 0) ;
 } else {
     print STDERR sprintf("%4d ", __LINE__ ), 'MaturedList not found: ', $MaturedList, "\n"  if $verbose;
 }
@@ -4782,7 +4812,8 @@ print STDERR sprintf("%4d ", __LINE__ ), ' Automatic NeedsDot ' if $DEBUG_NEEDS_
 	my($PKGNAME)	= $PKGBASE . '-'. $PKGVERSION;
 
 	$DISTBASE	= GetDistBase($dir, $PackageName, $PKGBASE, $PKGVERSION, $PKGNAME);
-print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> (DISTBASE) ', $DISTBASE, "\n" if $DEBUG_DISTBASE;
+print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> back from GetDistBase (DISTBASE) ', $DISTBASE, "\n" if $DEBUG_DISTBASE;
+	if ($DISTBASE =~ /.*-v[0-9.]+$/ ) { $DISTBASE =~ s/-v[0-9.]+$//;}  # mkcert-v1.2.0
 	if ($DISTBASE =~ /.*-$/ ) { $DISTBASE =~ s/-$//;}  # aspell6-ca- -> aspell6-ca # 20150411
 
 	$META_PACKAGE	= GetVariableValue ($dir, $PackageName, 'META_PACKAGE');
@@ -4811,7 +4842,7 @@ print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> (DISTBASE) ', $D
 	# ----------------------------------------------------------------
 	##            S O U R C E F O R G E   S P E C I A L
 	#  ----------------------------------------------------------------
-	if ($SFProject && $SFProject != -1 ) {			# MAJOR_IF_THEN_ELSE (1)
+	if ($SFProject && $SFProject != -1 && $SF_alive) {			# MAJOR_IF_THEN_ELSE (1)
 	    my($returnCode);
 	    ($URL, $returnCode, @candidate) = GetSFProjectCandidate($SFProject, $DISTBASE, $dist_name, $PackageName);
 	    print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[2], '> (PackageName) ', $PackageName, ' URL(', $URL, ")\n" if $DEBUG_URL;

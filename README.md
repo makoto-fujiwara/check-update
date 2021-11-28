@@ -4,13 +4,31 @@ Tool for [pkgsrc](http://www.netbsd.org/docs/software/packages.html)
 tree. Reading [whole tree](http://cvsweb.netbsd.org/bsdweb.cgi/pkgsrc/)
 and generates the list of To-Be-Updated packges.
 
-[Presentation](http://www.ki.nu/~makoto/mef/20170310/)
+To try
+
+	cd /usr/pkgsrc/wip/check-update;
+	make package-install;
+	cd /usr/pkgsrc/category/package;
+	check-update
+
+Or
+	git clone https://github.com/makoto-fujiwara/check-update
+	./check-update -h
+	./check-update -H
+
+For current statistics, see either
+
+- [HEAD] (http://www.ki.nu/~makoto/pkgsrc/check-update/HEAD/00_Summary.html)
+- [release] (http://www.ki.nu/~makoto/pkgsrc/check-update/00_Summary.html)
+
+Presentation 
+- (http://www.ki.nu/~makoto/mef/20170310/)
 at NetBSD BoF (AsiaBSDCon 2017 at Tokyo, opera@IIJ)
 
-[Presentation](http://www.ki.nu/~makoto/mef/20150313/)
+- (http://www.ki.nu/~makoto/mef/20150313/)
 at NetBSD BoF (AsiaBSDCon 2015 at Tokyo)
 
-[Presentation](http://www.ki.nu/~makoto/mef/20150711/)
+- (http://www.ki.nu/~makoto/mef/20150711/)
 at NetBSD BoF (JNUG 17th Annual Meeting 2015 at Tokyo)
 
 ## Files
