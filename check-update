@@ -1938,7 +1938,7 @@ sub GetDistBaseNoHyphen($$$$){
 
     if ( ! ($value =~ /-/) ) {
 	print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[3], '> distbase: ', $value, "\n" if $DEBUG_DISTBASE;
-	$value =~ s/[0-9.]+$//;
+	$value =~ s/-[0-9.]+$//;
     }  else { $value = '';}
     return $value;
 }
@@ -2826,7 +2826,7 @@ sub EggSpecial($$$){
     my $string = "$PIP_EXECUTABLE search $PIP_NAME|";
     
     print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' '. $string."\n"  if $DEBUG_PYPI; 
-    open(PIP, $string) || die "problem opening $PIP_NAME: $!\n";
+    open(PIP, $string) || die __LINE__ . " problem opening PIP_NAME : :$PIP_NAME: $!\n";
     while (<PIP>) {
 	if (/^$PIP_NAME \(([0-9.]+)\)\s*- / ) {
 	    $version = $1;
@@ -4950,7 +4950,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
 
 	    print STDERR sprintf("%4d \$EggProject: %d\n", __LINE__ , $EggProject) if $DEBUG_PYPI ;
         if ( $EggProject) {  #  MAJOR_IF_THEN_ELSE
-	    ($returnCode, @candidate) =   EggSpecial($PKGNAME, 'pip3.7', $EggProject);
+	    ($returnCode, @candidate) =   EggSpecial($PKGNAME, 'pip3.9', $EggProject);
 	} else {
 
 	if ( $MASTER_SITE  =~ m|http://pypi.python.org/| ) {		# MAJOR_IF_THEN_ELSE
