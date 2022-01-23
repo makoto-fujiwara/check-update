@@ -2876,6 +2876,9 @@ sub GitHubSpecial($$$$){
     if ( ! ($master_site =~ m|/$|) ) { $master_site .= '/';}
 
         print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> $GITHUB_PROJECT: ', $GITHUB_PROJECT, "\n" if $DEBUG_GITHUB || $DEBUG_HTTP_HEADER ;
+ # ---------------------------------------------------------------------------
+ #   curl command loop,  429 status ?
+ # ---------------------------------------------------------------------------
  foreach  my $target  (
 		       "$master_site"."$GITHUB_PROJECT".'/releases',
 		       "$master_site"."$GITHUB_PROJECT".'/releases/tag',
@@ -4921,6 +4924,7 @@ if (0){
 }
 	 # ------------------- back to upper level --
 	print STDERR sprintf("%4d ", __LINE__ ), 'candidate: ', $#candidate, ' http_code: ', $http_code, "\n" if ($DEBUG_SF || $DEBUG_MASTER_SITES_LISTING );
+	    if ( $http_code == 429 ) { print STDERR "sleeping\r"; sleep 10;}
 # 1 is good for www/librest07 but bad for many occa,sion:
 	print STDERR sprintf("%4d ", __LINE__ ), 'master_site: ', $master_site, "\n" if $DEBUG_MASTER_SITE ;
 	 if ($#candidate < 1  && $master_site && $http_code ne 'DNS' ) {			# MAJOR_IF_THEN_ELSE
