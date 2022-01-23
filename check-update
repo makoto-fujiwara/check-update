@@ -2883,6 +2883,7 @@ sub GitHubSpecial($$$$){
 		       "$master_site"."$GITHUB_PROJECT",
 		       "$master_site"."$distbase",
 		       "$master_site"."$GITHUB_PROJECT".'/archive/',
+		       "$master_site"."$GITHUB_PROJECT".'/tags/',	# audio/cmusfm
      ) {
      my ($curl_command) = "$curl_list_secure $target";
         print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> curl_command: ', $curl_command, "\n" if $DEBUG_GITHUB || $DEBUG_HTTP_HEADER ;
@@ -2904,6 +2905,8 @@ sub GitHubSpecial($$$$){
 	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], $zero_release_string,"\n" if $DEBUG_GITHUB;
 	    $no_release++;
 	}
+#	    check-update  -xgl |& grep  2909 |grep /v0.4.1  (audio/cmusfm)
+#	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], $_,"\n" if $DEBUG_GITHUB;
 
 	if (
 	    m,data-name=\"(2[0-9]+-[01][0-9]-[0-9]+),	||   # devel/re2 2016-08-01
@@ -2920,6 +2923,7 @@ sub GitHubSpecial($$$$){
 	    m,releases/tag/V*([0-9]\.[0-9.]+),	||    # biology/cdhit    releases/tag/V4.6.7"> and avoid to pick 454.
 	    m,V([0-9]+\.[0-9.]+\.[0-9]+),||   # biology/cdhit
 	    m,rel_([0-9.]+),		||   # textproc/lucene++
+	    m,archive/refs/tags/v([0-9]+),||   # audio/cmusfm
 	    0 ) {
 	    $cand = $1;
 	    $cand =~ s/_/./;  # audio/faac 1_30 -> 1.30
