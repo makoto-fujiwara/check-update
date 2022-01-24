@@ -2878,9 +2878,9 @@ sub GitHubSpecial($$$$){
     if ( ! ($master_site =~ m|/$|) ) { $master_site .= '/';}
 
         print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> $GITHUB_PROJECT: ', $GITHUB_PROJECT, "\n" if $DEBUG_GITHUB || $DEBUG_HTTP_HEADER ;
- # ---------------------------------------------------------------------------
- #   curl command loop,  429 status ?
- # ---------------------------------------------------------------------------
+  # ---------------------------------------------------------------------------
+  #   curl command loop,  429 status ?
+  # ---------------------------------------------------------------------------
  foreach  my $target  (
 		       "$master_site"."$GITHUB_PROJECT".'/releases',
 		       "$master_site"."$GITHUB_PROJECT".'/releases/tag',
@@ -2929,7 +2929,8 @@ sub GitHubSpecial($$$$){
 	    m,V([0-9]+\.[0-9.]+\.[0-9]+),||   # biology/cdhit
 	    m,rel_([0-9.]+),		||   # textproc/lucene++
 	    m,archive/refs/tags/v([0-9]+),||   # audio/cmusfm
-	    m,rel([0-9]+),||   			# archivers/ocaml-zip
+	    m,rel([0-9]+),		||	# archivers/ocaml-zip
+	    m,v(9[0-9.]+[a-z]+), 	||	# cad/dinotrace{,-mode}
 	    0 ) {
 	    $cand = $1;
 	    $cand =~ s/_/./;  # audio/faac 1_30 -> 1.30
