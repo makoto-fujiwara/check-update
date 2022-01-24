@@ -727,7 +727,7 @@ gigbase gku bunzip wxRemind qkc atasm bicom bww2tex cgic
 PDF par jpilot-syncmail asterisk-perl pyserial datlib dutil 
 mdiff rbuild rinfo zident adodb lzma lzop upx piewm sawfish 
 wmctrl wmakerconf mesch gigabase plnode uno Par sgrep acmesrc netio
-mame telepathy-mission-control quake tscp
+mame telepathy-mission-control quake tscp camlzip
 );
 
 # 31 -> 3.1 # 3370 -> 3.370 devel/cfitsio
@@ -2615,12 +2615,14 @@ sub PickFromCandidate($@) {
 	$ver =~ s/\.[a-z]{2,}//;	#
 	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>: ', (caller 0)[2], 	
 						 ' ver (', $ver,') max_version (',$max_version,")\n" if $DEBUG_VER_PATTERN;
-#	    $ver = EditVersion($DISTBASE, $ver);
+	if ($DISTBASE == 'camlzip') {
+	    $ver = EditVersion($DISTBASE, $ver);}  # was disabled, so, just activate this distbase only
 
 	if (CompareVersion($ver, $max_version, $NeedsDot) > 0) { $max_version = $ver;}
 	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>: ', (caller 0)[2], 	
 						 ' ver (', $ver,') max_version (',$max_version,")\n" if $DEBUG_VER_PATTERN;
     }
+        print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ': ', $max_version, "\n" if $DEBUG_CANDIDATE ;
     if ( ! $max_version ) { $max_version = '0.0';}
     if (  $max_version =~ m|<| ||  $max_version =~ m|>| ) { $max_version = '0.0';}
     return $max_version;
@@ -2927,6 +2929,7 @@ sub GitHubSpecial($$$$){
 	    m,V([0-9]+\.[0-9.]+\.[0-9]+),||   # biology/cdhit
 	    m,rel_([0-9.]+),		||   # textproc/lucene++
 	    m,archive/refs/tags/v([0-9]+),||   # audio/cmusfm
+	    m,rel([0-9]+),||   			# archivers/ocaml-zip
 	    0 ) {
 	    $cand = $1;
 	    $cand =~ s/_/./;  # audio/faac 1_30 -> 1.30
