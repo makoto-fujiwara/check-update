@@ -16,9 +16,19 @@ JOBS=36
 # Check if required packages installed
 FAIL=0
 echo ' *** (1) Checking packages required'
-for p in httping curl git-base p5-Net-DNS p5-Algorithm-Diff mozilla-rootcerts w3m ruby py-pip; do
+for p in httping curl git-base p5-Net-DNS p5-Algorithm-Diff mozilla-rootcerts w3m ruby ; do
    NOT_EXIST=0
-   pkg_info -q -c $p  > /dev/null 2>&1
+   pkg_info -q -c $p*  > /dev/null 2>&1
+   RC=$?
+   if [ $RC = 1 ] ; then
+      echo ' (check-update.sh: '$LINENO') *** Package' $p 'is required.'
+      FAIL=1
+   fi
+   done;
+
+for p in py'*'-pip; do
+   NOT_EXIST=0
+   pkg_info -q -c $p*  > /dev/null 2>&1
    RC=$?
    if [ $RC = 1 ] ; then
       echo ' (check-update.sh: '$LINENO') *** Package' $p 'is required.'
