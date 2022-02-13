@@ -21,7 +21,7 @@ for p in httping curl git-base p5-Net-DNS p5-Algorithm-Diff mozilla-rootcerts w3
    pkg_info -q -c $p  > /dev/null 2>&1
    RC=$?
    if [ $RC = 1 ] ; then
-      echo ' *** Package' $p 'is required.'
+      echo ' (check-update.sh: '$LINENO') *** Package' $p 'is required.'
       FAIL=1
    fi
    done;
