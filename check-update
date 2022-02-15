@@ -2817,6 +2817,7 @@ sub pypiSpecial($$$$){
 #               called once from main
 # ------------------------------------------------------
 sub EggSpecial($$$){
+    (return 1, '0.9');
     my $PKGNAME 	= shift;
     my $PIP_EXECUTABLE	= shift;
     my $PIP_NAME	= shift;
@@ -2883,6 +2884,7 @@ sub GitHubSpecial($$$$){
 		       "$master_site"."$GITHUB_PROJECT",
 		       "$master_site"."$distbase",
 		       "$master_site"."$GITHUB_PROJECT".'/archive/',
+		       "$master_site"."$GITHUB_PROJECT".'/tags',
      ) {
      my ($curl_command) = "$curl_list_secure $target";
         print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> curl_command: ', $curl_command, "\n" if $DEBUG_GITHUB || $DEBUG_HTTP_HEADER ;
@@ -2891,7 +2893,7 @@ sub GitHubSpecial($$$$){
      my ($cand);
     while(<CURL>) {
 #	print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> (',$distbase, ' / ', $target.') ', $_,"\n" if $DEBUG_GITHUB;
-	$distbase =~ s/-[a-z]+//;
+	$distbase =~ s/-[a-z]+// if ($distbase =~ /libcec/);
 	if       (m,$distbase-([0-9.]+)-(pre|alpha|rc).*,) { next;}
 	if (m,archive/release_([0-9_]+)-(pre|alpha|rc).*,) { next;}
 	if         (m,release-([0-9.]+)-(pre|alpha|rc).*,) { next;}
@@ -2915,6 +2917,7 @@ sub GitHubSpecial($$$$){
 	    m|.*mame([0-9.]+)s\.zip|	||		# emulators/mame
 	    m,data-name=\"v*([0-9.]+)\",||
 	    m,release-([0-9.]+)\",	||   # sysutils/WCMcommander
+	    m,releases/tag/([0-9.]+),	||   # sysutils/erlang-iconv
 	    m,releases/tag/([0-9._]+),	||   # sysutils/erlang-goldrush
             m,releases/tag/v([0-9.]+)\",  ||   # sysutils/ioping # devel/cre2, avoid -devel
 	    m,releases/tag/V*([0-9]\.[0-9.]+),	||    # biology/cdhit    releases/tag/V4.6.7"> and avoid to pick 454.
@@ -2928,6 +2931,7 @@ sub GitHubSpecial($$$$){
             #                     good -> 0.11.1
             # security/argon2     bad  -> 108
 	    #                     goot -> 2016xxxx
+	    if ( $PackageName eq 'erlang-iconv' && m,Eshell, ) {next;}
 	    if ( $PackageName eq 'py-certbot' && 1000 < $cand) {next;}
 	    if ( $PackageName eq 'py-acme' && 1000 < $cand) {next;}
 	    if ( $PackageName eq 'argon2'     && $cand< 2000 ) {next;}
