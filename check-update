@@ -2816,10 +2816,11 @@ sub pypiSpecial($$$$){
 # ------------------------------------------------------
 #               called once from main
 # ------------------------------------------------------
-sub EggSpecial($$$){
-    my $PKGNAME 	= shift;
-    my $PIP_EXECUTABLE	= shift;
-    my $PIP_NAME	= shift;
+sub EggSpecial {
+    my ($args)		= @_;
+    my $PKGNAME 	= $args -> {-PKGNAME};
+    my $PIP_EXECUTABLE	= $args -> {-pip_executable};
+    my $PIP_NAME	= $args -> {-EggProject};
        $PIP_NAME	=~ s/_/-/;
 
     my $version;
@@ -4955,7 +4956,11 @@ print STDERR sprintf("%4d ", __LINE__ ),
 
 	    print STDERR sprintf("%4d \$EggProject: %d\n", __LINE__ , $EggProject) if $DEBUG_PYPI ;
         if ( $EggProject) {  #  MAJOR_IF_THEN_ELSE
-	    ($returnCode, @candidate) =   EggSpecial($PKGNAME, 'pip3.9', $EggProject);
+	    ($returnCode, @candidate) =
+		## install from the URL (and add NetBSD*)
+		## https://github.com/jeffmm/pypi-simple-search
+		EggSpecial({
+	    -PKGNAME =>$PKGNAME, -pip_executable => 'pypi-simple-search', -EggProject => $EggProject});
 	} else {
 
 	if ( $MASTER_SITE  =~ m|http://pypi.python.org/| ) {		# MAJOR_IF_THEN_ELSE
