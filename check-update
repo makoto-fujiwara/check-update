@@ -2950,6 +2950,7 @@ sub GitHubSpecial($$$$){
 	    }
     }
     close(CURL);
+     sleep 10; # XXXXXXXXXXXX  429 issue
     } # foreach 
 # ------ End special
 	print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> ', join (" -- ", sort @candidate),"\n" if $DEBUG_GITHUB;
