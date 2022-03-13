@@ -3,10 +3,6 @@ use strict;
 use Getopt::Std;
 use POSIX qw( SIGKILL );
 
-our(@ARGV);
-our(%opts);
-my ($command_line);
-my ($timeout);
 
 sub warnTimeout($$$$){
     my ($pid)	  = shift;
@@ -30,27 +26,42 @@ sub warnTimeout($$$$){
     alarm 0;
 }
 
-getopts('ht:', \%opts);
+our(@ARGV);
+our(%opts);
+
+my ($URL);
+my ($timeout);
+my ($command_line);
+
+getopts('ht:u:', \%opts);
 print $opts{'h'};
 
-if (@ARGV) { $command_line = join ' ', @ARGV; }
-else { die 'You need command_line string',"\n";}
+#if (@ARGV) { $command_line = join ' ', @ARGV; }
+#else { die 'You need command_line string',"\n";}
 # print $command_line,"\n";
 
 if ($opts{'t'}) { $timeout = $opts{'t'};}
+if ($opts{'u'}) { $URL     = $opts{'u'};}
+$command_line = 'curl ' . $URL;
 
-my($w3m) =  open(W3M, "$command_line 2>&1|") ; #|| print STDERR __FILE__
+my($curl) =  open(CURL, "$command_line 2>&1|") ; #|| print STDERR __FILE__
 my($pid) = fork() ;
 if (!defined $pid) { die __FILE__,' ', sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ', "\n";}
 if ($pid == 0 ) {  # child
 #	print STDERR __FILE__,' ', sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], 'pid (',$pid,') ', "\n";
-    while(<W3M>){
-	print;
+    my @LINES;
+    while(<CURL>){
+	push(@LINES, $_);
     } 
-    close (W3M);
+    close (CURL);
+    open (W3M, "|w3m -T text/html");
+    foreach my $line (@LINES) {
+	print W3M;
+    }
+    close(W3M);
 } else { # parent
 #    print STDERR __FILE__,' ', sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], 'pid (',$pid,') ', "\n";    
-    warnTimeout($w3m, $timeout, $command_line, (caller 0)[2]);  # set timeout
+    warnTimeout($curl, $timeout, $command_line, (caller 0)[2]);  # set timeout
 #    print STDERR __FILE__,' ', sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], 'pid (',$pid,') ', "\n";        
 }
 
