@@ -975,9 +975,10 @@ HELP
     }
     print <<HELP2;
    -y : Select one of split devel category out of 1, 2 or 3 where: 
-        1:  for '[A-Za-o]*'
-        2:  for 'p*'
-	3:  for [q-z]*
+        1:  for '[A-Za-g]*'
+        2:  for '[h-o]*'
+	3:  for 'p*'
+        4:  for [q-z]*
 HELP2
 }; #'
 #        a:  Enable all
@@ -4594,9 +4595,10 @@ if ( -f $MaturedList) {
     print STDERR sprintf("%4d ", __LINE__ ), 'MaturedList not found: ', $MaturedList, "\n"  if $verbose;
 }
 
-my(%DIVIDE_DEVEL) = ( 1, '[A-Za-o].*',
-		      2, 'p.*',
-		      3, '[q-z].*' );
+my(%DIVIDE_DEVEL) = ( 1, '[A-Za-g].*',
+		      2, '[h-o].*',
+		      3, 'p.*',
+		      4, '[q-z].*' );
 
 #print STDERR sprintf("%4d ", __LINE__ ), 'chdir to '. $pkgsrc ."\n";
 chdir $pkgsrc;
@@ -4728,7 +4730,7 @@ foreach my $dir (@categories) {  # major loop to the line 3261 ... some 400 line
 print STDERR sprintf("%4d ", __LINE__ ), 
 	     ' category ',    $category,
 	     ' divide_devel ', $divide_devel,
-             ' PackageName ' , $PackageName,
+             ' PackageppName ' , $PackageName,
 	     ' DIVIDE_DEVEL{$divide_devel} ', $DIVIDE_DEVEL{$divide_devel}, " :Skipping..\n"
 if $DEBUG_DIVIDE_DEVEL;
 	     next;}

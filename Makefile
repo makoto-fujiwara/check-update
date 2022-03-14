@@ -52,7 +52,7 @@ CATEGORIES?= \
 	time \
 	wm \
 
-DEVEL?= devel1 devel2 devel3
+DEVEL?= devel1 devel2 devel3 devel4
 
 DATE_H!=	env TZ=UTC date +%Y%m%d-%H
 # To allow 'env DATE=20150101-12 make -j 16' for executing beyond date boundary
@@ -81,7 +81,7 @@ ${WORK}/.done: ${DEVEL:S/$/.html/} ${CATEGORIES:S/$/.html/}
 	touch ${WORK}/.done
 
 # devel category special
-.for y in 1 2 3 
+.for y in 1 2 3 4
 devel$y.html: ${WORK}
 	${CHECK_UPDATE} -R -f -m -p ${PKGSRC} -c devel -y $y -d ${WORK} -S ${.TARGET}
 .endfor

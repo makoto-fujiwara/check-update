@@ -44,7 +44,7 @@ Don't rely on too much, thanks for your attention. <!-- ' -->
 	</ul>
 
 <br>
-<span class="tiny"> devel category is divided into (1. [A-Za-o]*) (2. p* ) (3. [q-z]* ) for speed up reason</span>
+<span class="tiny"> devel category is divided into (1. [A-Za-g]*) (2. [h-o]*) (3. p* ) (4. [q-z]* ) for speed up reason</span>
 <br> the darker the background color, the worse.
 HEAD
 #' -z]*
