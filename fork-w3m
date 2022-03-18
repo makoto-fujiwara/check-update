@@ -44,8 +44,8 @@ if ($opts{'t'}) { $timeout = $opts{'t'};}
 if ($opts{'u'}) { $URL     = $opts{'u'};}
 $command_line = 'curl ' . $URL;
 
-my($curl) =  open(CURL, "$command_line 2>&1|") ; #|| print STDERR __FILE__
 my($pid) = fork() ;
+my($curl) =  open(CURL, "$command_line 2>&1|") ; #|| print STDERR __FILE__
 if (!defined $pid) { die __FILE__,' ', sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ', "\n";}
 if ($pid == 0 ) {  # child
 #	print STDERR __FILE__,' ', sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], 'pid (',$pid,') ', "\n";
