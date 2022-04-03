@@ -43,7 +43,7 @@ if [ -d .git ] ; then
 echo ' *** (2) Updating from git repository'
 
 git pull
-HASH= `git log --format="%H" -1  origin/master`
+HASH= `git log --format="%H" -1  origin/release`
 export HASH
 fi
 
