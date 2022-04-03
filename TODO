@@ -1,4 +1,6 @@
 (TODO)
+   - 20220314  'gem not found' problem
+   - 20220313  github.com return code 429 issue (may be fixed ?)
    - 20210830
      devel/R-rematch2
      devel/R-roxygen2  both does not work (because of last '2') ?
