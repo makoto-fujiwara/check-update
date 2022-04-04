@@ -17,13 +17,15 @@ JOBS=36
 FAIL=0
 echo ' *** (1) Checking packages required'
 for p in httping curl git-base p5-Net-DNS p5-Algorithm-Diff mozilla-rootcerts w3m ruby ; do
-   echo -n $p
+   echo -n $p ' '
    NOT_EXIST=0
    pkg_info -E $p*  > /dev/null 2>&1
    RC=$?
    if [ $RC = 1 ] ; then
       echo ' (check-update.sh: '$LINENO') *** Package' $p 'is required.'
       FAIL=1
+   else
+       echo ' .. '  OK
    fi
    done;
 
@@ -43,7 +45,7 @@ if [ -d .git ] ; then
 echo ' *** (2) Updating from git repository'
 
 git pull
-HASH= `git log --format="%H" -1  origin/release`
+HASH=`git log --format="%H" -1  origin/release`
 export HASH
 fi
 
@@ -54,11 +56,11 @@ else
   (cd ${TMP_PKGSRC};    time -c cvs -Q update -dPA . )
 fi
 
-if [ -f ${SITE_PATCH} 
+if [ -f ${SITE_PATCH}  ]; then
 echo ' *** (4) Applying mk/fetch/sites.mk patch'
+(cd ${TMP_PKGSRC} ; patch -s -N -p0 < ${SITE_PATCH} )
 fi
 
-(cd ${TMP_PKGSRC} ; patch -s -N -p0 < ${SITE_PATCH} )
 
 echo ' *** (5) copy environment-sample.mk if environment.mk not found '
 
