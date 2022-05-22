@@ -2941,6 +2941,7 @@ my @GITHUB_PATH = (    "$master_site"."$GITHUB_PROJECT".'/releases',
 	    if ( $PackageName =~ /kakoune/    && $cand>201801 ) {next;}  # skip  20181001 etc,
 	    if ( $PackageName =~ /neatvi/     && $cand eq '0.0' ) {next;}  # skip  20181001 etc,
 	    if ( $PackageName =~ /kilo/     && $cand eq '0.0' ) {next;}  # skip  20181001 etc,
+	    if ( $PackageName =~ /ocaml-/     && $cand> 113)      {next;}  # skip  113.
 	    $cand =~ s/(2[0-9]+)-([01][0-9])-([0-9]+)/$1$2$3/; # devel/re2 2016-08-01
 
   	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> ', $cand, ' :: ', $_, "\n" if $DEBUG_GITHUB;
@@ -2960,6 +2961,9 @@ my @GITHUB_PATH = (    "$master_site"."$GITHUB_PROJECT".'/releases',
 #  -------------------------------------------------------------
 # line 2983 (or around)
 sub GitHubChanges($$){
+# -----------------------------------------------------
+#       poking URL including 'master/Changes' in
+# -----------------------------------------------------
 # modena@makoto 00:00:51/150214(..devel/p5-App-Prove-Plugin-ProgressBar-Each)% 
 # curl --location -l  https://raw.githubusercontent.com/motemen/App-Prove-Plugin-ProgressBar-Each/master/Changes
 # 		                     https://github.com/motemen/App-Prove-Plugin-ProgressBar-Each/
@@ -4914,13 +4918,6 @@ print STDERR sprintf("%4d ", __LINE__ ),
        	print STDERR sprintf("%4d ", __LINE__ ), 'master_site: ', $master_site, "\n" if $DEBUG_MASTER_SITE ;
 
 	    print STDERR sprintf("%4d ", __LINE__ ), '#candidate: ', $#candidate, ' DISTBASE: ', $DISTBASE,"\n" if $DEBUG_GNOME;
-if (0){
-	 if ($#candidate < 0  && $master_site =~ m|(.*)/[0-9._]+/*$|) {		# MAJOR_IF_THEN_ELSE MASTER_SITE with ending digit
-	    my ($upper) = $1;
-	    print STDERR sprintf("%4d ", __LINE__ ), 'MASTER_SITE with ending digit: ', $master_site,"\n" if $DEBUG_DIGIT;
-	    ($returnCode, @candidate) = ParseUpperDirectory($PackageName, $upper);
-	 }
-}
 	 # ------------------- back to upper level --
 	print STDERR sprintf("%4d ", __LINE__ ), 'candidate: ', $#candidate, ' http_code: ', $http_code, "\n" if ($DEBUG_SF || $DEBUG_MASTER_SITES_LISTING );
 # 1 is good for www/librest07 but bad for many occa,sion:
