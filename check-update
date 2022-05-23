@@ -2,6 +2,7 @@
 use strict;
 #use warnings;
 use Net::DNS;	# net/p5-Net-DNS
+use DBI;
 use Getopt::Std;
 use v5.16;
 use POSIX qw( SIGKILL );
@@ -227,7 +228,7 @@ my ($CVSweb)	= 'http://cvsweb.netbsd.org/bsdweb.cgi/pkgsrc/';
 my (@SUFIX)	= qw(.tar.gz tar.bz2 tar.xz .zip);
 
 # opts, option related variables
-my ($option_batch) = 0;
+
 my ($category);			# (c) ... global variable
 my ($verbose) = 0;
 my ($selected) = '';		# (P) Check this package only
@@ -260,6 +261,7 @@ my (@CurlCache);		# keep the last time listing results;
 my (@LOCAL_PORTS);
 my ($local_ports_string) = 	'netbsd.org/pub/NetBSD/packages/distfiles/LOCAL_PORTS/';
 my ($LastCurl);			# The curl command when above cache stored
+my ($database_dir) = '';	# enable to use URL cache database, the directory
 
 my ($start_time) = time();
 our(%opts);
@@ -935,6 +937,7 @@ sub Usage($$) {
 Check the version is current
 Synopsis:
    check-update	[-D] [-f] [-h] [-H] [-i] [-r] [-R] [-t] [-u] [-v] [-V] [-w] [-W]
+                [ -b database_directory  ]
 		[ -c category] 
 		[ -d directory-to-output ]
 		[ -p pkgsrc-directory ]	 
@@ -945,6 +948,7 @@ Synopsis:
 		[ -x debug_items ]
 		[ -y [123]]
 Where:
+   -b : database_directory  (enable to use URL cache database, default empty, not use)
    -c : category (implies -f)
    -d : output directory (default $output_directory)
    -D : Skip ending digit package (default: don't skip) #'
@@ -958,7 +962,7 @@ Where:
    -p : pkgsrc directory (default /usr/pkgsrc)
    -r : Include Reverse results in listing
    -R : Skip RubyGems check (in case you are sure you have)
-   -s : skip until match 
+   -s : skip until match
    -S : summary output file (default $summary)
    -t : Measure time (not implemented yet)
    -T : Accepts Limited List filenamel  (not implemented yet)
@@ -4523,7 +4527,7 @@ my ($PackageEnd);
 my ($argv)    = join ' ', @ARGV;	# to show at Stats()
 getopts( 'c:Dd:fFhHM:mnP:p:qrRs:S:tT:uvVwWx:y:', \%opts);
 
-if ($opts{'b'}) { $option_batch++;}	# used be default, not implemented
+if ($opts{'b'}) { $database_dir = $opts{'b'}; }
 if ($opts{'c'}) { $category = $opts{'c'}; $full_list++;}
 if ($opts{'d'}) { $output_directory = $opts{'d'};}
 if ($opts{'D'}) { $disable_digit_ending_package++;}	# not useful now
@@ -4627,6 +4631,10 @@ $pwd =~ chomp($pwd);
 
 open(SUMMARY, "> $summary_tmp") || print STDERR "Problem opening $summary to write: $!\n";
 PrintHeader($full_list);	# controlls style for highlighting
+
+my $dbh;
+if ($database_dir) { $dbh = DBI->connect("dbi:SQLite:dbname=" . $database_dir . "github.db");}
+
 # --------------------------------------------------------------
 ##                   F O R E A C H   D I R
 # --------------------------------------------------------------
