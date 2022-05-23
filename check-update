@@ -4525,7 +4525,7 @@ my ($PackageStart);	# For timing, not used for now
 my ($PackageEnd);
 
 my ($argv)    = join ' ', @ARGV;	# to show at Stats()
-getopts( 'c:Dd:fFhHM:mnP:p:qrRs:S:tT:uvVwWx:y:', \%opts);
+getopts( 'b:c:Dd:fFhHM:mnP:p:qrRs:S:tT:uvVwWx:y:', \%opts);
 
 if ($opts{'b'}) { $database_dir = $opts{'b'}; }
 if ($opts{'c'}) { $category = $opts{'c'}; $full_list++;}
@@ -4602,11 +4602,19 @@ if ( -f $MaturedList) {
     print STDERR sprintf("%4d ", __LINE__ ), 'MaturedList not found: ', $MaturedList, "\n"  if $verbose;
 }
 
+my $dbh;
+if ($database_dir) {
+    $dbh = DBI->connect("dbi:SQLite:dbname=" . $database_dir . "github.db");
+    $dbh -> do("create table github (distname, master_site, last_accessed_url, last_version);");
+}
+
+
 my(%DIVIDE_DEVEL) = ( 1, '[A-Za-o].*',
 		      2, 'p.*',
 		      3, '[q-z].*' );
 
 #print STDERR sprintf("%4d ", __LINE__ ), 'chdir to '. $pkgsrc ."\n";
+
 chdir $pkgsrc;
 AddSpecialPattern($pkgsrc);
 
@@ -4614,6 +4622,7 @@ if ( $summary_tmp ne '/dev/null') {
 print STDERR sprintf("%4d ", __LINE__ ), 'output directory is '. $output_directory ."\n";
 print STDERR sprintf("%4d ", __LINE__ ), "output to $summary\n";
 }
+
 
 opendir(PKGSRC, '.') || print STDERR sprintf("%4d ", __LINE__ ), " problem reading directory $pkgsrc: $! \n",
     __FILE__ , ' -> ', (caller 0)[3], ': ',  sprintf("%4d ", __LINE__ ),"\n" ;
@@ -4632,8 +4641,6 @@ $pwd =~ chomp($pwd);
 open(SUMMARY, "> $summary_tmp") || print STDERR "Problem opening $summary to write: $!\n";
 PrintHeader($full_list);	# controlls style for highlighting
 
-my $dbh;
-if ($database_dir) { $dbh = DBI->connect("dbi:SQLite:dbname=" . $database_dir . "github.db");}
 
 # --------------------------------------------------------------
 ##                   F O R E A C H   D I R
