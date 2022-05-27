@@ -553,6 +553,7 @@ my(%DISTBASE) = qw (
     );
    
 my(%DownLoadAlternative) = qw (
+    cacti	https://files.cacti.net/cacti/linux/
     makeztxt	http://gutenpalm.sourceforge.net/download.php
     pdf-parser	https://blog.didierstevens.com/programs/pdf-tools/
     egenix-mx-base	http://www.egenix.com/products/python/mxBase/mxDateTime/
@@ -2835,7 +2836,7 @@ sub EggSpecial {
 	print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ' , $_, ' -> ', $version, "\n" if $DEBUG_PYPI; 
 
 #	    print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2],
-		': version(', $version, ')',"\n" if $DEBUG_PYPI; 
+#		': version(', $version, ')',"\n" if $DEBUG_PYPI; 
 	    }
     }
     close(PIP);
@@ -2878,15 +2879,15 @@ sub GitHubSpecial($$$$){
     if ( ! ($master_site =~ m|/$|) ) { $master_site .= '/';}
 
         print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> $GITHUB_PROJECT: ', $GITHUB_PROJECT, "\n" if $DEBUG_GITHUB || $DEBUG_HTTP_HEADER ;
- foreach  my $target  (
-		       "$master_site"."$GITHUB_PROJECT".'/releases',
+my @GITHUB_PATH = (    "$master_site"."$GITHUB_PROJECT".'/releases',
 		       "$master_site"."$GITHUB_PROJECT".'/releases/tag',
 		       "$master_site",
 		       "$master_site"."$GITHUB_PROJECT",
 		       "$master_site"."$distbase",
 		       "$master_site"."$GITHUB_PROJECT".'/archive/',
-		       "$master_site"."$GITHUB_PROJECT".'/tags',
-     ) {
+		       "$master_site"."$GITHUB_PROJECT".'/tags', );
+ foreach  my $index ( 0.. $#GITHUB_PATH ) {
+     my $target = $GITHUB_PATH[$index];
      my ($curl_command) = "$curl_list_secure $target";
         print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> curl_command: ', $curl_command, "\n" if $DEBUG_GITHUB || $DEBUG_HTTP_HEADER ;
     open(CURL,  "$curl_command 2>&1|") ||
@@ -2907,7 +2908,6 @@ sub GitHubSpecial($$$$){
 	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], $zero_release_string,"\n" if $DEBUG_GITHUB;
 	    $no_release++;
 	}
-
 	if (
 	    m,data-name=\"(2[0-9]+-[01][0-9]-[0-9]+),	||   # devel/re2 2016-08-01
 	    m,/$distbase-([0-9.]+),	||
@@ -2941,6 +2941,7 @@ sub GitHubSpecial($$$$){
 	    if ( $PackageName =~ /kakoune/    && $cand>201801 ) {next;}  # skip  20181001 etc,
 	    if ( $PackageName =~ /neatvi/     && $cand eq '0.0' ) {next;}  # skip  20181001 etc,
 	    if ( $PackageName =~ /kilo/     && $cand eq '0.0' ) {next;}  # skip  20181001 etc,
+	    if ( $PackageName =~ /ocaml-/     && $cand> 113)      {next;}  # skip  113.
 	    $cand =~ s/(2[0-9]+)-([01][0-9])-([0-9]+)/$1$2$3/; # devel/re2 2016-08-01
 
   	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> ', $cand, ' :: ', $_, "\n" if $DEBUG_GITHUB;
@@ -2960,6 +2961,9 @@ sub GitHubSpecial($$$$){
 #  -------------------------------------------------------------
 # line 2983 (or around)
 sub GitHubChanges($$){
+# -----------------------------------------------------
+#       poking URL including 'master/Changes' in
+# -----------------------------------------------------
 # modena@makoto 00:00:51/150214(..devel/p5-App-Prove-Plugin-ProgressBar-Each)% 
 # curl --location -l  https://raw.githubusercontent.com/motemen/App-Prove-Plugin-ProgressBar-Each/master/Changes
 # 		                     https://github.com/motemen/App-Prove-Plugin-ProgressBar-Each/
@@ -4914,13 +4918,6 @@ print STDERR sprintf("%4d ", __LINE__ ),
        	print STDERR sprintf("%4d ", __LINE__ ), 'master_site: ', $master_site, "\n" if $DEBUG_MASTER_SITE ;
 
 	    print STDERR sprintf("%4d ", __LINE__ ), '#candidate: ', $#candidate, ' DISTBASE: ', $DISTBASE,"\n" if $DEBUG_GNOME;
-if (0){
-	 if ($#candidate < 0  && $master_site =~ m|(.*)/[0-9._]+/*$|) {		# MAJOR_IF_THEN_ELSE MASTER_SITE with ending digit
-	    my ($upper) = $1;
-	    print STDERR sprintf("%4d ", __LINE__ ), 'MASTER_SITE with ending digit: ', $master_site,"\n" if $DEBUG_DIGIT;
-	    ($returnCode, @candidate) = ParseUpperDirectory($PackageName, $upper);
-	 }
-}
 	 # ------------------- back to upper level --
 	print STDERR sprintf("%4d ", __LINE__ ), 'candidate: ', $#candidate, ' http_code: ', $http_code, "\n" if ($DEBUG_SF || $DEBUG_MASTER_SITES_LISTING );
 # 1 is good for www/librest07 but bad for many occa,sion:
