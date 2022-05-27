@@ -372,6 +372,7 @@ my (%SpecialPattern) = (
 #                                    '$distbase' here doesn't make it
 #                                     v
     'Cython',		'{$line =~ m|.*$distbase-([0-9]\.[0-9]+\.[0-9])|; $line = $1 ;}',
+    'R-CGIwithR',	'$line =~ s/$distbase_([0-9._]+/$1/)    ;', #  
 #    'NovaWM', 	        '$line =~ s/.*$distbase-([0-9.]+).*/$1/ ;', #   -0.8.1_alpha.tar.bz2 (716.3 kB)
 #    'sign',		'$line =~ s/The latest version is ([0-9.]+),/$1/ ;', #  security/sign  1-bit ui</a><br --> 
     'lzop',		'$line =~ s/.*lzop-([0-9.]+)\..*/$1/;',
@@ -2009,6 +2010,8 @@ sub GetDistBase($$$$$) {	# <- Main       DISTBASEDISTBASE
 			     __LINE__ , $DISTBASE, $pattern, $SimplePattern ),
 	    " Automatic Found\n" if $DEBUG_AUTOMATIC_DISTBASE;
 	push(@SimplePattern, $SimplePattern);
+	$DISTBASE =~ s/([A-Za-z-]+)_[0-9.-]+/$1/;    # (CGIwithR_0.73)
+	print STDERR sprintf("%4d ", __LINE__ )," Automatic return" if $DEBUG_DISTBASE;
 	return $DISTBASE;
     } else {
 	print STDERR sprintf("%4d ", __LINE__ )," Automatic Failed\n" if $DEBUG_AUTOMATIC_DISTBASE;
@@ -2173,6 +2176,7 @@ my ($numeric_no_delim_variation) =  $numeric_no_delim . '[0]+';
         $DISTBASE  =~ /([a-zA-Z]+[0-9]+)([-])$PKGVERSION([-])([a-zA-Z]+)/ || # GetDistBase (3) ---------------
         $DISTBASE  =~ /([a-zA-Z-]+)([_.-])$PKGVERSION([_.-])([a-zA-Z]+)/  || # GetDistBase (3) py27-pslib (python-pslib_0.2.0.orig)
         $DISTBASE  =~ /([a-zA-Z]+[0-9])([-])[0-9.]+([-])([a-zA-Z]+)/      || # GetDistBase (3) games/nethack-lib
+        $DISTBASE  =~ /R-([a-zA-Z]+)(_[0-9.-]+)/                          || # GetDistBase (3) math/R-CGIwithR_0.73-0
 	0
 	) {
 	my ($former) = $1;
