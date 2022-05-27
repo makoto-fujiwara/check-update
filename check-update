@@ -2479,7 +2479,9 @@ print STDERR sprintf("%4d ", __LINE__ ), '(DISTBODY) ', $DISTBODY,' (CAND) ', $V
 print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> ',
 $dir, '/', $PackageName, '; DISTBASE (', $DISTBASE,")\n" if $DEBUG_DISTBASE;
     return $DISTBASE;
-}
+# -------------------------------------------------------------------
+}                  # getDistBase 500 lines
+# ------------------------------------------------------------------
 sub GetGemFamilyVersion($$){		# <- Main
     my ($dist_name) = shift;
     my ($gems_name) = shift;
@@ -2535,7 +2537,7 @@ sub GetGemFamilyVersion($$){		# <- Main
 
     if ( $available )	{ return $available;}
     else  		{ return '(0.0)';}
-}
+}  ## 2483 (35 lines) sub GetGemFamilyVersion($$){		# <- Main
 
 sub GetGemVersion($$){		# <- Main
     my ($dist_name) = shift;
