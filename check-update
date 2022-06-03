@@ -2943,7 +2943,7 @@ my @GITHUB_PATH = (    "$master_site"."$GITHUB_PROJECT".'/releases',
 	    if ( $PackageName =~ /kakoune/    && $cand>201801 ) {next;}  # skip  20181001 etc,
 	    if ( $PackageName =~ /neatvi/     && $cand eq '0.0' ) {next;}  # skip  20181001 etc,
 	    if ( $PackageName =~ /kilo/     && $cand eq '0.0' ) {next;}  # skip  20181001 etc,
-	    if ( $PackageName =~ /ocaml-/     && $cand> 113)      {next;}  # skip  113.
+	    if ( $PackageName =~ /ocaml-/     && $cand> 100)      {next;}  # skip  113. 113.0.0, 109. ... etc
 	    $cand =~ s/(2[0-9]+)-([01][0-9])-([0-9]+)/$1$2$3/; # devel/re2 2016-08-01
 
   	    print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> ', $cand, ' :: ', $_, "\n" if $DEBUG_GITHUB;
