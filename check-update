@@ -945,6 +945,14 @@ Synopsis:
 		[ -T limited-list-name ]
 		[ -x debug_items ]
 		[ -y [123]]
+Invocation type:
+       category:  /PATH/TO/check-update  -c [category] (see also -y for devel split)
+              (add)
+                   -R (not checking rubygem)
+                   -p [for pkgsrc directory]
+                   -s [package name]  ... even skip to that name
+    one package:  cd category/packagename ; /PATH/TO/check-update
+     whole tree:  /PATH/TO/check-update-release/cd-and-sh (without argument)
 Where:
    -c : category (implies -f)
    -d : output directory (default $output_directory)
@@ -959,11 +967,11 @@ Where:
    -p : pkgsrc directory (default /usr/pkgsrc)
    -r : Include Reverse results in listing
    -R : Skip RubyGems check (in case you are sure you have)
-   -s : skip until match 
-   -S : summary output file (default $summary)
+   -s : skip until match ( useful for partial debug)
+   -S : summary output file (default $summary), see also -d for directory
    -t : Measure time (not implemented yet)
-   -T : Accepts Limited List filenamel  (not implemented yet)
-   -u : cvs update before checking the category
+   -T : Accepts Limited List filename  (not implemented yet)
+   -u : cvs update before checking the category (default false)
    -v : verbose
    -V : show version
    -w : include wip (not implemented yet)
