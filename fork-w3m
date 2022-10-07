@@ -43,25 +43,28 @@ print $opts{'h'};
 if ($opts{'t'}) { $timeout = $opts{'t'};}
 if ($opts{'u'}) { $URL     = $opts{'u'};}
 $command_line = 'curl ' . $URL;
-
+print STDERR sprintf("%04d %s\n", __LINE__, $command_line);
 my($curl) =  open(CURL, "$command_line 2>&1|") ; #|| print STDERR __FILE__
-my($pid) = fork() ;
-if (!defined $pid) { die __FILE__,' ', sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ', "\n";}
-if ($pid == 0 ) {  # child
-#	print STDERR __FILE__,' ', sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], 'pid (',$pid,') ', "\n";
     my @LINES;
     while(<CURL>){
 	push(@LINES, $_);
     } 
     close (CURL);
-    open (W3M, "|w3m -T text/html");
+
+my ($w3m) =  open (W3M, "|w3m -T text/html");
+
+my($pid) = fork() ;
+if (!defined $pid) { die __FILE__,' ', sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ', "\n";}
+if ($pid == 0 ) {  # child
+#	print STDERR __FILE__,' ', sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], 'pid (',$pid,') ', "\n";
+
     foreach my $line (@LINES) {
 	print W3M;
     }
     close(W3M);
 } else { # parent
 #    print STDERR __FILE__,' ', sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], 'pid (',$pid,') ', "\n";    
-    warnTimeout($curl, $timeout, $command_line, (caller 0)[2]);  # set timeout
+    warnTimeout($w3m, $timeout, $command_line, (caller 0)[2]);  # set timeout
 #    print STDERR __FILE__,' ', sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], 'pid (',$pid,') ', "\n";        
 }
 
@@ -73,3 +76,16 @@ __END__
    39  perl fork-w3m  -t 10  w3m -T TEXT ftp://ftp.gnome.org/pub/GNOME/sources/at-spi2-atk/ > /dev/null
    40  perl fork-w3m  -t 10  w3m -T TEXT ftp://ftp.gnome.org/pub/GNOME/sources/at-spi2-atk/ 
 
+
+SX3@makoto 19:25:25/220527(..x11/gnome-themes)% 
+
+perl /export/git-work/check-update/fork-w3m -t 10  -u  ftp://ftp.gnome.org/pub/GNOME/sources/at-spi2-atk/
+0046 curl ftp://ftp.gnome.org/pub/GNOME/sources/at-spi2-atk/
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+curl: (7) Failed to connect to ftp.gnome.org port 21 after 541 ms: Connection refused
+ *****  TIMEOUT :  : curl ftp://ftp.gnome.org/pub/GNOME/sources/at-spi2-atk/ at /export/git-work/check-update/fork-w3m line 24.
+
+
+ perl /export/git-work/check-update/fork-w3m -t 60 -u https://mirror.umd.edu/gnome/sources/caribou/
