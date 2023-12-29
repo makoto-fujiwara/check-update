@@ -33,16 +33,16 @@ at NetBSD BoF (JNUG 17th Annual Meeting 2015 at Tokyo)
 
 ## Files
 
-File name  |.| Description
+File name  |seq| Description
 ---------- |-| -------------
 README.md	      | |  [Markdown](https://help.github.com/articles/markdown-basics/) document  (this file)
 [environment-sample.mk](environment-sample.mk) | | local setup example for environment.mk (to be read from Makefile below)
-[check-update-sample.sh](check-update-sample.sh)|0 | Shell script to drive whole thing, intending to be crontab driven. Rename it to check-update.sh
-[Makefile](Makefile)		         | 1 |  for example,  'make -j 24' for 16 thread machine (BSD makefile)
+[check-update-sample.sh](check-update-sample.sh)|0 | Shell script to drive whole thing, intending to be crontab driven. Rename it to check-update.sh for installation
+[Makefile](Makefile)		         | 1 |  (BSD makefile) for example,  'make -j 24' for 16 thread machine
 [check-update](check-update)             | 2 |  Main Script to find a new version of each package  (perl script)
-[merge-check-update](merge-check-update) | 3 |  Merge by-category results into 00_whole.html  (perl script)
-[summary-diff](summary-diff)             | 4 |  Generate diff to previous run (perl script)
-[collect-stats](collect-stats)	         | 5 |  Compile table from the directory into [00_Summary.html](http://www.ki.nu/~makoto/pkgsrc/check-update/00_Summary.html)  (perl script)
+[merge-check-update](merge-check-update) | 3 |  To merge by-category results into 00_whole.html  (perl script)
+[summary-diff](summary-diff)             | 4 |  To generate diff to previous run (perl script)
+[collect-stats](collect-stats)	         | 5 |  To compile table from the directory into [00_Summary.html](http://www.ki.nu/~makoto/pkgsrc/check-update/00_Summary.html)  (perl script)
 [fork-w3m](fork-w3m)                     | | misc perl script to be called from check-update
 [status2gnuplot](status2gnuplot)	 | | misc perl script to generate graphical statistics
 ### Prerequisite
