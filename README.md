@@ -33,8 +33,8 @@ at NetBSD BoF (JNUG 17th Annual Meeting 2015 at Tokyo)
 
 ## Files
 
-File name  | | Description
----------- | | -------------
+File name  |.| Description
+---------- |-| -------------
 README.md	      | |  [Markdown](https://help.github.com/articles/markdown-basics/) document  (this file)
 [environment-sample.mk](environment-sample.mk) | | local setup example for environment.mk (to be read from Makefile below)
 [check-update-sample.sh](check-update-sample.sh)|0 | Shell script to drive whole thing, intending to be crontab driven. Rename it to check-update.sh
