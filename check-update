@@ -553,6 +553,7 @@ my(%DISTBASE) = qw (
     );
    
 my(%DownLoadAlternative) = qw (
+    cacti	https://files.cacti.net/cacti/linux/
     makeztxt	http://gutenpalm.sourceforge.net/download.php
     pdf-parser	https://blog.didierstevens.com/programs/pdf-tools/
     egenix-mx-base	http://www.egenix.com/products/python/mxBase/mxDateTime/
@@ -944,6 +945,14 @@ Synopsis:
 		[ -T limited-list-name ]
 		[ -x debug_items ]
 		[ -y [123]]
+Invocation type:
+       category:  /PATH/TO/check-update  -c [category] (see also -y for devel split)
+              (add)
+                   -R (not checking rubygem)
+                   -p [for pkgsrc directory]
+                   -s [package name]  ... even skip to that name
+    one package:  cd category/packagename ; /PATH/TO/check-update
+     whole tree:  /PATH/TO/check-update-release/cd-and-sh (without argument)
 Where:
    -c : category (implies -f)
    -d : output directory (default $output_directory)
@@ -958,11 +967,11 @@ Where:
    -p : pkgsrc directory (default /usr/pkgsrc)
    -r : Include Reverse results in listing
    -R : Skip RubyGems check (in case you are sure you have)
-   -s : skip until match 
-   -S : summary output file (default $summary)
+   -s : skip until match ( useful for partial debug)
+   -S : summary output file (default $summary), see also -d for directory
    -t : Measure time (not implemented yet)
-   -T : Accepts Limited List filenamel  (not implemented yet)
-   -u : cvs update before checking the category
+   -T : Accepts Limited List filename  (not implemented yet)
+   -u : cvs update before checking the category (default false)
    -v : verbose
    -V : show version
    -w : include wip (not implemented yet)
@@ -1010,6 +1019,7 @@ sub CheckRubyGems($){
 	if (/^ruby22-[a-z]*/ )		{ $gems_name = 'gem22'; $no_rubygems = 0; last;}  # hard code for ruby2.*
 	if (/^ruby23-[a-z]*/ )		{ $gems_name = 'gem23'; $no_rubygems = 0; last;}  # hard code for ruby2.*
 	if (/^ruby27-[a-z]*/ )		{ $gems_name = 'gem27'; $no_rubygems = 0; last;}  # hard code for ruby2.*
+	if (/^ruby31-[a-z]*/ )		{ $gems_name = 'gem31'; $no_rubygems = 0; last;}  # hard code for ruby2.*
 	elsif (/^ruby2[0-9]*-[a-z]*/ )	{ $gems_name = 'gem';   $no_rubygems = 0; last;}  # hard code for ruby2.*
     }
     close(PKG_INFO);
@@ -2830,7 +2840,7 @@ sub EggSpecial {
     my $string = "$PIP_EXECUTABLE search $PIP_NAME|";
     
     print STDERR sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' '. $string."\n"  if $DEBUG_PYPI; 
-    open(PIP, $string) || die __LINE__ . " problem opening PIP_NAME : :$PIP_NAME: $!\n";
+    open(PIP, $string) || print __LINE__ . " problem opening PIP_NAME : :$PIP_NAME: $!\n" && return (99, '');
     while (<PIP>) {
 	if (/^$PIP_NAME \(([0-9.]+)\)\s*- / ) {
 	    $version = $1;
