@@ -2,8 +2,10 @@
 use strict;
 use Getopt::Std;
 use POSIX qw( SIGKILL );
-
-
+# ---------------------------------------
+#   invoke curl with timeout sentinel
+#        requires w3m and curl
+# ---------------------------------------
 sub warnTimeout($$$$){
     my ($pid)	  = shift;
     my ($TIMEOUT) = shift;
@@ -25,7 +27,9 @@ sub warnTimeout($$$$){
     }
     alarm 0;
 }
-
+# -----------------------------------------------------
+#                 M A I N   P A R T
+# -----------------------------------------------------
 our(@ARGV);
 our(%opts);
 
@@ -55,14 +59,19 @@ my ($w3m) =  open (W3M, "|w3m -T text/html");
 
 my($pid) = fork() ;
 if (!defined $pid) { die __FILE__,' ', sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], ' ', "\n";}
-if ($pid == 0 ) {  # child
+if ($pid == 0 ) {
+# ------------------------------
+#         C H I L D
+# ------------------------------
 #	print STDERR __FILE__,' ', sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], 'pid (',$pid,') ', "\n";
-
     foreach my $line (@LINES) {
 	print W3M;
     }
     close(W3M);
-} else { # parent
+} else {
+# ------------------------------
+#         P A R E N T
+# ------------------------------
 #    print STDERR __FILE__,' ', sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], 'pid (',$pid,') ', "\n";    
     warnTimeout($w3m, $timeout, $command_line, (caller 0)[2]);  # set timeout
 #    print STDERR __FILE__,' ', sprintf("%4d <", __LINE__ ),  (caller 0)[3], '>:', (caller 0)[2], 'pid (',$pid,') ', "\n";        
