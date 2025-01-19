@@ -28,7 +28,7 @@ our $directory = dirname( $path );
 
 $fork_w3m = $directory.'/fork-w3m';
 # ----------------------------------------------------
-
+require './ham_trustedQSL.pm';
 # prototype for subroutine called very early stage :-)
 sub line_num   { ( caller(0) )[2] } # __LINE__ if main
 sub whoami  { ( caller(1) )[3] }
@@ -4694,7 +4694,7 @@ foreach my $dir (@categories) {  # major loop to the line 5188 ... some 530 line
 #   print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '> ', join ("\n", @PackageNames),"\n" if $DEBUG_FAMILY;
     print STDERR sprintf("%4d <", __LINE__), (caller 0)[3], '>  (1a) pattern: ', $SpecialPatternY,"\n" if $DEBUG_FAMILY;
 # ------------------------------------
-##    F O R   E A C H  P A C K A G E     ( to line 3297, some 350 lines )
+##    F O R   E A C H  P A C K A G E     ( to line 5179, some 480 lines )
 #  ------------------------------------
     my ($not_to_list_count) = 0;
     foreach my $PackageName (@PackageNames) { 					# MAJOR_FOREACH
@@ -4987,6 +4987,9 @@ print STDERR sprintf("%4d ", __LINE__ ),
 #		"https://warehouse.python.org/project/".$DISTBASE, $DISTBASE, $SimpleFallBackNo, $PackageName, $R_Package, (caller 0)[3] );}
 	print STDERR sprintf("%4d ", __LINE__ ), 'MASTER_SITE ', $MASTER_SITE, ' DISTBASE ', $DISTBASE, ' cand (', $#candidate,")\n" if $DEBUG_GITHUB;
 
+	if ($dir == 'ham' && $PackageName == 'trustedQSL/') {
+	    @candidate = external::ham_trustedQSL();
+	    }
 	if ($MASTER_SITE =~ m|github.com/| ) {				# MAJOR_IF_THEN_ELSE
 	 # ------------------ GitHubSpecial (3352)
 	    @CANDIDATE = ();
