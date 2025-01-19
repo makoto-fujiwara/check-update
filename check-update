@@ -4642,7 +4642,7 @@ PrintHeader($full_list);	# controlls style for highlighting
 # --------------------------------------------------------------
 ##                   F O R E A C H   D I R
 # --------------------------------------------------------------
-foreach my $dir (@categories) {  # major loop to the line 3261 ... some 400 lines 	# MAJOR_FOREACH
+foreach my $dir (@categories) {  # major loop to the line 5188 ... some 530 lines 	# MAJOR_FOREACH
     my ($console_color) = '';
 
     if ( ! -d $dir)		{ next;}
