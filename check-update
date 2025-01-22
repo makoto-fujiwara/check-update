@@ -4825,9 +4825,11 @@ print STDERR sprintf("%4d ", __LINE__ ), ' Automatic NeedsDot ' if $DEBUG_NEEDS_
 	print STDERR sprintf("%4d ", __LINE__ ), ' HOMEPAGE: ', $HOMEPAGE,"\n" if $DEBUG_RUBYGEM;
         # ------------  not $GEM_PACKAGE to 3181 (some 130 lines)
 
+    } elsif ($dir == 'ham' && $PackageName == 'trustedQSL') { # MAJOR_IF_THEN_ELSE
+	    @candidate = external::ham_trustedQSL();
     } else {	# MAJOR_IF_THEN_ELSE
 
-#  -----------------------------------------------------------------------	
+#  -----------------------------------------------------------------------
 	    print STDERR sprintf("%4d <", __LINE__ ), (caller 0)[2], '> (PackageName) ', $PackageName, ' URL(', join ("\n", @MASTER_SITES), ")\n" if $DEBUG_URL;
 
 	print STDERR sprintf("%4d ", __LINE__ ), '#candidate: ', $#candidate, ' DISTBASE: ', $DISTBASE,"\n" if $DEBUG_GNOME;
@@ -4987,9 +4989,6 @@ print STDERR sprintf("%4d ", __LINE__ ),
 #		"https://warehouse.python.org/project/".$DISTBASE, $DISTBASE, $SimpleFallBackNo, $PackageName, $R_Package, (caller 0)[3] );}
 	print STDERR sprintf("%4d ", __LINE__ ), 'MASTER_SITE ', $MASTER_SITE, ' DISTBASE ', $DISTBASE, ' cand (', $#candidate,")\n" if $DEBUG_GITHUB;
 
-	if ($dir == 'ham' && $PackageName == 'trustedQSL/') {
-	    @candidate = external::ham_trustedQSL();
-	    } 
 	if ($MASTER_SITE =~ m|github.com/| ) {				# MAJOR_IF_THEN_ELSE
 	 # ------------------ GitHubSpecial (3352)
 	    @CANDIDATE = ();
