@@ -28,7 +28,7 @@ our $directory = dirname( $path );
 
 $fork_w3m = $directory.'/fork-w3m';
 # ----------------------------------------------------
-require './pm/ham_trustedQSL.pm';
+require './pm/external-w3m.pm';
 # prototype for subroutine called very early stage :-)
 sub line_num   { ( caller(0) )[2] } # __LINE__ if main
 sub whoami  { ( caller(1) )[3] }
@@ -4825,8 +4825,10 @@ print STDERR sprintf("%4d ", __LINE__ ), ' Automatic NeedsDot ' if $DEBUG_NEEDS_
 	print STDERR sprintf("%4d ", __LINE__ ), ' HOMEPAGE: ', $HOMEPAGE,"\n" if $DEBUG_RUBYGEM;
         # ------------  not $GEM_PACKAGE to 3181 (some 130 lines)
 
-    } elsif ($dir == 'ham' && $PackageName == 'trustedQSL') { # MAJOR_IF_THEN_ELSE
-	    @candidate = external::ham_trustedQSL();
+    } elsif ($dir eq 'ham' && $PackageName eq 'trustedQSL') { # MAJOR_IF_THEN_ELSE
+	    ($DISTBASE, @candidate) = external::ham_trustedQSL();				#1
+    } elsif ($dir eq 'cad' && $PackageName eq 'kicad') { # MAJOR_IF_THEN_ELSE
+	    ($DISTBASE, @candidate) = external::cad_kicad();				#1
     } else {	# MAJOR_IF_THEN_ELSE
 
 #  -----------------------------------------------------------------------
@@ -4907,7 +4909,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
 	    $returnCode = -1;
 	print STDERR sprintf("%4d ", __LINE__ ), 'master_site: ', $master_site, "\n" if $DEBUG_MASTER_SITE ;
     }
-	 if ($HS_PACKAGE) {					# MAJOR_IF_THEN_ELSE
+	 if ($HS_PACKAGE) {	# haskell			# MAJOR_IF_THEN_ELSE
 	$master_site = "http://hackage.haskell.org/package/". $DISTBASE;
 	print STDERR sprintf("%4d ", __LINE__ ), "HS_PACKGE: ", $MASTER_SITE ,"\n" if $DEBUG_DISTBASE;
 	}
@@ -5039,7 +5041,7 @@ print STDERR sprintf("%4d ", __LINE__ ),
 		($returnCode, @candidate) = ParseDirectory($MASTER_SITE, $DISTBASE, $SimpleFallBackNo, $PackageName, $R_Package, (caller 0)[3] );
 
 	}							# MAJOR_IF_THEN_ELSE  ----------------------
-
+    }
 	    push(@CANDIDATE, @candidate);
 	print STDERR sprintf("%4d ", __LINE__ ), join "\n", @CANDIDATE, "\n" if $DEBUG_CANDIDATE ;
 	    $available = PickFromCandidate($DISTBASE,@CANDIDATE);
@@ -5047,7 +5049,6 @@ print STDERR sprintf("%4d ", __LINE__ ),
 ' (PKGBASE) ', $PKGBASE, ' --> http: ', $http_code, 'Now: ', $PKGVERSION, ' $available: ', $available,"\n" if $DEBUG_DISTBASE;        
 
 	# --------------  # $GEM_PACKAGE else end
-    }								# MAJOR_IF_THEN_ELSE # $GEM_PACKAGE else end
 	# ------------------- back to top level of main, add information to each package or make output line
 
 	print STDERR sprintf("%4d ", __LINE__ ), 
