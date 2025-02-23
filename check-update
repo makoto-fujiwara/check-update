@@ -4829,6 +4829,8 @@ print STDERR sprintf("%4d ", __LINE__ ), ' Automatic NeedsDot ' if $DEBUG_NEEDS_
 	    ($DISTBASE, @candidate) = external::ham_trustedQSL();				#1
     } elsif ($dir eq 'cad' && $PackageName eq 'kicad') { # MAJOR_IF_THEN_ELSE
 	    ($DISTBASE, @candidate) = external::cad_kicad();				#1
+    } elsif ($dir eq 'ham' && $PackageName eq 'fldigi') { # MAJOR_IF_THEN_ELSE
+	    ($DISTBASE, @candidate) = external::ham_fldigi();				#1
     } else {	# MAJOR_IF_THEN_ELSE
 
 #  -----------------------------------------------------------------------
