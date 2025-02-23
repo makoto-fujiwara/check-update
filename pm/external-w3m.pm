@@ -34,4 +34,15 @@ sub ham_fldigi($) {
     print STDERR __LINE__ . ' ham/fldigi ' . join (' ', @myCANDIDATE). "\n";
     return ('fldigi', @myCANDIDATE);
 }
+sub cad_cascade($) {
+    my @myCANDIDATE;
+    print STDERR __LINE__ . "\n";
+    my $pid = open(W3M, "w3m -dump -T text https://sourceforge.net/projects/rfcascade/files/cascade/ |");
+    while (<W3M>)  {
+        if (/cascade-([0-9.]+)\s+[0-9\-]+\s/){ print STDERR $_; my $string = $1; push(@myCANDIDATE, $string);}
+    }
+    close(W3M);
+    print STDERR __LINE__ . ' cad/cascade ' . join (' ', @myCANDIDATE). "\n";
+    return ('cascade', @myCANDIDATE);
+}    
 1;
