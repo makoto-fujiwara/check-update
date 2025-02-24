@@ -4845,6 +4845,10 @@ print STDERR sprintf("%4d ", __LINE__ ), ' Automatic NeedsDot ' if $DEBUG_NEEDS_
 	    ($DISTBASE, @candidate) = external::cad_atlc();				#1
     } elsif ($dir eq 'cad' && $PackageName eq       'adms') { # MAJOR_IF_THEN_ELSE
 	    ($DISTBASE, @candidate) = external::cad_adms();				#1
+    } elsif ($dir eq 'cad' && $PackageName eq       'dinotrace') { # MAJOR_IF_THEN_ELSE
+	($DISTBASE, @candidate) = external::cad_dinotrace();				#1
+    } elsif ($dir eq 'cad' && $PackageName =~   /gtk.-wcalc/) { # MAJOR_IF_THEN_ELSE
+	    ($DISTBASE, @candidate) = external::cad_gtk1_wcalc();				#1
     } else {	# MAJOR_IF_THEN_ELSE
 
 #  -----------------------------------------------------------------------
@@ -4878,7 +4882,6 @@ print STDERR sprintf("%4d ", __LINE__ ), '<', (caller 0)[3], '> back from GetDis
 	    if ( ! $SpecialPatternY ) {
 		$SpecialPatternY = $p ; }
 	}
-
 	# ---------------------------------------------------------------
 	if ($MASTER_SITE =~ m|http://downloads.sourceforge.net/sourceforge/([^/]+)/| ) {
 	    $SFProject = $1; }

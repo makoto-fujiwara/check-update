@@ -111,5 +111,26 @@ sub cad_adms($) {
 #    print STDERR __LINE__ . ' cad/adms ' . join (' ', @myCANDIDATE). "\n";
     return ('adms', @myCANDIDATE);
 }
+sub cad_dinotrace($) {
+    print STDERR __LINE__ . "\n";
+    my $pid = open(W3M, "w3m -dump -T text https://github.com/veripool/dinotrace/tags/|");
+    while (<W3M>)  {
+	print STDERR $_;
+        if (/v([0-9.]+[a-z])/i){ print STDERR $_; my $string = $1; push(@myCANDIDATE, $string);}
+    }
+    close(W3M);
+#    print STDERR __LINE__ . ' cad/adms ' . join (' ', @myCANDIDATE). "\n";
+    return ('dinotrace', @myCANDIDATE);
+}
+sub cad_gtk1_wcalc($) {
+    print STDERR __LINE__ . "\n";
+    my $pid = open(W3M, "w3m -dump -T text https://wcalc.sourceforge.net/|");
+    while (<W3M>)  {
+        if (/wcalc-([0-9.]*) Released/){ print STDERR $_; my $string = $1; push(@myCANDIDATE, $string);}
+    }
+    close(W3M);
+#    print STDERR __LINE__ . ' cad/adms ' . join (' ', @myCANDIDATE). "\n";
+    return ('wcalc', @myCANDIDATE);
+}
 
 1;
