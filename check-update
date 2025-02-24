@@ -4827,12 +4827,20 @@ print STDERR sprintf("%4d ", __LINE__ ), ' Automatic NeedsDot ' if $DEBUG_NEEDS_
 
     } elsif ($dir eq 'ham' && $PackageName eq 'trustedQSL') { # MAJOR_IF_THEN_ELSE
 	    ($DISTBASE, @candidate) = external::ham_trustedQSL();				#1
-    } elsif ($dir eq 'cad' && $PackageName eq 'kicad') { # MAJOR_IF_THEN_ELSE
+    } elsif ($dir eq 'cad' && $PackageName      eq 'kicad') { # MAJOR_IF_THEN_ELSE
 	    ($DISTBASE, @candidate) = external::cad_kicad();				#1
-    } elsif ($dir eq 'ham' && $PackageName eq 'fldigi') { # MAJOR_IF_THEN_ELSE
+    } elsif ($dir eq 'ham' && $PackageName      eq 'fldigi') { # MAJOR_IF_THEN_ELSE
 	    ($DISTBASE, @candidate) = external::ham_fldigi();				#1
-    } elsif ($dir eq 'cad' && $PackageName eq 'cascade') { # MAJOR_IF_THEN_ELSE
+    } elsif ($dir eq 'cad' && $PackageName eq      'cascade') { # MAJOR_IF_THEN_ELSE
 	    ($DISTBASE, @candidate) = external::cad_cascade();				#1
+    } elsif ($dir eq 'cad' && $PackageName eq      'iverilog') { # MAJOR_IF_THEN_ELSE
+	    ($DISTBASE, @candidate) = external::cad_iverilog();				#1
+    } elsif ($dir eq 'cad' && $PackageName eq      'covered') { # MAJOR_IF_THEN_ELSE
+	    ($DISTBASE, @candidate) = external::cad_covered();				#1
+    } elsif ($dir eq 'cad' && $PackageName eq      'atlc') { # MAJOR_IF_THEN_ELSE
+	    ($DISTBASE, @candidate) = external::cad_atlc();				#1
+    } elsif ($dir eq 'cad' && $PackageName eq       'adms') { # MAJOR_IF_THEN_ELSE
+	    ($DISTBASE, @candidate) = external::cad_adms();				#1
     } else {	# MAJOR_IF_THEN_ELSE
 
 #  -----------------------------------------------------------------------

@@ -45,4 +45,48 @@ sub cad_cascade($) {
     print STDERR __LINE__ . ' cad/cascade ' . join (' ', @myCANDIDATE). "\n";
     return ('cascade', @myCANDIDATE);
 }    
+sub cad_iverilog($) {
+    my @myCANDIDATE;
+    print STDERR __LINE__ . "\n";
+    my $pid = open(W3M, "w3m -dump -T text https://github.com/steveicarus/iverilog |");
+    # gunzip: unknown compression format
+    while (<W3M>)  {
+        if (/Stable version ([0-9.]+)\S/i){ print STDERR $_; my $string = $1; push(@myCANDIDATE, $string);}
+    }
+    close(W3M);
+    print STDERR __LINE__ . ' cad/iverilog ' . join (' ', @myCANDIDATE). "\n";
+    return ('iverilog', @myCANDIDATE);
+}
+sub cad_covered($) {
+#    print STDERR __LINE__ . "\n";
+    my @myCANDIDATE;
+    my $pid = open(W3M, "w3m -dump -T text https://sourceforge.net/projects/covered/files/covered-stable/|");
+    while (<W3M>)  {
+        if (/covered-([0-9.]+)\S/i){ 		      my $string = $1; push(@myCANDIDATE, $string);}
+    }
+    close(W3M);
+    print STDERR __LINE__ . ' cad/covered ' . join (' ', @myCANDIDATE). "\n";
+    return ('covered', @myCANDIDATE);
+}
+sub cad_atlc($) {
+#    print STDERR __LINE__ . "\n";
+    my $pid = open(W3M, "w3m -dump -T text https://sourceforge.net/projects/atlc/files/atlc/|");
+    while (<W3M>)  {
+        if (/atlc-([0-9.]+)\S/i){ 		   my $string = $1; push(@myCANDIDATE, $string);}
+    }
+    close(W3M);
+    print STDERR __LINE__ . ' cad/atlc ' . join (' ', @myCANDIDATE). "\n";
+    return ('atlc', @myCANDIDATE);
+}
+sub cad_adms($) {
+    print STDERR __LINE__ . "\n";
+    my $pid = open(W3M, "w3m -dump -T text https://sourceforge.net/projects/mot-adms/files/adms-source/2.3/|");
+    while (<W3M>)  {
+        if (/adms-([0-9.]+)\S/i){ print STDERR $_; my $string = $1; push(@myCANDIDATE, $string);}
+    }
+    close(W3M);
+#    print STDERR __LINE__ . ' cad/adms ' . join (' ', @myCANDIDATE). "\n";
+    return ('adms', @myCANDIDATE);
+}
+
 1;
