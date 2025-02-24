@@ -4848,7 +4848,11 @@ print STDERR sprintf("%4d ", __LINE__ ), ' Automatic NeedsDot ' if $DEBUG_NEEDS_
     } elsif ($dir eq 'cad' && $PackageName eq       'dinotrace') { # MAJOR_IF_THEN_ELSE
 	($DISTBASE, @candidate) = external::cad_dinotrace();				#1
     } elsif ($dir eq 'cad' && $PackageName =~   /gtk.-wcalc/) { # MAJOR_IF_THEN_ELSE
-	    ($DISTBASE, @candidate) = external::cad_gtk1_wcalc();				#1
+	    ($DISTBASE, @candidate) = external::cad_gtk1_wcalc();			#1
+    } elsif ($dir eq 'cad' && $PackageName =~   /ng-spice/) { # MAJOR_IF_THEN_ELSE
+	    ($DISTBASE, @candidate) = external::cad_ng_spice();				#1
+    } elsif ($dir eq 'cad' && $PackageName =~   /verilator/) { # MAJOR_IF_THEN_ELSE
+	    ($DISTBASE, @candidate) = external::cad_verilator()				#1
     } else {	# MAJOR_IF_THEN_ELSE
 
 #  -----------------------------------------------------------------------
