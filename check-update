@@ -4833,6 +4833,8 @@ print STDERR sprintf("%4d ", __LINE__ ), ' Automatic NeedsDot ' if $DEBUG_NEEDS_
 	    ($DISTBASE, @candidate) = external::ham_fldigi();				#1
     } elsif ($dir eq 'ham' && $PackageName      eq 'cwtext') { # MAJOR_IF_THEN_ELSE
 	    ($DISTBASE, @candidate) = external::ham_cwtext();				#1
+    } elsif ($dir eq 'ham' && $PackageName      eq 'chirp') { # MAJOR_IF_THEN_ELSE
+	    ($DISTBASE, @candidate) = external::ham_chirp();				#1
     } elsif ($dir eq 'cad' && $PackageName eq      'cascade') { # MAJOR_IF_THEN_ELSE
 	    ($DISTBASE, @candidate) = external::cad_cascade();				#1
     } elsif ($dir eq 'cad' && $PackageName eq      'iverilog') { # MAJOR_IF_THEN_ELSE

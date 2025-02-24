@@ -45,6 +45,18 @@ sub ham_cwtext($) {
     print STDERR __LINE__ . ' ham/cwtext' . join (' ', @myCANDIDATE). "\n";
     return ('cwtext', @myCANDIDATE);
 }
+sub ham_chirp($) {
+    my @myCANDIDATE;
+#    print STDERR __LINE__ . "\n";
+    my $pid = open(W3M, "w3m -dump -T text https://archive.chirpmyradio.com/chirp_next/|");
+    while (<W3M>)  {
+        if (m,next-*([0-9.]*)/,){ 		   my $string = $1; push(@myCANDIDATE, $string);}
+    }
+    close(W3M);
+#    print STDERR __LINE__ . ' ham/chirp' . join (' ', @myCANDIDATE). "\n";
+    return ('chirp', @myCANDIDATE);
+}
+
 sub cad_cascade($) {
     my @myCANDIDATE;
     print STDERR __LINE__ . "\n";
