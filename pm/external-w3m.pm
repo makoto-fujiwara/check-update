@@ -132,5 +132,25 @@ sub cad_gtk1_wcalc($) {
 #    print STDERR __LINE__ . ' cad/adms ' . join (' ', @myCANDIDATE). "\n";
     return ('wcalc', @myCANDIDATE);
 }
+sub cad_ng_spice($) {
+    print STDERR __LINE__ . "\n";
+    my $pid = open(W3M, "w3m -dump -T text https://sourceforge.net/projects/ngspice/files/ng-spice-rework/|");
+    while (<W3M>)  {
+        if (/([0-9.]*)\s*[\d]{4}-[\d]{2}-[\d]{2}\s*\d/){ print STDERR $_; my $string = $1; push(@myCANDIDATE, $string);}
+    }
+    close(W3M);
+#    print STDERR __LINE__ . ' cad-ng-spice ' . join (' ', @myCANDIDATE). "\n";
+    return ('ng-spice', @myCANDIDATE);
+}
+sub cad_verilator($) {
+    print STDERR __LINE__ . "\n";
+    my $pid = open(W3M, "w3m -dump -T text https://verilator.org/guide/latest/install.html|");
+    while (<W3M>)  {
+        if (/Devel ([0-9.]+)/){ print STDERR $_; my $string = $1; push(@myCANDIDATE, $string);}
+    }
+    close(W3M);
+#    print STDERR __LINE__ . ' cad-verilator ' . join (' ', @myCANDIDATE). "\n";
+    return ('verilator', @myCANDIDATE);
+}
 
 1;
