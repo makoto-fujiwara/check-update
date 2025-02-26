@@ -92,17 +92,17 @@ sub cad_covered($) {
     return ('covered', @myCANDIDATE);
 }
 sub cad_atlc($) {
-#    print STDERR __LINE__ . "\n";
+    my @myCANDIDATE;
     my $pid = open(W3M, "w3m -dump -T text https://sourceforge.net/projects/atlc/files/atlc/|");
     while (<W3M>)  {
         if (/atlc-([0-9.]+)\S/i){ 		   my $string = $1; push(@myCANDIDATE, $string);}
     }
     close(W3M);
-    print STDERR __LINE__ . ' cad/atlc ' . join (' ', @myCANDIDATE). "\n";
+#   print STDERR __LINE__ . ' cad/atlc ' . join (' ', @myCANDIDATE). "\n";
     return ('atlc', @myCANDIDATE);
 }
 sub cad_adms($) {
-    print STDERR __LINE__ . "\n";
+    my @myCANDIDATE;
     my $pid = open(W3M, "w3m -dump -T text https://sourceforge.net/projects/mot-adms/files/adms-source/2.3/|");
     while (<W3M>)  {
         if (/adms-([0-9.]+)\S/i){ 		   my $string = $1; push(@myCANDIDATE, $string);}
@@ -112,7 +112,7 @@ sub cad_adms($) {
     return ('adms', @myCANDIDATE);
 }
 sub cad_dinotrace($) {
-    print STDERR __LINE__ . "\n";
+    my @myCANDIDATE;
     my $pid = open(W3M, "w3m -dump -T text https://github.com/veripool/dinotrace/tags/|");
     while (<W3M>)  {
 	print STDERR $_;
@@ -123,7 +123,7 @@ sub cad_dinotrace($) {
     return ('dinotrace', @myCANDIDATE);
 }
 sub cad_gtk1_wcalc($) {
-    print STDERR __LINE__ . "\n";
+    my @myCANDIDATE;
     my $pid = open(W3M, "w3m -dump -T text https://wcalc.sourceforge.net/|");
     while (<W3M>)  {
         if (/wcalc-([0-9.]*) Released/){ print STDERR $_; my $string = $1; push(@myCANDIDATE, $string);}
@@ -133,7 +133,7 @@ sub cad_gtk1_wcalc($) {
     return ('wcalc', @myCANDIDATE);
 }
 sub cad_ng_spice($) {
-    print STDERR __LINE__ . "\n";
+    my @myCANDIDATE;
     my $pid = open(W3M, "w3m -dump -T text https://sourceforge.net/projects/ngspice/files/ng-spice-rework/|");
     while (<W3M>)  {
         if (/([0-9.]*)\s*[\d]{4}-[\d]{2}-[\d]{2}\s*\d/){ print STDERR $_; my $string = $1; push(@myCANDIDATE, $string);}
@@ -143,7 +143,7 @@ sub cad_ng_spice($) {
     return ('ng-spice', @myCANDIDATE);
 }
 sub cad_verilator($) {
-    print STDERR __LINE__ . "\n";
+    my @myCANDIDATE;
     my $pid = open(W3M, "w3m -dump -T text https://verilator.org/guide/latest/install.html|");
     while (<W3M>)  {
         if (/Devel ([0-9.]+)/){ print STDERR $_; my $string = $1; push(@myCANDIDATE, $string);}
@@ -151,6 +151,18 @@ sub cad_verilator($) {
     close(W3M);
 #    print STDERR __LINE__ . ' cad-verilator ' . join (' ', @myCANDIDATE). "\n";
     return ('verilator', @myCANDIDATE);
+}
+sub cad_gerbv($) {
+    my @myCANDIDATE;
+    my $pid = open(W3M, "w3m -dump -T text https://sourceforge.net/projects/gerbv/files/gerbv/|");
+    while (<W3M>)  {
+#	print STDERR __LINE__ . $_;
+        if (/gerbv-([0-9.]+)/){ print STDERR $_; my $string = $1; push(@myCANDIDATE, $string);}
+#gerbv-2.7.0 	2019-01-28
+    }
+    close(W3M);
+#    print STDERR __LINE__ . ' cad-verilator ' . join (' ', @myCANDIDATE). "\n";
+    return ('gerbv', @myCANDIDATE);
 }
 
 1;
