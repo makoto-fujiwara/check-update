@@ -105,7 +105,7 @@ sub cad_adms($) {
     print STDERR __LINE__ . "\n";
     my $pid = open(W3M, "w3m -dump -T text https://sourceforge.net/projects/mot-adms/files/adms-source/2.3/|");
     while (<W3M>)  {
-        if (/adms-([0-9.]+)\S/i){ print STDERR $_; my $string = $1; push(@myCANDIDATE, $string);}
+        if (/adms-([0-9.]+)\S/i){ 		   my $string = $1; push(@myCANDIDATE, $string);}
     }
     close(W3M);
 #    print STDERR __LINE__ . ' cad/adms ' . join (' ', @myCANDIDATE). "\n";
