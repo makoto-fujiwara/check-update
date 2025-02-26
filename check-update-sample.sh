@@ -45,8 +45,10 @@ if [ -d .git ] ; then
 echo ' *** (2) Updating from git repository'
 
 git pull
-HASH=`git log --format="%H" -1  origin/master`
+HASH=`git log --format="%H" -1  origin/release`
+RECENT_DATE=`git log --date=short --pretty=format:"%ad" -100 | sort -r | head -1`
 export HASH
+export RECENT_DATE
 fi
 
 echo ' *** (3) Updating from cvs repository'
