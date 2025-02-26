@@ -4825,7 +4825,7 @@ print STDERR sprintf("%4d ", __LINE__ ), ' Automatic NeedsDot ' if $DEBUG_NEEDS_
 	print STDERR sprintf("%4d ", __LINE__ ), ' HOMEPAGE: ', $HOMEPAGE,"\n" if $DEBUG_RUBYGEM;
         # ------------  not $GEM_PACKAGE to 3181 (some 130 lines)
 
-    } elsif ($dir eq 'ham' && $PackageName eq 'trustedQSL') { # MAJOR_IF_THEN_ELSE
+    } elsif ($dir eq 'ham' && $PackageName      eq 'trustedQSL') { # MAJOR_IF_THEN_ELSE
 	    ($DISTBASE, @candidate) = external::ham_trustedQSL();				#1
     } elsif ($dir eq 'cad' && $PackageName      eq 'kicad') { # MAJOR_IF_THEN_ELSE
 	    ($DISTBASE, @candidate) = external::cad_kicad();				#1
@@ -4835,7 +4835,7 @@ print STDERR sprintf("%4d ", __LINE__ ), ' Automatic NeedsDot ' if $DEBUG_NEEDS_
 	    ($DISTBASE, @candidate) = external::ham_cwtext();				#1
     } elsif ($dir eq 'ham' && $PackageName      eq 'chirp') { # MAJOR_IF_THEN_ELSE
 	    ($DISTBASE, @candidate) = external::ham_chirp();				#1
-    } elsif ($dir eq 'cad' && $PackageName eq      'cascade') { # MAJOR_IF_THEN_ELSE
+    } elsif ($dir eq 'cad' && $PackageName      eq 'cascade') { # MAJOR_IF_THEN_ELSE
 	    ($DISTBASE, @candidate) = external::cad_cascade();				#1
     } elsif ($dir eq 'cad' && $PackageName eq      'iverilog') { # MAJOR_IF_THEN_ELSE
 	    ($DISTBASE, @candidate) = external::cad_iverilog();				#1
@@ -4843,16 +4843,18 @@ print STDERR sprintf("%4d ", __LINE__ ), ' Automatic NeedsDot ' if $DEBUG_NEEDS_
 	    ($DISTBASE, @candidate) = external::cad_covered();				#1
     } elsif ($dir eq 'cad' && $PackageName eq      'atlc') { # MAJOR_IF_THEN_ELSE
 	    ($DISTBASE, @candidate) = external::cad_atlc();				#1
-    } elsif ($dir eq 'cad' && $PackageName eq       'adms') { # MAJOR_IF_THEN_ELSE
+    } elsif ($dir eq 'cad' && $PackageName eq      'adms') { # MAJOR_IF_THEN_ELSE
 	    ($DISTBASE, @candidate) = external::cad_adms();				#1
-    } elsif ($dir eq 'cad' && $PackageName eq       'dinotrace') { # MAJOR_IF_THEN_ELSE
-	($DISTBASE, @candidate) = external::cad_dinotrace();				#1
-    } elsif ($dir eq 'cad' && $PackageName =~   /gtk.-wcalc/) { # MAJOR_IF_THEN_ELSE
+    } elsif ($dir eq 'cad' && $PackageName eq      'dinotrace') { # MAJOR_IF_THEN_ELSE
+	    ($DISTBASE, @candidate) = external::cad_dinotrace();				#1
+    } elsif ($dir eq 'cad' && $PackageName =~      /gtk.-wcalc/) { # MAJOR_IF_THEN_ELSE
 	    ($DISTBASE, @candidate) = external::cad_gtk1_wcalc();			#1
-    } elsif ($dir eq 'cad' && $PackageName =~   /ng-spice/) { # MAJOR_IF_THEN_ELSE
+    } elsif ($dir eq 'cad' && $PackageName eq      'ng-spice') { # MAJOR_IF_THEN_ELSE
 	    ($DISTBASE, @candidate) = external::cad_ng_spice();				#1
-    } elsif ($dir eq 'cad' && $PackageName =~   /verilator/) { # MAJOR_IF_THEN_ELSE
+    } elsif ($dir eq 'cad' && $PackageName eq      'verilator') { # MAJOR_IF_THEN_ELSE
 	    ($DISTBASE, @candidate) = external::cad_verilator()				#1
+    } elsif ($dir eq 'cad' && $PackageName eq      'gerbv') { # MAJOR_IF_THEN_ELSE
+	    ($DISTBASE, @candidate) = external::cad_gerbv()				#1
     } else {	# MAJOR_IF_THEN_ELSE
 
 #  -----------------------------------------------------------------------
