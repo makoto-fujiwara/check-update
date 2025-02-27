@@ -4809,6 +4809,9 @@ print STDERR sprintf("%4d ", __LINE__ ), ' Automatic NeedsDot ' if $DEBUG_NEEDS_
     "     (PKGVERSION)\t", $PKGVERSION , "\n" 
 	    if ($DEBUG_DISTBASE || $DEBUG_SPECIAL_PATTERN || $DEBUG_DISTBASE_EXTRACT);
 
+	@MASTER_SITES	= GetMasterSiteCandidate($dir, $PackageName, $DISTBASE); # only invocation to
+	$MASTER_SITE = $MASTER_SITES[0];  # XXXXXXXXXXXXXX
+	$URL =  $MASTER_SITE;
     if ( ($p = $FAMILY{$PackageName} ) && $GEM_PACKAGE ) {	# MAJOR_IF_THEN_ELSE
 	print STDERR sprintf("%4d ", __LINE__ ), 'p (', $p,') PackageName (',$PackageName, ") \n" if $DEBUG_FAMILY;
 	$DISTBASE = GetVariableValue ($dir, $PackageName, 'DISTNAME');
