@@ -28,7 +28,13 @@ our $directory = dirname( $path );
 
 $fork_w3m = $directory.'/fork-w3m';
 # ----------------------------------------------------
+my ($argv)    = join ' ', @ARGV;	# to show at Stats()
 require './pm/external-w3m.pm';
+
+$SIG{'HUP'}  = \&SignalHanderINT; ## (hang up)
+$SIG{'INT'}  = \&SignalHanderINT; ## (interrupt)
+$SIG{'QUIT'}  = \&SignalHanderINT;## (quit)
+ 
 # prototype for subroutine called very early stage :-)
 sub line_num   { ( caller(0) )[2] } # __LINE__ if main
 sub whoami  { ( caller(1) )[3] }
@@ -1003,7 +1009,13 @@ HELP2
 #        s:  sourceforge
 #        S:  stats number
 #        r:  rubygems
-
+sub SignalHanderINT($$$) {
+    my $sig =        shift; 
+#    my $start_time = shift;
+#    my $argv = shift;
+    Stats($start_time, $argv);
+    die();
+}
 sub CheckRubyGems($){
     my($skip_rubygems_check ) = shift;
     # Check if required packages are installed
@@ -4532,7 +4544,7 @@ sub site_alive(%) {
 my ($PackageStart);	# For timing, not used for now
 my ($PackageEnd);
 
-my ($argv)    = join ' ', @ARGV;	# to show at Stats()
+#my ($argv)    = join ' ', @ARGV;	# to show at Stats()w
 getopts( 'c:Dd:fFhHM:mnP:p:qrRs:S:tT:uvVwWx:y:', \%opts);
 
 if ($opts{'b'}) { $option_batch++;}	# used be default, not implemented
