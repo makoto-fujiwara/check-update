@@ -4870,6 +4870,9 @@ print STDERR sprintf("%4d ", __LINE__ ), ' Automatic NeedsDot ' if $DEBUG_NEEDS_
 	    ($DISTBASE, @candidate) = external::cad_verilator()				#1
     } elsif ($dir eq 'cad' && $PackageName eq      'gerbv') { # MAJOR_IF_THEN_ELSE
 	    ($DISTBASE, @candidate) = external::cad_gerbv()				#1
+    } elsif ($dir eq 'math' && $PackageName eq      'cgal') { # MAJOR_IF_THEN_ELSE
+	print STDERR __LINE__ . ' cgal' . "\n";
+	    ($DISTBASE, @candidate) = external::math_cgal()
     } else {	# MAJOR_IF_THEN_ELSE
 
 #  -----------------------------------------------------------------------
