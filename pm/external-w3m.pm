@@ -144,7 +144,7 @@ sub cad_ng_spice($) {
 }
 sub cad_verilator($) {
     my @myCANDIDATE;
-    my $pid = open(W3M, "w3m -dump -T text https://verilator.org/guide/latest/install.html|");
+    my $pid = open(W3M, "w3m -dump -T text https://verilator.org/guide/latest/install.html -o accept_encoding='identity;q=0'|");
     while (<W3M>)  {
         if (/Devel ([0-9.]+)/){ print STDERR $_; my $string = $1; push(@myCANDIDATE, $string);}
     }
@@ -163,6 +163,17 @@ sub cad_gerbv($) {
     close(W3M);
 #    print STDERR __LINE__ . ' cad-verilator ' . join (' ', @myCANDIDATE). "\n";
     return ('gerbv', @myCANDIDATE);
+}
+sub math_cgal($) {
+    my @myCANDIDATE;
+    my $pid = open(W3M, "w3m -dump -T text https://github.com/CGAL/cgal/releases -o accept_encoding='identity;q=0'|");
+    #gunzip: unknown compression format
+#   print STDERR __LINE__ . $_;
+    while (<W3M>)  {
+        if (/CGAL-([0-9.]+).*release/i ){ print STDERR $_; my $string = $1; push(@myCANDIDATE, $string);}
+    }
+    close(W3M);
+    return ('cgal', @myCANDIDATE);
 }
 
 1;
