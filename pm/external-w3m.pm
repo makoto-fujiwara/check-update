@@ -174,5 +174,16 @@ sub math_cgal($) {
     close(W3M);
     return ('cgal', @myCANDIDATE);
 }
+sub cad_gnucap($) {
+    my @myCANDIDATE;
+    my $pid = open(W3M, "w3m -dump -T text http://git.savannah.gnu.org/cgit/gnucap.git |");
+    #gunzip: unknown compression format
+#   print STDERR __LINE__ . $_;
+    while (<W3M>)  {
+        if (/gnucap-([0-9.]+)\.tar\.gz/ ){ print STDERR $_; my $string = $1; push(@myCANDIDATE, $string);}
+    }
+    close(W3M);
+    return ('gnucap', @myCANDIDATE);
+}
 
 1;
