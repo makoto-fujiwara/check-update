@@ -71,7 +71,7 @@ sub cad_cascade($) {
 sub cad_iverilog($) {
     my @myCANDIDATE;
     print STDERR __LINE__ . "\n";
-    my $pid = open(W3M, "w3m -dump -T text https://github.com/steveicarus/iverilog |");
+    my $pid = open(W3M, "w3m -dump -T text https://github.com/steveicarus/iverilog -o accept_encoding='identity;q=0' |");
     # gunzip: unknown compression format
     while (<W3M>)  {
         if (/Stable version ([0-9.]+)\S/i){ print STDERR $_; my $string = $1; push(@myCANDIDATE, $string);}
@@ -113,9 +113,8 @@ sub cad_adms($) {
 }
 sub cad_dinotrace($) {
     my @myCANDIDATE;
-    my $pid = open(W3M, "w3m -dump -T text https://github.com/veripool/dinotrace/tags/|");
+    my $pid = open(W3M, "w3m -dump -T text https://github.com/veripool/dinotrace/tags/ -o accept_encoding='identity;q=0'|");
     while (<W3M>)  {
-	print STDERR $_;
         if (/v([0-9.]+[a-z])/i){ print STDERR $_; my $string = $1; push(@myCANDIDATE, $string);}
     }
     close(W3M);
