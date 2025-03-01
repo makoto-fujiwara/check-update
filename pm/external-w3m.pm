@@ -185,5 +185,19 @@ sub cad_gnucap($) {
     close(W3M);
     return ('gnucap', @myCANDIDATE);
 }
+sub cad_mcalc($) {
+    my @myCANDIDATE;
+    my $pid = open(W3M, "w3m -dump -T text https://sourceforge.net/projects/mcalc/files/mcalc/|");
+    #gunzip: unknown compression format
+#   print STDERR __LINE__ . $_;
+    while (<W3M>)  {
+        if (/mcalc-([0-9.]+)/ ){ print STDERR $_; my $string = $1; push(@myCANDIDATE, $string);}
+    }
+    close(W3M);
+    return ('mcalc', @myCANDIDATE);
+}
+
+
+
 
 1;
