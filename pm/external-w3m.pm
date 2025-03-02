@@ -197,6 +197,44 @@ sub cad_mcalc($) {
     return ('mcalc', @myCANDIDATE);
 }
 
+sub cad_qcad($) {
+    my @myCANDIDATE;
+    my $pid = open(W3M, "w3m -dump -T text https://www.qcad.org/en/download|");
+    #gunzip: unknown compression format
+#   print STDERR __LINE__ . $_;
+    while (<W3M>)  {
+        if (/Version: ([0-9.]+)/ ){ print STDERR $_; my $string = $1; push(@myCANDIDATE, $string);}
+    }
+    close(W3M);
+    return ('mcalc', @myCANDIDATE);
+}
+sub chat_irssi($) {
+    my @myCANDIDATE;
+    my $pid = open(W3M, "w3m -dump -T text https://github.com/irssi/irssi/tags -o accept_encoding='identity;q=0'|");
+    while (<W3M>)  {
+	print STDERR __LINE__ . $_;
+        if (/([0-9.]+)/ ){ print STDERR $_; my $string = $1; push(@myCANDIDATE, $string);}
+    }
+    close(W3M);
+    return ('irssi', @myCANDIDATE);
+}
+sub chat_irssi_html($) {
+    my @myCANDIDATE;
+    my $pid = open(W3M, "w3m -dump_source https://github.com/irssi/irssi/tags -o accept_encoding='identity;q=0'|");
+    while (<W3M>)  {
+#        if (m,/irssi/irssi/,) {
+#	print STDERR __LINE__ .' '. $_;
+#	}
+             #https://github.com/irssi/irssi/releases/tag/1.4.5
+#             /irssi/irssi/releases/tag/1.2.2"  
+#       avoid to pick 1.5 from 1.5+
+        if (m,/irssi/irssi/releases/tag/([0-9\.]+)\", )
+	{ print STDERR $_; my $string = $1; push(@myCANDIDATE, $string);}
+    }
+    close(W3M);
+    return ('irssi', @myCANDIDATE);
+}
+
 
 
 
