@@ -4880,6 +4880,8 @@ print STDERR sprintf("%4d ", __LINE__ ), ' Automatic NeedsDot ' if $DEBUG_NEEDS_
 	    ($DISTBASE, @candidate) = external::cad_qcad()				#1
     } elsif ($dir eq 'chat' && $PackageName eq      'irssi') { # MAJOR_IF_THEN_ELSE
 	    ($DISTBASE, @candidate) = external::chat_irssi_html()			#1
+    } elsif ($dir eq 'devel' && $PackageName eq      'astyle') { # MAJOR_IF_THEN_ELSE
+	    ($DISTBASE, @candidate) = external::devel_astyle()			#1
     } else {	# MAJOR_IF_THEN_ELSE
 
 #  -----------------------------------------------------------------------

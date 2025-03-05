@@ -234,8 +234,14 @@ sub chat_irssi_html($) {
     close(W3M);
     return ('irssi', @myCANDIDATE);
 }
-
-
-
-
+sub devel_astyle($) {
+    my @myCANDIDATE;
+    my $pid = open(W3M, "w3m -dump https://sourceforge.net/projects/astyle/files/astyle/|");
+    while (<W3M>)  {
+        if (/astyle ([0-9.]+)/)
+	{ 		   my $string = $1; push(@myCANDIDATE, $string);}
+    }
+    close(W3M);
+    return ('astly', @myCANDIDATE);
+}
 1;
