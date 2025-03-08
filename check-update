@@ -4882,6 +4882,8 @@ print STDERR sprintf("%4d ", __LINE__ ), ' Automatic NeedsDot ' if $DEBUG_NEEDS_
 	    ($DISTBASE, @candidate) = external::chat_irssi_html()			#1
     } elsif ($dir eq 'devel' && $PackageName eq      'astyle') { # MAJOR_IF_THEN_ELSE
 	    ($DISTBASE, @candidate) = external::devel_astyle()			#1
+    } elsif ($dir eq 'ham' && $PackageName eq      'grig') { # MAJOR_IF_THEN_ELSE
+	    ($DISTBASE, @candidate) = external::ham_grig()			#1
     } else {	# MAJOR_IF_THEN_ELSE
 
 #  -----------------------------------------------------------------------

@@ -244,4 +244,14 @@ sub devel_astyle($) {
     close(W3M);
     return ('astly', @myCANDIDATE);
 }
+sub ham_grig($) {
+    my @myCANDIDATE;
+    my $pid = open(W3M, "w3m -dump https://sourceforge.net/projects/groundstation/files/Grig/|");
+    while (<W3M>)  {
+        if (/([0-9.]+)/)
+	{ 		   my $string = $1; push(@myCANDIDATE, $string);}
+    }
+    close(W3M);
+    return ('grig', @myCANDIDATE);
+}
 1;
